@@ -1,0 +1,305 @@
+{
+  "id": "tsom",
+  "name": "ServiceNow Telecom Service Operations Management (TSOM)",
+  "app": "TSOM",
+  "confidence": "verify",
+  "why": "TSOM is purpose-built for communications service providers (CSPs). It manages the lifecycle of telecom services—from order capture through activation, assurance, and billing—using telecom-specific data models, inventory, and orchestration.",
+  "primary_table": "sn_tsom_service",
+  "tables": ["sn_tsom_service", "sn_tsom_service_order", "sn_tsom_network_element", "sn_tsom_circuit", "sn_tsom_inventory_item", "sn_tsom_alarm", "sn_tsom_service_instance", "cmdb_ci", "cmdb_ci_network", "cmdb_ci_service"],
+  "roles": ["sn_tsom.admin", "sn_tsom.user", "sn_tsom.reader", "admin"],
+  "breadcrumbs": [
+    "All > Telecom Service Operations > Home",
+    "All > Telecom Service Operations > Inventory > ...",
+    "All > Telecom Service Operations > Service Inventory > ...",
+    "All > Telecom Service Operations > Network Inventory > ...",
+    "All > Telecom Service Operations > Service Orders > All",
+    "All > Telecom Service Operations > Alarms > All",
+    "All > Telecom Service Operations > Administration > ..."
+  ],
+  "guided_setup": {"available": true, "path": "All > Telecom Service Operations > Administration > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Service order activation flow", "Alarm correlation flow", "Service fulfillment flow"],
+    "playbooks": ["Service activation playbook", "Alarm response playbook"],
+    "integrations": ["OSS/BSS sync (REST/SOAP)", "Network discovery (SNMP/SSH)", "Alarm ingestion (REST/EM)", "Billing integration (REST/SFTP)", "Provisioning (NETCONF/REST)"],
+    "metrics": ["Service activation time", "Alarm resolution time", "Circuit uptime", "Service availability"],
+    "dashboards": ["Service Operations dashboard", "Network health dashboard"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "sn_tsom_service.number", "why": "Auto-number; unique service identifier"},
+      {"field": "sn_tsom_service.state", "why": "Draft → Pending → Active → Suspended → Retired"},
+      {"field": "sn_tsom_service.service_type", "why": "Voice, Data, VPN, TV, Mobile"},
+      {"field": "sn_tsom_service.customer", "why": "Who owns the service"},
+      {"field": "sn_tsom_network_element.ip_address", "why": "Management IP address"},
+      {"field": "sn_tsom_circuit.bandwidth", "why": "Circuit capacity (e.g., 1Gbps)"},
+      {"field": "sn_tsom_alarm.severity", "why": "Critical, Major, Minor, Warning"}
+    ],
+    "useful": ["sn_tsom_service.assigned_to", "sn_tsom_network_element.location", "sn_tsom_circuit.termination_a", "sn_tsom_circuit.termination_b"],
+    "optional": ["sn_tsom_inventory_item.photo", "sn_tsom_alarm.comments"],
+    "related_lists": ["sn_tsom_service > sn_tsom_circuit", "sn_tsom_service > sn_tsom_network_element", "sn_tsom_network_element > sn_tsom_alarm"]
+  },
+  "must_know": [
+    "TSOM is a scoped application (com.snc.tsom); cross-scope access required for global table access.",
+    "Service Orders drive provisioning; Services are the logical result.",
+    "Alarms correlate to network elements, which relate to services.",
+    "Inventory items (ONTs, modems, SIMs) are tracked separately from services."
+  ],
+  "mistakes": [
+    "Creating services without a customer",
+    "Ignoring territory/region constraints",
+    "Creating duplicate circuits",
+    "Forgetting activation date",
+    "Mixing physical and logical inventory"
+  ],
+  "labs": [],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
+  "quiz": ["What is the primary table for telecom services?", "What table stores physical network elements?", "What is the difference between a service and a service order?"]
+},
+{
+  "id": "csm",
+  "name": "ServiceNow Customer Service Management (CSM)",
+  "app": "CSM",
+  "confidence": "high",
+  "why": "ITSM pointed outward: cases, accounts, entitlements, SLAs against paying customers, and a portal that customers actually use. CSM includes a customer-facing portal, agent workspace, and entitlement-based SLAs.",
+  "primary_table": "sn_customerservice_case",
+  "tables": ["sn_customerservice_case", "customer_account", "sn_customerservice_consumer", "sn_customerservice_entitlement", "sn_customerservice_sla", "sn_customerservice_product"],
+  "roles": ["sn_customerservice_agent", "sn_customerservice_manager", "sn_customerservice.customer", "admin"],
+  "breadcrumbs": [
+    "All > Customer Service > Cases > All",
+    "All > Customer Service > Accounts",
+    "All > Customer Service > Consumers",
+    "All > Customer Service > Administration > Entitlements",
+    "All > Customer Service > Administration > Case Types",
+    "All > Customer Service > Customer Service Portal",
+    "All > Customer Service > Administration > ..."
+  ],
+  "guided_setup": {"available": true, "path": "All > Customer Service > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Case assignment / escalation", "Entitlement validation on create", "Customer satisfaction survey", "Case → work order"],
+    "playbooks": ["CSM playbooks (case types)", "Agent assist / recommended actions"],
+    "integrations": ["Email, chat, messaging spokes (Twilio/WhatsApp)", "Salesforce / ERP account sync", "CSM portal + Knowledge"],
+    "metrics": ["First contact resolution", "CSAT", "Case backlog by account", "Entitlement breach count"],
+    "dashboards": ["CSM Manager dashboard", "Agent workspace analytics"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "sn_customerservice_case.account", "why": "Everything (entitlement, SLA, reporting) hangs off the account."},
+      {"field": "sn_customerservice_case.contact", "why": "Who reported it; drives auth and comms."},
+      {"field": "sn_customerservice_case.entitlement", "why": "Decides whether service is included."},
+      {"field": "sn_customerservice_case.case_type", "why": "Selects workflow and required fields."},
+      {"field": "sn_customerservice_case.priority", "why": "Contractual, not internal, promise."}
+    ],
+    "useful": ["sn_customerservice_case.product", "sn_customerservice_case.channel", "sn_customerservice_case.short_description", "sn_customerservice_case.assignment_group"],
+    "optional": ["sn_customerservice_case.billing_fields", "sn_customerservice_case.special_handling_notes"],
+    "related_lists": ["sn_customerservice_case > sn_customerservice_sla", "customer_account > sn_customerservice_case", "sn_customerservice_case > sn_customerservice_product"]
+  },
+  "must_know": [
+    "Entitlement checks are the CSM-specific twist; without them SLAs are guesses.",
+    "External users are real users with ACLs — test as the customer, not as admin.",
+    "Case types are the CSM equivalent of catalog items: they define what an agent can even do."
+  ],
+  "mistakes": ["Skipping entitlement setup", "Testing the portal as admin", "One case type for every request"],
+  "labs": [],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
+  "quiz": ["What decides if service is included?", "Where do customer-visible SLAs come from?", "What selects the case workflow?"]
+},
+{
+  "id": "fsm",
+  "name": "ServiceNow Field Service Management (FSM)",
+  "app": "FSM",
+  "confidence": "verify",
+  "why": "Scheduling + mobile work: work orders, tasks, territories, and the constraint engine. The visual (dispatch map) hides a lot of configuration.",
+  "primary_table": "wm_order",
+  "tables": ["wm_order", "wm_task", "wm_schedule_plan", "wm_territory", "wm_agent", "wm_crew"],
+  "roles": ["wm_admin", "wm_dispatcher", "wm_agent", "admin"],
+  "breadcrumbs": [
+    "All > Field Service Management > Work Orders > All",
+    "All > Field Service Management > Dispatch > Dispatch Board",
+    "All > Field Service Management > Administration > Territories",
+    "All > Field Service Management > Administration > Scheduling > Constraints"
+  ],
+  "guided_setup": {"available": true, "path": "All > Field Service Management > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Work order → task → assignment → schedule", "Travel/time tracking", "Mobile agent sync"],
+    "playbooks": ["Dispatch and closure playbooks"],
+    "integrations": ["Google Maps / travel time", "Mobile (Now Mobile app)", "CSM/ITSM work order creation"],
+    "metrics": ["On-time arrival", "First-time fix rate", "Utilization", "Travel time %"],
+    "dashboards": ["Dispatch dashboard", "Field agent performance"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "wm_order.territory", "why": "Primary routing constraint; wrong territory = unassignable work."},
+      {"field": "wm_order.scheduled_start", "why": "Drives the whole scheduling engine and customer promise."},
+      {"field": "wm_order.assigned_agent", "why": "Who actually does the work."},
+      {"field": "wm_task.skills", "why": "Skill matching decides eligibility."},
+      {"field": "wm_order.location", "why": "Travel time and dispatch map depend on coordinates."}
+    ],
+    "useful": ["wm_order.priority", "wm_order.estimated_duration", "wm_task.parts_required", "wm_task.customer_signature"],
+    "optional": ["wm_order.billing_codes", "wm_order.equipment_details"],
+    "related_lists": ["wm_order > wm_task", "wm_order > wm_agent", "wm_agent > wm_territory"]
+  },
+  "must_know": [
+    "Work order = the business ask; task = the visit; assignment = who/when. Three tables, three concepts.",
+    "Constraints (skills, territory, hours) are configuration, not code — but bad data makes the engine look broken.",
+    "Mobile behavior must be tested on Now Mobile, not desktop."
+  ],
+  "mistakes": ["No territories (then everything is unschedulable)", "Skipping skill data", "Testing only as dispatcher"],
+  "labs": [],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 45, "prove": 10},
+  "quiz": ["Difference between work order, task, assignment?", "What are the three main scheduling constraints?"]
+},
+{
+  "id": "sales-crm",
+  "name": "ServiceNow Sales CRM",
+  "app": "Sales",
+  "confidence": "verify",
+  "why": "ServiceNow Sales CRM is the platform's customer relationship management application, built on the same ServiceNow platform as ITSM and CSM but optimized for sales pipeline management. Sales CRM tracks leads, opportunities, accounts, contacts, quotes, and orders—giving sales teams a single system of record from prospect to closed deal.",
+  "primary_table": "sn_sales_opportunity",
+  "tables": ["sn_sales_account", "sn_sales_contact", "sn_sales_lead", "sn_sales_opportunity", "sn_sales_quote", "sn_sales_order", "sn_sales_product"],
+  "roles": ["sn_sales.admin", "sn_sales.user", "sn_sales.reader", "admin"],
+  "breadcrumbs": [
+    "All > Sales > Accounts > All",
+    "All > Sales > Contacts > All",
+    "All > Sales > Leads > All",
+    "All > Sales > Opportunities > All",
+    "All > Sales > Quotes > All",
+    "All > Sales > Orders > All",
+    "All > Sales > Products > All",
+    "All > Sales > Administration > Price Lists"
+  ],
+  "guided_setup": {"available": true, "path": "All > Sales > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Lead → Opportunity conversion", "Quote → Order conversion", "Opportunity stage progression", "Lead assignment"],
+    "playbooks": ["Sales playbooks (lead qualification, opportunity stages)", "Quote approval workflows"],
+    "integrations": ["Email (inbound/outbound)", "ERP (order push)", "Accounting (invoice push)", "Marketing automation (lead import)", "E-signature (DocuSign)", "Payment gateway"],
+    "metrics": ["Pipeline value", "Win rate", "Average deal size", "Sales cycle length", "Lead conversion rate"],
+    "dashboards": ["Sales pipeline dashboard", "Sales rep performance", "Revenue forecast"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "sn_sales_account.name", "why": "Customer account name; drives entitlement and SLA."},
+      {"field": "sn_sales_opportunity.stage", "why": "Prospecting → Qualification → Proposal → Negotiation → Closed Won/Lost."},
+      {"field": "sn_sales_opportunity.amount", "why": "Expected deal value; drives pipeline forecasting."},
+      {"field": "sn_sales_opportunity.expected_close_date", "why": "When the deal is expected to close; drives forecasting."},
+      {"field": "sn_sales_quote.valid_until", "why": "Quote expiration date."},
+      {"field": "sn_sales_quote.total_amount", "why": "Total quote amount."}
+    ],
+    "useful": ["sn_sales_contact.email", "sn_sales_contact.phone", "sn_sales_opportunity.priority", "sn_sales_product.sku", "sn_sales_product.list_price"],
+    "optional": ["sn_sales_order.billing_fields", "sn_sales_order.special_handling_notes"],
+    "related_lists": ["sn_sales_account > sn_sales_contact", "sn_sales_account > sn_sales_opportunity", "sn_sales_opportunity > sn_sales_quote", "sn_sales_quote > sn_sales_order"]
+  },
+  "must_know": [
+    "Sales CRM is built on the same platform as ITSM and CSM but optimized for sales pipeline management.",
+    "Lead → Opportunity → Quote → Order is the standard sales flow.",
+    "Entitlement checks are the CSM-specific twist; Sales CRM uses opportunity stages instead.",
+    "External users are real users with ACLs — test as the sales rep, not as admin."
+  ],
+  "mistakes": ["Creating opportunities without accounts", "Not setting expected close date", "One opportunity for multiple products", "Not updating stage as deal progresses"],
+  "labs": [],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
+  "quiz": ["What field determines which sales workflow fires?", "What is the difference between an account and a contact?", "What table stores customer accounts?"]
+},
+{
+  "id": "ham",
+  "name": "ServiceNow Hardware Asset Management (HAM)",
+  "app": "ITAM",
+  "confidence": "high",
+  "why": "Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT Asset Management (ITAM). HAM tracks physical IT assets—laptops, servers, monitors, phones, printers, and other hardware—from procurement through disposal.",
+  "primary_table": "alm_asset",
+  "tables": ["alm_asset", "alm_hardware", "alm_license", "alm_asset_model", "ast_contract", "cmdb_ci_hardware", "cmdb_model"],
+  "roles": ["asset", "itil", "sam", "sn_hamp_admin", "admin"],
+  "breadcrumbs": [
+    "All > Asset Management > Assets > All",
+    "All > Asset Management > Assets > Hardware",
+    "All > Asset Management > Assets > Software",
+    "All > Asset Management > Administration > Asset Models",
+    "All > Asset Management > Vendors > All",
+    "All > Asset Management > Locations",
+    "All > Asset Management > Contracts > All",
+    "All > Asset Management > Asset Lifecycle"
+  ],
+  "guided_setup": {"available": true, "path": "All > Asset Management > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Asset lifecycle flows (procure → receive → deploy → maintain → retire)", "License reconciliation jobs (SAM Pro)", "Contract renewal notifications"],
+    "playbooks": ["Asset lifecycle playbooks", "SAM remediation guidance"],
+    "integrations": ["Service Graph Connectors (Intune/SCCM/Jamf → hardware + software installs)", "Oracle/SAP/Microsoft publisher connectors (SAM Pro)"],
+    "metrics": ["License compliance position", "Software spend vs entitlement", "Assets under management", "Contract expiry in 90 days"],
+    "dashboards": ["Asset Manager dashboard", "SAM license position dashboard"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "alm_asset.asset_tag", "why": "Human key; must be unique and sticker-aligned."},
+      {"field": "alm_asset.category", "why": "Determines which fields appear."},
+      {"field": "alm_asset.state", "why": "Lifecycle truth: on order / in stock / in use / retired."},
+      {"field": "alm_asset.serial_number", "why": "Manufacturer serial; warranty link."},
+      {"field": "alm_asset.purchase_date", "why": "Warranty start, depreciation."},
+      {"field": "alm_asset.assigned_to", "why": "Custody. Missing owner = lost asset."}
+    ],
+    "useful": ["alm_asset.cost", "alm_asset.cost_center", "alm_asset.department", "alm_asset.location", "alm_hardware.serial_number", "alm_hardware.mac_address"],
+    "optional": ["alm_asset.depreciation_fields", "alm_asset.reserved_for", "alm_asset.beneficiary"],
+    "related_lists": ["alm_asset > cmdb_ci (linked CI)", "alm_asset > ast_contract (contracts)", "alm_asset > alm_license (licenses)"]
+  },
+  "must_know": [
+    "Assets (alm_asset) and CIs (cmdb_ci) are different records that point at each other. One asset can map to one CI; not everything is an asset.",
+    "SAM Pro needs the software install data feed (SCCM/Intune/agent) or the license position is fiction.",
+    "Licence compliance = rights (entitlement) vs installs/usage; you need both sides."
+  ],
+  "mistakes": ["Buying assets without creating asset records first", "Not tracking software licenses", "Assets 'disappear' after employee leaves", "Keeping expired contracts"],
+  "labs": [],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 45, "prove": 10},
+  "quiz": ["What is the difference between alm_asset and cmdb_ci?", "Which table holds software license information?", "What are the asset lifecycle states?"]
+},
+{
+  "id": "itsm",
+  "name": "ServiceNow IT Service Management (ITSM)",
+  "app": "ITSM",
+  "confidence": "high",
+  "why": "ITSM is ServiceNow's flagship application for managing IT services. ITSM covers Incident, Problem, Change, Change Task, Knowledge, and Configuration Management. It is the reference implementation of the platform—every other module follows the same patterns.",
+  "primary_table": "incident",
+  "tables": ["incident", "problem", "change_request", "change_task", "task", "task_sla", "cmdb_ci", "kb_knowledge"],
+  "roles": ["itil", "sn_incident.read", "sn_incident.write", "sn_change.write", "sn_problem.write", "admin"],
+  "breadcrumbs": [
+    "All > Incident > All",
+    "All > Problem > All",
+    "All > Change > All",
+    "All > Change > Tasks > All",
+    "All > Knowledge > All",
+    "All > CMDB > CI List",
+    "All > Service Catalog > All",
+    "All > ITSM > Administration > ..."
+  ],
+  "guided_setup": {"available": true, "path": "All > ITSM > Guided Setup", "confidence": "verify"},
+  "oob": {
+    "flows": ["Incident assignment / escalation", "Problem → known error → fix task", "Change approval flow (CAB / manager approvals)", "Knowledge article approval"],
+    "playbooks": ["Incident response playbook", "Change management playbook", "Major incident management playbook"],
+    "integrations": ["Email (inbound/outbound)", "Discovery (MID Server)", "Remote Table (external CMDB)", "REST Message (outbound API)", "Event Management (alerts → incidents)"],
+    "metrics": ["Mean time to resolve (MTTR)", "First contact resolution rate", "Change success rate", "Incident volume by priority", "SLA breach %"],
+    "dashboards": ["Incident Overview", "Service Desk Dashboard", "Change Management Dashboard", "Problem Overview"]
+  },
+  "fields": {
+    "critical": [
+      {"field": "incident.number", "why": "Auto-number; the only identifier users quote. Never edit by hand."},
+      {"field": "incident.caller_id", "why": "Who is affected. Wrong caller = wrong SLA, wrong comms, wrong reports."},
+      {"field": "incident.short_description", "why": "Mandatory by dictionary on OOB; the searchable summary."},
+      {"field": "incident.assignment_group", "why": "Routing. If this is empty, nothing else you configure will get the ticket worked."},
+      {"field": "incident.state", "why": "Drives SLA pause/resume, close rules, and reporting. Changing state order breaks automation."},
+      {"field": "incident.impact + urgency", "why": "These compute priority. Priority is usually derived, not typed."},
+      {"field": "incident.close_code + close_notes", "why": "Enforced at close by OOB UI policy; blank closes corrupt reporting."}
+    ],
+    "useful": ["incident.category / subcategory", "incident.cmdb_ci", "incident.assigned_to", "problem.caused_by", "change_request.implementation_plan"],
+    "optional": ["incident.location", "incident.department", "change_request.backout_plan", "problem.workaround"],
+    "related_lists": ["incident > Task SLA", "incident > Affected CIs", "incident > Approvers", "change_request > Change Tasks", "problem > Related Incidents"]
+  },
+  "must_know": [
+    "incident extends task. Everything you learn about 'task' fields applies to incident, problem, change, and catalog tasks.",
+    "Priority = f(impact, urgency) through a matrix (Data Lookup), not something agents type.",
+    "An SLA is a task_sla record attached to the incident; the SLA definition decides start/pause/stop conditions.",
+    "Closing requires close_code + close_notes in OOB; that is a UI policy, so it is invisible in the dictionary."
+  ],
+  "mistakes": ["Adding a custom field when an unused OOB field already exists", "Editing state choices without checking SLA and flow conditions", "Testing as admin only — admin bypasses ACLs", "Making assignment_group optional 'to go faster'", "Deleting demo users, which breaks OOB flow references"],
+  "labs": ["labs/LAB-01-REST-MESSAGE.md"],
+  "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
+  "quiz": ["Which fields determine priority, and where is that matrix defined?", "What record type implements an SLA on a given incident?", "Name three things that break if you reorder state values."]
+}
+  ]
+}

@@ -1,0 +1,18 @@
+title: ServiceNow Module Guides
+description: Getting started guides for ServiceNow TSOM, CSM, FSM, Sales CRM, HAM, and ITSM modules
+theme: jekyll-theme-minimal
+show_downloads: false
+google_analytics:
+plugins:
+  - jekyll-relative-url
+  - jekyll-optional-front-matter
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+exclude:
+  - .git/
+  - .github/
+  - scripts/
+  - data/
+  - SUCCESS_PACK_OPENCODE.MD
+  - README.md
