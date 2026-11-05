@@ -4,8 +4,13 @@ theme: jekyll-theme-minimal
 show_downloads: false
 google_analytics:
 plugins:
-  - jekyll-relative-url
+  - jekyll-relative-links
   - jekyll-optional-front-matter
+
+# Rewrite [...](...md) links to their built URLs so markdown cross-links work on Pages.
+relative_links:
+  enabled: true
+  collections: false
 markdown: kramdown
 highlighter: rouge
 permalink: pretty
