@@ -18,6 +18,13 @@ side by side:
 
 ---
 
+## Start with the foundation page
+
+[`foundation.md`](./foundation.md) is the cross-cutting page: key system properties, metadata
+breadcrumbs, guided setup vs configuration vs customization (and upgrade safety), the critical
+foundation data per module, metrics with their source tables, OOTB dashboards, and the artefact set
+the success packs say to build.
+
 ## The six guides
 
 | Module | What it is for | Start here |
