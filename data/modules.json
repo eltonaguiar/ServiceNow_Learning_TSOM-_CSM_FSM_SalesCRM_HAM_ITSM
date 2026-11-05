@@ -51,7 +51,7 @@
     "Forgetting activation date",
     "Mixing physical and logical inventory"
   ],
-  "labs": [],
+  "labs": ["docs/modules/tsom/tsom-guide.md#implementer-labs--what-actually-exists-researched-2026-11-05", "TNI Essentials (ServiceNow University, lab instance with TNI plugins)", "TNI Implementation Bootcamp (ServiceNow University, hands-on lab activities)", "AI for Telecommunications Implementation Bootcamp (ServiceNow University, hands-on labs)"],
   "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
   "quiz": ["What is the primary table for telecom services?", "What table stores physical network elements?", "What is the difference between a service and a service order?"]
 },
