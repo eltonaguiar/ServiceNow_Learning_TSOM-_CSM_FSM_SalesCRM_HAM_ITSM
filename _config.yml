@@ -15,4 +15,5 @@ exclude:
   - scripts/
   - data/
   - SUCCESS_PACK_OPENCODE.MD
+  - SUCCESS_PACK_HERMES.MD
   - README.md
