@@ -35,6 +35,33 @@ Each guide covers:
 
 ---
 
+## Start here: the six getting-started guides (Freebuff, 2026-11-05)
+
+The `getting-started/` folder is a second, shorter track through the same six modules, written
+for someone with a PDI and an interview next month. Each page has the same five sections:
+what you build, out-of-the-box features, key table hierarchy, **reusable code and metadata**,
+then integrations, a first lab and the mistakes reviewers flag.
+
+| Module | Guide |
+|---|---|
+| ITSM | [`getting-started/itsm.md`](getting-started/itsm.md) |
+| CSM | [`getting-started/csm.md`](getting-started/csm.md) |
+| FSM | [`getting-started/fsm.md`](getting-started/fsm.md) |
+| Sales CRM | [`getting-started/sales-crm.md`](getting-started/sales-crm.md) |
+| HAM | [`getting-started/ham.md`](getting-started/ham.md) |
+| TSOM | [`getting-started/tsom.md`](getting-started/tsom.md) |
+
+**Read [`getting-started/foundation.md`](getting-started/foundation.md) first** if you are new: it
+covers system properties, metadata breadcrumbs ("where does this field come from?"), guided setup
+vs configuration vs customization, the foundation data each module needs before it works, metrics
+and dashboards, and what the SUCCESS_PACKS say to build.
+
+Table names and object relationships in that track are cited against the current ServiceNow
+product documentation (Brazil/Zurich releases), including the CRM data models and Telecom data
+model pages. The longer walkthroughs below remain the deep reference.
+
+---
+
 ## Repository Structure
 
 ```

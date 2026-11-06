@@ -14,6 +14,64 @@ ServiceNow Telecom Service Operations Management (TSOM) is purpose-built for com
 
 ---
 
+## ELI5 — the whole module in plain English
+
+A hospital patient monitor does three things: it watches the body, it beeps when something is
+wrong, and it tells the nurse *which patient* is in trouble. TSOM is that monitor for a telecom
+network:
+
+- the **body** is the network — routers, switches, fibre, ports, circuits;
+- the **beep** is an alarm from a device or from the vendor software that manages it;
+- the **patient** is the customer service running over that network — a business's internet
+  line, a phone service, a mobile data session.
+
+Without TSOM you get the beeps (hundreds of them, from five different tools) but not the patient.
+TSOM's job is to connect the two: *"this port is down → this circuit is down → this customer's
+service is degraded → these 40 subscribers are affected → raise one incident, not forty."*
+
+### What each word actually means
+
+| Term | Plain English | Why you care |
+|---|---|---|
+| **Event** | Anything that happened, recorded. Like a CCTV tape: most of it is boring. | Raw material; too many to look at |
+| **Alarm** | An event that says *something is wrong* — a device (or the software managing it) raised its hand. Like a smoke detector beeping. | This is what the network produces |
+| **Alert** | The platform's cleaned-up version of one or more alarms — scored, de-duplicated, assigned to a service. Like the fire panel showing one light for 40 smoking detectors. | This is what a human works |
+| **Clear** | The device says the problem is over, so the alarm closes. | Unclosed alarms are how dashboards lie |
+| **Severity** | How bad: critical → major → minor → warning. | Drives who gets woken up |
+| **Probable cause** | The device's guess at *why* (link down, power failure, threshold crossed). | The first clue for root cause |
+| **CI** (configuration item) | Any "thing" you manage: a router, a port, a circuit, a service. Think of one line in an inventory list. | Everything in TSOM hangs off CIs |
+| **CMDB** | The database of every CI and how they connect. An address book plus a family tree for your infrastructure. | If the CMDB is wrong, every answer is wrong |
+| **Relationship** | "This router connects to that switch", "this service runs over that circuit". | Relationships are how impact travels |
+| **Service** | What the customer actually buys and feels: internet line, voice, VPN. The business view on top of the hardware. | The only layer customers understand |
+| **Impact / blast radius** | Everything downstream of a broken thing. | Turns a port failure into a business decision |
+| **Incident** | The ticket a human works when something is broken. | What TSOM raises so the NOC has something to close |
+| **Change** | A planned, approved modification — the difference between "we fixed it" and "we changed it on purpose". | Network work is mostly change work |
+| **NOC** | Network Operations Center — the room with the big screens where people watch alarms all day. | Your user is a NOC engineer, not a form-filler |
+| **EMS / NMS** | Vendor software that manages network devices (Element Management System / Network Management System). e.g. Nokia, Cisco, Ericsson tools. | Your main data source |
+| **SNMP** | An old, simple protocol devices use to report health. | The cheapest way to get alarms |
+| **MID Server** | A small ServiceNow agent running inside your network that reaches devices the cloud cannot. | Half of telecom integration is MID Server placement |
+| **Discovery** | Automatic scanning that fills the CMDB for you instead of typing records by hand. | Keeps inventory honest |
+| **ETL** | Extract, Transform, Load: pull data out of a system, reshape it to fit our model, store it. | The Telecom Discovery Builder is an ETL framework |
+| **Reconciliation (IRE)** | Deciding whether an incoming record is a brand-new thing or the same thing you already have. Prevents 12 copies of one router. | Bad reconciliation = duplicate CIs = wrong impact |
+| **Discrepancy** | The gap between what discovery found and what the CMDB claims. | Your inventory quality score |
+| **Topology** | The map of what connects to what. | The thing you draw on the whiteboard |
+| **Circuit** | A rented path between two sites (fibre, MPLS, leased line). | The unit telecom customers buy |
+| **SLA** | A promise about how fast you respond and fix. | Makes "down" measurable |
+| **MTTD / MTTR** | Mean time to **detect** / mean time to **repair**. How long until you notice, and until it is fixed. | The two numbers TSOM exists to shrink |
+| **Correlation** | Grouping alarms that share a cause into one alert. | 400 alarms → 1 incident |
+| **Suppression** | Muting alarms during planned maintenance so the NOC is not woken for work they scheduled. | The most-requested feature in week one |
+| **TNI** | Telecommunications Network Inventory — the app that stores the *inventory* of network gear and circuits (a separate product from TSOM). | Where the "body" is modelled |
+| **CSDM** | ServiceNow's standard, opinionated way of organising services and CIs. | Speak it and you sound senior |
+| **Orchestration** | An automated sequence of steps that makes something happen (provision, activate, remediate). | Where TSOM is heading: auto-remediation |
+
+### The one-sentence version
+
+> **TSOM watches the network, decides which customer service is hurt, and gives the NOC one
+> prioritised work item instead of a wall of alarms.**
+
+
+---
+
 ## Where to Find It
 
 | Breadcrumb | Path |
@@ -27,7 +85,260 @@ ServiceNow Telecom Service Operations Management (TSOM) is purpose-built for com
 | Alarms | All > Telecom Service Operations > Alarms > All |
 | Administration | All > Telecom Service Operations > Administration > ... |
 
-**Tip:** If you don't see these menus, the `com.snc.tsom` plugin may not be activated. Go to System Definition → Plugins and search "TSOM".
+**Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites-and-availability) below; there is no `com.snc.tsom` plugin.
+
+---
+
+## Prerequisites and availability
+
+> **Read this before you plan a lab.** Everything else in this guide assumes the TSOM
+> applications are installed. They usually are not — including on a Personal Developer
+> Instance.
+
+### Does a PDI support telecom out of the box?
+
+**No, not by default.** Two independent gates apply:
+
+1. **Subscription.** Every TSOM application is a ServiceNow Store app that requires a valid
+   Telecommunications Service Operations Management subscription. The docs state this on each
+   app page ("A valid Telecommunications Service Operations Management subscription is
+   required…").
+2. **Store apps on a PDI.** ServiceNow's own PDI guidance says many Store applications cannot be
+   installed to PDIs, and plugins that require activation by ServiceNow personnel do not appear
+   in the PDI plugin list at all.
+
+So on a stock PDI you should expect the TSOM modules to be **absent**, not broken. Check
+`System Applications > All Available Applications > All` (or the Developer Site →
+*Manage my Instance → Plugins for your Instance*) and filter for `TSOM` / `sn_tsom`. If nothing
+appears, the app is not entitled for that instance — no amount of role granting will change it.
+
+**What you can still do on a PDI:** build the telecom *data model* by hand. The CMDB classes and
+relationship types are ordinary platform records, so you can create equipment CIs, ports and
+links, relate them to a `cmdb_ci_service`, and — if Event Management is available on your
+instance — send test events and watch `em_event` → `em_alert`. That demonstrates the modelling
+and the assurance pattern; it does not demonstrate the telecom connectors, TNI entities or the
+alarm-management API.
+
+**If you need the real thing:** ask your ServiceNow account team or a partner for a TSOM-enabled
+non-production instance, or use an industry-demo instance in a guided workshop. Budget a day for
+installation and data-source validation before you can demo anything.
+
+### What is out of the box vs what you install
+
+| Layer | Comes with installing `sn_tsom_core` / TSOM apps | You still have to do |
+|---|---|---|
+| Telecom data model | Telecom-aware CMDB classes (equipment, cards, slots, subslots, interfaces, ports, links, circuits), TNI-aligned hierarchy | Load/assert your inventory; map vendors and models |
+| TNI entities | TNI entity records are generated when the TNI plugin is installed | Install TNI separately (`sn_ni_adv`), then populate |
+| Discovery | Telecom Discovery Builder framework ETL (auto-provisioned generic ETL) | Clone the ETL per connector; build/validate the transform; schedule it |
+| Discovery patterns | `sn_tsom_patterns` (Telco Discovery Patterns) for direct SNMP/CLI discovery | Credentials, SNMP access, MID Server placement |
+| SGC connectors | Per-vendor connectors (Nokia Altiplano, Cisco Meraki SD-WAN, …) | A MID Server and API access to the controller |
+| Assurance | Event Management integration, Telecom Alarm Management Open API (`sn_ind_tmf642`), correlation/suppression rules | Topic + subscription + endpoint activation; severity mapping; correlation rules |
+| Reconciliation | Discrepancy identification and reconciliation, built on CMDB Health/Compliance certification audits | Audit definitions and remediation workflow |
+| Workspaces | Telecom operations/visibility workspaces, service health dashboards | Onboarding users, tuning the views |
+
+### Plugin and application dependencies
+
+TSOM Visibility (`sn_tsom_core`) is the bundle most labs start with. The docs list these
+dependencies:
+
+| Item | ID | Notes |
+|---|---|---|
+| Telecom Service Operations Core | `sn_tsom_core` / `com.sn_tsom_core` | The core app; installs the telecom data model, ETL framework and properties |
+| CMDB CI Class Models | `sn_cmdb_ci_class` | **Version 1.69.0+**; auto-upgraded by the TSOM apps |
+| Expanded Model and Asset Classes | `sn_ent` | Store app |
+| Visibility Content | `sn_pattern_design` | Store app |
+| Integration Commons for CMDB | `sn_cmdb_int_util` | Store app |
+| IntegrationHub Starter Pack Installer | `com.glide.hub.integration` | Family plugin |
+| Discovery Core | `com.snc.discovery.core` | Installed by Discovery |
+| ITOM Discovery License | `com.snc.itom.discovery.license` | Must be activated |
+| ITOM Licensing | `com.snc.itom.license` | Required for Discovery patterns |
+| IntegrationHub ETL | `sn_int_studio` | Development instances only |
+| Telecommunications Network Inventory | `sn_ni_adv` → installs `sn_ni_core` | **Separate app**, separate entitlement; install TNI Advanced, then load TNI Core demo data manually if you want it |
+
+Roles to plan for: `admin` for installation; TNI ships inventory roles such as
+`sn_ni_core.inventory_admin`, `sn_ni_core.inventory_agent`,
+`sn_ni_core.inventory_template_manager` and `sn_ni_core.telco_inventory_catalog_manager`.
+
+### Do you need CSM for TSOM to work?
+
+**No — not for TSOM Core, TSOM Visibility or TNI.** None of those dependency lists include
+Customer Service Management.
+
+**Yes, effectively, for the subscriber-facing story.** Three things change that answer:
+
+- **Telecommunications Service Management (TSM)** — the telecom case/workflow layer — *extends*
+  CSM. If your demo is "customer calls about a dead line, agent sees the affected service",
+  CSM is the base.
+- **Entitlements and install base** — knowing what a subscriber is owed comes from CSM data
+  (`service_entitlement`, `sn_install_base_item`, `ast_contract`). TSOM can model the network
+  without it; it cannot answer "is this customer entitled to a fix?"
+- **TNI Remote Hands** — the docs list `sn_cs_sm_request` (Customer service install base
+  management) as a requirement for that feature, and it is delivered through the CSM portal.
+
+Also note the incident/alert detail views inside TNI require `sn_ind_tmf642` (Telecommunications
+Alarm Management Open API) and `sn_sprb_mgmt` (Customer Service Problem Management) — so even
+the "network-only" side pulls in apps you may not have.
+
+**Practical answer for an interview:** TSOM does not depend on CSM to run; the *end-to-end
+telecom service-assurance story* does, because CSM is where the subscriber, the entitlement and
+the case live.
+
+
+---
+
+## System properties and workflows you must configure
+
+Installing the app gives you the machinery; these are the switches and sequences that make it
+work on *your* network. Property names below are documented for the TSOM apps.
+
+### 5.1 Properties
+
+| Property | Scope | Default | What it does | If you get it wrong |
+|---|---|---|---|---|
+| `sn_tsom_patterns.itom_pattern_enabled` | `sn_tsom_patterns` | `true` | Whether discovery runs TSOM patterns **plus** ITOM patterns (`true`) or TSOM patterns only (`false`) | `false` on an instance that also does IT discovery silently drops the ITOM coverage |
+| `mid.telecom.discovery.patterns.enabled` | MID Server (`ecc_agent_config`) | per-MID | Enables telecom discovery patterns **on that MID Server** | Discovery finds nothing and logs no obvious error — the MID just does not run the telecom patterns |
+| `sn_tsom_core.audit.log.level` | `sn_tsom_core` | `info` | Logging for the Telecom Discrepancy audit (`debug` / `info` / `warn`) | `debug` in production floods the log; `warn` hides why a discrepancy task was not created |
+| `sn_tsom_core.audit.relationship_types` | `sn_tsom_core` | `Contains::Contained By` | Which CI relationship types the discrepancy audit walks | Add a custom relationship type and reconciliation silently ignores those links |
+| `sn_tsom_core.audit.discovery_sources` | `sn_tsom_core` | e.g. `SG-Altiplano`, `ServiceNow` | Which discovery sources count as "discovered truth" | Your connector's source is not listed → everything looks like a discrepancy, or nothing does |
+
+Each connector also ships **connector-scoped properties** (visible under the connector's
+**Properties** section in its guided setup) and each SGC has its own app scope
+(`sn_sgc_nsp`, `sn_sgc_altiplano`, `sn_tsom_meraki_connector`, …). Read those before tuning
+anything globally — they are the only supported way to change connector behaviour.
+
+### 5.2 The configuration sequence that actually has to happen, in order
+
+| # | Configure | Where | Why it is a prerequisite for the next step |
+|---|---|---|---|
+| 1 | **MID Server** reachable from the network, with `mid.telecom.discovery.patterns.enabled` set | MID Server / `ecc_agent_config` | Nothing can reach devices or controllers without it |
+| 2 | **Credentials + connection alias** for each EMS/NMS/controller | Connections & Credential Aliases | Used by both discovery patterns and SGCs |
+| 3 | **Data source** (clone of the Generic Schema multi-source data source) | Data Sources | Gives the ETL schema-aligned placeholders to test against |
+| 4 | **Duplicate the Telecom Discovery Builder ETL into your connector scope** | Flow/ETL designer | You never edit the core ETL in place — you copy it, then adapt |
+| 5 | **Transform / mapping to CMDB + TNI classes**, run against placeholder data | ETL test run | Catches schema mistakes before 40k devices land wrong |
+| 6 | **Import schedule + filters** | Import Schedules / Filters | Controls volume; full vs filtered discovery |
+| 7 | **IRE identification rules** for telecom classes | CMDB → Identification and Reconciliation | Without this, the first real run creates duplicates |
+| 8 | **Telecom Discrepancy audit** (CMDB Health certification audit + the `sn_tsom_core.audit.*` properties) | CMDB Health / Compliance | Turns "inventory is probably wrong" into a task list |
+| 9 | **Alarm path** — Telecom Alarm Management Open API topic + subscription + active endpoint, or SNMP trap → MID | IntegrationHub / Event Management | This is what makes it *assurance* rather than an inventory app |
+| 10 | **Event rules, correlation rules, maintenance windows** | Event Management | Otherwise the NOC gets the wall of alarms you were hired to remove |
+| 11 | **Service model** — `cmdb_ci_service` records related to the equipment | CMDB / CSDM | Impact analysis has nothing to walk without it |
+| 12 | **Incident hand-off** — flow or business rule creating one incident per correlated alert | Flow Designer | The point of the whole exercise |
+| 13 | **Roles and groups** — `sn_ni_core.*` inventory roles, NOC assignment group | Users, Groups and Roles | People cannot see the workspace otherwise |
+
+**Guided setup:** the SGCs ship one — navigate to
+`All > Service Graph Connectors > <connector> > Setup` and it walks you through MID Server,
+connection, credentials, data sources, schedules, filters and properties. TSOM Core and TNI
+themselves are configured through their own product modules rather than a single wizard, so
+treat the table above as the order, and the guided setup as the shortcut for steps 1–6.
+
+---
+
+## Metrics: what is out of the box, and what you build
+
+### 6.1 Genuinely out of the box
+
+| Asset | What you get | Where |
+|---|---|---|
+| Event Management dashboards + PA content (`com.snc.pa.em`) | Alert volume, alert-to-incident conversion, MTTR-style alert trends, alert ageing | Platform Analytics / Event Management |
+| ITSM dashboards content pack (`com.snc.pa.itsm_dashboards`) | The incident/change side of the story once TSOM raises incidents | Platform Analytics |
+| Telecom operations workspace | Alert list, service health, affected-service views for the NOC | TSOM navigation |
+| Network Inventory Workspace / TNI dashboards | Inventory coverage, network hierarchy, datacenter floor views, capacity | TNI navigation |
+| MPN metric panels (where the MPN connector is installed) | Latency KPIs, per-KPI trends, last-recorded-value panels | TSOM / MPN views |
+| CMDB Health / compliance scorecards | Completeness, correctness, compliance — includes the telecom audit | CMDB Health |
+
+### 6.2 What is not out of the box (build these)
+
+There is no documented TSOM-specific Performance Analytics content pack that hands you
+"MTTD by customer service". These are the indicators you build, with the source table and the
+recipe:
+
+| Indicator | Source | Recipe |
+|---|---|---|
+| **MTTD** (per service) | `em_alert` | `sys_created_on` (raised) → `acknowledged_at`/first assignment; breakdown by `cmdb_ci` → service |
+| **MTTR** (per service) | `em_alert` / `incident` | `resolved_at` − `sys_created_on`, joined to the service CI; PA collects daily |
+| **Alarm-to-ticket ratio** | `em_alert`, `incident` | Count alerts ÷ count incidents created from alerts (`correlation_id` link) |
+| **Alarm storm ratio** | `em_event`, `em_alert` | Events per alert — a spike means correlation is not grouping |
+| **Unresolved monitored objects** | `em_unique_nodes` | Count where `type = unknown`; trend it, it is your inventory gap |
+| **Reconciliation drift** | Telecom audit / discrepancy tasks | Open discrepancy tasks by class and discovery source |
+| **Service availability** | `em_alert` per service CI | Time in non-critical state ÷ total time, per service, monthly |
+| **Change success on network** | `change_request` (TNI-created) | Successful ÷ closed, filtered to network change models |
+
+### 6.3 Minimum dashboard for a demo
+
+One dashboard, four widgets, all defensible:
+
+1. **Open alerts by severity** (stacked bar) — *is the NOC drowning?*
+2. **Top 10 affected services** (bar) — *is the customer hurting?*
+3. **MTTD / MTTR trend, 28-day** (line) — *are we getting faster?*
+4. **Unresolved monitored objects** (single score) — *is the inventory trustworthy?*
+
+If a widget cannot be traced to a table and a definition, delete it.
+
+
+---
+
+## Workspaces you get, and how to learn this
+
+### Is there a TSOM workspace out of the box?
+
+**There is no separate "TSOM workspace" app.** TSOM's screens live inside
+**Service Operations Workspace (SOW)**, which is where the alert list, service health and service
+visualization views render. What you actually get depends on what else is installed:
+
+| View | Where it appears | Comes from |
+|---|---|---|
+| Alert list, alert details, alert explanation, remediation tasks | Service Operations Workspace | Event Management + TSOM |
+| Service health / service visualization over the topology | Service Operations Workspace | TSOM + CMDB service model |
+| Converged network + IT operations views | Service Operations Workspace ("converged" in Zurich and later) | SOW + ITOM + TSOM |
+| Network inventory, datacenter floor maps, capacity | Network Inventory Workspace / Service Operations Workspace for TNI | TNI (separate app) |
+| Dashboards over time (trends, MTTR) | Platform Analytics | PA + content packs |
+
+So: install TSOM and you get the telecom assurance capability, but the *workspace* is SOW — which
+means your install also needs ITSM/SOW. That is a practical dependency the dependency tables do not
+spell out: **no SOW, no agent workspace**, even though the TSOM plugins install fine.
+
+### ServiceNow learning for TSOM (self-directed)
+
+ServiceNow University / Now Learning publishes a **Telecommunications Service Operations Management
+Implementer Learning Path**, and a **TSOM Accreditation** exam. As of the current catalog:
+
+| Item | Detail |
+|---|---|
+| Learning path | *Telecommunications Service Operations Management* Implementer path (ServiceNow University / Now Learning) |
+| Path courses (on-demand unless noted) | Event Management Fundamentals · Event and Flow in Action · Service Graph Connector Essentials · Operational Intelligence Fundamentals |
+| Also recommended in the path | IT Operations Management (ITOM) Overview · certification prep for CIS-Event Management |
+| Accreditation | **Telecommunications Service Operations Management (TSOM) Accreditation** — exam blueprint on `learning.servicenow.com` |
+| Accreditations in the same family | Telecommunications Network Inventory (TNI) · Telecommunications, Media and Technology (TMT) Service Essentials |
+| Prerequisite courses listed by ServiceNow for the TSOM accreditation | Welcome to ServiceNow · ServiceNow Administration Fundamentals · CMDB Fundamentals · Introduction to ITOM · ITOM Discovery Implementer · ITOM Implementation (Lab Guide) |
+
+Note the shape of that list: **TSOM accreditation is built on ITOM, CMDB and Event Management, not on
+TSOM-specific fundamentals alone.** If you are starting from zero, the honest order is
+Welcome to ServiceNow → CSA fundamentals → CMDB Fundamentals → Introduction to ITOM →
+Event Management Fundamentals → TSOM path.
+
+Free/self-directed complements (no subscription needed):
+
+- ServiceNow product documentation — *Explore / Configure / Use / Reference* for TSOM, plus the
+  Telecom data model and TNI pages.
+- ServiceNow Community **Telecom** forum and the *What's new in ServiceNow's <release> release for
+  Telecom* sessions (recorded).
+- The Best Practices Library (requires a ServiceNow account) linked from the TSOM docs landing page.
+
+### Official ServiceNow video (YouTube)
+
+There is no "TSOM course" on YouTube, but ServiceNow publishes product and release content worth
+watching, in rough order of usefulness:
+
+| Video | Why watch it |
+|---|---|
+| *TSOM – Auto-discover and Reconcile Network, IT, and Cloud Inventory Data on a Single AI Platform* (`youtube.com/watch?v=rSQGXKCgwz8`) | The Visibility half: discovery + reconciliation, i.e. the data model this guide is about |
+| ServiceNow **Telecom** playlist (`youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc`) | TSM / TSOM / SOMT updates and quick demos in one place |
+| *What's new in ServiceNow's Zurich release for Telecom* (`youtube.com/watch?v=Njyt-YgpONY`) | Current-release feature walkthrough (Discovery Builder, Altiplano SGC, discrepancy audit) |
+| *Discover What's New: Yokohama Highlights for Telecom* (`youtube.com/watch?v=SBJrGFh2Unw`) | Prior-release context; useful for understanding how the product is evolving |
+| *Transform Telecommunications Field Service Operations* (`youtube.com/watch?v=DHn49aHeroo`) | The adjacent FSM story, useful for the end-to-end telco narrative |
+
+Treat partner videos (TSM showcases, webinars by consultancies) as context, not as documentation —
+several are several years old and describe pre-Zurich behaviour.
+
 
 ---
 
@@ -131,6 +442,10 @@ TSOMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ## Out-of-Box Features
 
+*In plain words: these are the parts you get by installing the app — the inventory model, the pipes
+that pull data in, the alarm machinery, and the screens. Everything in the "you still have to do"
+column of the prerequisites table is the part that is actually your job.*
+
 | Feature | Description | Where |
 |---------|-------------|-------|
 | Service Inventory | Track logical telecom services (voice, data, VPN) | All > TSOM > Service Inventory |
@@ -146,6 +461,17 @@ TSOMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ## Key Table Hierarchy
 
+> **Correction (Freebuff, 2026-11-05):** the table names in this section (`sn_tsom_service`,
+> `sn_tsom_service_order`, `sn_tsom_network_element`, `sn_tsom_circuit`, …) could not be
+> verified against ServiceNow documentation and should be treated as illustrative only. The
+> verified telecom surface is the CMDB extension model — `cmdb_ci_telco_equipment`,
+> `cmdb_ci_network_packet_broker`, `cmdb_ci_optical_line_terminal`,
+> `cmdb_ci_optical_network_terminal`, network interfaces/ports/links — plus the TNI entity
+> tables, Event Management (`em_event`, `em_alert`, `em_unique_nodes`) and the standard
+> `cmdb_ci_service` layer. Verify every class name in your own instance before quoting it.
+> A verified walkthrough is in [`getting-started/tsom.md`](../../../getting-started/tsom.md).
+
+
 ### Core Tables
 
 | Table | Purpose | Extends | Key Fields |
@@ -159,6 +485,11 @@ TSOMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 | `sn_tsom_service_instance` | Provisioned service instance | `task` | `service`, `customer`, `activation_date` |
 
 ### Table Relationships
+
+*In plain words: read the tree like folders on a disk. `cmdb_ci` is the master "everything we
+manage" folder; telecom equipment, optical terminals and network gear are sub-folders; a
+relationship row is a rubber band tying two folders together. Impact analysis is just walking the
+rubber bands upward until you hit something a customer pays for.*
 
 ```
 sn_tsom_service_order
@@ -192,6 +523,11 @@ sn_tsom_inventory_item
 ---
 
 ## Integrations
+
+*In plain words: TSOM is a consumer of other systems, not the centre of the universe. Something
+must tell it what gear exists (discovery/ETL), something must tell it what is broken (alarms), and
+something must be told what to do about it (tickets, changes, remediation). If one of those three
+arrows is missing, the demo looks fine and production does not work.*
 
 | Integration | Direction | Purpose | Protocol |
 |-------------|-----------|---------|----------|
@@ -252,6 +588,16 @@ sn_tsom_inventory_item
 6. **Create** a `sn_tsom_network_element` (router) and link it to the service via Related Lists
 7. **Create** an `sn_tsom_alarm` on that network element with severity "Major"
 8. **Verify** the alarm appears on the service's related list
+
+---
+
+### What you just did, in plain English
+
+You created a record of a thing (an order), a record of what the customer has (a service), a
+record of the hardware that carries it (a network element), and a beep from that hardware (an
+alarm) — then tied them together. That chain — *order → service → hardware → alarm* — is the whole
+of telecom assurance. Every dashboard, every incident and every SLA number in TSOM is a view over
+that chain.
 
 ---
 
