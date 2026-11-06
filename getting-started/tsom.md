@@ -209,4 +209,5 @@ Map `objectInstance` onto a CI with a lookup rule. Anything unmatched should lan
 - [CSM](./csm.md) — how the affected subscriber becomes a case.
 - [ITSM](./itsm.md) — the incident process the alarms feed.
 - Longer walkthrough: `docs/modules/tsom/tsom-guide.md`.
+- [TSOM capabilities](./../docs/modules/tsom/tsom-capabilities.md) — Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Synthetic Monitoring, AIOps LEAP, Now Assist skills, discovery protocols, TNI class hierarchy, discrepancy remediation — with the doc breadcrumb for each.
 - Official reference: [Telecom data model](https://www.servicenow.com/docs/r/telecom-service-ops/telecommunications-service-operations-management/telecom-data-model.html) (Brazil release, updated 2026-11-06).

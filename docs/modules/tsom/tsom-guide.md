@@ -10,6 +10,7 @@
 
 ## Contents
 
+- [Capabilities — assurance, AIOps, AI, inventory](tsom-capabilities.md) — *companion page: Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Synthetic Monitoring, AIOps LEAP, Now Assist, discovery protocols, TNI class hierarchy, discrepancy remediation, plus the doc breadcrumb for each*
 - [Purpose](#purpose)
 - [ELI5 — the whole module in plain English](#eli5--the-whole-module-in-plain-english)
 - [Where to Find It](#where-to-find-it)
@@ -105,6 +106,12 @@ service is degraded → these 40 subscribers are affected → raise one incident
 | Service Order | All > Telecom Service Operations > Service Orders > All |
 | Alarms | All > Telecom Service Operations > Alarms > All |
 | Administration | All > Telecom Service Operations > Administration > ... |
+
+**Not here:** the assurance *engine* is not under these menus. Event Management, Metric Intelligence,
+Health Log Analytics and **Synthetic Monitoring** are ITOM features TSOM consumes, and each has its own
+breadcrumb (Synthetic Monitoring lives under **IT Operations Management → Synthetic monitoring**).
+See the [capabilities page](tsom-capabilities.md#1-breadcrumb-map--where-each-capability-actually-lives)
+for the full map before you go hunting in Telecom Service Operations.
 
 **Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites-and-availability) below; there is no `com.snc.tsom` plugin.
 

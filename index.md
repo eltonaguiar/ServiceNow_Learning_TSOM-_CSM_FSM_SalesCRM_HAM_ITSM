@@ -13,7 +13,7 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
   <div class="card">
     <h3>TSOM</h3>
     <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-guide.md">Open the TSOM guide</a></p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-guide.md">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
   </div>
   <div class="card">
     <h3>CSM</h3>
