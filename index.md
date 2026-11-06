@@ -9,14 +9,38 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
 
 ## Available Guides
 
-| Module | Guide | Focus |
-|--------|-------|-------|
-| **TSOM** | [Telecom Service Operations Management](./docs/modules/tsom/tsom-guide.md) | Telecom Service Operations Management |
-| **CSM** | [Customer Service Management](./docs/modules/csm/csm-guide.md) | Customer Service Management |
-| **FSM** | [Field Service Management](./docs/modules/fsm/fsm-guide.md) | Field Service Management |
-| **Sales CRM** | [Sales CRM](./docs/modules/sales-crm/sales-crm-guide.md) | Sales CRM |
-| **HAM** | [Hardware Asset Management](./docs/modules/ham/ham-guide.md) | Hardware Asset Management |
-| **ITSM** | [IT Service Management](./docs/modules/itsm/itsm-guide.md) | IT Service Management |
+<div class="card-grid">
+  <div class="card">
+    <h3>TSOM</h3>
+    <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-guide.md">Open the TSOM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>CSM</h3>
+    <p>Customer Service Management — cases, accounts, entitlements, and customer-facing SLAs.</p>
+    <p class="meta"><a href="./docs/modules/csm/csm-guide.md">Open the CSM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>FSM</h3>
+    <p>Field Service Management — work orders, territories, scheduling constraints, and mobile work.</p>
+    <p class="meta"><a href="./docs/modules/fsm/fsm-guide.md">Open the FSM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Sales CRM</h3>
+    <p>Sales CRM — leads, opportunities, quotes, and orders on the Now Platform.</p>
+    <p class="meta"><a href="./docs/modules/sales-crm/sales-crm-guide.md">Open the Sales CRM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>HAM</h3>
+    <p>Hardware Asset Management — the hardware lifecycle from procurement through disposal.</p>
+    <p class="meta"><a href="./docs/modules/ham/ham-guide.md">Open the HAM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>ITSM</h3>
+    <p>IT Service Management — incident, problem, change, knowledge, and the CMDB patterns every other module follows.</p>
+    <p class="meta"><a href="./docs/modules/itsm/itsm-guide.md">Open the ITSM guide</a></p>
+  </div>
+</div>
 
 ## What's in Each Guide
 

@@ -573,7 +573,92 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ---
 
+## Implementer Labs — What Actually Exists (Researched 2026-11-05)
+
+TSOM and TNI are **licensed products**. They cannot be installed on a free Personal Developer Instance (PDI) — Store applications need an entitled organisation account, and TSOM's documentation requires an active TSOM subscription. So where does hands-on implementer practice actually happen? Researched against official ServiceNow sources on 2026-11-05:
+
+<div class="verdict">
+<h3>Verdict</h3>
+<p><strong>Yes for TNI, effectively no for TSOM itself.</strong> The hands-on implementer labs live in the TNI courses and bootcamps, whose ServiceNow University lab instances come with the licensed plugins provisioned. TSOM Essentials is content-only. All ServiceNow University on-demand content is currently <strong>free</strong> with a free account — no partner or customer affiliation is needed (ServiceNow Training FAQs, KB0012229).</p>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h3>TSOM Essentials <span class="pill pill-no">No lab</span></h3>
+    <p class="meta">ServiceNow University, March 2026 Store Release (Yokohama → Zurich, plus Australia).</p>
+    <p>Covers the right objectives — Telecom Discovery Patterns, Service Graph Connectors, the Discovery Builder Framework, discrepancy remediation, TMF 688 event ingestion — but the official course page shows no lab instance, lab guide, or simulator. ServiceNow's own telecom training catalogue lists hands-on trainings under TNI and none under TSOM. Treat it as concepts only.</p>
+    <p class="meta"><a href="http://nowlearninguat.service-now.com/lxp/en/telecommunications-service-management/telecommunications-service-operations?course_id=f07adf8c9307b2d056aeb94c5cba1094&amp;id=learning_course_prev">Course page</a></p>
+  </div>
+  <div class="card">
+    <h3>TNI Essentials <span class="pill pill-yes">Has a lab ✓</span></h3>
+    <p class="meta">ServiceNow University · Telecommunications Network Inventory</p>
+    <p>The official catalogue: learners "apply what they have learned in hands-on lab exercises to fulfill multiple use cases," on a provided lab instance with the TNI plugins installed. Two cautions from learners: the Washington version had plugin mismatches between lab content and lab instance, and the indexed 7h15m version is retired — enrol via "View other releases" (a Vancouver version exists).</p>
+    <p class="meta"><a href="https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-network-inventory?course_id=5951bdd8471a9550f6b11244846d4313&amp;id=learning_course_prev">Course page</a></p>
+  </div>
+  <div class="card">
+    <h3>TNI Implementation Bootcamp <span class="pill pill-yes">Has a lab ✓</span></h3>
+    <p class="meta">ServiceNow University</p>
+    <p>Officially "a comprehensive guide to implementing TNI within the ServiceNow platform, featuring hands-on lab activities that enable practical application of the concepts learned." This is the deepest sanctioned TNI practice available to an individual.</p>
+  </div>
+  <div class="card">
+    <h3>TNI Implementer Learning Path <span class="pill pill-yes">Has a lab ✓</span></h3>
+    <p class="meta">14h 13m · Prerequisites: ServiceNow Administration Fundamentals, CMDB Fundamentals, Flow Designer Fundamentals</p>
+    <p>Lab scope: Network Inventory Workspace modelling and templates, sites, equipment, cards, interfaces and connections, telephone-number and IP allocation, design-and-assign, and applying the TMF API to create, search, and patch CIs — plus TNI's integration points with HAM and Order Management.</p>
+    <p class="meta"><a href="https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-network-inventory?id=learning_path_prev&amp;path_id=bff84642870295d4046fff38dabb35e6">Learning path</a></p>
+  </div>
+  <div class="card">
+    <h3>TSOM Visibility &amp; Event Management Implementation Bootcamp <span class="pill pill-unverified">Lab unverified</span></h3>
+    <p class="meta">ServiceNow University, on-demand, Yokohama</p>
+    <p>The course exists officially, and bootcamps in this catalogue normally include labs — but its lab details (duration, TSOM plugin activation, task list) could not be confirmed from outside the enrolment page. Check the signed-in course page before counting on it.</p>
+    <p class="meta"><a href="https://learning.servicenow.com/lxp/en/telecommunications-service-management/tsom-visibility-and-event-management?id=learning_course_prev&amp;course_id=8ea3f0f7872f1ad4bfe94088dabb350d">Course page</a></p>
+  </div>
+  <div class="card">
+    <h3>AI for Telecommunications Implementation Bootcamp <span class="pill pill-yes">Has a lab ✓</span></h3>
+    <p class="meta">ServiceNow University, Zurich</p>
+    <p>Explicitly includes hands-on labs and a requestable lab instance (note on the course page: instances requested before June 1, 2026 should be terminated and re-requested). The Now Assist / agentic layer on top of the TSOM/TNI foundation.</p>
+    <p class="meta"><a href="http://nowlearninguat.service-now.com/lxp/en/telecommunications-service-management/ai-for-telecommunications?course_id=57fc4b64c3ed3690e5533b877d013168&amp;id=learning_course_prev">Course page</a></p>
+  </div>
+  <div class="card">
+    <h3>TNI Delivery Accreditation <span class="pill pill-info">Credential</span></h3>
+    <p class="meta">Non-proctored exam in ServiceNow University · ~17 hours of prep per ServiceNow's APAC promo</p>
+    <p>A credential, not a lab — it attests you have learned how to implement TNI. The Essentials and Bootcamp labs are the preparation. No partner-only gate was found; no price is published. There is no CIS-TSOM exam and no TSOM/TNI simulator; TSOM credentialing routes through Event Management (CIS-EM) in the TSOM Implementer path, and the TNI micro-certification feeds the HAM with Telecommunications Network Inventory Professional suite (with CIS-HAM).</p>
+    <p class="meta"><a href="https://learning.servicenow.com/lxp/en/pages/now-learning-get-certified?id=amap_detail&amp;summary_id=79d64e311bfcf01002ed2f89bd4bcb51&amp;achievement_id=50487bb99302fd9056aeb94c5cba1003">Accreditation page</a></p>
+  </div>
+  <div class="card">
+    <h3>Personal Developer Instance <span class="pill pill-no">No</span></h3>
+    <p class="meta">developer.servicenow.com</p>
+    <p>TSOM/TNI cannot be installed on a PDI — Store entitlement is tied to an organisation account. The only sanctioned hands-on routes are course lab instances (above) or an entitled employer, customer, or partner instance. On a PDI you can still build adjacent proof: telecom-style CMDB modelling, Discovery patterns, IntegrationHub ETL imports that mimic a Service Graph Connector feed, and TMF 688-style event ingestion by REST.</p>
+  </div>
+</div>
+
+### The individual route, in order
+
+1. Free ServiceNow University account → enrol on demand (free).
+2. **TNI Essentials** (via "View other releases") — request the lab instance; do the labs.
+3. **TNI Implementation Bootcamp** — the deep implementation practice.
+4. **TSOM Essentials** — concepts layer (no lab; don't expect one).
+5. Optionally: **AI for Telecommunications Implementation Bootcamp** for the Now Assist layer, then the **TNI Delivery Accreditation**.
+
+### Lab instance rules (ServiceNow University, KB0012546)
+
+- A lab instance is a real practice instance, requestable **with certain courses** for labs and simulator tasks; URL and credentials arrive by email. Licensed products **are** provisioned in course lab instances when the course requires them — that is what makes TNI hands-on possible.
+- Maximum **3 instances per course**, only **1 assigned at a time**; a new instance does **not** carry over your work.
+- Instances hibernate; allow ~15 minutes to wake.
+- A lab instance **terminates 2 days after course completion** and cannot be extended once terminated.
+- Default terms: lab/simulation access up to **2 weeks** with an option of **one 2-week extension**, unless the course states otherwise (some courses run 2–4 days); the KB also describes two built-in extensions plus a catalogue request for one extra 2-week extension and one extra instance with justification.
+
+### What does not exist
+
+- No TSOM or TNI **instructor-led** course — the official 2026 Learning Paths guide marks every TNI/TSOM item as no-charge on-demand. (Generic ILT economics, if one ever appears: 1,900 Learning Credits for 2 days / 2,700 for 3 days, 1 LC = $1 USD.)
+- No dedicated TSOM/TNI **simulator** and no **CIS-TSOM** exam.
+
+**Sources:** [ServiceNow Training FAQs (KB0012229)](https://learning.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0012229) · [Lab instance help (KB0012546)](https://nowlearning.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0012546) · [TMT knowledge catalogue](https://www.servicenow.com/community/telecom-articles/telecommunications-media-and-technology-knowledge-amp/ta-p/3416810) · [2026 Learning Paths guide (PDF)](https://www.servicenow.com/community/s/cgfwn76974/attachments/cgfwn76974/training-certifications-forum/27192/1/Learning%20paths%20-%20ServiceNow.pdf) · [Zurich TSOM product documentation (PDF)](https://downloads.docs.servicenow.com/pdf/enus/servicenow-zurich-telecom-service-ops-enus.pdf)
+
+---
+
 ## Lab: Create Your First Telecom Service
+
+> **Instance requirement:** this walkthrough needs TSOM installed, which means an entitled instance — a ServiceNow University course lab instance or an employer/customer/partner instance. It will not run on a free PDI (see *Implementer Labs* above).
 
 1. **Navigate** to All > Telecom Service Operations > Service Orders > All
 2. **Click New** and fill:

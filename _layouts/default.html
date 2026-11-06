@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ site.description }}">
+<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <nav class="module-nav" aria-label="Module guides">
+      <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
+      <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM</a>
+      <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM</a>
+      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM</a>
+      <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM</a>
+      <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap content">
+{{ content }}
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>ServiceNow Module Guides — TSOM · CSM · FSM · Sales CRM · HAM · ITSM. Content is a learning aid; verify product behaviour against your own instance and the official ServiceNow documentation.</p>
+  </div>
+</footer>
+</body>
+</html>
