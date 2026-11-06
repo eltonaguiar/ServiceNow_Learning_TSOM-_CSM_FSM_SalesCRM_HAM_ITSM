@@ -15,6 +15,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Deep Dive: Customizing an Out-of-Box Pattern — and Making Your Own](#deep-dive-customizing-an-out-of-box-pattern--and-making-your-own)
 - [Deep Dive: The Discovery Configuration Console](#deep-dive-the-discovery-configuration-console)
 - [Deep Dive: File-Based Discovery](#deep-dive-file-based-discovery)
 - [Deep Dive: Running File-Based Discovery](#deep-dive-running-file-based-discovery)
@@ -88,6 +89,25 @@ Navigator shortcuts worth memorizing (type in the filter box):
 | `discovery_private_properties.list` | Internal Discovery properties (incl. file-discovery internals) |
 | `cmdb_unidentified_file_set.list` | Files File-Based Discovery could not match |
 | `cmdb_sam_sw_install.list` | Software installations |
+| `sa_pattern.list` | Every Discovery pattern (out-of-box and yours) |
+
+### The re-usable metadata inventory
+
+Beyond scripts, Discovery is built from configuration records you define **once** and reuse everywhere. These are the pieces worth knowing by name:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **IP ranges** | The networks a schedule scans, stored as range records on the schedule (`discovery_range_item`). The same ranges can be added to other schedules instead of being re-typed. | All > Discovery > Discovery Definition > **Schedules** > open a schedule > **Discovery Ranges** related list |
+| **MID Server IP ranges** | Which subnets a given MID Server is allowed to scan. A schedule only sends work to MIDs whose ranges cover the target — this is how you reuse one schedule across many network segments. | All > MID Server > **Servers** > open the MID > **IP Ranges** related list |
+| **Patterns** | The declarative exploration logic (identify a device/app, collect its attributes, build relations). One pattern serves every schedule and classifier that points at it. | All > Discovery > Discovery Definition > **Patterns** (opens Pattern Designer; records in `sa_pattern`) |
+| **Pattern libraries** | Shared step sequences inside Pattern Designer (e.g. "get running processes") that many patterns call — fix the library once, every pattern that uses it benefits. | Inside **Pattern Designer**, per pattern / shared libraries |
+| **Probes and sensors** | The legacy exploration pair patterns replaced: a probe collects raw data, a sensor parses it into CIs. Still used for some content, and fully re-usable across classifiers. | All > Discovery > Discovery Definition > **Probes** / **Sensors** |
+| **Classifiers** | The decision records: "if this port/process/banner answers, this is a Windows server — run *this* pattern (or probe set)." Classifiers are what connect reusable patterns to real devices. | All > Discovery > Discovery Definition > **Classifiers** |
+| **Discovery Behaviours** | Reusable bundles that say which functionality (which probes/patterns) runs against which ranges in a schedule — e.g. a "Windows only" behaviour applied to a dozen schedules. | All > Discovery > Discovery Definition > **Behaviours** |
+| **Credentials & credential aliases** | Credentials are defined once and tried by every schedule; aliases let patterns and schedules refer to "the Windows domain credential" without hard-coding a specific record, so rotating a credential touches one place. | All > Discovery > **Credentials** · **Connections & Credential Aliases** |
+| **Discovery properties** | Global tuning (timeouts, behaviour switches, file-discovery internals) shared by all schedules. | All > Discovery > **Properties** · `discovery_private_properties.list` |
+
+The pattern to notice: **schedules are the *when and where*, everything above is the *how* — and the *how* is all shared.** That is why the next deep dive (customizing a pattern) matters: change one pattern and every schedule that reaches it changes with it.
 
 ## Out-of-Box Features
 
@@ -104,6 +124,9 @@ Navigator shortcuts worth memorizing (type in the filter box):
 | Table | What it holds |
 |-------|---------------|
 | `discovery_schedule` | When Discovery runs, against which ranges |
+| `discovery_range_item` | The IP ranges attached to a schedule |
+| `sa_pattern` | Discovery patterns (out-of-box and custom copies) |
+| `discovery_behavior` | Behaviours: which functionality runs against which ranges |
 | `discovery_status` | One record per run — state, timing, devices found |
 | `discovery_log` | Human-readable messages from a run |
 | `discovery_device_history` | Per-device outcome per run |
@@ -146,6 +169,58 @@ Navigator shortcuts worth memorizing (type in the filter box):
 - **Enabling FBD before CDS sync finishes** — File-Based Discovery does not trigger until the initial Content Data Service synchronization completes (~24h).
 - **Scanning a whole drive by accident** — setting Folders To Scan to `C:/` scans *everything*; combined with a high Maximum Files cap it can hammer the target.
 - **Debugging in the CMDB** — when a run looks wrong, read the ECC Queue and Discovery Log first; the CI is the *result*, not the evidence.
+
+---
+
+## Deep Dive: Customizing an Out-of-Box Pattern — and Making Your Own
+
+Patterns are where Discovery's real behaviour lives, sooner or later every implementer has to change one: collect one more attribute, parse one vendor's odd output format, identify one application ServiceNow never heard of. There are three routes, in increasing order of commitment.
+
+### First, the anatomy
+
+A pattern (`sa_pattern`) is an ordered set of **steps** built in the **Pattern Designer**:
+
+- The **Identification section** runs first: its steps decide *what this thing is* and which CI type it becomes (matching on process, port, banner, or a file on disk).
+- **Connection sections** (mainly for Service Mapping) describe how to get from this CI to the next one.
+- Each step is built from **operations** — connect to the device, run a command or query, parse the output, match values, set CI fields, create relations to other CIs.
+
+**Where:** All > Discovery > Discovery Definition > **Patterns** — the list opens in Pattern Designer. Nothing about a pattern is edited on a normal form; it is all in the designer.
+
+### The golden rule
+
+**Out-of-box patterns are read-only. You never edit them in place** — the designer will not save changes to a ServiceNow pattern, and anything you forced in would be overwritten by the next upgrade or store release anyway. You customize a **copy**, or you **extend** the original (route 2).
+
+### Route 1 — Duplicate the pattern and own the copy
+
+1. **Open the original.** All > Discovery > Discovery Definition > **Patterns** > open the out-of-box pattern in Pattern Designer (e.g. the *Windows OS – Servers* pattern).
+2. **Make your copy.** Use the designer's create-from-existing / duplicate option so the copy — not the original — opens for editing. Rename it with your own prefix (e.g. `Acme — Windows OS – Servers`) so nobody mistakes it for vendor content.
+3. **Edit the steps in the copy.** Add or adjust operations: run an extra command, parse one more field, tighten the identification match. Steps read and write CI attributes, so work on the attributes your copy actually changes.
+4. **Test in Debug mode, inside the designer.** Debug runs your pattern against a real target IP and shows every step's input and output. Fix parsing here — never by re-running full schedules and reading tea leaves in the CMDB.
+5. **Point Discovery at your copy.** A pattern only runs when something calls it, and for horizontal Discovery that something is the **classifier**. All > Discovery > Discovery Definition > **Classifiers** > open the classifier (e.g. *Windows*) > set its **Pattern** field to your copy. From then on, that device type is explored by your version.
+6. **Prove it, then widen.** Run one schedule against one known IP, check the Discovery Status and the CI's attributes, then let normal schedules pick it up.
+
+**The cost, stated plainly:** your copy is frozen at the moment you made it. When ServiceNow ships an improved original, your copy does **not** get the improvement — after upgrades, diff your copies against the new originals and re-apply your changes to a fresh copy where the difference matters. Keep customized patterns few, prefixed, and documented, or this debt sneaks up on you.
+
+### Route 2 — Extend the original (when it offers extension sections)
+
+Some patterns expose **extension sections**: reserved places in the step sequence where you add your own steps (collect one extra file, read one extra registry key or config value) *without* forking the pattern. The base pattern stays vendor-maintained and keeps receiving updates; your extension rides along. If the change you need fits in an extension section, this is the right route — check for one in Pattern Designer before reaching for Route 1.
+
+### Route 3 — Build your own pattern from scratch
+
+For a device or application nothing ships for:
+
+1. **New pattern.** All > Discovery > Discovery Definition > **Patterns** > **New** in Pattern Designer. Set the pattern type and discovery type (**Horizontal** for classic Discovery) and name it with your prefix.
+2. **Identification section first.** Declare the CI type the pattern creates and the match logic that proves "this is that thing" (a running process, an open port plus banner, a signature file).
+3. **Add exploration steps.** Connect with the right credential type, collect with command/query operations, parse output into CI fields, and create relations (runs on, hosts, contains) so the CI lands connected, not orphaned.
+4. **Debug against a real target** until a single run produces exactly the CI you intended — no duplicates, no empty key fields.
+5. **Wire it to a classifier.** If it is a new device/app type, create the classifier too: All > Discovery > Discovery Definition > **Classifiers** > New — set the classification criteria (what answer on the wire means "use my pattern") and put your pattern in the classifier's **Pattern** field. Without this step your pattern exists but never runs.
+6. **Schedule it** like any other discovery — the schedule, ranges, behaviours and credentials from the re-usable inventory above all apply unchanged.
+
+| Route | Use it when | Upgrade behaviour |
+|-------|-------------|-------------------|
+| 1. Duplicate & own | You must change the original's core logic | Your copy is frozen — re-base after upgrades |
+| 2. Extension section | You only need to *add* collection steps | Base pattern keeps updating; extension survives |
+| 3. New pattern | No shipped pattern exists for the target | Entirely yours to maintain |
 
 ---
 
