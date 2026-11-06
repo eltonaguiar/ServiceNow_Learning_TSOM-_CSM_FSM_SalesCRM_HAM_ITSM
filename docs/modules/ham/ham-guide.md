@@ -12,7 +12,7 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
@@ -384,6 +384,24 @@ File Signature Normalization is a feature of the Software Asset Management (SAM)
 **Why it matters here:** HAM and SAM share the same discovered-data pipeline. Normalization quality decides whether discovered installs reconcile cleanly against entitlements — unnormalized or duplicated installs are how a license position quietly becomes fiction.
 
 ---
+
+
+### Worked Example: `superman.exe` → DC Comics Software
+
+Assume File-Based Discovery is configured to find all files that end in `.exe` or `.dll` (see the Discovery guide for the console setup):
+
+1. Discovered file information called **superman.exe** is sent to the MID Server and is compared, **based on the name**, against a synchronized list from the Instance.
+2. If **superman.exe** is on the list of files of potential software packages, the file is sent via the payload to the ServiceNow Instance.
+3. The ServiceNow Instance Sensor then processes the **superman.exe** file using the **Name, Size, and Version** to match it to a software package called **DC Comics Software**.
+4. If a match is found, a **software installation record is created** (normalized, in `cmdb_sam_sw_install`).
+
+**If a match is not found**, the file is added to the **Unidentified File Set** [`cmdb_unidentified_file_set`] table:
+
+- Users with the **sam_admin** role can create **custom file signature rules** for unidentified files manually.
+- The **next time Discovery runs**, the file will be associated with the customized mapping.
+- Customers that opt in to the content service can have their custom file signatures **sent to the CDS** for analysis and inclusion in the content service for future discovery.
+
+The attributes used for the match, every time: **file name**, **file size**, and **version** — if any of the three is wrong or missing in your discovered data, expect the match to fail and the file to land in the Unidentified File Set.
 
 ## Lab: Create Your First Asset
 

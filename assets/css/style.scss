@@ -157,6 +157,46 @@ body {
 #toc a { font-size: 0.86rem; padding: 3.5px 10px; }
 #toc a.toc-h3 { padding-left: 22px; font-size: 0.82rem; color: var(--ink-3); }
 #toc a.active { color: var(--accent); background: transparent; border-left-color: var(--accent); }
+
+/* ---- "On this page" sub-menu: collapsible in the sidebar, floating in top mode ---- */
+.side-label button {
+  all: unset; cursor: pointer; font: inherit; color: inherit; letter-spacing: inherit;
+  text-transform: inherit; display: inline-flex; gap: 6px; align-items: baseline;
+}
+#tocGroup.collapsed #toc { display: none; }
+.toc-panel, .toc-show { display: none; }
+[data-nav="top"] .toc-panel.open {
+  display: block; position: fixed; right: 16px; top: 73px; width: 252px; z-index: 40;
+  max-height: calc(100vh - 96px); overflow-y: auto;
+  background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 10px 10px 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+}
+.toc-panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px;
+}
+.toc-panel-head button {
+  all: unset; cursor: pointer; color: var(--ink-3); font-size: 0.8rem; padding: 2px 6px; border-radius: 6px;
+}
+.toc-panel-head button:hover { color: var(--ink); background: var(--bg-2); }
+#tocFloat a {
+  display: block; color: var(--ink-2); text-decoration: none; font-size: 0.86rem;
+  padding: 3.5px 10px; border-left: 2px solid transparent; border-radius: 0 7px 7px 0;
+}
+#tocFloat a.toc-h3 { padding-left: 22px; font-size: 0.82rem; color: var(--ink-3); }
+#tocFloat a:hover { color: var(--ink); }
+#tocFloat a.active { color: var(--accent); border-left-color: var(--accent); }
+[data-nav="top"] .toc-show.open {
+  display: inline-block; position: fixed; right: 16px; top: 73px; z-index: 40;
+  background: var(--bg-1); color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 7px 14px; cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+}
+[data-nav="top"] .toc-show.open:hover { color: var(--ink); border-color: var(--accent); }
+@media (max-width: 1180px) {
+  [data-nav="top"] .toc-panel.open, [data-nav="top"] .toc-show.open { display: none; }
+}
 .scrim {
   position: fixed; inset: 0; top: 57px; background: rgba(0,0,0,0.5); z-index: 30;
 }
