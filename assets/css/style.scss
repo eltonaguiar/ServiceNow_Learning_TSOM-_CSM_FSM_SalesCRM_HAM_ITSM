@@ -158,14 +158,9 @@ body {
 #toc a.toc-h3 { padding-left: 22px; font-size: 0.82rem; color: var(--ink-3); }
 #toc a.active { color: var(--accent); background: transparent; border-left-color: var(--accent); }
 
-/* ---- "On this page" sub-menu: collapsible in the sidebar, floating in top mode ---- */
-.side-label button {
-  all: unset; cursor: pointer; font: inherit; color: inherit; letter-spacing: inherit;
-  text-transform: inherit; display: inline-flex; gap: 6px; align-items: baseline;
-}
-#tocGroup.collapsed #toc { display: none; }
+/* ---- Table of Contents: floating panel, on screen at all times, hide-able ---- */
 .toc-panel, .toc-show { display: none; }
-[data-nav="top"] .toc-panel.open {
+.toc-panel.open {
   display: block; position: fixed; right: 16px; top: 73px; width: 252px; z-index: 40;
   max-height: calc(100vh - 96px); overflow-y: auto;
   background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px;
@@ -187,15 +182,15 @@ body {
 #tocFloat a.toc-h3 { padding-left: 22px; font-size: 0.82rem; color: var(--ink-3); }
 #tocFloat a:hover { color: var(--ink); }
 #tocFloat a.active { color: var(--accent); border-left-color: var(--accent); }
-[data-nav="top"] .toc-show.open {
+.toc-show.open {
   display: inline-block; position: fixed; right: 16px; top: 73px; z-index: 40;
   background: var(--bg-1); color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px;
   padding: 7px 14px; cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
   box-shadow: 0 8px 24px rgba(0,0,0,0.22);
 }
-[data-nav="top"] .toc-show.open:hover { color: var(--ink); border-color: var(--accent); }
+.toc-show.open:hover { color: var(--ink); border-color: var(--accent); }
 @media (max-width: 1180px) {
-  [data-nav="top"] .toc-panel.open, [data-nav="top"] .toc-show.open { display: none; }
+  .toc-panel.open, .toc-show.open { display: none; }
 }
 .scrim {
   position: fixed; inset: 0; top: 57px; background: rgba(0,0,0,0.5); z-index: 30;
