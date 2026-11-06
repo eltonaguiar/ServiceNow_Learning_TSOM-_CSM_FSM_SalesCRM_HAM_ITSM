@@ -338,9 +338,9 @@ Event Management Fundamentals → TSOM path.
 
 Free/self-directed complements (no subscription needed):
 
-- ServiceNow product documentation — *Explore / Configure / Use / Reference* for TSOM, plus the
+- [ServiceNow product documentation](https://www.servicenow.com/docs/) — *Explore / Configure / Use / Reference* for TSOM, plus the
   Telecom data model and TNI pages.
-- ServiceNow Community **Telecom** forum and the *What's new in ServiceNow's <release> release for
+- [ServiceNow Community](https://www.servicenow.com/community/) **Telecom** forum and the *What's new in ServiceNow's <release> release for
   Telecom* sessions (recorded).
 - The Best Practices Library (requires a ServiceNow account) linked from the TSOM docs landing page.
 
@@ -351,11 +351,11 @@ watching, in rough order of usefulness:
 
 | Video | Why watch it |
 |---|---|
-| *TSOM – Auto-discover and Reconcile Network, IT, and Cloud Inventory Data on a Single AI Platform* (`youtube.com/watch?v=rSQGXKCgwz8`) | The Visibility half: discovery + reconciliation, i.e. the data model this guide is about |
-| ServiceNow **Telecom** playlist (`youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc`) | TSM / TSOM / SOMT updates and quick demos in one place |
-| *What's new in ServiceNow's Zurich release for Telecom* (`youtube.com/watch?v=Njyt-YgpONY`) | Current-release feature walkthrough (Discovery Builder, Altiplano SGC, discrepancy audit) |
-| *Discover What's New: Yokohama Highlights for Telecom* (`youtube.com/watch?v=SBJrGFh2Unw`) | Prior-release context; useful for understanding how the product is evolving |
-| *Transform Telecommunications Field Service Operations* (`youtube.com/watch?v=DHn49aHeroo`) | The adjacent FSM story, useful for the end-to-end telco narrative |
+| [*TSOM – Auto-discover and Reconcile Network, IT, and Cloud Inventory Data on a Single AI Platform*](https://www.youtube.com/watch?v=rSQGXKCgwz8) | The Visibility half: discovery + reconciliation, i.e. the data model this guide is about |
+| [ServiceNow **Telecom** playlist](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc) | TSM / TSOM / SOMT updates and quick demos in one place |
+| [*What's new in ServiceNow's Zurich release for Telecom*](https://www.youtube.com/watch?v=Njyt-YgpONY) | Current-release feature walkthrough (Discovery Builder, Altiplano SGC, discrepancy audit) |
+| [*Discover What's New: Yokohama Highlights for Telecom*](https://www.youtube.com/watch?v=SBJrGFh2Unw) | Prior-release context; useful for understanding how the product is evolving |
+| [*Transform Telecommunications Field Service Operations*](https://www.youtube.com/watch?v=DHn49aHeroo) | The adjacent FSM story, useful for the end-to-end telco narrative |
 
 Treat partner videos (TSM showcases, webinars by consultancies) as context, not as documentation —
 several are several years old and describe pre-Zurich behaviour.
