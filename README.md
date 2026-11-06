@@ -68,7 +68,8 @@ model pages. The longer walkthroughs below remain the deep reference.
 ```
 ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 ├── README.md                          # This file
-├── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy
+├── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy (opencode)
+├── SUCCESS_PACK_HERMES.MD             # ServiceNow 2026 role landing strategy (hermes)
 ├── docs/
 │   ├── modules/
 │   │   ├── tsom/tsom-guide.md         # Telecom Service Operations Management
@@ -95,7 +96,8 @@ ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 ├── .github/
 │   └── workflows/
 │       └── pages.yml                  # GitHub Actions for GitHub Pages
-└── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy
+└── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy (opencode)
+├── SUCCESS_PACK_HERMES.MD             # ServiceNow 2026 role landing strategy (hermes)
 ```
 
 ---

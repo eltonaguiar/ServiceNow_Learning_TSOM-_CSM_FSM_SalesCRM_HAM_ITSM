@@ -69,7 +69,8 @@ Every module guide follows the same repeatable process:
 
 ## Additional Resources
 
-- **[SUCCESS_PACK_OPENCODE.MD](./SUCCESS_PACK_OPENCODE.MD)** — 90-day ServiceNow career landing strategy
+- **[SUCCESS_PACK_OPENCODE.MD](./SUCCESS_PACK_OPENCODE.MD)** — 90-day ServiceNow career landing strategy (opencode)
+- **[SUCCESS_PACK_HERMES.MD](./SUCCESS_PACK_HERMES.MD)** — ServiceNow 2026 role landing strategy (hermes)
 - **[Machine-readable module data](./data/modules.json)** — JSON with all module metadata
 - **[Scripts](./scripts/)** — Tavily/Firecrawl web search scraper and cached job data processor
 
