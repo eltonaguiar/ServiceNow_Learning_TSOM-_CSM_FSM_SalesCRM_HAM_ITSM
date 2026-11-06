@@ -279,6 +279,68 @@ ast_contract
 
 ---
 
+## Deep Dive: File-Based Discovery and the Discovery Configuration Console
+
+File-Based Discovery finds installed software on Windows, UNIX/Linux, and macOS machines from the files actually on disk — even when the software left no registration data (no installer record, no registry entry). It runs during the **exploration phase** of a normal Discovery, via the MID Server, and its results feed File Signature Normalization (next section) and the software installation records SAM reconciles against.
+
+**Prerequisites**
+
+- The **File-based Discovery plugin** (`com.snc.discovery.file_based_discovery`) must be activated — it is included with the Discovery subscription but activation has to be requested. Activating it also activates the SAM File Signature Normalization plugin (`com.snc.file_signature_normalization`).
+- Role required: **admin**.
+- File-Based Discovery does not trigger until the initial **Content Data Service (CDS) synchronization** has occurred — allow roughly 24 hours for the first CDS data set.
+- It is **disabled by default**, to avoid performance impact.
+
+### Breadcrumbs — Getting There and Everything Related
+
+| Destination | Breadcrumb |
+|-------------|------------|
+| **Discovery Configuration Console** (enable + configure) | All > Discovery > Discovery Definition > **Configuration Console** |
+| Discovery home / dashboard | All > Discovery > Dashboard |
+| Discovery schedules (what runs, when) | All > Discovery > Discovery Definition > Schedules |
+| Discovery status and logs (did the run work?) | All > Discovery > Status · All > Discovery > Discovery Log |
+| MID Servers (the probes run from here) | All > Discovery > MID Servers |
+| File discovery probes | All > Discovery > Discovery Definition > Probes → **Windows - File discovery** / **UNIX - File discovery** (the Windows probe carries the signed `filebaseddiscovery.ps1` script as a probe parameter) |
+| Internal file-discovery properties | Type `discovery_private_properties.list` in the navigator filter (table: `discovery_private_properties`) |
+| Wildcard / blacklist properties (system properties) | `glide.discovery.file_discovery.wildcard.windows` · `glide.discovery.file_discovery.blacklist.windows` (edited through the console's Extensions sections) |
+| Software installations created | `cmdb_sam_sw_install` |
+| Files that matched nothing | `cmdb_unidentified_file_set` (reviewed by `sam_admin` — see File Signature Normalization below) |
+| SWID tags (if enabled in the console) | `cmdb_swid_tag` |
+
+### Configuring It in the Console
+
+1. **Enable File Based Discovery** — the master toggle at the top of the console (toggle right = on).
+2. **Windows section**
+   - **Add %PATH% Folders To Scan List** — optionally include every folder on the system `%PATH%`.
+   - **Folders To Scan** — where Discovery looks. Defaults include `c:\program files*` and `%PATH%`. Add more with the path field + **Add Path**. To scan an entire drive, set the target path to `C:/`.
+     - *Scan-time tip:* Windows server scans are significantly faster if the default `c:\windows` folder is removed from the scan list.
+   - **Folders To Ignore** — folders (and their children) carved out of the scan list, e.g. `C:\Program Files\Temp`.
+   - **Extensions Blacklist** — extensions dropped on sight (see filtering rules below).
+   - **Extensions Wildcards** — additional extensions to collect (see filtering rules below).
+   - **Advanced** — platform-specific tuning.
+3. **Unix section** — the same folder/extension controls for UNIX/Linux targets.
+4. **Common section**
+   - **Maximum Files** — cap on files discovered per target (100000 in the console example).
+   - **Frequency** — how often File-Based Discovery re-runs against a CI. **Monthly by default.** After a CI is scanned, File-Based Discovery will not run on it again until this interval expires — a too-long interval is a common reason "File-Based Discovery didn't trigger."
+
+### How the Filtering Actually Works (a common misconception)
+
+It is **not** true that everything outside your extension wildcards is ignored. File-Based Discovery uses a layered filtering system:
+
+1. **The Core Target List (content-based).** ServiceNow automatically looks for files that match your active Software Signatures and File Signatures. If a signature specifies a file like `app.exe` or `version.txt`, Discovery looks for it **regardless** of the wildcard properties.
+2. **The Extension Wildcards (additive).** The property `glide.discovery.file_discovery.wildcard.windows` tells the system: *"In addition to the specific files required by my software signatures, also collect and evaluate any file that ends with these extensions."*
+3. **The Exclusion List (blacklist, hard filter).** The property `glide.discovery.file_discovery.blacklist.windows` acts as a hard filter: if a file matches a blacklisted extension (like `.log` or `.tmp`), it is dropped immediately — even if a signature or wildcard would otherwise have included it.
+
+**The rule of thumb**
+
+- If a file matches your **blacklist**, it is ignored.
+- If a file matches a **Software/File Signature**, it is collected.
+- If a file matches an **extension wildcard**, it is collected.
+- If a file matches **none of the above**, it is ignored.
+
+Collected files are matched against the CDS by name, size, and version; anything unmatched lands in `cmdb_unidentified_file_set` for a SAM admin to normalize — which is exactly the workflow in the next section.
+
+---
+
 ## Deep Dive: File Signature Normalization (SAM)
 
 File Signature Normalization is a feature of the Software Asset Management (SAM) application that maps discovered file attributes (such as name, size, version, and binary signatures) to standardized entries in the Content Data Service (CDS).
