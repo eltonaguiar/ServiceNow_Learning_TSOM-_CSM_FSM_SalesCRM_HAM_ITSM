@@ -15,6 +15,7 @@
 - [ELI5 — the whole module in plain English](#eli5--the-whole-module-in-plain-english)
 - [Where to Find It](#where-to-find-it)
 - [Prerequisites and availability](#prerequisites-and-availability)
+- [Exploring TSOM — the official picture (Australia docs)](#exploring-tsom--the-official-picture-australia-docs)
 - [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
 - [Using TSOM — the day-2 operational tasks (Australia docs)](#using-tsom--the-day-2-operational-tasks-australia-docs)
 - [Metrics: what is out of the box, and what you build](#metrics-what-is-out-of-the-box-and-what-you-build)
@@ -213,6 +214,55 @@ the "network-only" side pulls in apps you may not have.
 telecom service-assurance story* does, because CSM is where the subscriber, the entitlement and
 the case live.
 
+
+---
+
+## Exploring TSOM — the official picture (Australia docs)
+
+The Explore branch of the Australia docs is the product's own framing of itself. The guide's Purpose and ELI5 sections above are written in implementer language; this section records how ServiceNow itself defines TSOM, so nothing in the official picture is missing.
+
+**The definition.** TSOM is a solution for communication service providers (CSPs) to proactively monitor, analyze, and resolve network and service issues before they impact customers. Built on the ServiceNow AI Platform, it provides a unified view across distributed, multi-domain telecom environments — collecting, correlating, and prioritizing events from the access, transport, and core domains — with service availability, operational efficiency, and customer satisfaction as the stated outcomes.
+
+**How TSOM works** — six platform capabilities composed into one solution:
+
+1. **External event management via Telecommunications API notifications** — standardized alarm ingestion (configured in §5.3).
+2. **Event Management** — correlation, suppression, and prioritization of events.
+3. **Metric Intelligence** — threshold breaches, performance degradation, and anomalies detected in real time.
+4. **Health Log Analytics** — log analysis and root cause identification.
+5. **Service Impact Analysis** — assessing and tracing disruptions by infrastructure and service impact.
+6. **Service Graph Connectors and Discovery** — building the dynamic, telecom-aware CMDB.
+
+**Key features (the docs' list):** real-time event monitoring; event correlation & analysis; Telecom Visibility with impact traceability; Service Impact Analysis; Metric Intelligence; Health Log Analytics; automated remediation via guided workflows and playbooks; the telecom-aware CMDB; and alert management (correlation, grouping, automated responses).
+
+**Key benefits (the docs' list):** reduced MTTD and MTTR; improved operational efficiency through noise reduction and guided workflows; end-to-end visibility from infrastructure to customer-facing services; seamless integration with legacy and modern network management systems via open standards; and compliance verification aligned to TM Forum standards for service assurance.
+
+**Key personas:** NOC agents (monitor events, execute guided resolutions) · Service Assurance managers (trends and resolution metrics) · System Integrators / administrators (data ingestion, correlation rules, workflows) · Back-office analysts (root cause, CI relationships in the CMDB).
+
+**Platform integration:** TSOM is embedded in the AI Platform and integrates with Discovery, Service Mapping, CMDB, Flow Designer, and Playbooks — the same substrates the rest of this guide configures.
+
+### The Telecom data model
+
+The model the whole solution writes into. It extends the core CMDB CI model to represent telecom networks consistently and at scale, covering **physical and logical** components and organizing them with **containment and consumption** relationships. It is deliberately **technology-agnostic and extensible**: existing CMDB classes are reused wherever possible, and telecom-specific classes are introduced only where needed. Key components: network equipment and hardware (with contained components such as interface cards and ports) · interfaces and ports · sites and locations · links, circuits, and connections. Specialized hardware classes hang under Telco Equipment (`cmdb_ci_telco_equipment`) — the docs name the **Network Packet Broker** (`cmdb_ci_network_packet_broker`) as an example. **Domain-specific data models** specialize this core for a technology while keeping its structure — the docs give the **SD-WAN data model** (topology, services, operations) as the worked example, and the **MPN data model** from §6.4 is the other.
+
+### Telecom Visibility — and how it differs from ITOM Visibility
+
+Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or on-demand, multi-instance — e.g. Nokia Altiplano for GPON) · Discrepancy Identification & Reconciliation · telecom-centric data modeling (interface cards, slots, subslots, VLANs, ports) · CMDB integration via **Discovery Admin Workspace** (discovery tasks, reconciliation validation, schedule tuning, diagnostics) and **CMDB 360** (attribute history, source attribution, reconciliation rules in action). The pattern families named on this page go further than the five Use-branch patterns: Cisco ASR1K, 7613, Nexus 9000, Nexus 3548; Juniper MX80, MX104, MX240, MX460. Use cases the docs attach to it: Autonomous Network Operations, service fulfillment, service assurance, and audit & compliance.
+
+### Telecom Assurance
+
+The Explore page is short and worth recording exactly for its shape: assurance = **alert management** (managing, escalating, and resolving alerts) + **performance management** (analyzing network performance data to optimize service delivery), with Metric Intelligence and LEAP (Learning Enhanced Automation Platform) as the related platform capabilities. Everything else about assurance in this guide — API notifications, fault management, the metric pipeline, MPN — is the Configure/Use/Reference detail underneath those two headings (§5.3, §6.4).
+
+### Discrepancy identification — the full taxonomy
+
+The reconciliation capability (included with the TSOM Visibility plugin) runs **three** audits, not one: the **Telecom Discrepancy Audit**, the **Telecom Logical Connections Discrepancy Audit**, and the **Telecom Network Topology Discrepancy Audit**. Findings classify into three discrepancy types:
+
+- **Missing in network** — the CI is in inventory but no longer detected on the network (removed/decommissioned); the task offers remediation to retire or update the record.
+- **Mismatched CIs** — present in both, but different: **hierarchy mismatches** (parent-child structure wrong, e.g. a chassis holding more child cards than the model allows, or a card in the wrong slot — validated against `cmdb_rel_ci` Contains relationships and the TNI Network Model Relationships table [`sn_ni_core_network_model_relationship`]) and **attribute value mismatches** (discovery dates, model configurations, slot assignments — the CMDB 360 comparison of §5.3).
+- **Missing in CMDB** — discovered on the network but never inventoried (identified as new when creation date matches discovery date); one follow-on task per **equipment**, not per child CI, and task creation for this type can be switched off by system property.
+
+There is also a separate **Telecom SD-WAN Network Discrepancy Audit** over SD-WAN classes, scoped by default to CIs whose discovery source contains TSOM, marking each CI Certified or Failed: **Group** (`cmdb_ci_group`) needs a company reference plus at least one Service and one Site child; **Site** (`cmdb_ci_ni_site`) needs company + location + exactly one Group parent; **Service** (`cmdb_ci_network_service_instance`) needs company + exactly one Group parent; **Equipment** (classes from the `sn_tsom_core.audit.equipment_tables` property) needs company, at most one Service and one Site parent, and at least one IP Address child. Its discrepancy types are **missing reference**, **incorrect relationships**, and **missing in CMDB**.
+
+**Certification audit logics** — the exact matching conditions the audit runs under (the §5.1 audit properties, fully specified): an Audit Result (certified or failed; failed → Follow-On Task) is created for each relationship record in `cmdb_rel_ci` where parent **and** child classes are supported classes — slot (`cmdb_ci_container_slot`), subslot (`cmdb_ci_container_subslot`), card (`cmdb_ci_interface_card`), interface (`cmdb_ci_ni_interface`), telco equipment (`cmdb_ci_ni_telco_equipment`), IP switch (`cmdb_ci_ip_switch`), IP router (`cmdb_ci_ip_router`), including extensions — parent or child was created/updated by Discovery (default filter `discovery_source CONTAINS TSOM`), both CIs' lifecycle stage is **Operational**, and the relationship type matches `sn_tsom_core.audit.relationship_types`. Subsequent runs add the delta condition (Updated later than the audit's Last run date). The audit produces **nine named result types**, each a potential Follow-On Task: most recent discovery date not set · discovery date outside the configured threshold between parent and child (**default 2.5 days**, property `sn_tsom_core.discovered_date.diff.threshold.in.days`) · CI model not found (which short-circuits the model-dependent checks) · slots occupied discrepancy · model relationships not defined (**TNI installed only**) · incorrect number of relationships (**TNI installed only**; a second variant from the Logical Connections audit when a logical interface maps to more than one logical connection; a third from the Topology audit when a topology record lacks its required Contains equipment or Members logical-connection relationships) · reference to logical interface not found (a logical connection missing an endpoint).
 
 ---
 
