@@ -1,33 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-nav="side">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
 <meta name="description" content="{{ site.description }}">
+<script>
+  // Apply saved preferences before first paint (no flash).
+  (function () {
+    try {
+      var t = localStorage.getItem('sg-theme'); if (t) document.documentElement.dataset.theme = t;
+      var n = localStorage.getItem('sg-nav'); if (n) document.documentElement.dataset.nav = n;
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,420&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
-<header class="site-header">
-  <div class="wrap">
-    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-    <nav class="module-nav" aria-label="Module guides">
-      <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
-      <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM</a>
-      <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM</a>
-      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM</a>
-      <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM</a>
-      <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM</a>
-    </nav>
+<div class="bg" aria-hidden="true"><div class="bg-glow bg-glow-a"></div><div class="bg-glow bg-glow-b"></div><div class="bg-grid"></div></div>
+
+<header class="topbar">
+  <button class="icon-btn nav-burger" id="navBurger" aria-label="Open navigation">☰</button>
+  <a class="wordmark" href="{{ '/' | relative_url }}">ServiceNow<span class="wordmark-thin"> / Module Guides</span></a>
+  <div class="topbar-controls">
+    <div class="seg" role="group" aria-label="Menu position">
+      <button type="button" id="navTopBtn" title="Menu on top">Top</button>
+      <button type="button" id="navSideBtn" title="Menu on the left">Side</button>
+    </div>
+    <div class="seg" role="group" aria-label="Colour theme">
+      <button type="button" id="themeDarkBtn" title="Dark mode">Dark</button>
+      <button type="button" id="themeLightBtn" title="Light mode">Light</button>
+    </div>
   </div>
 </header>
-<main class="wrap content">
+
+<nav class="topnav" aria-label="Guides">
+  <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
+  <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM</a>
+  <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM</a>
+  <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM</a>
+  <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM</a>
+  <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM</a>
+  <a href="{{ '/getting-started/' | relative_url }}">Getting Started</a>
+</nav>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="side-group">
+      <p class="side-label">Guides</p>
+      <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM <span class="side-sub">Telecom Service Operations</span></a>
+      <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM <span class="side-sub">Customer Service</span></a>
+      <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM <span class="side-sub">Field Service</span></a>
+      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM <span class="side-sub">Leads to Orders</span></a>
+      <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM <span class="side-sub">Hardware Assets</span></a>
+      <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM <span class="side-sub">IT Service</span></a>
+    </div>
+    <div class="side-group">
+      <p class="side-label">Getting Started</p>
+      <a href="{{ '/getting-started/' | relative_url }}">Track overview</a>
+      <a href="{{ '/getting-started/foundation/' | relative_url }}">Foundation</a>
+      <a href="{{ '/getting-started/tsom/' | relative_url }}">TSOM start</a>
+      <a href="{{ '/getting-started/csm/' | relative_url }}">CSM start</a>
+      <a href="{{ '/getting-started/fsm/' | relative_url }}">FSM start</a>
+      <a href="{{ '/getting-started/sales-crm/' | relative_url }}">Sales CRM start</a>
+      <a href="{{ '/getting-started/ham/' | relative_url }}">HAM start</a>
+      <a href="{{ '/getting-started/itsm/' | relative_url }}">ITSM start</a>
+    </div>
+    <div class="side-group" id="tocGroup" hidden>
+      <p class="side-label">On this page</p>
+      <div id="toc"></div>
+    </div>
+    <div class="side-group">
+      <p class="side-label">Repository</p>
+      <a href="https://github.com/eltonaguiar/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM">GitHub source</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="content" id="content">
 {{ content }}
-</main>
-<footer class="site-footer">
-  <div class="wrap">
-    <p>ServiceNow Module Guides — TSOM · CSM · FSM · Sales CRM · HAM · ITSM. Content is a learning aid; verify product behaviour against your own instance and the official ServiceNow documentation.</p>
-  </div>
-</footer>
+    <footer class="page-footer">
+      <p>ServiceNow Module Guides — a working notebook, not product documentation. Verify behaviour against your own instance and the official ServiceNow docs.</p>
+    </footer>
+  </main>
+</div>
+
+<script src="{{ '/assets/js/site.js' | relative_url }}"></script>
 </body>
 </html>
