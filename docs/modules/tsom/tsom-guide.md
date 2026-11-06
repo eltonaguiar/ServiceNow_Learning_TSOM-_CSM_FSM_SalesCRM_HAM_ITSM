@@ -18,6 +18,7 @@
 - [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
 - [Metrics: what is out of the box, and what you build](#metrics-what-is-out-of-the-box-and-what-you-build)
 - [Workspaces you get, and how to learn this](#workspaces-you-get-and-how-to-learn-this)
+- [The TMT Recommended Implementation Sequence (Now Create)](#the-tmt-recommended-implementation-sequence-now-create)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -367,6 +368,53 @@ watching, in rough order of usefulness:
 Treat partner videos (TSM showcases, webinars by consultancies) as context, not as documentation —
 several are several years old and describe pre-Zurich behaviour.
 
+
+---
+
+## The TMT Recommended Implementation Sequence (Now Create)
+
+ServiceNow's own **Now Create** guidance for Telecommunications, Media & Technology sequences every TMT capability into five maturity phases — **Foundation → Crawl → Walk → Run → Fly** — placed by *when implementation may start*, not by product. Three principles run down the side of the official diagram: capabilities are placed by implementation timing and mature customers keep enhancing their initial implementations; you **realize incremental value with every product deployed**; and your maturity path is unique — some capabilities may never be required in your situation. The diagram's legend separates **TMT** capabilities from **Platform** capabilities and **Other Product** capabilities (ITSM/CMDB and the like).
+
+**Before you start** (the diagram's own checklist): 1. Understand TMT · 2. Determine your Desired Outcomes · 3. Plan the next step with Solution Planner · 4. Calculate Business Value · 5. Build a phased program plan · 6. Establish an Organization Change Management Plan — and the program-level gate underneath all of it: **executive sponsorship is in place**, and the customer is willing to embrace modern, lean approaches.
+
+### The five phases
+
+| Phase | What lands there |
+|-------|------------------|
+| **Foundation** | Customer and Service Organization Data Management · User Administration · Case Management · Case Types · Reporting · Configurable Workspace · Integrations · Configuration Management (CMDB) · **Site and Inventory Management** |
+| **Crawl** | Knowledge Management · Customer Facing Portal · Advanced Work Assignment · Chat · Email · Telephony Integration · Service Level Agreements · **Network Model Relationship** · Customer Central · Common Data Model (CSDM) · Platform Analytics |
+| **Walk** | Virtual Agent · Major Case Management · Automatic Case Categorization · Playbooks · **Network Inventory Workspace** · **Telco Assurance Workflows** · Proactive Customer Service · Change / Incident / Problem Management · Surveys and Assessment |
+| **Run** | Omni channel · **Sales and Order Management** · Domain Separation · Guided Decisions · **Network Inventory Templates** · Proactive Issue Notification · **TSOM Event Management** · Account Lifecycle Events · Communities · Request Management · Continual Improvement Management |
+| **Fly** | **Now Assist for TMT** · **TM Forum APIs** · Field Service Management · Process Mining · Workforce Optimization · **Network Change Models** · **Proactive Service Experience Workflows** · **TSOM — Operational Intelligence** · **Service Bridge** · **Horizontal Catalog Dependencies** · Predictive Intelligence |
+
+### Where TSOM actually lands — the part worth remembering
+
+TSOM is **not one phase**. Its pieces are deliberately spread across the whole path (bolded above): inventory in **Foundation** (Site and Inventory Management), network modelling in **Crawl** (Network Model Relationship), daily network operations in **Walk** (Network Inventory Workspace, Telco Assurance Workflows), event management in **Run** (TSOM Event Management), and intelligence in **Fly** (TSOM — Operational Intelligence, Network Change Models). Two consequences:
+
+- A "TSOM implementation" is really slices of a multi-phase program. If a customer has not done the Foundation/Crawl data work — customer data, CMDB, inventory, network model relationships — the Run/Fly TSOM capabilities have nothing solid to stand on. This is the same dependency the accreditation path shows (ITOM + CMDB + Event Management first), seen from the delivery side.
+- When you scope or interview for a TSOM role, locate the customer on this path first: the work, the team, and the success measures are completely different at Walk than at Fly.
+
+### Move to the next phase when…
+
+| Gate | Evidence the diagram asks for |
+|------|-------------------------------|
+| Foundation → Crawl | Minimum foundational data imported (customer & user); future data requirements assessed; Case Management with at least 1 Case Type in place; baseline measured for current KPIs; reporting in place to measure business outcomes |
+| Crawl → Walk | Foundational data required for Walk imported; Knowledge Management in place for agents to leverage; decrease in handling time from the swivel-chair improvement; increase in agent utilization |
+| Walk → Run | Visible increase in first contact resolution; case deflection due to self-service; reduction in case volume due to self-service; identification of the customer's preferred contact channel; decrease in case resolution time |
+| Run → Fly | Visible increase in agent productivity from reduced manual tasks; increase in case deflections due to Virtual Agent; reduction in ongoing case assignments; standardization in customer support; decrease in agent onboarding time |
+| Fly (steady state) | Automation of improvement initiatives (agent, customer); higher % of AI-driven decisions than non-AI; greater transparency for customers; same customer experience from in-sourced support as outsourced |
+
+### Success measures, by phase
+
+| Phase | Measures named on the diagram |
+|-------|-------------------------------|
+| Foundation | Agent productivity · agent satisfaction score · portal click-through rate · Average Handling Time · self-service usage rate · prospect conversion rate · cases not updated in the last 30 days |
+| Crawl | Customer churn · open-to-sales rate · summed call volume · Mean Time To Resolve cases · ticket resolution per hour · average case age · average case assignment duration |
+| Walk | Rate of customer loyalty · % of OLAs breached · rate of change requests closed successfully · Average Revenue Per User (ARPU) · problem by resolution code · Quality of Service · Return On Invested Capital |
+| Run | Average service outage · number of interactions per channel · number of events which ended in correlation · number of proactive alerts · number of call deflections · digital channels breakdown · number of Network Disruptions |
+| Fly | Number of truck rolls · First Call Resolution · impacted customers per month · summed applicable outage cost · network performance score · network operating cost · % of cases closed through automation |
+
+Note the shape of the Run/Fly measures — *events ending in correlation*, *proactive alerts*, *network disruptions*, *truck rolls*, *outage cost*: that is the TSOM value story told in the customer's numbers, and it only becomes measurable if the earlier phases built the inventory and event pipeline those numbers come from.
 
 ---
 
