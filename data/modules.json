@@ -256,7 +256,7 @@
   "confidence": "high",
   "why": "ITSM is ServiceNow's flagship application for managing IT services. ITSM covers Incident, Problem, Change, Change Task, Knowledge, and Configuration Management. It is the reference implementation of the platform—every other module follows the same patterns.",
   "primary_table": "incident",
-  "tables": ["incident", "problem", "change_request", "change_task", "task", "task_sla", "cmdb_ci", "kb_knowledge"],
+  "tables": ["incident", "problem", "change_request", "change_task", "task", "task_sla", "cmdb_ci", "kb_knowledge", "core_company", "cmdb_hardware_product_model", "cmdb_ci_business_app", "cmdb_ci_query_service", "service_offering", "cmdb_ci_service_group", "cmdb_ci_service_auto", "cmdb_ci_computer", "cmdb_sam_sw_install"],
   "roles": ["itil", "sn_incident.read", "sn_incident.write", "sn_change.write", "sn_problem.write", "admin"],
   "breadcrumbs": [
     "All > Incident > All",

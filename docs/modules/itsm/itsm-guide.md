@@ -268,6 +268,52 @@ cmdb_ci
 
 ---
 
+## Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)
+
+The Common Service Data Model (CSDM) framework connects raw configuration items (CIs) to the business and technical services that rely on them. When you use the Service Graph Connector for SCCM, it targets the **Design** and **Manage Technical Services** domains of the CSDM, primarily populating the technical physical layer (CIs) and occasionally mapping them to foundational elements like models and manufacturers.
+
+Here is a practical, end-to-end example of how a laptop brought in via SCCM maps across the CSDM domains.
+
+### The End-to-End Map
+
+| CSDM Domain | Table Name | Example Data / Record Name | Managed By / Source |
+|-------------|------------|----------------------------|---------------------|
+| Foundation (Core Metadata) | `core_company`, `cmdb_hardware_product_model` | Manufacturer: Lenovo · Model: ThinkPad X1 Carbon Gen 11 | Automatically normalized by Hardware Asset Management (HAM) using data ingested by the SCCM connector |
+| Design (What is planned) | `cmdb_ci_business_app` | SCCM Endpoint Management | Enterprise Architecture / IT Planning |
+| Manage Technical Services (How IT supports it) | `cmdb_ci_query_service` (Technical Service), `service_offering` (Tech Service Offering), `cmdb_ci_service_group` (Dynamic CI Group) | Technical Service: Workplace Compute Support · Offering: Windows Device Support – Gold · Dynamic CI Group: All Windows 11 Workstations | IT Support / Desktop Engineering. The Dynamic CI Group uses a CMDB query to automatically bundle all Windows 11 CIs populated by SCCM |
+| Sell / Consume (The Business view) | `cmdb_ci_service_auto` (Business Service), `service_offering` (Business Service Offering) | Business Service: Employee Digital Workspace · Offering: Standard Remote Employee Package | Product Owner / Business Units |
+| Build (The Infrastructure CIs) | `cmdb_ci_computer` (or `cmdb_ci_laptop`), `cmdb_sam_sw_install` | CI Name: LAPTOP-US-RE89 · Serial: L3-XYZ123 · OS: Windows 11 Pro · Software: MS 365, Adobe Acrobat | Service Graph Connector for SCCM. This is where the raw data contract lands, using the Identification and Reconciliation Engine (IRE) to avoid duplicates |
+
+### Visualizing the Relationships (Top-Down Object Model)
+
+The map establishes relationships between these layers so that if SCCM reports a laptop is broken, IT instantly understands the downstream business impact:
+
+```
+ [Sell/Consume]    Business Service: Employee Digital Workspace
+                          │
+                          ▼
+ [Sell/Consume]    Business Offering: Standard Remote Employee Package
+                          │
+                          ▼
+ [Technical]       Technical Service Offering: Windows Device Support - Gold
+                          │
+                          ▼
+ [Technical]       Dynamic CI Group: All Windows 11 Workstations
+                          │ (Automatically groups via CMDB Query)
+                          ▼
+ [Build / SCCM]    Configuration Item (CI): LAPTOP-US-RE89 (Lenovo ThinkPad)
+                          │
+                          ▼
+ [Foundation]      Product Model: ThinkPad X1 Carbon Gen 11 ──► Manufacturer: Lenovo
+```
+
+### Why This Mapping Matters for SCCM
+
+- **Dynamic Scoping:** Rather than manually linking thousands of laptops to a technical service, the CSDM uses a Dynamic CI Group. This group queries the CMDB for any laptop where `discovery_source = SG-SCCM` and `os = Windows 11`.
+- **Blast Radius Analysis:** When an incident ticket is opened against LAPTOP-US-RE89, the Service Desk can look upstream at the CSDM map to see that this affects the Windows Device Support – Gold offering and rolls up to the Employee Digital Workspace business service.
+
+---
+
 ## Lab: Create and Resolve Your First Incident
 
 1. **Navigate** to All > Incident > All
