@@ -219,12 +219,16 @@ body {
 .content li { margin: 5px 0; }
 .content strong { font-weight: 600; }
 
-/* tables: hairlines, mono header, no card shadow */
+/* tables: hairlines, mono header, no card shadow.
+   Tables always fit the page width — no sideways scrolling. Long unbreakable
+   strings (property names, table names) wrap mid-token instead of forcing
+   the table wider than the column and clipping the last columns. */
 .content table {
   border-collapse: collapse; width: 100%; margin: 16px 0 24px; font-size: 0.93rem;
-  display: block; overflow-x: auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
-.content th, .content td { padding: 9px 14px 9px 0; text-align: left; vertical-align: top; }
+.content th, .content td { padding: 9px 14px 9px 0; text-align: left; vertical-align: top; overflow-wrap: break-word; }
+.content td code, .content th code { overflow-wrap: anywhere; }
 .content thead th {
   font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--ink-3); font-weight: 500;
