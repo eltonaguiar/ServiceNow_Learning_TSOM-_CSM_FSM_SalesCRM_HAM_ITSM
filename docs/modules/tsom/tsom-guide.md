@@ -386,6 +386,20 @@ TSOM ships as a scoped application. This means:
 | Choice list | `sn_tsom.service_status` | Active, Pending, Suspended, Retired |
 | UI Policy | `sn_tsom.policy.validate_service_order` | Conditionally shows fields based on service type |
 
+### The re-usable metadata inventory
+
+TSOM reuses the Discovery/ITOM machinery plus its own telecom layer — these are the objects you configure once:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **TSOM discovery patterns** | The telecom pattern set (`sn_tsom_patterns` scope) that identifies network elements — reused by every telecom discovery run, and gated by the `sn_tsom_patterns.itom_pattern_enabled` property covered in section 5.1. Customizing one follows the Discovery guide's pattern deep dive (copy, never edit in place). | All > Discovery > Discovery Definition > **Patterns** (Pattern Designer) |
+| **Service Graph Connector definitions** | Each connector (Nokia Altiplano, NSP, Cisco Meraki, …) is a reusable definition: connection, data source, and the **Telecom Discovery Builder ETL** map that turns its payload into TNI-model CIs. Clone and adapt the ETL per connector — never edit the core map in place (see section 5.2). | All > Service Graph Connectors / the connector's guided setup |
+| **Discrepancy audit configuration** | The audit definition plus the `sn_tsom_core.audit.*` properties (log level, relationship types, discovery sources) form one reusable reconciliation rule set: it judges *every* discovered-vs-inventory comparison the same way. | CMDB Health / Compliance + the properties in section 5.1 |
+| **Event & alert rules (Event Management)** | Event rules, alert correlation rules, and maintenance windows are shared noise-reduction logic: defined once, applied to every alarm every connector raises — this is what turns raw traps into a workable alert list. | All > Event Management > **Event Rules** / **Alert Correlation** |
+| **Alarm API topic & subscriptions** | The Telecom Alarm Management Open API topic and its endpoint subscriptions are a single reusable integration contract for all southbound alarm sources. | IntegrationHub / Event Management (alarm path, section 5.2 step 9) |
+| **TM Forum API definitions** | The inventory/resource APIs TSOM exposes and consumes follow TM Forum contracts — one definition reused by every OSS/BSS integration instead of point-to-point mappings. | API / integration definitions for the TSOM applications |
+| **Service model templates (CSDM)** | The service and service-offering structures impact analysis walks: defined once in the CMDB, reused by every alert's blast-radius calculation. | All > Configuration (services / offerings) — see the ITSM guide's CSDM deep dive |
+
 ### Re-usable Code Snippets
 
 #### REST Message Outbound (Telco API call)

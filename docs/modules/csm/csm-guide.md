@@ -68,6 +68,22 @@ CSM ships as a scoped application (`com.snc.customerservice`).
 | Choice list | `sn_customerservice.case_state` | New, In Progress, Resolved, Closed |
 | UI Policy | `sn_customerservice.policy.entitlement_required` | Hides fields when no entitlement |
 
+### The re-usable metadata inventory
+
+CSM's real reuse is configuration, not code. These are the objects you design once and every case then inherits:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **Case types & case type rules** | A case type defines the fields, states, and flow for one class of customer issue (billing, product support, …). Define the type once; every case of that type follows it. Case type rules then route by product, account, or channel. | All > Customer Service > **Case Types** |
+| **Playbooks (Process Automation)** | Guided, reusable case flows: the same resolution procedure (intake → diagnose → resolve → close) attached to many case types instead of being re-taught to every agent. | All > Process Automation > **Playbook Designer** |
+| **Decision tables** | Routing, entitlement, and approval decisions kept as editable tables (`sys_decision`) that flows, business rules, and playbooks all consult — change the decision once, every consumer changes. | All > System Definition > **Decision Tables** |
+| **Entitlements & service contracts** | The reusable coverage definitions (`sn_customerservice_entitlement`, contracts): what support an account/product is owed, checked automatically on every case. | All > Customer Service > **Entitlements** / **Contracts** |
+| **SLA definitions** | Response/resolution clocks defined once and attached across case types and priorities (`task_sla` is the running record; the definition is the reusable part). | All > Service Level Management > **SLA Definitions** |
+| **Assignment rules & AWA queues** | Assignment rules route cases by account, product, and skill; Advanced Work Assignment queues and work-item definitions are configured once and reused by every channel (chat, case, phone). | All > Customer Service > **Assignment** · All > Advanced Work Assignment > **Queues** |
+| **Service definitions (CSDM)** | The services a customer can raise cases against — the same service/offerings model ITSM consumes, so a case and an incident can point at one service record. | All > Customer Service > **Service Definitions** |
+| **Accounts, contacts & relationships** | The customer master data (`customer_account`, contacts, account relationships, consumer records): entered once, referenced by every case, entitlement, asset, and order. Bad reuse here poisons everything downstream. | All > Customer Service > **Accounts** / **Contacts** |
+| **Knowledge bases & article templates** | Article templates and feedback loops shared by agents and the customer portal — one well-kept article serves thousands of cases. | All > Knowledge > **Knowledge Bases** |
+
 ### Re-usable Code Snippets
 
 #### Business Rule: Auto-assign Case Based on Account

@@ -69,6 +69,22 @@ FSM ships as a scoped application (`com.snc.field_service`).
 | UI Policy | `sn_fsm.policy.validate_schedule` | Validates scheduled start/end |
 | Business Rule | `sn_fsm.rule.auto_dispatch` | Auto-assigns based on territory/skills |
 
+### The re-usable metadata inventory
+
+FSM runs on structures you build once and dispatch reuses thousands of times:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **Work order & task templates** | Pre-built bundles of tasks (with parts, skills, and estimated duration) for a standard job — "install", "repair visit", "inspection". A dispatcher picks the template instead of composing tasks by hand. | All > Field Service > **Templates** |
+| **Territories** | The geographic structure (`wm_territory`) that dispatch, coverage, and reporting all share. Territories nest, so a region defined once serves every schedule under it. | All > Field Service > **Territories** |
+| **Skills & the skills matrix** | Skills and levels defined once (`sys_user_has_skill` on agents), matched by auto-assignment against each task's required skills. The matrix is the reusable asset; keep it current or dispatch quality decays silently. | All > Field Service > **Skills** · agent records |
+| **Dynamic Scheduling configuration** | The reusable optimisation rules: task ordering and prioritisation, travel-time handling, unassignment/reassignment behaviour. Tuned once, applied to every auto-assignment run. | All > Field Service > **Dynamic Scheduling** |
+| **Parts requirements & sourcing rules** | Standard parts lists per task type, plus the rules for which stockroom supplies them — defined per template, consumed by every work order created from it. | On the task template · All > Field Service > **Stockrooms** |
+| **Agent schedules & calendars** | Shifts, availability, and time-off structures reused across weeks — dispatch only offers work inside these, so they are shared infrastructure, not per-order data. | All > Field Service > **Agent Schedules** |
+| **Crews** | Standing multi-person teams (`wm_crew`) assignable as one unit, reused across orders instead of rebuilding the team each time. | All > Field Service > **Crews** |
+| **Questionnaires / checklists** | Safety checks and completion forms defined once and attached to task types — every "gas work" task carries the same checklist. | All > Field Service > **Questionnaires** |
+| **Appointment booking windows** | The bookable time windows and booking rules customers see, configured once per service/territory. | All > Field Service > **Appointment Booking** |
+
 ### Re-usable Code Snippets
 
 #### Business Rule: Auto-assign Work Order by Territory and Skill

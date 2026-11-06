@@ -74,6 +74,21 @@ HAM is part of the ITAM application (`com.snc.iam`), not a fully scoped app. Tab
 | UI Policy | `sn_iam.policy.validate_asset_tag` | Validates asset tag uniqueness |
 | Business Rule | `sn_iam.rule.auto_assign_asset_tag` | Auto-generates asset tag |
 
+### The re-usable metadata inventory
+
+HAM is almost entirely reusable metadata — the asset records are the *output* of these definitions:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **Model categories & models** | The master classification every asset hangs off: model categories (`cmdb_model_category`) group models (`alm_asset_model`), and the model drives lifecycle, depreciation, and normalization defaults for thousands of assets at once. Get this layer right and most of HAM follows. | All > Asset > **Models** / **Model Categories** |
+| **Normalization rules & the Content Service** | CDS content plus your own normalization rules turn messy discovered names into clean publisher/product/version — applied automatically to every discovery import. File-signature rules are the file-level equivalent (see the FSN deep dive below, incl. `samp_custom_file_name` for in-house software). | All > Software Asset > **Normalization** · HAM content in the HAM guide's deep dives |
+| **Stockrooms & stock rules** | Stockrooms (`alm_stockroom`) hold inventory; stock rules define reorder thresholds and transfer behaviour once, then fire automatically whenever stock moves. | All > Asset > **Stockrooms** / **Stock Rules** |
+| **Depreciation schedules** | The financial write-down method (straight-line, etc.) and period defined once per model/category and applied to every asset in it — never per asset. | All > Asset > **Depreciation** |
+| **Lifecycle flows (Flow Designer)** | HAM's refresh, disposal, RMA, and lease-return processes ship as flows: reusable, versioned automation that asset tasks invoke instead of ad-hoc scripts. | All > Process Automation > **Flow Designer** (HAM flows) |
+| **Asset task & disposal templates** | Standard task sets for receiving, deploying, swapping, and disposing — a disposal *order* pattern (wipe, recycle, certificate) defined once and reused for every retirement. | All > Asset > **Asset Tasks** / **Disposal** |
+| **Contract templates & terms** | Contract types, renewal terms, and coverage clauses defined once and instantiated per vendor agreement (`ast_contract`). | All > Contract > **Contracts** |
+| **Catalog & procurement models** | The vendor catalog items and product models purchasing orders against — the same model record later becomes the asset's model, closing the procure-to-retire loop. | All > Self-Service > **Product Catalog** |
+
 ### Re-usable Code Snippets
 
 #### Business Rule: Auto-generate Asset Tag

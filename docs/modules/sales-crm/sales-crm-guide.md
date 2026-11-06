@@ -71,6 +71,21 @@ ServiceNow Sales CRM ships as a scoped application.
 | UI Policy | `sn_sales.policy.validate_quote` | Validates quote before submission |
 | Business Rule | `sn_sales.rule.auto_create_opportunity` | Creates opportunity from qualified lead |
 
+### The re-usable metadata inventory
+
+In Sales & Order Management, the catalog *is* the reusable metadata — orders are just instantiations of it:
+
+| Re-usable piece | What it is | Where it lives (breadcrumb) |
+|-----------------|------------|------------------------------|
+| **Product specifications** | The reusable definition of what a product *is* (a fibre line, a handset, a licence) with its characteristics — defined once, sold through many offerings, decomposed the same way every time. | All > Sales and Order Management > **Product Specifications** |
+| **Characteristics & values** | The shared attribute vocabulary (bandwidth, colour, term length, region) with allowed values. One characteristic definition serves every specification, offering, quote, and order that touches it — this is the module's deepest reuse. | On specifications / offerings (Characteristics) |
+| **Product offerings** | The sellable packaging of specifications: bundles, eligibility, and commercial terms layered over the same underlying specs. Many offerings, one spec. | All > Sales and Order Management > **Product Offerings** |
+| **Price lists & pricing rules** | Prices live in price lists and pricing matrices/rules, never on the quote: a price change is made once in the list and every new quote and order reads it. | All > Sales and Order Management > **Pricing** |
+| **Decomposition rules** | The reusable mapping from what was sold to what must be fulfilled: one commercial product decomposes into domain orders and tasks the same way on every order. Change the rule, change all future fulfilment. | On the specification / offering (Decomposition) |
+| **Orchestration plans & order task templates** | The fulfilment plan definitions per product — sequence, dependencies, jeopardy points — instantiated per order line instead of being designed per order. | All > Sales and Order Management > **Order Management** (plan definitions) |
+| **Quote & order templates** | Standard quote structures and terms reused across opportunities, so sellers start from the approved pattern rather than a blank page. | All > Sales and Order Management > **Quotes** |
+| **TM Forum API contracts** | The catalog/order APIs (TMF620 catalog, TMF622 ordering, TMF641 service ordering) are fixed contracts: every channel and integration reuses the same definitions, which is what makes multi-channel selling possible. | Developer / API documentation for the SOM applications |
+
 ### Re-usable Code Snippets
 
 #### Business Rule: Auto-create Opportunity from Qualified Lead
