@@ -273,7 +273,18 @@ Section 5.2 is the order an implementer actually works in. This section maps it 
 | Service Graph Connector for Meraki Telco SD-WAN | `sn_tsom_meraki_connector` | Telecom Visibility |
 | Service Graph Connector for VeloCloud Telco SD-WAN | `sn_tsom_vcloud_connector` | Telecom Visibility |
 
-**Configure Telecom Visibility** (the docs' first configuration branch):
+**Configure Telecom Visibility** (the docs' first configuration branch). The Visibility setup page itself is specific: role required is **tsom_visibility_admin**, the instance must be licensed for TSOM, and the procedure is install the plugins, then update **CMDB CI Class Models to version 1.82 or later** (`sn_cmdb_ci_class` — that version introduces the telecom-specific IRE identification rules; installing a TSOM plugin updates it automatically, but pre-Yokohama instances may need it installed manually). The Visibility subscription's own plugin IDs:
+
+| Plugin | ID |
+|---|---|
+| Service Graph Connector for Nokia Altiplano | `sn_sgc_altiplano` |
+| Service Graph Connector for Meraki Telco SD-WAN | `sn_sgc_meraki` |
+| Service Graph Connector for Fortinet Telco SD-WAN | `sn_sgc_fortinet` |
+| Service Graph Connector for VeloCloud Telco SD-WAN | `sn_sgc_vcloud` |
+| Telecommunications Discovery Patterns | `sn_tsom_patterns` |
+| Telecom Visibility core logic | `sn_tsom_core` |
+
+  Before upgrading, **review any custom IRE rules on telecom CIs** — the 1.82 class models can override or impact custom identification rules, specifically for `cmdb_ci_interface_card`, `cmdb_ci_slot`, `cmdb_ci_subslot`, and `cmdb_ci_network_adapter`; validate and merge custom logic after the update.
 
 - **Install Horizontal Discovery** — the pattern-based discovery install that Telecom Discovery depends on.
 - **Activate Discrepancy and Reconciliation**, which itself has three configuration children the implementer must know separately: **configure the certification filter for the audit** (which CIs the audit examines), **configure attribute comparison settings** for attribute value discrepancy in **CMDB 360**, and **control CI attribute updates using reconciliation rules** (which source is allowed to overwrite which attributes — the control that stops a noisy source from clobbering good data).
@@ -290,7 +301,7 @@ Section 5.2 is the order an implementer actually works in. This section maps it 
 
 **Configure Telecom Assurance** (the docs' second branch):
 
-- **Configure API notifications**: create a **topic** → create a **topic subscription** → **activate the endpoint in the Telecommunications Alarm Management Open API**. The reference side names the tables and roles: Topic [`sn_api_notif_mgmt_topic`] and Topic Subscription [`sn_api_notif_mgmt_subscription`], with standard roles for administering them.
+- **Configure API notifications**: create a **topic** (manually, or auto-collected from the external system) → create a **topic subscription**, which generates the **callback URL** you register → **activate the endpoint in the Telecommunications Alarm Management Open API** connection, in **Workflow Studio** → hand the callback URL to the external system. From then on, **TMF 688** requests hitting the callback URL initiate the **Default Alarm Event Notification Trigger** flow, which creates the event; external trigger definitions create/update/delete events through the Event Notification Management Open API (the scoped utility behind it is `TMFTopicEventAPIUtilOOB`). The reference side names the tables and roles: Topic [`sn_api_notif_mgmt_topic`] and Topic Subscription [`sn_api_notif_mgmt_subscription`], with standard roles for administering them.
 - **Configure a webhook** for fault management event intake.
 - **Configure a metric pull connector**, and the MPN-specific family: **elastic event pull connectors for MPN**, **elastic connectors for MPN alarm collection**, and **security log collection for MPN**.
 - **Override the default metric-to-CI binding** when a connector's metrics land on the wrong CI.
@@ -302,12 +313,12 @@ Section 5.2 is the order an implementer actually works in. This section maps it 
 
 The docs' "Using TSOM" page lists what operations teams actually *do* once configuration is done — proactively monitor services, validate data integrity, and reconcile discrepancies so the telecom-aware CMDB stays accurate. Four task families:
 
-1. **Run Telecom Discrepancy audits.** Certification audits, run on the CMDB Compliance framework, validate the integrity of CIs and their relationships across telecom inventory against discovered data and reconciliation rules (the audit properties and filters are the §5.1/§5.3 configuration above).
+1. **Run Telecom Discrepancy audits.** Certification audits, run on the CMDB Compliance framework, validate the integrity of CIs and their relationships across telecom inventory against discovered data and reconciliation rules (the audit properties and filters are the §5.1/§5.3 configuration above). The mechanics, from the docs' run page: All > Compliance > **Audits** > open the **Telecom Discrepancy Audit** record (`cert_audit`) > optionally pick a filter > **Run Audit** (or schedule it as a recurring job). Auditing is **phased** — the initial run validates relationships for the supported classes (Slot, Subslot, Card, Interface, Network Gear, including extensions) from sources such as `discovery_source = SG-TSOM-Altiplano` over `Contains::Contained By`; subsequent runs additionally check whether relationships/related CIs changed since the last run. **Every failed audit automatically creates a Follow-On Task** with the discrepancy described (their worked example: Card04 physically replaced by Card05 in Slot04, CMDB still showing Card04 → failed audit → task). Remediation is one click from the task: the **Remediate** UI action runs the **`TSOM CI Decommission`** subflow, which retires the outdated CI and removes the incorrect relationship — and you can attach your own remediation subflows in Flow Designer instead of the shipped examples.
 2. **Validate attribute value mismatches in CMDB 360.** The Attribute Value Discrepancy feature compares attribute values *across discovery sources* — and against the CMDB baseline — and the **attribute value discrepancy report** is how you surface conflicts and outdated records for cleanup. This is a different lens from the relationship audit: relationships vs attribute values.
 3. **Use Telecom Discovery patterns.** Pattern-based discovery identifies and classifies network functions (**xNFs**) from vendor devices — Cisco, Juniper, routers, switches — and maps them into the CMDB. The docs give each shipped pattern its own xNF classification page: **Telecom Router Pattern**, **Telecom Cisco 7613 Router Pattern**, **Telecom Juniper MX SSH Router Pattern**, **Telecom Cisco Switch Pattern**, and **Telecom Switch Pattern**.
 4. **Run and verify import jobs from Service Graph Connectors.** Manually trigger an import schedule (the docs walk through Nokia Altiplano, and the same run-and-verify pattern for Fortinet, Meraki, and VeloCloud) and verify topology and device data landed in the CMDB mapped to the correct CI classes.
 
-Plus the utility every implementer should know exists: **validate JSON payloads with the TSOM Schema Validator** — the `TsomSchemaValidator` utility class checks a payload against TSOM schemas *before* import, so malformed data is caught early instead of surfacing as ETL failures.
+Plus the utility every implementer should know exists: **validate JSON payloads with the TSOM Schema Validator** — instantiate `new sn_tsom_core.TsomSchemaValidator()` and call **`isValidJson(payload)`** for a boolean check, or **`checkJsonValidation(payload)`** for the detailed result (a JSON object naming the schema and each error's message, code, data path, and schema path). It validates the telco object families the ETL ingests — Logical Composites, Devices, Logical Connections, Port Relations, Logical Connection Relations, and Topologies (schemas supplied by `TsomGenericSchema`) — *before* an import set exists, so malformed data is caught early instead of surfacing as ETL failures.
 
 ---
 
