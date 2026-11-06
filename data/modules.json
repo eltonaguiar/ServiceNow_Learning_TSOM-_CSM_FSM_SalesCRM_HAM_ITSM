@@ -206,7 +206,7 @@
   "confidence": "high",
   "why": "Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT Asset Management (ITAM). HAM tracks physical IT assets—laptops, servers, monitors, phones, printers, and other hardware—from procurement through disposal.",
   "primary_table": "alm_asset",
-  "tables": ["alm_asset", "alm_hardware", "alm_license", "alm_asset_model", "ast_contract", "cmdb_ci_hardware", "cmdb_model"],
+  "tables": ["alm_asset", "alm_hardware", "alm_license", "alm_asset_model", "ast_contract", "cmdb_ci_hardware", "cmdb_model", "samp_file_set", "samp_file_map", "samp_file_name", "samp_custom_file_name", "cmdb_unidentified_file_set"],
   "roles": ["asset", "itil", "sam", "sn_hamp_admin", "admin"],
   "breadcrumbs": [
     "All > Asset Management > Assets > All",

@@ -279,6 +279,31 @@ ast_contract
 
 ---
 
+## Deep Dive: File Signature Normalization (SAM)
+
+File Signature Normalization is a feature of the Software Asset Management (SAM) application that maps discovered file attributes (such as name, size, version, and binary signatures) to standardized entries in the Content Data Service (CDS).
+
+### How It Works
+
+- **Discovery Mapping:** During Discovery jobs, raw file details gathered from endpoints are compared against known CDS signatures to automatically create normalized software installation records.
+- **Unidentified Files:** If a discovered file (like a custom or unrecognized .exe) is not in the content library, the system generates a `cmdb_unidentified_file_set` record. A SAM administrator (`sam_admin` role) can review these and create custom normalization rules, which can optionally sync back to the CDS.
+- **Duplicate Handling:** If identical or overlapping software installations are discovered from multiple sources, File Signature Normalization marks duplicate records as inactive by default.
+- **Required Plugin:** This functionality requires activating the File Signature Normalization plugin (`com.snc.file_signature_normalization`) alongside Software Asset Management.
+
+### Tables It Introduces
+
+| Table | Purpose |
+|-------|---------|
+| `samp_file_set` | Discovered file sets matched against signatures |
+| `samp_file_map` | Mapping between discovered files and normalized entries |
+| `samp_file_name` | Known file names from the content library |
+| `samp_custom_file_name` | Custom file-name rules created by SAM admins |
+| `cmdb_unidentified_file_set` | Discovered files with no CDS match, queued for admin review |
+
+**Why it matters here:** HAM and SAM share the same discovered-data pipeline. Normalization quality decides whether discovered installs reconcile cleanly against entitlements — unnormalized or duplicated installs are how a license position quietly becomes fiction.
+
+---
+
 ## Lab: Create Your First Asset
 
 1. **Navigate** to All > Asset Management > Assets > All
