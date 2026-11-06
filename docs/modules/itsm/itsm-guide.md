@@ -8,6 +8,22 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
+- [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 IT Service Management (ITSM) is ServiceNow's flagship application for managing IT services. ITSM covers Incident, Problem, Change, Change Task, Knowledge, and Configuration Management. It is the reference implementation of the platform—every other module follows the same patterns. ITSM defines how IT receives, prioritizes, assigns, resolves, and reports on service disruptions and planned changes.

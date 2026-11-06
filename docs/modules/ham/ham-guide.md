@@ -8,6 +8,23 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
+- [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
+- [Lab: Create Your First Asset](#lab-create-your-first-asset)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT Asset Management (ITAM). HAM tracks physical IT assets—laptops, servers, monitors, phones, printers, and other hardware—from procurement through disposal. HAM answers: *What do we own, where is it, who has it, when was it bought, when does it expire, and what does it cost?* HAM is distinct from SAM (Software Asset Management) though they share the ITAM application.
@@ -280,6 +297,8 @@ ast_contract
 ---
 
 ## Deep Dive: File-Based Discovery and the Discovery Configuration Console
+
+> **Full module:** File-Based Discovery now has a complete home in the [Discovery module guide](../discovery/discovery-guide.md) — console areas, the filtering model, worked examples, and the three-step run-and-verify procedure (Status record + the `snc_tmp_*.tmp` scan file on the target). This section keeps the SAM-side configuration view.
 
 File-Based Discovery finds installed software on Windows, UNIX/Linux, and macOS machines from the files actually on disk — even when the software left no registration data (no installer record, no registry entry). It runs during the **exploration phase** of a normal Discovery, via the MID Server, and its results feed File Signature Normalization (next section) and the software installation records SAM reconciles against.
 

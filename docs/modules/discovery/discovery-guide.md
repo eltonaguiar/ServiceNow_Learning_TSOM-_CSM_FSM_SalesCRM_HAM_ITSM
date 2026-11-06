@@ -1,0 +1,275 @@
+# Discovery — ITOM Discovery
+
+Discovery is how ServiceNow finds out what actually exists on the network. It logs into servers, network devices, and cloud accounts through a MID Server, identifies each device, and creates or updates its Configuration Item (CI) in the CMDB — including the software installed on it. Everything upstream (ITSM impact analysis, SAM license counts, TSOM inventory reconciliation) is only as good as what Discovery put in the CMDB.
+
+This guide covers classic Discovery end to end, with a deep focus on **File-Based Discovery (FBD)**: how to reach the Discovery Configuration Console, how to configure it area by area, how filtering really works, and how to run an FBD scan and prove it executed — on the instance *and* on the target device.
+
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [How Discovery Works](#how-discovery-works)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Deep Dive: The Discovery Configuration Console](#deep-dive-the-discovery-configuration-console)
+- [Deep Dive: File-Based Discovery](#deep-dive-file-based-discovery)
+- [Deep Dive: Running File-Based Discovery](#deep-dive-running-file-based-discovery)
+- [Deep Dive: From Files to Licenses — File Signature Normalization](#deep-dive-from-files-to-licenses--file-signature-normalization)
+- [Lab: Run Your First Discovery and File-Based Scan](#lab-run-your-first-discovery-and-file-based-scan)
+- [Quiz](#quiz)
+
+---
+
+## Purpose
+
+- **Populate the CMDB with facts, not spreadsheets.** Discovery scans IP ranges on a schedule and keeps CIs current as devices change.
+- **Identify hardware and software.** Servers, VMs, network gear, databases — and, with File-Based Discovery, the software files physically present on a machine, even software that never registered itself anywhere.
+- **Feed everything else.** ITSM uses CIs for impact; SAM reconciles installations against entitlements; HAM matches discovered devices to asset records; TSOM reconciles discovered network state against inventory (see the TSOM guide's discrepancy checks).
+
+## Where to Find It
+
+| Destination | Breadcrumb |
+|-------------|------------|
+| Discovery dashboard / home | All > Discovery > Dashboard |
+| **Discovery Configuration Console** | All > Discovery > **Discovery Definition > Configuration Console** |
+| Discovery schedules | All > Discovery > Discovery Definition > Schedules |
+| Discovery status (per-run record) | All > Discovery > Status |
+| Discovery log | All > Discovery > Discovery Log |
+| MID Servers | All > Discovery > MID Servers |
+| Credentials | All > Discovery > Credentials |
+| Probes and patterns | All > Discovery > Discovery Definition > Probes · Patterns |
+| Internal Discovery properties | Type `discovery_private_properties.list` in the navigator filter |
+| Software installations created | `cmdb_sam_sw_install` |
+| Files that matched nothing | `cmdb_unidentified_file_set` |
+
+Roles that matter: **discovery_admin** (configure and run Discovery), **admin**, the MID Server's service account user (with the `mid_server` role) on the instance side, and local/domain credentials on the target side.
+
+## How Discovery Works
+
+A Discovery run moves through four phases, all coordinated through the **ECC Queue** (`ecc_queue`) between the instance and a **MID Server** sitting inside the network:
+
+1. **Scanning** — port probes (Shazzam) find live IPs and open ports.
+2. **Classification** — classifiers decide what kind of device answered (Windows server, Linux, switch, …).
+3. **Identification** — identification rules and the Identification and Reconciliation Engine (IRE) match the device to an existing CI or create a new one — this is what prevents duplicates.
+4. **Exploration** — probes and patterns gather the detail: OS, CPU, memory, running processes, installed software — and this is the phase where **File-Based Discovery runs**.
+
+Work is sent to the MID Server as ECC Queue **output** records; results come back as **input** records, where sensors/pattern steps process them into the CMDB.
+
+## Re-usable Code / Metadata
+
+Check the latest Discovery status for a CI from a script or background job:
+
+```javascript
+// Most recent Discovery status that touched a given CI
+var st = new GlideRecord('discovery_status');
+st.addQuery('cmdb_ci', current.sys_id); // or a sys_id string
+st.orderByDesc('sys_created_on');
+st.setLimit(1);
+st.query();
+if (st.next()) {
+  gs.info('Last run: ' + st.getValue('sys_id') +
+          ' | State: ' + st.getDisplayValue('state') +
+          ' | Created: ' + st.getValue('sys_created_on'));
+}
+```
+
+Navigator shortcuts worth memorizing (type in the filter box):
+
+| Shortcut | Opens |
+|----------|-------|
+| `discovery_status.list` | All Discovery run records |
+| `discovery_log.list` | The Discovery log |
+| `ecc_queue.list` | MID Server in/out traffic — the first place to debug a stuck run |
+| `discovery_private_properties.list` | Internal Discovery properties (incl. file-discovery internals) |
+| `cmdb_unidentified_file_set.list` | Files File-Based Discovery could not match |
+| `cmdb_sam_sw_install.list` | Software installations |
+
+## Out-of-Box Features
+
+- **Discovery schedules** — recurring scans by IP range, with behaviours that control which probes run where.
+- **Patterns** — the modern, declarative way to explore devices and applications (replacing probe/sensor pairs for most content).
+- **Discovery Configuration Console** — one place to control which CI types and information get discovered, File-Based Discovery, and SWID tags.
+- **File-Based Discovery** — software discovery from files on disk (deep dives below).
+- **Cloud Discovery** — API-based discovery of AWS, Azure, and GCP resources.
+- **Agent Client Collector (ACC)** — agent-based data collection for endpoints that can't be scanned remotely.
+- **Service Graph Connectors** — partner/third-party data (e.g. SCCM) imported through the same IRE rules — see the CSDM/SCCM map in the ITSM guide.
+
+## Key Table Hierarchy
+
+| Table | What it holds |
+|-------|---------------|
+| `discovery_schedule` | When Discovery runs, against which ranges |
+| `discovery_status` | One record per run — state, timing, devices found |
+| `discovery_log` | Human-readable messages from a run |
+| `discovery_device_history` | Per-device outcome per run |
+| `ecc_queue` | MID Server work orders and results |
+| `ecc_agent` | MID Server records |
+| `discovery_credentials` | Credentials Discovery can use on targets |
+| `discovery_private_properties` | Internal Discovery settings |
+| `cmdb_ci` (+ subclasses) | The CIs Discovery creates and updates |
+| `cmdb_sam_sw_install` | Software installations (incl. from File-Based Discovery) |
+| `cmdb_unidentified_file_set` | Discovered files no signature matched |
+| `cmdb_swid_tag` | SWID tags, when enabled in the console |
+
+## Integrations
+
+- **MID Server** — the agent in your network that does the actual scanning (WMI/WinRM/PowerShell on Windows, SSH on UNIX/Linux, SNMP on network devices).
+- **Service Graph Connectors** — SCCM and others; complementary to Discovery, reconciled by the same IRE.
+- **Event Management / TSOM** — discovered topology feeds service impact and discrepancy checks.
+- **SAM / HAM** — installations and device data flow into normalization and asset matching (see the HAM guide).
+
+## Key Fields
+
+| Field | Where | Why it matters |
+|-------|-------|----------------|
+| `cmdb_ci.discovery_source` | CI | Which source last updated the CI (e.g. ServiceNow Discovery) |
+| `cmdb_ci.last_discovered` | CI | Freshness — stale CIs usually mean a failing schedule or credential |
+| `discovery_status.state` | Status record | Whether a run completed, is active, or had errors |
+| `ecc_queue.queue` / `ecc_queue.state` | ECC Queue | Input vs output; ready/processed/error — your debugging lens |
+| `glide.discovery.file_discovery.wildcard.windows` | System property | Extra file extensions FBD collects on Windows |
+| `glide.discovery.file_discovery.blacklist.windows` | System property | Extensions FBD always drops on Windows |
+
+## Common Mistakes
+
+- **Expired or under-privileged credentials** — the #1 cause of "Discovery found nothing." Test credentials from the MID Server host, not your laptop.
+- **Assuming extension wildcards limit what FBD collects** — they don't; wildcards are additive on top of signature-driven collection. Blacklist is the only hard filter. (Full model below.)
+- **Leaving `c:\windows` in Folders To Scan** — scan times balloon on Windows servers for near-zero SAM value. Remove it.
+- **Expecting FBD to run again tomorrow** — the default frequency is **Monthly**; a CI is not re-scanned until the interval expires.
+- **Enabling FBD before CDS sync finishes** — File-Based Discovery does not trigger until the initial Content Data Service synchronization completes (~24h).
+- **Scanning a whole drive by accident** — setting Folders To Scan to `C:/` scans *everything*; combined with a high Maximum Files cap it can hammer the target.
+- **Debugging in the CMDB** — when a run looks wrong, read the ECC Queue and Discovery Log first; the CI is the *result*, not the evidence.
+
+---
+
+## Deep Dive: The Discovery Configuration Console
+
+The console is where you manage **what kind of CIs and CI information you want to discover** — including File-Based Discovery and SWID tags.
+
+**Breadcrumb:** All > Discovery > **Discovery Definition > Configuration Console**. Role required: **admin**. Toggles work as expected: right = enabled, left = disabled.
+
+**The File-Based Discovery areas of the console** (the ones that matter for this guide):
+
+| Area | What you control there |
+|------|------------------------|
+| **Enable File Based Discovery** (master toggle, top) | Turns FBD on/off entirely. If you disable it before scan results return, the file data is ignored. |
+| **Windows** › Add %PATH% Folders To Scan List | Also scan every folder on the system `%PATH%`. |
+| **Windows** › Folders To Scan | Root folders FBD walks. Defaults include `c:\program files*` and `%PATH%`. Add your own with the path field + **Add Path**. Set `C:/` to scan a whole drive. |
+| **Windows** › Folders To Ignore | Subfolders carved out of the scan list (e.g. `C:\Program Files\Temp`). |
+| **Windows** › Extensions Blacklist | Extensions dropped on sight (hard filter — see filtering model). |
+| **Windows** › Extensions Wildcards | Extra extensions collected on top of signature matches (additive). |
+| **Windows** › Advanced | Platform tuning options. |
+| **Unix** | The same folder/extension controls for UNIX/Linux targets. |
+| **Common** › Maximum Files | Cap on files discovered per target (100000 in the standard example). |
+| **Common** › Frequency | How often FBD re-runs per CI. **Monthly by default.** |
+
+## Deep Dive: File-Based Discovery
+
+File-Based Discovery identifies software running on Windows, UNIX/Linux, and macOS devices **from the files on disk**, even when registration information is absent — portable apps, copied binaries, in-house tools. It runs during the **exploration phase** of normal Discovery: the MID Server asks the target to enumerate files in the configured folders, filters them, and the results are matched to software using file **name, size, and version**.
+
+**Prerequisites**
+
+- Plugin: **File-based Discovery** (`com.snc.discovery.file_based_discovery`) — included with the Discovery subscription, but activation must be requested. Activating it also activates **SAM File Signature Normalization** (`com.snc.file_signature_normalization`).
+- The initial **CDS synchronization** must have occurred (~24 hours for the first data set) — FBD will not trigger before it.
+- FBD is **disabled by default** (performance cost); you turn it on in the console.
+- On Windows, discovery runs a signed PowerShell payload — the **Windows - File discovery** probe carries `filebaseddiscovery.ps1` as a probe parameter. PowerShell 7 is not supported for FBD on Windows hosts.
+
+### How the Filtering Actually Works (a common misconception)
+
+It is **not** true that everything outside your extension wildcards is ignored. FBD uses a layered filtering system:
+
+1. **The Core Target List (content-based).** ServiceNow automatically looks for files that match your active Software Signatures and File Signatures. If a signature specifies a file like `app.exe` or `version.txt`, Discovery looks for it **regardless** of the wildcard properties.
+2. **The Extension Wildcards (additive).** The property `glide.discovery.file_discovery.wildcard.windows` tells the system: *"In addition to the specific files required by my software signatures, also collect and evaluate any file that ends with these extensions."*
+3. **The Exclusion List (blacklist, hard filter).** The property `glide.discovery.file_discovery.blacklist.windows` acts as a hard filter: if a file matches a blacklisted extension (like `.log` or `.tmp`), it is dropped immediately — even if a signature or wildcard would otherwise have included it.
+
+**The rule of thumb**
+
+- If a file matches your **blacklist**, it is ignored.
+- If a file matches a **Software/File Signature**, it is collected.
+- If a file matches an **extension wildcard**, it is collected.
+- If a file matches **none of the above**, it is ignored.
+
+### Worked Example — One Windows Server, Four Files
+
+Configuration: Folders To Scan = `c:\program files*`, `%PATH%` · Wildcards include `.exe`, `.dll` · Blacklist includes `.log`, `.tmp` · Maximum Files 100000 · Frequency Monthly.
+
+| File found on target | What happens | Why |
+|----------------------|--------------|-----|
+| `C:\Program Files\VendorApp\app.exe` (matches a CDS file signature) | **Collected**, matched to a normalized installation in `cmdb_sam_sw_install` | Core target list — signature match |
+| `C:\Program Files\InHouse\custom-tool.exe` (no signature anywhere) | **Collected** (via the `.exe` wildcard), lands in `cmdb_unidentified_file_set` for a SAM admin to normalize | Wildcard match, no signature |
+| `C:\Program Files\VendorApp\debug.log` | **Ignored** | Blacklist hard filter — dropped even though it sits in a scanned folder |
+| `C:\Program Files\VendorApp\readme.txt` (no signature, `.txt` not in wildcards) | **Ignored** | Matches none of the three layers |
+
+### Worked Example — A Custom Application Folder
+
+Your company deploys an in-house app to `D:\apps` on every app server, and SAM needs it counted:
+
+1. Console → Windows → **Folders To Scan** → add `D:\apps*` (**Add Path**).
+2. **Extensions Wildcards** → ensure `.exe` (and `.dll` if the app ships side-by-side libraries) are present.
+3. **Extensions Blacklist** → add noisy extensions the app writes (`.log`, `.tmp`, `.bak`) so they never reach the instance.
+4. Leave **Frequency** at Monthly unless the app changes often — every FBD run has a real cost on the target.
+5. Run Discovery (next section) and expect the app's binaries in `cmdb_unidentified_file_set` on the first pass — in-house software has no CDS signature until a SAM admin creates a custom normalization rule for it (see the HAM guide's File Signature Normalization deep dive).
+
+## Deep Dive: Running File-Based Discovery
+
+Running FBD is a three-step procedure — configure, run, verify — and the verification happens in **two places**: the instance, and the target device itself.
+
+### Step 1 — Enable FBD in the Discovery Configuration Console
+
+1. All > Discovery > Discovery Definition > **Configuration Console**.
+2. Turn on **Enable File Based Discovery**.
+3. Define **Folders To Scan** and the **Frequency** (Common section; Monthly by default), plus Folders To Ignore, Extensions Blacklist, and Extensions Wildcards as needed.
+4. Confirm prerequisites: the FBD plugin is active and the initial CDS sync has completed.
+
+### Step 2 — Run Discovery and verify initiation in the Status record
+
+1. Run Discovery against the target (from a schedule, or **Discovery > Status > New** / Quick Discovery against the IP).
+2. Open the resulting **Discovery Status record** (`discovery_status`) and confirm the run progresses through exploration.
+3. Check the **Discovery Log** for the file-based scan being initiated — you are looking for the **Windows - File Based Discovery** probe activity for the target. If it never appears: FBD is not enabled, the interval (frequency) has not expired for that CI, or CDS sync has not finished — in that order.
+
+### Step 3 — Verify the FBD scan file executed on the target device
+
+The MID Server delivers a temporary scan payload to the Windows target, and it executes there during the scan:
+
+1. On the Windows server, open **`C:\Windows\Temp`**.
+2. Look for the FBD scan file — a temporary file named like **`snc_tmp_<hash>.tmp`** (roughly 10 MB in the reference example: `snc_tmp_5fe23251db1eff001f63e2399619d.tmp`, 10,192 KB) with a Date modified matching your Discovery run.
+3. Its presence + timestamp is your on-device proof the FBD scan executed; its absence, with a "successful" Discovery run, means the scan phase ran but FBD never fired on that target — go back to Step 2's checks.
+
+The full picture: **Configuration Console settings → Run Discovery → Status record / Discovery Log on the instance → `snc_tmp_*.tmp` scan file on the Windows target.** Each arrow is a place a failure can hide, and now you know where to look for each one.
+
+## Deep Dive: From Files to Licenses — File Signature Normalization
+
+FBD is the collection half; **File Signature Normalization** is the matching half. Discovered file attributes (name, size, version, binary signatures) are mapped to standardized entries in the **Content Data Service (CDS)**, creating normalized software installation records automatically. Files the CDS doesn't know become `cmdb_unidentified_file_set` records; a user with the **sam_admin** role reviews them and can create custom normalization rules that optionally sync back to the CDS. Duplicate installations from multiple sources are marked inactive by default.
+
+The full treatment — plugin (`com.snc.file_signature_normalization`), tables (`samp_file_set`, `samp_file_map`, `samp_file_name`, `samp_custom_file_name`), and the admin workflow — lives in the **HAM guide**: [Deep Dive: File Signature Normalization (SAM)](../ham/ham-guide.md#deep-dive-file-signature-normalization-sam). The console-side configuration is covered from the Discovery side in the [HAM guide's File-Based Discovery section](../ham/ham-guide.md#deep-dive-file-based-discovery-and-the-discovery-configuration-console) as well.
+
+---
+
+## Lab: Run Your First Discovery and File-Based Scan
+
+**Goal:** Discover one Windows server, enable File-Based Discovery, and prove the scan ran — in the Status record and on the target.
+
+1. **MID Server:** Confirm a MID Server is Validated and Up (All > Discovery > MID Servers).
+2. **Credentials:** Add a Windows credential with local admin rights on the target (All > Discovery > Credentials) and test it.
+3. **Baseline run:** Run Quick Discovery against the target IP. Open the Status record; confirm a CI was created/updated (`cmdb_ci_win_server`) and note `last_discovered`.
+4. **Enable FBD:** Configuration Console → Enable File Based Discovery → Folders To Scan: keep `c:\program files*`, **remove `c:\windows`** if present → Blacklist: `.log`, `.tmp` → Common: Maximum Files 100000, Frequency **Monthly**.
+5. **Re-run Discovery** against the same target.
+6. **Verify on the instance:** Status record completes; Discovery Log shows the **Windows - File Based Discovery** probe; check `cmdb_sam_sw_install` for new installations on the CI and `cmdb_unidentified_file_set` for unmatched files.
+7. **Verify on the target:** Check `C:\Windows\Temp` for the `snc_tmp_*.tmp` scan file timestamped with your run.
+8. **Write down** which layer of the filtering model explains every file you saw collected — and every one you didn't.
+
+## Quiz
+
+1. What are the four phases of a Discovery run, and in which phase does File-Based Discovery execute?
+2. Where do you enable File-Based Discovery, and what must have happened before it will trigger for the first time?
+3. A file matches an extension wildcard **and** the blacklist. Is it collected? Why?
+4. You ran Discovery successfully but no file-based scan appears in the log. Name three things to check, in order.
+5. How do you prove an FBD scan actually executed on a Windows target — what file, in which folder?
+6. A discovered `.exe` has no CDS signature. Which table does it land in, and who deals with it?
+
+---
+
+*Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*

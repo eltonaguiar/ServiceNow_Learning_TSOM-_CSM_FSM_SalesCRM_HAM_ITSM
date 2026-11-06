@@ -1,4 +1,4 @@
-# ServiceNow Module Guides — TSOM, CSM, FSM, Sales CRM, HAM, ITSM
+# ServiceNow Module Guides — TSOM, CSM, FSM, Sales CRM, HAM, ITSM, Discovery
 
 **Author:** opencode  
 **Date:** 2026-11-05  
@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This repository contains beginner-friendly getting-started guides for six ServiceNow modules:
+This repository contains beginner-friendly getting-started guides for seven ServiceNow modules:
 
 | Module | Guide | Focus |
 |--------|-------|-------|
@@ -20,6 +20,7 @@ This repository contains beginner-friendly getting-started guides for six Servic
 | **Sales CRM** | `docs/modules/sales-crm/sales-crm-guide.md` | Sales CRM |
 | **HAM** | `docs/modules/ham/ham-guide.md` | Hardware Asset Management |
 | **ITSM** | `docs/modules/itsm/itsm-guide.md` | IT Service Management |
+| **Discovery** | `docs/modules/discovery/discovery-guide.md` | ITOM Discovery — MID Servers, Configuration Console, File-Based Discovery |
 
 Each guide covers:
 
@@ -36,9 +37,9 @@ Each guide covers:
 
 ---
 
-## Start here: the six getting-started guides (Freebuff, 2026-11-05)
+## Start here: the getting-started guides (Freebuff, 2026-11-05; Discovery added by Arlo)
 
-The `getting-started/` folder is a second, shorter track through the same six modules, written
+The `getting-started/` folder is a second, shorter track through the same modules, written
 for someone with a PDI and an interview next month. Each page has the same five sections:
 what you build, out-of-the-box features, key table hierarchy, **reusable code and metadata**,
 then integrations, a first lab and the mistakes reviewers flag.
@@ -51,6 +52,7 @@ then integrations, a first lab and the mistakes reviewers flag.
 | Sales CRM | [`getting-started/sales-crm.md`](getting-started/sales-crm.md) |
 | HAM | [`getting-started/ham.md`](getting-started/ham.md) |
 | TSOM | [`getting-started/tsom.md`](getting-started/tsom.md) |
+| Discovery | [`getting-started/discovery.md`](getting-started/discovery.md) |
 
 **Read [`getting-started/foundation.md`](getting-started/foundation.md) first** if you are new: it
 covers system properties, metadata breadcrumbs ("where does this field come from?"), guided setup

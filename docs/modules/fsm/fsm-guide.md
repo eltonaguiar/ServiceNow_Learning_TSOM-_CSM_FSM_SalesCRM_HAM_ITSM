@@ -8,6 +8,21 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Lab: Create and Dispatch Your First Work Order](#lab-create-and-dispatch-your-first-work-order)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 Field Service Management (FSM) is ServiceNow's platform for managing field service operations: dispatching technicians, scheduling work orders, tracking field assets, and managing the complete field service lifecycle from work order creation to closure. FSM is ideal for organizations that send technicians to customer premises—utilities, HVAC, elevator maintenance, appliance repair, telecom field services, and more.

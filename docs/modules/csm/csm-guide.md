@@ -8,6 +8,21 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Lab: Create Your First Customer Case](#lab-create-your-first-customer-case)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 Customer Service Management (CSM) is ServiceNow's platform for managing customer-facing service operations. Unlike ITSM (which is internal IT-facing), CSM is built for **customer-facing** support: cases, accounts, entitlements, and SLAs that apply to paying customers. CSM includes a customer-facing portal, agent workspace, and entitlement-based SLAs.

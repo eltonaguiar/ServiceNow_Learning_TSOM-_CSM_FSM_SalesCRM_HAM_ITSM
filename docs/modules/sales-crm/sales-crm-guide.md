@@ -8,6 +8,21 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [Where to Find It](#where-to-find-it)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Lab: Create Your First Sales Opportunity](#lab-create-your-first-sales-opportunity)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 ServiceNow Sales CRM is the platform's customer relationship management application, built on the same ServiceNow platform as ITSM and CSM but optimized for sales pipeline management. Sales CRM tracks leads, opportunities, accounts, contacts, quotes, and orders—giving sales teams a single system of record from prospect to closed deal. Unlike traditional CRMs, ServiceNow Sales CRM integrates natively with ITSM, CSM, and FSM, enabling quote-to-cash-to-service workflows in one platform.

@@ -300,6 +300,133 @@
   "labs": ["labs/LAB-01-REST-MESSAGE.md"],
   "timebox_min": {"orient": 10, "model": 25, "practice": 40, "prove": 10},
   "quiz": ["Which fields determine priority, and where is that matrix defined?", "What record type implements an SLA on a given incident?", "Name three things that break if you reorder state values."]
+},
+{
+  "id": "discovery",
+  "name": "ServiceNow Discovery (ITOM Visibility)",
+  "app": "Discovery",
+  "confidence": "verify",
+  "why": "Discovery populates the CMDB with facts: it scans networks and cloud accounts through a MID Server, identifies devices, and creates or updates CIs \u2014 including, via File-Based Discovery, the software files physically present on a machine even when nothing registered them.",
+  "primary_table": "discovery_status",
+  "tables": [
+    "discovery_schedule",
+    "discovery_status",
+    "discovery_log",
+    "discovery_device_history",
+    "ecc_queue",
+    "ecc_agent",
+    "discovery_credentials",
+    "discovery_private_properties",
+    "cmdb_ci",
+    "cmdb_sam_sw_install",
+    "cmdb_unidentified_file_set",
+    "cmdb_swid_tag"
+  ],
+  "roles": [
+    "discovery_admin",
+    "admin",
+    "mid_server",
+    "sam_admin"
+  ],
+  "breadcrumbs": [
+    "All > Discovery > Dashboard",
+    "All > Discovery > Discovery Definition > Configuration Console",
+    "All > Discovery > Discovery Definition > Schedules",
+    "All > Discovery > Status",
+    "All > Discovery > Discovery Log",
+    "All > Discovery > MID Servers",
+    "All > Discovery > Credentials"
+  ],
+  "guided_setup": {
+    "available": true,
+    "path": "All > Guided Setup > ITOM Guided Setup",
+    "confidence": "verify"
+  },
+  "oob": {
+    "flows": [
+      "Discovery schedule execution",
+      "File-Based Discovery during exploration"
+    ],
+    "playbooks": [],
+    "integrations": [
+      "MID Server (WMI/WinRM/PowerShell, SSH, SNMP)",
+      "Service Graph Connectors (e.g. SCCM)",
+      "Cloud Discovery (AWS, Azure, GCP)",
+      "Agent Client Collector"
+    ],
+    "metrics": [
+      "CIs discovered per run",
+      "Discovery errors per schedule",
+      "CI freshness (last_discovered)"
+    ],
+    "dashboards": [
+      "Discovery Dashboard"
+    ]
+  },
+  "fields": {
+    "critical": [
+      {
+        "field": "cmdb_ci.discovery_source",
+        "why": "Which source last updated the CI"
+      },
+      {
+        "field": "cmdb_ci.last_discovered",
+        "why": "Freshness \u2014 stale usually means a failing schedule or credential"
+      },
+      {
+        "field": "discovery_status.state",
+        "why": "Run outcome: completed, active, or errors"
+      },
+      {
+        "field": "glide.discovery.file_discovery.wildcard.windows",
+        "why": "Additive: extra extensions FBD collects on Windows"
+      },
+      {
+        "field": "glide.discovery.file_discovery.blacklist.windows",
+        "why": "Hard filter: extensions FBD always drops on Windows"
+      }
+    ],
+    "useful": [
+      "ecc_queue.state",
+      "discovery_device_history.state"
+    ],
+    "optional": [
+      "cmdb_swid_tag records (SWID tags, console-enabled)"
+    ],
+    "related_lists": [
+      "discovery_status > discovery_log",
+      "discovery_status > discovery_device_history",
+      "cmdb_ci > cmdb_sam_sw_install"
+    ]
+  },
+  "must_know": [
+    "Discovery runs in four phases \u2014 scan, classify, identify, explore \u2014 and File-Based Discovery runs in exploration.",
+    "The Discovery Configuration Console lives at All > Discovery > Discovery Definition > Configuration Console.",
+    "Extension wildcards are additive on top of signature-based collection; only the blacklist hard-filters, and it wins over both.",
+    "FBD frequency defaults to Monthly \u2014 a CI is not re-scanned until the interval expires.",
+    "Proof an FBD scan executed on a Windows target: the snc_tmp_*.tmp scan file in C:\\Windows\\Temp, timestamped with the run."
+  ],
+  "mistakes": [
+    "Expired or under-privileged credentials (the #1 cause of empty runs)",
+    "Treating extension wildcards as a limit on collection",
+    "Leaving c:\\windows in Folders To Scan (scan-time blow-up)",
+    "Enabling FBD before the initial CDS sync completes",
+    "Debugging in the CMDB instead of the ECC Queue and Discovery Log"
+  ],
+  "labs": [
+    "docs/modules/discovery/discovery-guide.md#lab-run-your-first-discovery-and-file-based-scan"
+  ],
+  "timebox_min": {
+    "orient": 10,
+    "model": 25,
+    "practice": 40,
+    "prove": 10
+  },
+  "quiz": [
+    "What are the four phases of a Discovery run?",
+    "A file matches both a wildcard and the blacklist \u2014 is it collected?",
+    "How do you prove an FBD scan executed on a Windows target?"
+  ]
 }
   ]
 }

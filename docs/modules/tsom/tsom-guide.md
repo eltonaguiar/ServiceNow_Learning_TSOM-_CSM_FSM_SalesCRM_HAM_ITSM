@@ -8,6 +8,27 @@
 
 ---
 
+## Contents
+
+- [Purpose](#purpose)
+- [ELI5 — the whole module in plain English](#eli5-the-whole-module-in-plain-english)
+- [Where to Find It](#where-to-find-it)
+- [Prerequisites and availability](#prerequisites-and-availability)
+- [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
+- [Metrics: what is out of the box, and what you build](#metrics-what-is-out-of-the-box-and-what-you-build)
+- [Workspaces you get, and how to learn this](#workspaces-you-get-and-how-to-learn-this)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Out-of-Box Features](#out-of-box-features)
+- [Key Table Hierarchy](#key-table-hierarchy)
+- [Integrations](#integrations)
+- [Key Fields](#key-fields)
+- [Common Mistakes](#common-mistakes)
+- [Implementer Labs — What Actually Exists (Researched 2026-11-05)](#implementer-labs-what-actually-exists-researched-2026-11-05)
+- [Lab: Create Your First Telecom Service](#lab-create-your-first-telecom-service)
+- [Quiz](#quiz)
+
+---
+
 ## Purpose
 
 ServiceNow Telecom Service Operations Management (TSOM) is purpose-built for communications service providers (CSPs). It manages the lifecycle of telecom services—from order capture through activation, assurance, and billing—using telecom-specific data models, inventory, and orchestration. TSOM is where ITIL meets telecom: incidents are alarms, changes are network changes, and assets are network elements.

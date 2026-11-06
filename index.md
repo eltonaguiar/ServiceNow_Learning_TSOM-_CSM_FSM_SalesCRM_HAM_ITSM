@@ -5,7 +5,7 @@ title: ServiceNow Module Guides
 
 # ServiceNow Module Guides
 
-Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for six ServiceNow modules:
+Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for seven ServiceNow modules:
 
 ## Available Guides
 
@@ -34,6 +34,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>HAM</h3>
     <p>Hardware Asset Management — the hardware lifecycle from procurement through disposal.</p>
     <p class="meta"><a href="./docs/modules/ham/ham-guide.md">Open the HAM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Discovery</h3>
+    <p>ITOM Discovery — MID Servers, schedules, the Configuration Console, and File-Based Discovery end to end: configure it, run it, and prove the scan executed on the target.</p>
+    <p class="meta"><a href="./docs/modules/discovery/discovery-guide.md">Open the Discovery guide</a></p>
   </div>
   <div class="card">
     <h3>ITSM</h3>
