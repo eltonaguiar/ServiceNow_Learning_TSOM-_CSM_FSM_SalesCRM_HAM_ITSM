@@ -16,6 +16,7 @@
 - [Where to Find It](#where-to-find-it)
 - [Prerequisites and availability](#prerequisites-and-availability)
 - [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
+- [Using TSOM — the day-2 operational tasks (Australia docs)](#using-tsom--the-day-2-operational-tasks-australia-docs)
 - [Metrics: what is out of the box, and what you build](#metrics-what-is-out-of-the-box-and-what-you-build)
 - [Workspaces you get, and how to learn this](#workspaces-you-get-and-how-to-learn-this)
 - [The TMT Recommended Implementation Sequence (Now Create)](#the-tmt-recommended-implementation-sequence-now-create)
@@ -259,6 +260,55 @@ connection, credentials, data sources, schedules, filters and properties. TSOM C
 themselves are configured through their own product modules rather than a single wizard, so
 treat the table above as the order, and the guided setup as the shortcut for steps 1–6.
 
+### 5.3 Configuring TSOM — the official configuration map (Australia docs)
+
+Section 5.2 is the order an implementer actually works in. This section maps it to the **official Australia-release documentation** ("Configuring TSOM"), so every step above can be traced to its doc page. The docs define the goal in one line: enable *real-time event ingestion, correlation, and automated remediation* by integrating with external network monitoring and discovery systems — alarm ingestion, CMDB population, discrepancy detection, and service impact visibility.
+
+**Step 0 — the plugins the Configure page names** (dependencies resolve automatically during install):
+
+| Plugin | ID | Doc family |
+|---|---|---|
+| TSOM Event Management Connectors | `sn_tsom_em_connectors` | Telecom Assurance |
+| Service Graph Connector for Fortinet Telco SD-WAN | `sn_tsom_fortinet_connector` | Telecom Visibility |
+| Service Graph Connector for Meraki Telco SD-WAN | `sn_tsom_meraki_connector` | Telecom Visibility |
+| Service Graph Connector for VeloCloud Telco SD-WAN | `sn_tsom_vcloud_connector` | Telecom Visibility |
+
+**Configure Telecom Visibility** (the docs' first configuration branch):
+
+- **Install Horizontal Discovery** — the pattern-based discovery install that Telecom Discovery depends on.
+- **Activate Discrepancy and Reconciliation**, which itself has three configuration children the implementer must know separately: **configure the certification filter for the audit** (which CIs the audit examines), **configure attribute comparison settings** for attribute value discrepancy in **CMDB 360**, and **control CI attribute updates using reconciliation rules** (which source is allowed to overwrite which attributes — the control that stops a noisy source from clobbering good data).
+- **Configure Telecom Discovery Builder**, as a chain: **create a duplicate TSOM core data source** (a clone of the Generic Schema multi-source data source) → **duplicate the Telecom Discovery Builder ETL** into your connector scope (the docs include a worked example) → **update the connector data source** → **deploy a new Service Graph Connector** on the duplicated ETL → optionally **extend TNI entity support** for the duplicated ETLs → keep payloads to the **standard JSON for Service Graph Connectors** (the standardized common data set every connector is expected to emit).
+
+**Configure each Service Graph Connector** (the docs give each its own branch; the recurring shape is setup → multiple instances → mapping):
+
+| Connector | Configuration specifics the docs call out |
+|---|---|
+| **Nokia Altiplano** | Initial setup procedure · manage **multiple Altiplano instances** · **concurrent import and parallel loading** · map Altiplano CIs and relationships · its system properties are a reference page of their own |
+| **Cisco Meraki** | Set up the connector schedule · manage multiple Meraki SD-WAN instances · configure **allowlists** · map Meraki CIs and relationships |
+| **Fortinet** | Set up the connector schedule · manage multiple instances · configure **ADOM** for the connector instance · **filter ADOMs** (for the pull connector, and ADOM discovery for the SGC) · **customize scripted extension points** · map Fortinet CIs and relationships |
+| **Arista VeloCloud** | Set up the connector schedule · manage multiple instances · map VeloCloud CIs and relationships |
+
+**Configure Telecom Assurance** (the docs' second branch):
+
+- **Configure API notifications**: create a **topic** → create a **topic subscription** → **activate the endpoint in the Telecommunications Alarm Management Open API**. The reference side names the tables and roles: Topic [`sn_api_notif_mgmt_topic`] and Topic Subscription [`sn_api_notif_mgmt_subscription`], with standard roles for administering them.
+- **Configure a webhook** for fault management event intake.
+- **Configure a metric pull connector**, and the MPN-specific family: **elastic event pull connectors for MPN**, **elastic connectors for MPN alarm collection**, and **security log collection for MPN**.
+- **Override the default metric-to-CI binding** when a connector's metrics land on the wrong CI.
+- **Configure a metric aggregation job**, or **create a custom metric aggregation implementation** when the shipped modes do not fit.
+
+---
+
+## Using TSOM — the day-2 operational tasks (Australia docs)
+
+The docs' "Using TSOM" page lists what operations teams actually *do* once configuration is done — proactively monitor services, validate data integrity, and reconcile discrepancies so the telecom-aware CMDB stays accurate. Four task families:
+
+1. **Run Telecom Discrepancy audits.** Certification audits, run on the CMDB Compliance framework, validate the integrity of CIs and their relationships across telecom inventory against discovered data and reconciliation rules (the audit properties and filters are the §5.1/§5.3 configuration above).
+2. **Validate attribute value mismatches in CMDB 360.** The Attribute Value Discrepancy feature compares attribute values *across discovery sources* — and against the CMDB baseline — and the **attribute value discrepancy report** is how you surface conflicts and outdated records for cleanup. This is a different lens from the relationship audit: relationships vs attribute values.
+3. **Use Telecom Discovery patterns.** Pattern-based discovery identifies and classifies network functions (**xNFs**) from vendor devices — Cisco, Juniper, routers, switches — and maps them into the CMDB. The docs give each shipped pattern its own xNF classification page: **Telecom Router Pattern**, **Telecom Cisco 7613 Router Pattern**, **Telecom Juniper MX SSH Router Pattern**, **Telecom Cisco Switch Pattern**, and **Telecom Switch Pattern**.
+4. **Run and verify import jobs from Service Graph Connectors.** Manually trigger an import schedule (the docs walk through Nokia Altiplano, and the same run-and-verify pattern for Fortinet, Meraki, and VeloCloud) and verify topology and device data landed in the CMDB mapped to the correct CI classes.
+
+Plus the utility every implementer should know exists: **validate JSON payloads with the TSOM Schema Validator** — the `TsomSchemaValidator` utility class checks a payload against TSOM schemas *before* import, so malformed data is caught early instead of surfacing as ETL failures.
+
 ---
 
 ## Metrics: what is out of the box, and what you build
@@ -302,6 +352,20 @@ One dashboard, four widgets, all defensible:
 
 If a widget cannot be traced to a table and a definition, delete it.
 
+
+---
+
+### 6.4 The metric machinery, MPN, and the reference components (Australia docs)
+
+The Australia docs document a metric pipeline underneath the dashboards that §6.1–6.3 summarize. The pieces an implementer is expected to know by name:
+
+- **Pull connectors** bring metrics and events in on a schedule (as opposed to pushed alarms): each connector instance has a **metric parameter** that determines what it collects, and each connector type enforces **granularity constraints** — minimum and maximum values for granularity and collection schedule, rejected on the form when out of range.
+- **Pagination in Meraki pull connector requests**: the connector paginates so all records are retrieved for large organizations, with the page size set per endpoint to that endpoint's maximum in Meraki API v1.
+- **Metric-to-CI binding** decides which CI a metric attaches to; it can be **overridden** per connector (see §5.3) when the default binding lands metrics on the wrong CI.
+- **Metric aggregation** turns raw time-series into reportable values: the docs define the **aggregation modes**, a **metric aggregation scripted extension** (a scripted extension point whose configuration object defines what to aggregate, how, and where to publish), and a **metric type IDs** reference — the IDs identify each time-series metric a connector writes to the metrics database, and are how you find a metric in Insights Explorer or build custom indicators.
+- **MPN (Nokia Mobile Packet Core networks)** is a documented sub-family of its own: an **MPN data model**, the **MPN Formula Engine** (formulas live in the MPN Formulas table [`sn_tsom_em_conns_kpi_definitions`], with automatic processing on insert/update of a formula record), **MPN latency KPIs** including the derived **UE-to-switch latency** metric, **MPN security log fields** (the structured fields produced when a raw security log is parsed), and the **MPN Latency Dashboard**.
+- **SD-WAN dashboards** ship for the SD-WAN connectors: the **SD-WAN Alerts Dashboard** and the **SD-WAN Inventory Dashboard** (alerts, events, and metrics), fed by the installed integrations — VeloCloud REST APIs pulling **events**, Fortinet and Meraki REST APIs pulling **metric data** — and each SGC's **API endpoints** are documented as reference pages (what data flows, through which endpoints).
+- **Altiplano over REST**: the reference includes worked examples of retrieving data from Nokia Altiplano via its REST API — the same API the connector's imports are built on, and the fastest way to sanity-check what a connector *should* be bringing in.
 
 ---
 
@@ -572,6 +636,9 @@ column of the prerequisites table is the part that is actually your job.*
 | `sn_tsom_circuit` | Point-to-point circuit | `cmdb_ci` | `circuit_id`, `bandwidth`, `termination_a`, `termination_b` |
 | `sn_tsom_inventory_item` | Trackable inventory (ONT, modem, SIM) | `alm_asset` | `asset_tag`, `serial_number`, `status` |
 | `sn_tsom_alarm` | Network alarm/event | `em_event` | `node`, `alarm_type`, `severity`, `clear_state` |
+| `sn_api_notif_mgmt_topic` | Telecommunications API notification topic (alarm ingestion) | — | topic name, endpoint |
+| `sn_api_notif_mgmt_subscription` | Subscription of a consumer to an API notification topic | — | topic, subscriber, state |
+| `sn_tsom_em_conns_kpi_definitions` | MPN Formulas — KPI formula definitions for the MPN Formula Engine | — | formula, metric, processing on insert/update |
 | `sn_tsom_service_instance` | Provisioned service instance | `task` | `service`, `customer`, `activation_date` |
 
 ### Table Relationships
