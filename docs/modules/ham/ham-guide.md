@@ -22,6 +22,8 @@
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 
@@ -509,4 +511,3 @@ Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
 5. How do you link an asset to a contract?
 <details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
 <details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
-

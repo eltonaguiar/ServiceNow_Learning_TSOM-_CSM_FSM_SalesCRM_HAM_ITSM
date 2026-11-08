@@ -22,6 +22,8 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: From Files to Licenses — File Signature Normalization](#deep-dive-from-files-to-licenses--file-signature-normalization)
 - [Lab: Run Your First Discovery and File-Based Scan](#lab-run-your-first-discovery-and-file-based-scan)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 

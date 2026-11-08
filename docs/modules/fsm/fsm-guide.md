@@ -20,6 +20,8 @@
 - [Common Mistakes](#common-mistakes)
 - [Lab: Create and Dispatch Your First Work Order](#lab-create-and-dispatch-your-first-work-order)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 
@@ -374,4 +376,3 @@ Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc
 5. How does the dispatch board use the map?
 <details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
 <details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
-

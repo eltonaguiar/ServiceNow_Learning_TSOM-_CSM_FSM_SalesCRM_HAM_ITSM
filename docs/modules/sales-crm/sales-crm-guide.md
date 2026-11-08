@@ -22,6 +22,8 @@
 - [Common Mistakes](#common-mistakes)
 - [Lab: Create Your First Sales Opportunity](#lab-create-your-first-sales-opportunity)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 

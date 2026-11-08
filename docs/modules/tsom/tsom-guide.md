@@ -30,6 +30,8 @@
 - [Implementer Labs — What Actually Exists (Researched 2026-11-05)](#implementer-labs--what-actually-exists-researched-2026-11-05)
 - [Lab: Create Your First Telecom Service](#lab-create-your-first-telecom-service)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 
@@ -248,21 +250,9 @@ The model the whole solution writes into. It extends the core CMDB CI model to r
 
 Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or on-demand, multi-instance — e.g. Nokia Altiplano for GPON) · Discrepancy Identification &
 
-... [OUTPUT TRUNCATED - 1,706 chars omitted out of 51,634 total] ...
+... [OUTPUT TRUNCATED - 1,657 chars omitted out of 51,585 total] ...
 
- actually lands — the part worth remembering
-
-TSOM is **not one phase**. Its pieces are deliberately spread across the whole path (bolded above): inventory in **Foundation** (Site and Inventory Management), network modelling in **Crawl** (Network Model Relationship), daily network operations in **Walk** (Network Inventory Workspace, Telco Assurance Workflows), event management in **Run** (TSOM Event Management), and intelligence in **Fly** (TSOM — Operational Intelligence, Network Change Models). Two consequences:
-
-- A "TSOM implementation" is really slices of a multi-phase program. If a customer has not done the Foundation/Crawl data work — customer data, CMDB, inventory, network model relationships — the Run/Fly TSOM capabilities have nothing solid to stand on. This is the same dependency the accreditation path shows (ITOM + CMDB + Event Management first), seen from the delivery side.
-- When you scope or interview for a TSOM role, locate the customer on this path first: the work, the team, and the success measures are completely different at Walk than at Fly.
-
-### Move to the next phase when…
-
-| Gate | Evidence the diagram asks for |
-|------|-------------------------------|
-| Foundation → Crawl | Minimum foundational data imported (customer & user); future data requirements assessed; Case Management with at least 1 Case Type in place; baseline measured for current KPIs; reporting in place to measure business outcomes |
-| Crawl → Walk | Foundational data required for Walk imported; Knowledge Management in place for agents to leverage; decrease in handling time from the swivel-chair improvement; increase in agent utilization |
+ handling time from the swivel-chair improvement; increase in agent utilization |
 | Walk → Run | Visible increase in first contact resolution; case deflection due to self-service; reduction in case volume due to self-service; identification of the customer's preferred contact channel; decrease in case resolution time |
 | Run → Fly | Visible increase in agent productivity from reduced manual tasks; increase in case deflections due to Virtual Agent; reduction in ongoing case assignments; standardization in customer support; decrease in agent onboarding time |
 | Fly (steady state) | Automation of improvement initiatives (agent, customer); higher % of AI-driven decisions than non-AI; greater transparency for customers; same customer experience from in-sourced support as outsourced |
@@ -703,4 +693,3 @@ Fallback link: [TSM Showcase](https://www.youtube.com/watch?v=9-MMOWXBg0E)
 5. How do you link a circuit to a service?
 <details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
 <details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
-

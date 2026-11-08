@@ -20,6 +20,8 @@
 - [Common Mistakes](#common-mistakes)
 - [Lab: Create Your First Customer Case](#lab-create-your-first-customer-case)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 
@@ -324,4 +326,3 @@ Fallback link: [CSM Full Overview](https://www.youtube.com/watch?v=tC0rPsIszQ0)
 
 5. How does CSM differ from ITSM Incident Management?
 <details><summary>Answer</summary>CSM focuses on external customers; ITSM Incident focuses on internal users/employees.</details>
-

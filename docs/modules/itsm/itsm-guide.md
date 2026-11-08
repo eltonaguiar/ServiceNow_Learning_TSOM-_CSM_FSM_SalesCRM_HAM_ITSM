@@ -21,6 +21,8 @@
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
 - [Quiz](#quiz)
+- [Official Learning Resources](#official-learning-resources)
+- [Visual & Video Guides](#visual--video-guides)
 
 ---
 
@@ -433,4 +435,3 @@ Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
 5. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>
 <details><summary>Answer</summary>Assignment Group field.</details>
-
