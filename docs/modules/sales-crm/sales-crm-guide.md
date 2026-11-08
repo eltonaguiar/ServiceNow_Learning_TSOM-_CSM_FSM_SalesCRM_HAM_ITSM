@@ -388,11 +388,15 @@ graph LR
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+- [Getting Started with Sales & Order Management](https://www.youtube.com/watch?v=zCCbYr15dG8)
+- [38th Release – 38 Features in 38 Minutes!! Zurich](https://www.youtube.com/watch?v=YIDLs6UoeUA)
 - [Search (Community)](https://www.youtube.com/@ServiceNowCommunity/search?query=Sales%20and%20Order%20Management)
 - [Search (Docs)](https://www.youtube.com/@ServiceNowDocs/search?query=Order%20Management)
 

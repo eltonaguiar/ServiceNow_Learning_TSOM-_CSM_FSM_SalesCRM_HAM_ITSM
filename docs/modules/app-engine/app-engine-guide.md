@@ -102,12 +102,17 @@ Every app built in AES is a **Scoped App**.
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
-- [Search (Community)](https://www.youtube.com/@ServiceNowCommunity/search?query=App%20Engine%20Studio)
+- [App Engine Studio | Overview](https://www.youtube.com/watch?v=KO7WangGeg4)
+- [Getting Started on App Engine Studio](https://www.youtube.com/watch?v=4rCR9gBBRSQ)
+- [What is App Engine Studio?](https://www.youtube.com/watch?v=f8Z-RgicTNs)
+- [Building an app template with AES](https://www.youtube.com/watch?v=cRBP0AGWRh8)
 
 ### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**

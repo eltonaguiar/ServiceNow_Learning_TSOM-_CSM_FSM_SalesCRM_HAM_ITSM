@@ -681,18 +681,23 @@ Fallback link: [TSM Showcase]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
-- [Telecom playlist (Community)](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc)
+- [What’s new in ServiceNow's Zurich release for Telecom](https://www.youtube.com/watch?v=Njyt-YgpONY)
+- [Discover What's New: ServiceNow Yokohama Highlights for Telecom](https://www.youtube.com/watch?v=SBJrGFh2Unw)
+- [What's new in the Washington DC release: Telecom](https://www.youtube.com/watch?v=L3VzhB5uD3M)
+- [Telecommunications Network Inventory Demo](https://www.youtube.com/watch?v=0hNc7nUtMEs)
 
 ### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Telecom Service Operations"
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Telecom Service Operations Management"
    
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations"
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations Management"
