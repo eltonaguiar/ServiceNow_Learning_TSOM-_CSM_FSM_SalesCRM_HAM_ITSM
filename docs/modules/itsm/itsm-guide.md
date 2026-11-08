@@ -190,6 +190,44 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ---
 
+
+## 🔍 Process Deep Dives
+
+### 🚨 Incident Management
+- **Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
+- **Incident Tasks:** Breaking down a complex fix into smaller, assignable pieces.
+- **On-Call / Escalations:** Using `cmn_rota` to ensure the right person is paged when an SLA is about to breach.
+- **SLAs/OLAs:** Service Level Agreements (Customer) vs Operational Level Agreements (Internal Team).
+
+🚀 **Interview Insight:** Focus on the **"Restore Service"** goal. Mention that Incident is about speed, while Problem is about the root cause.
+
+### 🧩 Problem Management
+- **Root Cause Analysis (RCA):** The process of finding the *why*.
+- **KEDB (Known Error Database):** Publishing workarounds so Incident agents can resolve tickets faster without escalating.
+- **Problem Tasks:** Investigating logs or testing a fix.
+- **Permanent Fix vs Workaround:** A workaround restores service; a permanent fix prevents recurrence.
+
+### ⚙️ Change Management
+- **Change Types:**
+  - **Standard:** Low risk, pre-approved (e.g., monthly patching).
+  - **Normal:** Needs CAB approval, risk assessed.
+  - **Emergency:** Fixes a critical outage; approved by ECAB.
+- **CAB (Change Advisory Board):** The group that reviews and approves Normal changes.
+- **Blackout windows:** Dates where no changes are allowed (e.g., Black Friday for retail).
+
+### 📦 Request Fulfillment
+- **Catalog Item:** The "Product" the user sees.
+- **Record Producer:** A simple form that creates a record (Incident or Case).
+- **RITM (Requested Item):** The actual order.
+- **Catalog Task:** The work assigned to a team (e.g., "Configure Laptop").
+- **Approval workflows:** Manager $	o$ Finance $	o$ Fulfillment.
+
+### 📖 Knowledge Management
+- **Knowledge Bases:** Separating "Public" (customer) from "Internal" (agent) knowledge.
+- **Article versioning:** Tracking changes to a KB over time.
+- **AI Search:** Using Natural Language Processing (NLP) to find the right article faster.
+
+
 ## Key Table Hierarchy
 
 ### Core Tables
@@ -430,4 +468,3 @@ Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
 
 5. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>
-

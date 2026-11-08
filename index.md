@@ -84,6 +84,7 @@ Every module guide follows the same repeatable process:
 5. **Teach Back** — Write a summary
 
 ## Additional Resources
+- **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, and Admin essentials
 
 - **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
 - **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos
