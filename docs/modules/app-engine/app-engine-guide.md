@@ -103,3 +103,25 @@ Every app built in AES is a **Scoped App**.
 ## 🎓 Official Learning Resources
 
 - **[App Engine Studio Learning Path](https://learning.servicenow.com/lxp/en/app-engine/app-engine-studio-learning-path?id=learning_path_prev)** — The official guide to low-code development.
+
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "App Engine Studio"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "App Engine Studio"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/KO7WangGeg4" title="App Engine Studio Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/watch?v=KO7WangGeg4)

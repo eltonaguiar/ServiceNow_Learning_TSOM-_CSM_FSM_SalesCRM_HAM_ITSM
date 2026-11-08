@@ -329,10 +329,10 @@ Direct paths to official ServiceNow training for Field Service Management (FSM):
 
 ### FSM Getting Started
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/QJACgw0AHuc" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc)
+Fallback link: [FSM Getting Started]()
 
 ---
 
@@ -349,10 +349,10 @@ Direct paths to official ServiceNow training for Field Service Management (FSM):
 
 ### FSM Getting Started
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/QJACgw0AHuc" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc)
+Fallback link: [FSM Getting Started]()
 ---
 
 ## Quiz
@@ -372,3 +372,24 @@ Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc
 5. How does the dispatch board use the map?
 <details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
 
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Field Service Management"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Field Service Management"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/8Yr81XpwUfA" title="Field Service Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Field Service Management Official Overview](https://www.youtube.com/watch?v=8Yr81XpwUfA)

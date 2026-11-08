@@ -426,10 +426,10 @@ Direct paths to official ServiceNow training for IT Service Management (ITSM):
 
 ### ITSM Demo
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/kiB4GjoQj5U" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
+Fallback link: [ITSM Demo]()
 
 ---
 
@@ -446,10 +446,10 @@ Direct paths to official ServiceNow training for IT Service Management (ITSM):
 
 ### ITSM Demo
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/kiB4GjoQj5U" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
+Fallback link: [ITSM Demo]()
 ---
 
 ## Quiz
@@ -468,3 +468,25 @@ Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
 
 5. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>
+
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "IT Service Management"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "IT Service Management"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/q_P85jz7r4Q" title="IT Service Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [IT Service Management Official Overview](https://www.youtube.com/watch?v=q_P85jz7r4Q)

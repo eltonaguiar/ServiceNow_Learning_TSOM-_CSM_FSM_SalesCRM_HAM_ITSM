@@ -464,10 +464,10 @@ Direct paths to official ServiceNow training for Hardware Asset Management (HAM)
 
 ### HAM Overview
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
+Fallback link: [HAM Overview]()
 
 ---
 
@@ -484,10 +484,10 @@ Direct paths to official ServiceNow training for Hardware Asset Management (HAM)
 
 ### HAM Overview
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
+Fallback link: [HAM Overview]()
 ---
 
 ## Quiz
@@ -507,3 +507,24 @@ Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
 5. How do you link an asset to a contract?
 <details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
 
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Hardware Asset Management"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Hardware Asset Management"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="Hardware Asset Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Hardware Asset Management Official Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)

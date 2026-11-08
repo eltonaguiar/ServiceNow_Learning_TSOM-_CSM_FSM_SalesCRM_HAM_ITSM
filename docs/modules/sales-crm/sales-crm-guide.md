@@ -360,23 +360,23 @@ Direct paths to official ServiceNow training for Sales CRM:
 
 ### Comprehensive Overview: Sales and Order Management
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/4FWRtGlsmbs" title="Sales and Order Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Sales and Order Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ### Getting Started Webinar
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Getting Started Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Getting Started Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ### Detailed Demo: Lead to Order
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/MKsvEf3zMa0" title="Lead to Order Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Lead to Order Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 **Fallback links (if embeds are blocked):**
-- [Comprehensive Overview](https://www.youtube.com/watch?v=4FWRtGlsmbs)
-- [Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)
-- [Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=MKsvEf3zMa0)
+- [Comprehensive Overview]()
+- [Getting Started Webinar]()
+- [Detailed Demo: Lead to Order]()
 ## 🗺️ Conceptual Flow (Lead-to-Cash)
 
 ```mermaid
@@ -389,3 +389,25 @@ graph LR
     style Lead fill:#dfd
     style Order fill:#fdd
 ```
+
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Sales CRM"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Sales CRM"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/bSqUvJrLOds" title="Sales CRM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=bSqUvJrLOds)

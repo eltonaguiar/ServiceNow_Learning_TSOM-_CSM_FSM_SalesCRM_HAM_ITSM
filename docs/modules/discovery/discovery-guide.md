@@ -419,10 +419,10 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 ---
 
 *Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
@@ -448,10 +448,10 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 
 ---
 
@@ -467,10 +467,10 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 ---
 
 *Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
@@ -496,10 +496,10 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 ---
 
 *Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
@@ -525,10 +525,10 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 
 ---
 
@@ -544,10 +544,32 @@ Direct paths to official ServiceNow training for ITOM Discovery:
 
 ### Discovery Explained
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src=" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+Fallback link: [Discovery Explained]()
 ---
 
 *Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
+
+---
+
+## 📺 Official Learning Resources
+
+ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "ITOM Discovery"
+   
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "ITOM Discovery"
+
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/vLBDPIW-yT0" title="ITOM Discovery Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?v=vLBDPIW-yT0)
