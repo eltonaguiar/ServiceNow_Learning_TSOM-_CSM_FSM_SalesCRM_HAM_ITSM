@@ -123,25 +123,22 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ---
 
-## 📺 Visual & Video Guides
+## 📺 Official Learning Resources
 
-Since official corporate videos are often brief marketing clips, we recommend this comprehensive, community-curated training path led by ServiceNow MVPs:
+ServiceNow does not provide structured "courses" on YouTube; their official training is hosted exclusively on the **Now Learning** portal. To avoid unofficial or outdated community content, use the following authoritative sources:
 
-### 🚀 Recommended Learning Path
-1. **The Fundamentals (Day 1)**
-   - Covers: Architecture, Plugins, HR Profiles, and COEs.
-   - [Watch: Introduction to ServiceNow HRSD](https://www.youtube.com/watch?v=hZ3pNnd6wP4)
+### 🎓 The Authoritative Path (Official)
+1. **Now Learning (The Gold Standard)**
+   - The only place for official certification and structured training.
+   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for "HR Service Delivery"
    
-2. **Case Management (Day 2)**
-   - Covers: HR Case lifecycle, HR Services, and HR Tasks.
-   - [Watch: HRSD Introduction & Process](https://www.youtube.com/watch?v=VFygfIETh0I)
-   
-3. **Employee Journeys (Lifecycle Events)**
-   - Covers: Journey Management, Onboarding/Offboarding, and Engagement.
-   - [Watch: Employee Journey Management](https://www.youtube.com/watch?v=jKgnMPeotds)
+2. **Official Product Documentation**
+   - The source of truth for every field, table, and configuration.
+   - [HRSD Product Documentation](https://docs.servicenow.com/bundle/washingtondc-employee-service-management/page/product/human-resources/concept/hr-service-delivery.html)
 
-### 💡 Quick Overview
+### 🎥 Official Overview Video
+For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced webinar:
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/hZ3pNnd6wP4" title="HRSD Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/crnDJ-AtZ9Y" title="ServiceNow HRSD Official Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
-Fallback link: [HRSD Introduction](https://www.youtube.com/watch?v=hZ3pNnd6wP4)
+Fallback link: [ServiceNow Webinar - HR Service Delivery](https://www.youtube.com/watch?v=crnDJ-AtZ9Y)
