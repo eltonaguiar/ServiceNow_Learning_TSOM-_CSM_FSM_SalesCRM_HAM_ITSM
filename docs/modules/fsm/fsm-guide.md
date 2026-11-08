@@ -367,6 +367,15 @@ Fallback link: [FSM Getting Started]()
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/u_GMNLZb7EI" title="Field Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Field Service Management Official Overview](https://www.youtube.com/watch?v=u_GMNLZb7EI)
+
+
 - [Field Service Management (FSM) playlist](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7Mx9SW5D-Z0dWoCJPW6x7w)
 - [ServiceNow Exchange: Field Service Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4Jr79oiRP0sCXkHND8gLGs)
 - [Episode 1 — Introduction](https://www.youtube.com/watch?v=u_GMNLZb7EI)

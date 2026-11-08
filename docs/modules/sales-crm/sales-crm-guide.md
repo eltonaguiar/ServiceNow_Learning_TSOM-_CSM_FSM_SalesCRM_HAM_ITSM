@@ -395,6 +395,15 @@ graph LR
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Sales CRM Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCCbYr15dG8)
+
+
 - [Getting Started with Sales & Order Management](https://www.youtube.com/watch?v=zCCbYr15dG8)
 - [38th Release – 38 Features in 38 Minutes!! Zurich](https://www.youtube.com/watch?v=YIDLs6UoeUA)
 - [Search (Community)](https://www.youtube.com/@ServiceNowCommunity/search?query=Sales%20and%20Order%20Management)

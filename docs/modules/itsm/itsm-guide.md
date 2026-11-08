@@ -464,6 +464,15 @@ Fallback link: [ITSM Demo]()
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/q_P85jz7r4Q" title="IT Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [IT Service Management Official Overview](https://www.youtube.com/watch?v=q_P85jz7r4Q)
+
+
 - [Ask a Ranger: Now Assist for ITSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7C6nGNCzBJa9T4vbmogMPB)
 - [IT Service Management Demos](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7nPqD6rW9F3ComoXoV_JEj)
 - [Workforce Optimization for ITSM (Docs)](https://www.youtube.com/playlist?list=PLCOmiTb5WX3p1e1nxlu1AVg194igSSGwO)

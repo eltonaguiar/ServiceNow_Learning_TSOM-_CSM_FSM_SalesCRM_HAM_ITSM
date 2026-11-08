@@ -688,6 +688,15 @@ Fallback link: [TSM Showcase]()
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/L3VzhB5uD3M" title="Telecom Service Operations Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Telecom Service Operations Management Official Overview](https://www.youtube.com/watch?v=L3VzhB5uD3M)
+
+
 - [What’s new in ServiceNow's Zurich release for Telecom](https://www.youtube.com/watch?v=Njyt-YgpONY)
 - [Discover What's New: ServiceNow Yokohama Highlights for Telecom](https://www.youtube.com/watch?v=SBJrGFh2Unw)
 - [What's new in the Washington DC release: Telecom](https://www.youtube.com/watch?v=L3VzhB5uD3M)

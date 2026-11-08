@@ -330,6 +330,15 @@ Fallback link: [CSM Full Overview]()
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/ktYPUwEVSf4" title="Customer Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Customer Service Management Official Overview](https://www.youtube.com/watch?v=ktYPUwEVSf4)
+
+
 - [Main CSM playlist (Community)](https://www.youtube.com/playlist?list=PLkGSnjw5y2U5Lcs_iGJNeYisgQ4gYNvng)
 - [ServiceNow Exchange: CSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U511sEht7PkHhVFhtEH8ObV)
 - [Self-Service for CSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6hoEVe_Rh9qftPS2rVfELS)

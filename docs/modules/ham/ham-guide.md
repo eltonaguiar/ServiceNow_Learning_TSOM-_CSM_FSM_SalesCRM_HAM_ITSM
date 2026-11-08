@@ -502,6 +502,15 @@ Fallback link: [HAM Overview]()
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="Hardware Asset Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Hardware Asset Management Official Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
+
+
 - [Ask a Ranger: Hardware Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4MVzsIHSsDG0EC_zvsgOvY)
 - [ServiceNow Exchange: Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6mJf9RGdaTZd8e2oiUWyS7)
 - [Hardware Asset Management | Overview (Docs, 2026)](https://www.youtube.com/watch?v=YtPp0O4v1o4)

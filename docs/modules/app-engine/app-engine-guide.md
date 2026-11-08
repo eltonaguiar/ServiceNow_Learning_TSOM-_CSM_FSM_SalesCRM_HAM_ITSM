@@ -109,6 +109,15 @@ Every app built in AES is a **Scoped App**.
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/KO7WangGeg4" title="App Engine Studio Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/watch?v=KO7WangGeg4)
+
+
 - [App Engine Studio | Overview](https://www.youtube.com/watch?v=KO7WangGeg4)
 - [Getting Started on App Engine Studio](https://www.youtube.com/watch?v=4rCR9gBBRSQ)
 - [What is App Engine Studio?](https://www.youtube.com/watch?v=f8Z-RgicTNs)

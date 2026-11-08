@@ -124,6 +124,15 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
 ### 📺 Verified Videos & Playlists
+
+### 🚀 Quick Start Guide
+For those new to the module, we recommend starting with this official overview:
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/hZ3pNnd6wP4" title="Human Resources Service Delivery Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+Fallback link: [Human Resources Service Delivery Official Overview](https://www.youtube.com/watch?v=hZ3pNnd6wP4)
+
+
 - [ServiceNow Exchange: HRSD](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6C0quY7-PyScOeP4mGZ78f)
 - [ServiceNow Exchange: HR Service Delivery Academy](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6Ud1dbR_94_zn-gTrytJQy)
 - [ServiceNow Exchange: HRSD + ITSM + EC](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4S7dJPF_oSg6_LaRs7tGUe)
