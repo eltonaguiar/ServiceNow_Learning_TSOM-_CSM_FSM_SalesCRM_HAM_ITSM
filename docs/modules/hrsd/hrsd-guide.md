@@ -123,22 +123,16 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ---
 
-## 📺 Official Learning Resources
+---
 
-ServiceNow does not provide structured "courses" on YouTube; their official training is hosted exclusively on the **Now Learning** portal. To avoid unofficial or outdated community content, use the following authoritative sources:
+## 🎓 Official Learning Resources
 
-### 🎓 The Authoritative Path (Official)
-1. **Now Learning (The Gold Standard)**
-   - The only place for official certification and structured training.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for "HR Service Delivery"
+**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+
+1. **Now Learning (Structured Training)**
+   - The only official source for certification paths, badges, and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
    
-2. **Official Product Documentation**
-   - The source of truth for every field, table, and configuration.
-   - [HRSD Product Documentation](https://docs.servicenow.com/bundle/washingtondc-employee-service-management/page/product/human-resources/concept/hr-service-delivery.html)
-
-### 🎥 Official Overview Video
-For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced webinar:
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/crnDJ-AtZ9Y" title="ServiceNow HRSD Official Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-Fallback link: [ServiceNow Webinar - HR Service Delivery](https://www.youtube.com/watch?v=crnDJ-AtZ9Y)
+2. **Product Documentation (Technical Reference)**
+   - The absolute source of truth for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.

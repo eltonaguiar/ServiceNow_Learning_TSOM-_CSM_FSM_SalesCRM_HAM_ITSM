@@ -329,22 +329,16 @@ Fallback link: [CSM Full Overview]()
 
 ---
 
-## 📺 Official Learning Resources
+---
 
-ServiceNow hosts its official training exclusively on the **Now Learning** portal. To avoid outdated or inaccurate community content, use the following authoritative sources:
+## 🎓 Official Learning Resources
 
-### 🎓 The Authoritative Path (Official)
-1. **Now Learning (The Gold Standard)**
-   - The only place for official certification and structured training.
-   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Customer Service Management"
+**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+
+1. **Now Learning (Structured Training)**
+   - The only official source for certification paths, badges, and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
    
-2. **Official Product Documentation**
-   - The source of truth for every field, table, and configuration.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Customer Service Management"
-
-### 🎥 Official Overview Video
-For a high-level official demonstration of the module's capabilities, watch this ServiceNow-produced video:
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/ktYPUwEVSf4" title="Customer Service Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-Fallback link: [Customer Service Management Official Overview](https://www.youtube.com/watch?v=ktYPUwEVSf4)
+2. **Product Documentation (Technical Reference)**
+   - The absolute source of truth for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
