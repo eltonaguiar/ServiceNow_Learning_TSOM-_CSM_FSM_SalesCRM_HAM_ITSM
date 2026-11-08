@@ -17,7 +17,7 @@
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [HR Lifecycle Events](#hr-lifecycle-events)
 - [Employee Center](#employee-center)
-- [Common Mistakes](#common-mistakes)
+- [⚠️ ServiceNow Learning Warnings](#-servicenow-learning-warnings)
 - [Quiz](#quiz)
 
 ---
@@ -94,11 +94,13 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ---
 
-## Common Mistakes
+## ⚠️ ServiceNow Learning Warnings
 
-- **Putting HR data in `sys_user`:** Never do this. Use the HR Profile.
-- **Ignoring COE security:** Forgetting to restrict access to the Payroll COE, allowing all HR agents to see salary data.
-- **Over-complicating HR Services:** Creating 500 services when 20 categories would suffice.
+- **Putting HR data in `sys_user`:** Never do this. Use the HR Profile. The `sys_user` table is too visible across the platform.
+- **Ignoring COE security:** Forgetting to restrict access to the Payroll COE, allowing all HR agents to see salary data. Always verify ACLs on the specific COE table.
+- **Over-complicating HR Services:** Creating 500 services when 20 categories would suffice. Keep the service catalog lean.
+- **Bypassing the HR Case Model:** Trying to use standard `incident` tables for HR. HRSD requires the `sn_hr_core_case` hierarchy for the necessary privacy and COE logic.
+- **Hard-coding User IDs in HR Workflows:** Always use references to the HR Profile to maintain data integrity as users move roles.
 
 ---
 

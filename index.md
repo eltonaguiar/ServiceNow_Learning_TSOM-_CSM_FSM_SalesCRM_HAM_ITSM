@@ -5,7 +5,7 @@ title: ServiceNow Module Guides
 
 # ServiceNow Module Guides
 
-Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for seven ServiceNow modules:
+Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for eight ServiceNow modules:
 
 ## Available Guides
 
@@ -44,6 +44,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>ITSM</h3>
     <p>IT Service Management — incident, problem, change, knowledge, and the CMDB patterns every other module follows.</p>
     <p class="meta"><a href="./docs/modules/itsm/itsm-guide.md">Open the ITSM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>HRSD</h3>
+    <p>Human Resources Service Delivery — case management, lifecycle events, and employee center portals for HR services.</p>
+    <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide.md">Open the HRSD guide</a></p>
   </div>
 </div>
 
