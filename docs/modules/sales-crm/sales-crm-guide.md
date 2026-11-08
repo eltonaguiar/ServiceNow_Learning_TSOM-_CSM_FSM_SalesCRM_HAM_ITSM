@@ -347,14 +347,6 @@ sn_sales_product
 4. What table stores customer accounts?
 5. How does Sales CRM differ from CSM?
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Sales CRM:
-
-- **[Sales CRM Learning Path](https://learning.servicenow.com/lxp/en/sales-crm/sales-customer-relationship-management-crm?id=learning_path_prev&path_id=e982926087a243546a0bedbd0ebb35d6)** — The primary end-to-end training for Sales CRM.
-- **[Order Management (OM) Learning Path](https://learning.servicenow.com/lxp/en/sales-crm/order-management-om?id=learning_path_prev&path_id=e685da6087e243546a0bedbd0ebb35a2)** — Deep dive into the backbone of customer fulfillment.
-- **[Introduction to Sales CRM](https://learning.servicenow.com/lxp/en/sales-crm/introduction-to-sales-customer-relationship-management-crm?id=learning_course_prev&course_id=b353b4ca47b5c3903c6f6013e16d4362)** — Short on-demand course for a high-level overview.
-- **[Sales CRM Implementation Bootcamp](https://learning.servicenow.com/lxp/en/sales-and-order-management/sales-crm-implementation-bootcamp?id=learning_course_prev&course_id=cbb82b5b93ed035056aeb94c5cba1071)** — Recorded bootcamp for implementers focusing on CPQ and Order Management.
 
 ## 📺 Visual & Video Guides
 
@@ -394,14 +386,21 @@ graph LR
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Search (Community)](https://www.youtube.com/@ServiceNowCommunity/search?query=Sales%20and%20Order%20Management)
+- [Search (Docs)](https://www.youtube.com/@ServiceNowDocs/search?query=Order%20Management)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Sales CRM / Order Management"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Sales CRM / Order Management"

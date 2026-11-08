@@ -635,14 +635,6 @@ that chain.
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Telecom Service Operations Management (TSOM):
-
-- **[Telecom Service Operations Management (TSOM) Learning Path](https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-service-management?id=learning_path_prev&path_id=83a683b4c32d719043395230a00131ca)** — The primary end-to-end training.
-- **[Telecom Service Operations Management (TSOM) Course](https://learning.servicenow.com/lxp/en/telecommunications-service-management/what-is-servicenow-telecommunications?id=learning_course_prev&course_id=34950e3d53e00b58c2245a01a0490e6d)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -655,14 +647,6 @@ Fallback link: [TSM Showcase]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Telecom Service Operations Management (TSOM):
-
-- **[Telecom Service Operations Management (TSOM) Learning Path](https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-service-management?id=learning_path_prev&path_id=83a683b4c32d719043395230a00131ca)** — The primary end-to-end training.
-- **[Telecom Service Operations Management (TSOM) Course](https://learning.servicenow.com/lxp/en/telecommunications-service-management/what-is-servicenow-telecommunications?id=learning_course_prev&course_id=34950e3d53e00b58c2245a01a0490e6d)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -695,14 +679,20 @@ Fallback link: [TSM Showcase]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Telecom playlist (Community)](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Telecom Service Operations"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations"

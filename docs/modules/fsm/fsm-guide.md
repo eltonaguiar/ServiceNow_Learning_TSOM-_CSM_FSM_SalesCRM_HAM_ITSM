@@ -316,14 +316,6 @@ wm_territory
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Field Service Management (FSM):
-
-- **[Field Service Management (FSM) Learning Path](https://learning.servicenow.com/lxp/en/pages/now-learning-get-certified?id=amap_detail&achievement_id=a48e1d77dbc27f40de3cdb85ca96196e)** — The primary end-to-end training.
-- **[Field Service Management (FSM) Course](https://learning.servicenow.com/lxp/en/field-service-management/field-service-management-fsm-fundamentals-on?id=learning_course_prev&course_id=fd03106f4737f910123f3975d36d4307)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -336,14 +328,6 @@ Fallback link: [FSM Getting Started]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Field Service Management (FSM):
-
-- **[Field Service Management (FSM) Learning Path](https://learning.servicenow.com/lxp/en/pages/now-learning-get-certified?id=amap_detail&achievement_id=a48e1d77dbc27f40de3cdb85ca96196e)** — The primary end-to-end training.
-- **[Field Service Management (FSM) Course](https://learning.servicenow.com/lxp/en/field-service-management/field-service-management-fsm-fundamentals-on?id=learning_course_prev&course_id=fd03106f4737f910123f3975d36d4307)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -376,14 +360,24 @@ Fallback link: [FSM Getting Started]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Field Service Management (FSM) playlist](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7Mx9SW5D-Z0dWoCJPW6x7w)
+- [ServiceNow Exchange: Field Service Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4Jr79oiRP0sCXkHND8gLGs)
+- [Episode 1 — Introduction](https://www.youtube.com/watch?v=u_GMNLZb7EI)
+- [Episode 2 — Implementation Leading Practices](https://www.youtube.com/watch?v=6n3ClFZaTA0)
+- [Episode 4 — Work Order Management](https://www.youtube.com/watch?v=UJechLZQRfY)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Field Service Management"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Field Service Management"

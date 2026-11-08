@@ -413,14 +413,6 @@ The map establishes relationships between these layers so that if SCCM reports a
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for IT Service Management (ITSM):
-
-- **[IT Service Management (ITSM) Learning Path](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-implementer?id=learning_path_prev&path_id=7f7c2b24db1e7300de3cdb85ca961931)** — The primary end-to-end training.
-- **[IT Service Management (ITSM) Course](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-fundamentals?id=learning_path_prev&path_id=c77ce43d1b39ac9868ad53de1d4bcb7d)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -433,14 +425,6 @@ Fallback link: [ITSM Demo]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for IT Service Management (ITSM):
-
-- **[IT Service Management (ITSM) Learning Path](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-implementer?id=learning_path_prev&path_id=7f7c2b24db1e7300de3cdb85ca961931)** — The primary end-to-end training.
-- **[IT Service Management (ITSM) Course](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-fundamentals?id=learning_path_prev&path_id=c77ce43d1b39ac9868ad53de1d4bcb7d)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -473,14 +457,23 @@ Fallback link: [ITSM Demo]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Ask a Ranger: Now Assist for ITSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7C6nGNCzBJa9T4vbmogMPB)
+- [IT Service Management Demos](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7nPqD6rW9F3ComoXoV_JEj)
+- [Workforce Optimization for ITSM (Docs)](https://www.youtube.com/playlist?list=PLCOmiTb5WX3p1e1nxlu1AVg194igSSGwO)
+- [Service Operations Workspace (Docs)](https://www.youtube.com/playlist?list=PLCOmiTb5WX3p9_wNUn86rQ92BfS1jZIhB)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "IT Service Management"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "IT Service Management"

@@ -407,13 +407,6 @@ The full treatment — plugin (`com.snc.file_signature_normalization`), tables (
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -436,13 +429,6 @@ Fallback link: [Discovery Explained]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -455,13 +441,6 @@ Fallback link: [Discovery Explained]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -484,13 +463,6 @@ Fallback link: [Discovery Explained]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -513,13 +485,6 @@ Fallback link: [Discovery Explained]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -532,13 +497,6 @@ Fallback link: [Discovery Explained]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for ITOM Discovery:
-
-- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -556,14 +514,20 @@ Fallback link: [Discovery Explained]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [How to: Get Started with ITOM Discovery](https://www.youtube.com/watch?v=vLBDPIW-yT0)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "ITOM Discovery"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "ITOM Discovery"

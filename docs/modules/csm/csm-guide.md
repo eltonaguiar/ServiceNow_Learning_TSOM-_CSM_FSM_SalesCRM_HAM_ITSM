@@ -291,14 +291,6 @@ sn_customerservice_entitlement
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Customer Service Management (CSM):
-
-- **[Customer Service Management (CSM) Learning Path](https://learning.servicenow.com/lxp/en/customer-service-management/bridging-the-gap-customer-service-management?id=learning_path_prev&path_id=4aaee00a870d6e10af9f213acebb35f0)** — The primary end-to-end training.
-- **[Customer Service Management (CSM) Course](https://learning.servicenow.com/lxp?id=learning_course_prev&course_id=94d7ead147e4fd102a090dcbd36d43c7)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -331,14 +323,24 @@ Fallback link: [CSM Full Overview]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Main CSM playlist (Community)](https://www.youtube.com/playlist?list=PLkGSnjw5y2U5Lcs_iGJNeYisgQ4gYNvng)
+- [ServiceNow Exchange: CSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U511sEht7PkHhVFhtEH8ObV)
+- [Self-Service for CSM](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6hoEVe_Rh9qftPS2rVfELS)
+- [Customer Success Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6KAWN_dexa69O4Uz44Y8Hq)
+- [CSM Configurable Workspace](https://www.youtube.com/playlist?list=PLkGSnjw5y2U628hT0MZNNUErF9lnKVEln)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Customer Service Management"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Customer Service Management"

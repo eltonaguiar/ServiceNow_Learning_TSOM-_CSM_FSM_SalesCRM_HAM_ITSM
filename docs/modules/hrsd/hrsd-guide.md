@@ -117,22 +117,23 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ---
 
-## 🎓 Official Learning Resources
-
-- **[HRSD Learning Path](https://learning.servicenow.com/lxp/en/human-resources/hr-service-delivery-implementation?id=learning_path_prev)** — The primary implementation path.
-
----
-
 ---
 
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [ServiceNow Exchange: HRSD](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6C0quY7-PyScOeP4mGZ78f)
+- [ServiceNow Exchange: HR Service Delivery Academy](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6Ud1dbR_94_zn-gTrytJQy)
+- [ServiceNow Exchange: HRSD + ITSM + EC](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4S7dJPF_oSg6_LaRs7tGUe)
+- [Now Learning course (Introduction to HRSD)](https://learning.servicenow.com/lxp/en/hr-service-delivery/introduction-to-human-resources-service-delivery-hrsd?id=learning_course_prev&course_id=1343ed43c31f2518cfdf34ee05013189)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Human Resources Service Delivery"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Human Resources Service Delivery"

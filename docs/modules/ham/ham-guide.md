@@ -451,14 +451,6 @@ The attributes used for the match, every time: **file name**, **file size**, and
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Hardware Asset Management (HAM):
-
-- **[Hardware Asset Management (HAM) Learning Path](https://learning.servicenow.com/lxp/pages/now-learning-get-certified?id=amap_detail&achievement_id=7d63c35f1bef8514998555fa234bcbf5)** — The primary end-to-end training.
-- **[Hardware Asset Management (HAM) Course](https://learning.servicenow.com/lxp/en/it-asset-management/hardware-asset-management-ham-fundamentals-on-demand?id=learning_course_prev&course_id=83a8033747949a5490542034846d4391)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -471,14 +463,6 @@ Fallback link: [HAM Overview]()
 
 ---
 
-## 🎓 Official Learning Resources
-
-Direct paths to official ServiceNow training for Hardware Asset Management (HAM):
-
-- **[Hardware Asset Management (HAM) Learning Path](https://learning.servicenow.com/lxp/pages/now-learning-get-certified?id=amap_detail&achievement_id=7d63c35f1bef8514998555fa234bcbf5)** — The primary end-to-end training.
-- **[Hardware Asset Management (HAM) Course](https://learning.servicenow.com/lxp/en/it-asset-management/hardware-asset-management-ham-fundamentals-on-demand?id=learning_course_prev&course_id=83a8033747949a5490542034846d4391)** — Focused on-demand training.
-
----
 
 ## 📺 Visual & Video Guides
 
@@ -511,14 +495,25 @@ Fallback link: [HAM Overview]()
 
 ---
 
+---
+
 ## 🎓 Official Learning Resources
 
-**Important:** ServiceNow does not host full-length structured training courses on YouTube. To avoid unofficial or outdated community content, always use the following authoritative sources:
+To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
+### 📺 Verified Videos & Playlists
+- [Ask a Ranger: Hardware Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4MVzsIHSsDG0EC_zvsgOvY)
+- [ServiceNow Exchange: Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6mJf9RGdaTZd8e2oiUWyS7)
+- [Hardware Asset Management | Overview (Docs, 2026)](https://www.youtube.com/watch?v=YtPp0O4v1o4)
+- [Hardware Asset Management: Setup and Success Guide (Part 1)](https://www.youtube.com/watch?v=v3s6-Rx36xg)
+- [Installing Hardware Asset Management (HAM) – Part 1](https://www.youtube.com/watch?v=lAyVRyzHRp0)
+- [Installing Hardware Asset Management (HAM) – Part 2](https://www.youtube.com/watch?v=oVjh-WUJhkE)
+
+### 🚀 The Authoritative Path
 1. **Now Learning (Structured Training)**
-   - The only official source for certification paths, badges, and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The only official source for certification paths and structured video courses.
+   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Hardware Asset Management"
    
 2. **Product Documentation (Technical Reference)**
-   - The absolute source of truth for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for the module name.
+   - The definitive source for every table, field, and OOB behavior.
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Hardware Asset Management"
