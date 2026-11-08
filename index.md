@@ -13,42 +13,42 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
   <div class="card">
     <h3>TSOM</h3>
     <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-guide.md">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
   </div>
   <div class="card">
     <h3>CSM</h3>
     <p>Customer Service Management — cases, accounts, entitlements, and customer-facing SLAs.</p>
-    <p class="meta"><a href="./docs/modules/csm/csm-guide.md">Open the CSM guide</a></p>
+    <p class="meta"><a href="./docs/modules/csm/csm-guide/">Open the CSM guide</a></p>
   </div>
   <div class="card">
     <h3>FSM</h3>
     <p>Field Service Management — work orders, territories, scheduling constraints, and mobile work.</p>
-    <p class="meta"><a href="./docs/modules/fsm/fsm-guide.md">Open the FSM guide</a></p>
+    <p class="meta"><a href="./docs/modules/fsm/fsm-guide/">Open the FSM guide</a></p>
   </div>
   <div class="card">
     <h3>Sales CRM</h3>
     <p>Sales CRM — leads, opportunities, quotes, and orders on the Now Platform.</p>
-    <p class="meta"><a href="./docs/modules/sales-crm/sales-crm-guide.md">Open the Sales CRM guide</a></p>
+    <p class="meta"><a href="./docs/modules/sales-crm/sales-crm-guide/">Open the Sales CRM guide</a></p>
   </div>
   <div class="card">
     <h3>HAM</h3>
     <p>Hardware Asset Management — the hardware lifecycle from procurement through disposal.</p>
-    <p class="meta"><a href="./docs/modules/ham/ham-guide.md">Open the HAM guide</a></p>
+    <p class="meta"><a href="./docs/modules/ham/ham-guide/">Open the HAM guide</a></p>
   </div>
   <div class="card">
     <h3>Discovery</h3>
     <p>ITOM Discovery — MID Servers, schedules, the Configuration Console, and File-Based Discovery end to end: configure it, run it, and prove the scan executed on the target.</p>
-    <p class="meta"><a href="./docs/modules/discovery/discovery-guide.md">Open the Discovery guide</a></p>
+    <p class="meta"><a href="./docs/modules/discovery/discovery-guide/">Open the Discovery guide</a></p>
   </div>
   <div class="card">
     <h3>ITSM</h3>
     <p>IT Service Management — incident, problem, change, knowledge, and the CMDB patterns every other module follows.</p>
-    <p class="meta"><a href="./docs/modules/itsm/itsm-guide.md">Open the ITSM guide</a></p>
+    <p class="meta"><a href="./docs/modules/itsm/itsm-guide/">Open the ITSM guide</a></p>
   </div>
   <div class="card">
     <h3>HRSD</h3>
     <p>Human Resources Service Delivery — case management, lifecycle events, and employee center portals for HR services.</p>
-    <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide.md">Open the HRSD guide</a></p>
+    <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide/">Open the HRSD guide</a></p>
   </div>
 </div>
 
