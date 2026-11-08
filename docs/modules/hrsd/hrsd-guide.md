@@ -125,8 +125,23 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ## 📺 Visual & Video Guides
 
-### HRSD Overview
+Since official corporate videos are often brief marketing clips, we recommend this comprehensive, community-curated training path led by ServiceNow MVPs:
+
+### 🚀 Recommended Learning Path
+1. **The Fundamentals (Day 1)**
+   - Covers: Architecture, Plugins, HR Profiles, and COEs.
+   - [Watch: Introduction to ServiceNow HRSD](https://www.youtube.com/watch?v=hZ3pNnd6wP4)
+   
+2. **Case Management (Day 2)**
+   - Covers: HR Case lifecycle, HR Services, and HR Tasks.
+   - [Watch: HRSD Introduction & Process](https://www.youtube.com/watch?v=VFygfIETh0I)
+   
+3. **Employee Journeys (Lifecycle Events)**
+   - Covers: Journey Management, Onboarding/Offboarding, and Engagement.
+   - [Watch: Employee Journey Management](https://www.youtube.com/watch?v=jKgnMPeotds)
+
+### 💡 Quick Overview
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/S6Y_uK7r_Yc" title="HRSD Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/hZ3pNnd6wP4" title="HRSD Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
-Fallback link: [HRSD Overview](https://www.youtube.com/watch?v=S6Y_uK7r_Yc)
+Fallback link: [HRSD Introduction](https://www.youtube.com/watch?v=hZ3pNnd6wP4)
