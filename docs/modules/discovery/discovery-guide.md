@@ -384,25 +384,97 @@ The full treatment — plugin (`com.snc.file_signature_normalization`), tables (
 
 1. What are the four phases of a Discovery run, and in which phase does File-Based Discovery execute?
 <details><summary>Answer</summary>Scanning, Classification, Identification, Exploration. FBD executes during Exploration.</details>
-<details><summary>Answer</summary>Scanning, Classification, Identification, Exploration. FBD executes during Exploration.</details>
 
 2. Where do you enable File-Based Discovery, and what must have happened before it will trigger for the first time?
-<details><summary>Answer</summary>In the Discovery profile; needs a successful identification (CI created) first.</details>
 <details><summary>Answer</summary>In the Discovery profile; needs a successful identification (CI created) first.</details>
 
 3. A file matches an extension wildcard **and** the blacklist. Is it collected? Why?
 <details><summary>Answer</summary>Not collected; blacklist overrides wildcard.</details>
-<details><summary>Answer</summary>Not collected; blacklist overrides wildcard.</details>
 
 4. You ran Discovery successfully but no file-based scan appears in the log. Name three things to check, in order.
-<details><summary>Answer</summary>1. Check MID Server status; 2. Check Discovery Profile configuration; 3. Check target OS permissions.</details>
 <details><summary>Answer</summary>1. Check MID Server status; 2. Check Discovery Profile configuration; 3. Check target OS permissions.</details>
 
 5. How do you prove an FBD scan actually executed on a Windows target — what file, in which folder?
 <details><summary>Answer</summary>C:\Windows\Temp\servicenow_discovery.log (or similar agent log).</details>
-<details><summary>Answer</summary>C:\Windows\Temp\servicenow_discovery.log (or similar agent log).</details>
 
 6. A discovered `.exe` has no CDS signature. Which table does it land in, and who deals with it?
+
+---
+
+*Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
+
+
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for ITOM Discovery:
+
+- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### Discovery Explained
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+---
+
+*Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
+
+
+---
+
+*Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
+
+
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for ITOM Discovery:
+
+- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### Discovery Explained
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for ITOM Discovery:
+
+- **[ITOM Discovery Learning Path](https://learning.servicenow.com/lxp/en/it-operations-management/discovery-fundamentals-on-demand?id=learning_course_prev&course_id=f65e853f93a496105402393d6cba1067)** — The primary end-to-end training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### Discovery Explained
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/dpdnyALReaw" title="Discovery Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [Discovery Explained](https://www.youtube.com/watch?v=dpdnyALReaw)
+---
+
+*Part of the ServiceNow Module Guides. Verify behaviour against your own instance and the official ServiceNow documentation.*
+<details><summary>Answer</summary>cmdb_ci_discovered_item (unidentified); the Discovery admin/owner resolves it.</details>
 
 ---
 

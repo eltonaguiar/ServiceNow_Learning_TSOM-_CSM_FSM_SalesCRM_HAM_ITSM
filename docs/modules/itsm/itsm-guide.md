@@ -418,20 +418,16 @@ Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
 
 1. What fields determine incident priority, and where is that matrix defined?
 <details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
-<details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
 
 2. What record type implements an SLA on a given incident?
-<details><summary>Answer</summary>SLA Definition</details>
 <details><summary>Answer</summary>SLA Definition</details>
 
 3. Name three things that break if you reorder state values.
 <details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
-<details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
 
 4. What is the difference between an incident and a problem?
-<details><summary>Answer</summary>Incident = Restoration of service; Problem = Root cause identification.</details>
 <details><summary>Answer</summary>Incident = Restoration of service; Problem = Root cause identification.</details>
 
 5. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>
-<details><summary>Answer</summary>Assignment Group field.</details>
+

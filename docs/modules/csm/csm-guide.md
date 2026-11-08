@@ -326,3 +326,4 @@ Fallback link: [CSM Full Overview](https://www.youtube.com/watch?v=tC0rPsIszQ0)
 
 5. How does CSM differ from ITSM Incident Management?
 <details><summary>Answer</summary>CSM focuses on external customers; ITSM Incident focuses on internal users/employees.</details>
+

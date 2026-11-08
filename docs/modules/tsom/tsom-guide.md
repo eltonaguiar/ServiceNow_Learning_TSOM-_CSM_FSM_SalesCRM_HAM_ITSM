@@ -248,9 +248,11 @@ The model the whole solution writes into. It extends the core CMDB CI model to r
 
 ### Telecom Visibility — and how it differs from ITOM Visibility
 
-Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or on-demand, multi-instance — e.g. Nokia Altiplano for GPON) · Discrepancy Identification &
+Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or o
 
-... [OUTPUT TRUNCATED - 1,657 chars omitted out of 51,585 total] ...
+... [OUTPUT TRUNCATED - 158 chars omitted out of 50,088 total] ...
+
+.
 
  handling time from the swivel-chair improvement; increase in agent utilization |
 | Walk → Run | Visible increase in first contact resolution; case deflection due to self-service; reduction in case volume due to self-service; identification of the customer's preferred contact channel; decrease in case resolution time |
@@ -676,20 +678,16 @@ Fallback link: [TSM Showcase](https://www.youtube.com/watch?v=9-MMOWXBg0E)
 
 1. What is the primary table for telecom services in TSOM?
 <details><summary>Answer</summary>sn_tsm_service</details>
-<details><summary>Answer</summary>sn_tsm_service</details>
 
 2. What table stores physical network elements?
-<details><summary>Answer</summary>cmdb_ci_telecom_network_element</details>
 <details><summary>Answer</summary>cmdb_ci_telecom_network_element</details>
 
 3. What is the difference between a service and a service order?
 <details><summary>Answer</summary>Service = Logical definition; Service Order = Instance of a request to fulfill/change.</details>
-<details><summary>Answer</summary>Service = Logical definition; Service Order = Instance of a request to fulfill/change.</details>
 
 4. Which table stores alarms?
-<details><summary>Answer</summary>em_event (or em_alert for processed alarms).</details>
 <details><summary>Answer</summary>em_event (or em_alert for processed alarms).</details>
 
 5. How do you link a circuit to a service?
 <details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
-<details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
+

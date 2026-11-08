@@ -359,20 +359,16 @@ Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc
 
 1. What is the difference between a work order, a task, and an assignment?
 <details><summary>Answer</summary>Work Order = Overall job; Task = Specific action; Assignment = Link to tech.</details>
-<details><summary>Answer</summary>Work Order = Overall job; Task = Specific action; Assignment = Link to tech.</details>
 
 2. What are the three main scheduling constraints in FSM?
-<details><summary>Answer</summary>Skills, Availability, Territory.</details>
 <details><summary>Answer</summary>Skills, Availability, Territory.</details>
 
 3. Which table stores field technicians?
 <details><summary>Answer</summary>sys_user (with wm_agent role).</details>
-<details><summary>Answer</summary>sys_user (with wm_agent role).</details>
 
 4. What happens if a work order has no territory?
-<details><summary>Answer</summary>Cannot be automatically dispatched via territory-based rules.</details>
 <details><summary>Answer</summary>Cannot be automatically dispatched via territory-based rules.</details>
 
 5. How does the dispatch board use the map?
 <details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
-<details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
+

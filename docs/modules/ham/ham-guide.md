@@ -494,20 +494,16 @@ Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
 
 1. What is the difference between `alm_asset` and `cmdb_ci`?
 <details><summary>Answer</summary>Asset = Financial/Contractual; CI = Operational/Technical.</details>
-<details><summary>Answer</summary>Asset = Financial/Contractual; CI = Operational/Technical.</details>
 
 2. Which table holds software license information?
-<details><summary>Answer</summary>alm_license</details>
 <details><summary>Answer</summary>alm_license</details>
 
 3. What are the asset lifecycle states?
 <details><summary>Answer</summary>In Stock, In Use, Retired, Stolen, etc.</details>
-<details><summary>Answer</summary>In Stock, In Use, Retired, Stolen, etc.</details>
 
 4. Why is asset tag critical?
-<details><summary>Answer</summary>Unique identifier for physical tracking.</details>
 <details><summary>Answer</summary>Unique identifier for physical tracking.</details>
 
 5. How do you link an asset to a contract?
 <details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
-<details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
+
