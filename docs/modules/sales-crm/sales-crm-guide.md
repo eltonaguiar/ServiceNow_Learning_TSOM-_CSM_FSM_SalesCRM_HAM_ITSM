@@ -1,6 +1,5 @@
 <img src="https://api.elbstream.com/logos/isin/US81762P1021" alt="ServiceNow Logo" width="200" style="display: block; margin: 0 auto;" />
 
-
 # Sales CRM
 
 **Agent:** opencode  
@@ -85,7 +84,7 @@ In Sales & Order Management, the catalog *is* the reusable metadata — orders a
 | **Product offerings** | The sellable packaging of specifications: bundles, eligibility, and commercial terms layered over the same underlying specs. Many offerings, one spec. | All > Sales and Order Management > **Product Offerings** |
 | **Price lists & pricing rules** | Prices live in price lists and pricing matrices/rules, never on the quote: a price change is made once in the list and every new quote and order reads it. | All > Sales and Order Management > **Pricing** |
 | **Decomposition rules** | The reusable mapping from what was sold to what must be fulfilled: one commercial product decomposes into domain orders and tasks the same way on every order. Change the rule, change all future fulfilment. | On the specification / offering (Decomposition) |
-| **Orchestration plans & order task templates** | The fulfilment plan definitions per product — sequence, dependencies, jeopardy points — instantiated per order line instead of being designed per order. | All > Sales and Order Management > **Order Management** (plan definitions) |
+| **Orchestration plans & order task templates** | The fulfilment plan definitions per product — sequence, dependencies, jeopardy points, instantiated per order line instead of being designed per order. | All > Sales and Order Management > **Order Management** (plan definitions) |
 | **Quote & order templates** | Standard quote structures and terms reused across opportunities, so sellers start from the approved pattern rather than a blank page. | All > Sales and Order Management > **Quotes** |
 | **TM Forum API contracts** | The catalog/order APIs (TMF620 catalog, TMF622 ordering, TMF641 service ordering) are fixed contracts: every channel and integration reuses the same definitions, which is what makes multi-channel selling possible. | Developer / API documentation for the SOM applications |
 
@@ -345,7 +344,6 @@ sn_sales_product
 3. What happens if entitlement is missing on a case? (CSM comparison)
 4. What table stores customer accounts?
 5. How does Sales CRM differ from CSM?
----
 
 ## 🎓 Official Learning Resources
 
@@ -356,21 +354,29 @@ Direct paths to official ServiceNow training for Sales CRM:
 - **[Introduction to Sales CRM](https://learning.servicenow.com/lxp/en/sales-crm/introduction-to-sales-customer-relationship-management-crm?id=learning_course_prev&course_id=b353b4ca47b5c3903c6f6013e16d4362)** — Short on-demand course for a high-level overview.
 - **[Sales CRM Implementation Bootcamp](https://learning.servicenow.com/lxp/en/sales-and-order-management/sales-crm-implementation-bootcamp?id=learning_course_prev&course_id=cbb82b5b93ed035056aeb94c5cba1071)** — Recorded bootcamp for implementers focusing on CPQ and Order Management.
 
----
-
 ## 📺 Visual & Video Guides
 
-Recommended videos to visualize the lead-to-cash lifecycle:
+### 🎥 Lead-to-Cash Masterclass
+<div style="text-align: center;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/4FWRtGlsmbs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <p><em>Comprehensive Overview: Sales and Order Management</em></p>
+</div>
 
-- **[Comprehensive Overview: Sales and Order Management](https://www.youtube.com/watch?v=4FWRtGlsmbs)** — A high-level explanation of how SOM integrates with CSM and FSM.
-- **[Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)** — Interactive session on optimizing lead-to-cash lifecycles.
-- **[Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=MKsvEf3zMa0)** — Step-by-step walk-through from lead creation to final order fulfillment.
+### 🎥 Getting Started Webinar
+<div style="text-align: center;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <p><em>Optimizing Lead-to-Cash Lifecycles</em></p>
+</div>
 
----
+### 🎥 Detailed Demo: Lead to Order
+<div style="text-align: center">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/MKsvEf3zMa0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <p><em>Step-by-step walk-through from lead creation to final order fulfillment</em></p>
+</div>
 
 ## 🗺️ Conceptual Flow (Lead-to-Cash)
 
-\`\`\`mermaid
+```mermaid
 graph LR
     Lead[Lead] -->|Qualified| Opp[Opportunity]
     Opp -->|Proposal| Quote[Quote/CPQ]
@@ -379,4 +385,4 @@ graph LR
     Service -->|Renewal| Lead
     style Lead fill:#dfd
     style Order fill:#fdd
-\`\`\`
+```
