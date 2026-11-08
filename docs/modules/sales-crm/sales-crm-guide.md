@@ -1,3 +1,6 @@
+<img src="https://api.elbstream.com/logos/isin/US81762P1021" alt="ServiceNow Logo" width="200" style="display: block; margin: 0 auto;" />
+
+
 # Sales CRM
 
 **Agent:** opencode  
@@ -342,3 +345,38 @@ sn_sales_product
 3. What happens if entitlement is missing on a case? (CSM comparison)
 4. What table stores customer accounts?
 5. How does Sales CRM differ from CSM?
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Sales CRM:
+
+- **[Sales CRM Learning Path](https://learning.servicenow.com/lxp/en/sales-crm/sales-customer-relationship-management-crm?id=learning_path_prev&path_id=e982926087a243546a0bedbd0ebb35d6)** — The primary end-to-end training for Sales CRM.
+- **[Order Management (OM) Learning Path](https://learning.servicenow.com/lxp/en/sales-crm/order-management-om?id=learning_path_prev&path_id=e685da6087e243546a0bedbd0ebb35a2)** — Deep dive into the backbone of customer fulfillment.
+- **[Introduction to Sales CRM](https://learning.servicenow.com/lxp/en/sales-crm/introduction-to-sales-customer-relationship-management-crm?id=learning_course_prev&course_id=b353b4ca47b5c3903c6f6013e16d4362)** — Short on-demand course for a high-level overview.
+- **[Sales CRM Implementation Bootcamp](https://learning.servicenow.com/lxp/en/sales-and-order-management/sales-crm-implementation-bootcamp?id=learning_course_prev&course_id=cbb82b5b93ed035056aeb94c5cba1071)** — Recorded bootcamp for implementers focusing on CPQ and Order Management.
+
+---
+
+## 📺 Visual & Video Guides
+
+Recommended videos to visualize the lead-to-cash lifecycle:
+
+- **[Comprehensive Overview: Sales and Order Management](https://www.youtube.com/watch?v=4FWRtGlsmbs)** — A high-level explanation of how SOM integrates with CSM and FSM.
+- **[Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)** — Interactive session on optimizing lead-to-cash lifecycles.
+- **[Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=MKsvEf3zMa0)** — Step-by-step walk-through from lead creation to final order fulfillment.
+
+---
+
+## 🗺️ Conceptual Flow (Lead-to-Cash)
+
+\`\`\`mermaid
+graph LR
+    Lead[Lead] -->|Qualified| Opp[Opportunity]
+    Opp -->|Proposal| Quote[Quote/CPQ]
+    Quote -->|Accepted| Order[Order]
+    Order -->|Fulfillment| Service[CSM/FSM Service]
+    Service -->|Renewal| Lead
+    style Lead fill:#dfd
+    style Order fill:#fdd
+\`\`\`
