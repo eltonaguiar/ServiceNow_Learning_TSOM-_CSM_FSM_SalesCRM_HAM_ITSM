@@ -311,12 +311,67 @@ wm_territory
 8. **Change** work order state to "Completed"
 9. **Verify** in Related Lists: Tasks, Parts, Time Entries
 
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Field Service Management (FSM):
+
+- **[Field Service Management (FSM) Learning Path](https://learning.servicenow.com/lxp/en/pages/now-learning-get-certified?id=amap_detail&achievement_id=a48e1d77dbc27f40de3cdb85ca96196e)** — The primary end-to-end training.
+- **[Field Service Management (FSM) Course](https://learning.servicenow.com/lxp/en/field-service-management/field-service-management-fsm-fundamentals-on?id=learning_course_prev&course_id=fd03106f4737f910123f3975d36d4307)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### FSM Getting Started
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/QJACgw0AHuc" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc)
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Field Service Management (FSM):
+
+- **[Field Service Management (FSM) Learning Path](https://learning.servicenow.com/lxp/en/pages/now-learning-get-certified?id=amap_detail&achievement_id=a48e1d77dbc27f40de3cdb85ca96196e)** — The primary end-to-end training.
+- **[Field Service Management (FSM) Course](https://learning.servicenow.com/lxp/en/field-service-management/field-service-management-fsm-fundamentals-on?id=learning_course_prev&course_id=fd03106f4737f910123f3975d36d4307)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### FSM Getting Started
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/QJACgw0AHuc" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [FSM Getting Started](https://www.youtube.com/watch?v=QJACgw0AHuc)
 ---
 
 ## Quiz
 
 1. What is the difference between a work order, a task, and an assignment?
+<details><summary>Answer</summary>Work Order = Overall job; Task = Specific action; Assignment = Link to tech.</details>
+<details><summary>Answer</summary>Work Order = Overall job; Task = Specific action; Assignment = Link to tech.</details>
+
 2. What are the three main scheduling constraints in FSM?
+<details><summary>Answer</summary>Skills, Availability, Territory.</details>
+<details><summary>Answer</summary>Skills, Availability, Territory.</details>
+
 3. Which table stores field technicians?
+<details><summary>Answer</summary>sys_user (with wm_agent role).</details>
+<details><summary>Answer</summary>sys_user (with wm_agent role).</details>
+
 4. What happens if a work order has no territory?
+<details><summary>Answer</summary>Cannot be automatically dispatched via territory-based rules.</details>
+<details><summary>Answer</summary>Cannot be automatically dispatched via territory-based rules.</details>
+
 5. How does the dispatch board use the map?
+<details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
+<details><summary>Answer</summary>Shows real-time location of agents vs tasks.</details>
+

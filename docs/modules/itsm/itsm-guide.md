@@ -370,12 +370,67 @@ The map establishes relationships between these layers so that if SCCM reports a
 10. **Change** State to "Closed"
 11. **Verify** in Related Lists: Task SLA, Tasks, Approvals, Knowledge, Comments
 
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for IT Service Management (ITSM):
+
+- **[IT Service Management (ITSM) Learning Path](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-implementer?id=learning_path_prev&path_id=7f7c2b24db1e7300de3cdb85ca961931)** — The primary end-to-end training.
+- **[IT Service Management (ITSM) Course](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-fundamentals?id=learning_path_prev&path_id=c77ce43d1b39ac9868ad53de1d4bcb7d)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### ITSM Demo
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/kiB4GjoQj5U" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for IT Service Management (ITSM):
+
+- **[IT Service Management (ITSM) Learning Path](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-implementer?id=learning_path_prev&path_id=7f7c2b24db1e7300de3cdb85ca961931)** — The primary end-to-end training.
+- **[IT Service Management (ITSM) Course](https://learning.servicenow.com/lxp/en/it-service-management/it-service-management-itsm-fundamentals?id=learning_path_prev&path_id=c77ce43d1b39ac9868ad53de1d4bcb7d)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### ITSM Demo
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/kiB4GjoQj5U" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [ITSM Demo](https://www.youtube.com/watch?v=kiB4GjoQj5U)
 ---
 
 ## Quiz
 
 1. What fields determine incident priority, and where is that matrix defined?
+<details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
+<details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
+
 2. What record type implements an SLA on a given incident?
+<details><summary>Answer</summary>SLA Definition</details>
+<details><summary>Answer</summary>SLA Definition</details>
+
 3. Name three things that break if you reorder state values.
+<details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
+<details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
+
 4. What is the difference between an incident and a problem?
+<details><summary>Answer</summary>Incident = Restoration of service; Problem = Root cause identification.</details>
+<details><summary>Answer</summary>Incident = Restoration of service; Problem = Root cause identification.</details>
+
 5. What field determines which assignment group gets the incident?
+<details><summary>Answer</summary>Assignment Group field.</details>
+<details><summary>Answer</summary>Assignment Group field.</details>
+

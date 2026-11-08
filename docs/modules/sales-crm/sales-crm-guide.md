@@ -356,24 +356,25 @@ Direct paths to official ServiceNow training for Sales CRM:
 
 ## 📺 Visual & Video Guides
 
-### 🎥 Lead-to-Cash Masterclass
-<div style="text-align: center;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/4FWRtGlsmbs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  <p><em>Comprehensive Overview: Sales and Order Management</em></p>
+### Comprehensive Overview: Sales and Order Management
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/4FWRtGlsmbs" title="Sales and Order Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-### 🎥 Getting Started Webinar
-<div style="text-align: center;">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  <p><em>Optimizing Lead-to-Cash Lifecycles</em></p>
+### Getting Started Webinar
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Getting Started Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-### 🎥 Detailed Demo: Lead to Order
-<div style="text-align: center">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/MKsvEf3zMa0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  <p><em>Step-by-step walk-through from lead creation to final order fulfillment</em></p>
+### Detailed Demo: Lead to Order
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/MKsvEf3zMa0" title="Lead to Order Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
+**Fallback links (if embeds are blocked):**
+- [Comprehensive Overview](https://www.youtube.com/watch?v=4FWRtGlsmbs)
+- [Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)
+- [Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=MKsvEf3zMa0)
 ## 🗺️ Conceptual Flow (Lead-to-Cash)
 
 ```mermaid

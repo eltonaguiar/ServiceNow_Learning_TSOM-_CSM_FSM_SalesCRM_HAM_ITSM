@@ -286,12 +286,42 @@ sn_customerservice_entitlement
 7. **Observe** CSAT survey may be triggered
 8. **Verify** in Related Lists: Tasks, Approvals, Entitlements, Knowledge
 
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Customer Service Management (CSM):
+
+- **[Customer Service Management (CSM) Learning Path](https://learning.servicenow.com/lxp/en/customer-service-management/bridging-the-gap-customer-service-management?id=learning_path_prev&path_id=4aaee00a870d6e10af9f213acebb35f0)** — The primary end-to-end training.
+- **[Customer Service Management (CSM) Course](https://learning.servicenow.com/lxp?id=learning_course_prev&course_id=94d7ead147e4fd102a090dcbd36d43c7)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### CSM Full Overview
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/tC0rPsIszQ0" title="CSM Full Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [CSM Full Overview](https://www.youtube.com/watch?v=tC0rPsIszQ0)
 ---
 
 ## Quiz
 
 1. What field determines which case workflow fires?
+<details><summary>Answer</summary>Case Type / Category</details>
+
 2. What is the difference between an account and a consumer in CSM?
+<details><summary>Answer</summary>Account = B2B (Organization); Consumer = B2C (Individual).</details>
+
 3. What happens if entitlement is missing on a case?
+<details><summary>Answer</summary>Case may be created, but service delivery is restricted/blocked depending on configuration.</details>
+
 4. What table stores customer accounts?
+<details><summary>Answer</summary>customer_account</details>
+
 5. How does CSM differ from ITSM Incident Management?
+<details><summary>Answer</summary>CSM focuses on external customers; ITSM Incident focuses on internal users/employees.</details>
+

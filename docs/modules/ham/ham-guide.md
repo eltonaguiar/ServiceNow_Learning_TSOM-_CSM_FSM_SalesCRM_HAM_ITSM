@@ -446,12 +446,67 @@ The attributes used for the match, every time: **file name**, **file size**, and
 9. **Change** asset state to "Retired" (simulate end of life)
 10. **Verify** in Related Lists: CI, Contracts, Transfers, History
 
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Hardware Asset Management (HAM):
+
+- **[Hardware Asset Management (HAM) Learning Path](https://learning.servicenow.com/lxp/pages/now-learning-get-certified?id=amap_detail&achievement_id=7d63c35f1bef8514998555fa234bcbf5)** — The primary end-to-end training.
+- **[Hardware Asset Management (HAM) Course](https://learning.servicenow.com/lxp/en/it-asset-management/hardware-asset-management-ham-fundamentals-on-demand?id=learning_course_prev&course_id=83a8033747949a5490542034846d4391)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### HAM Overview
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Hardware Asset Management (HAM):
+
+- **[Hardware Asset Management (HAM) Learning Path](https://learning.servicenow.com/lxp/pages/now-learning-get-certified?id=amap_detail&achievement_id=7d63c35f1bef8514998555fa234bcbf5)** — The primary end-to-end training.
+- **[Hardware Asset Management (HAM) Course](https://learning.servicenow.com/lxp/en/it-asset-management/hardware-asset-management-ham-fundamentals-on-demand?id=learning_course_prev&course_id=83a8033747949a5490542034846d4391)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### HAM Overview
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [HAM Overview](https://www.youtube.com/watch?v=YtPp0O4v1o4)
 ---
 
 ## Quiz
 
 1. What is the difference between `alm_asset` and `cmdb_ci`?
+<details><summary>Answer</summary>Asset = Financial/Contractual; CI = Operational/Technical.</details>
+<details><summary>Answer</summary>Asset = Financial/Contractual; CI = Operational/Technical.</details>
+
 2. Which table holds software license information?
+<details><summary>Answer</summary>alm_license</details>
+<details><summary>Answer</summary>alm_license</details>
+
 3. What are the asset lifecycle states?
+<details><summary>Answer</summary>In Stock, In Use, Retired, Stolen, etc.</details>
+<details><summary>Answer</summary>In Stock, In Use, Retired, Stolen, etc.</details>
+
 4. Why is asset tag critical?
+<details><summary>Answer</summary>Unique identifier for physical tracking.</details>
+<details><summary>Answer</summary>Unique identifier for physical tracking.</details>
+
 5. How do you link an asset to a contract?
+<details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
+<details><summary>Answer</summary>Via the alm_asset -> ast_contract relationship.</details>
+

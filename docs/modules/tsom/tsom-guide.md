@@ -246,273 +246,11 @@ The model the whole solution writes into. It extends the core CMDB CI model to r
 
 ### Telecom Visibility — and how it differs from ITOM Visibility
 
-Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or on-demand, multi-instance — e.g. Nokia Altiplano for GPON) · Discrepancy Identification & Reconciliation · telecom-centric data modeling (interface cards, slots, subslots, VLANs, ports) · CMDB integration via **Discovery Admin Workspace** (discovery tasks, reconciliation validation, schedule tuning, diagnostics) and **CMDB 360** (attribute history, source attribution, reconciliation rules in action). The pattern families named on this page go further than the five Use-branch patterns: Cisco ASR1K, 7613, Nexus 9000, Nexus 3548; Juniper MX80, MX104, MX240, MX460. Use cases the docs attach to it: Autonomous Network Operations, service fulfillment, service assurance, and audit & compliance.
+Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or on-demand, multi-instance — e.g. Nokia Altiplano for GPON) · Discrepancy Identification &
 
-### Telecom Assurance
+... [OUTPUT TRUNCATED - 1,706 chars omitted out of 51,634 total] ...
 
-The Explore page is short and worth recording exactly for its shape: assurance = **alert management** (managing, escalating, and resolving alerts) + **performance management** (analyzing network performance data to optimize service delivery), with Metric Intelligence and LEAP (Learning Enhanced Automation Platform) as the related platform capabilities. Everything else about assurance in this guide — API notifications, fault management, the metric pipeline, MPN — is the Configure/Use/Reference detail underneath those two headings (§5.3, §6.4).
-
-### Discrepancy identification — the full taxonomy
-
-The reconciliation capability (included with the TSOM Visibility plugin) runs **three** audits, not one: the **Telecom Discrepancy Audit**, the **Telecom Logical Connections Discrepancy Audit**, and the **Telecom Network Topology Discrepancy Audit**. Findings classify into three discrepancy types:
-
-- **Missing in network** — the CI is in inventory but no longer detected on the network (removed/decommissioned); the task offers remediation to retire or update the record.
-- **Mismatched CIs** — present in both, but different: **hierarchy mismatches** (parent-child structure wrong, e.g. a chassis holding more child cards than the model allows, or a card in the wrong slot — validated against `cmdb_rel_ci` Contains relationships and the TNI Network Model Relationships table [`sn_ni_core_network_model_relationship`]) and **attribute value mismatches** (discovery dates, model configurations, slot assignments — the CMDB 360 comparison of §5.3).
-- **Missing in CMDB** — discovered on the network but never inventoried (identified as new when creation date matches discovery date); one follow-on task per **equipment**, not per child CI, and task creation for this type can be switched off by system property.
-
-There is also a separate **Telecom SD-WAN Network Discrepancy Audit** over SD-WAN classes, scoped by default to CIs whose discovery source contains TSOM, marking each CI Certified or Failed: **Group** (`cmdb_ci_group`) needs a company reference plus at least one Service and one Site child; **Site** (`cmdb_ci_ni_site`) needs company + location + exactly one Group parent; **Service** (`cmdb_ci_network_service_instance`) needs company + exactly one Group parent; **Equipment** (classes from the `sn_tsom_core.audit.equipment_tables` property) needs company, at most one Service and one Site parent, and at least one IP Address child. Its discrepancy types are **missing reference**, **incorrect relationships**, and **missing in CMDB**.
-
-**Certification audit logics** — the exact matching conditions the audit runs under (the §5.1 audit properties, fully specified): an Audit Result (certified or failed; failed → Follow-On Task) is created for each relationship record in `cmdb_rel_ci` where parent **and** child classes are supported classes — slot (`cmdb_ci_container_slot`), subslot (`cmdb_ci_container_subslot`), card (`cmdb_ci_interface_card`), interface (`cmdb_ci_ni_interface`), telco equipment (`cmdb_ci_ni_telco_equipment`), IP switch (`cmdb_ci_ip_switch`), IP router (`cmdb_ci_ip_router`), including extensions — parent or child was created/updated by Discovery (default filter `discovery_source CONTAINS TSOM`), both CIs' lifecycle stage is **Operational**, and the relationship type matches `sn_tsom_core.audit.relationship_types`. Subsequent runs add the delta condition (Updated later than the audit's Last run date). The audit produces **nine named result types**, each a potential Follow-On Task: most recent discovery date not set · discovery date outside the configured threshold between parent and child (**default 2.5 days**, property `sn_tsom_core.discovered_date.diff.threshold.in.days`) · CI model not found (which short-circuits the model-dependent checks) · slots occupied discrepancy · model relationships not defined (**TNI installed only**) · incorrect number of relationships (**TNI installed only**; a second variant from the Logical Connections audit when a logical interface maps to more than one logical connection; a third from the Topology audit when a topology record lacks its required Contains equipment or Members logical-connection relationships) · reference to logical interface not found (a logical connection missing an endpoint).
-
----
-
-## System properties and workflows you must configure
-
-Installing the app gives you the machinery; these are the switches and sequences that make it
-work on *your* network. Property names below are documented for the TSOM apps.
-
-### 5.1 Properties
-
-| Property | Scope | Default | What it does | If you get it wrong |
-|---|---|---|---|---|
-| `sn_tsom_patterns.itom_pattern_enabled` | `sn_tsom_patterns` | `true` | Whether discovery runs TSOM patterns **plus** ITOM patterns (`true`) or TSOM patterns only (`false`) | `false` on an instance that also does IT discovery silently drops the ITOM coverage |
-| `mid.telecom.discovery.patterns.enabled` | MID Server (`ecc_agent_config`) | per-MID | Enables telecom discovery patterns **on that MID Server** | Discovery finds nothing and logs no obvious error — the MID just does not run the telecom patterns |
-| `sn_tsom_core.audit.log.level` | `sn_tsom_core` | `info` | Logging for the Telecom Discrepancy audit (`debug` / `info` / `warn`) | `debug` in production floods the log; `warn` hides why a discrepancy task was not created |
-| `sn_tsom_core.audit.relationship_types` | `sn_tsom_core` | `Contains::Contained By` | Which CI relationship types the discrepancy audit walks | Add a custom relationship type and reconciliation silently ignores those links |
-| `sn_tsom_core.audit.discovery_sources` | `sn_tsom_core` | e.g. `SG-Altiplano`, `ServiceNow` | Which discovery sources count as "discovered truth" | Your connector's source is not listed → everything looks like a discrepancy, or nothing does |
-
-Each connector also ships **connector-scoped properties** (visible under the connector's
-**Properties** section in its guided setup) and each SGC has its own app scope
-(`sn_sgc_nsp`, `sn_sgc_altiplano`, `sn_tsom_meraki_connector`, …). Read those before tuning
-anything globally — they are the only supported way to change connector behaviour.
-
-### 5.2 The configuration sequence that actually has to happen, in order
-
-| # | Configure | Where | Why it is a prerequisite for the next step |
-|---|---|---|---|
-| 1 | **MID Server** reachable from the network, with `mid.telecom.discovery.patterns.enabled` set | MID Server / `ecc_agent_config` | Nothing can reach devices or controllers without it |
-| 2 | **Credentials + connection alias** for each EMS/NMS/controller | Connections & Credential Aliases | Used by both discovery patterns and SGCs |
-| 3 | **Data source** (clone of the Generic Schema multi-source data source) | Data Sources | Gives the ETL schema-aligned placeholders to test against |
-| 4 | **Duplicate the Telecom Discovery Builder ETL into your connector scope** | Flow/ETL designer | You never edit the core ETL in place — you copy it, then adapt |
-| 5 | **Transform / mapping to CMDB + TNI classes**, run against placeholder data | ETL test run | Catches schema mistakes before 40k devices land wrong |
-| 6 | **Import schedule + filters** | Import Schedules / Filters | Controls volume; full vs filtered discovery |
-| 7 | **IRE identification rules** for telecom classes | CMDB → Identification and Reconciliation | Without this, the first real run creates duplicates |
-| 8 | **Telecom Discrepancy audit** (CMDB Health certification audit + the `sn_tsom_core.audit.*` properties) | CMDB Health / Compliance | Turns "inventory is probably wrong" into a task list |
-| 9 | **Alarm path** — Telecom Alarm Management Open API topic + subscription + active endpoint, or SNMP trap → MID | IntegrationHub / Event Management | This is what makes it *assurance* rather than an inventory app |
-| 10 | **Event rules, correlation rules, maintenance windows** | Event Management | Otherwise the NOC gets the wall of alarms you were hired to remove |
-| 11 | **Service model** — `cmdb_ci_service` records related to the equipment | CMDB / CSDM | Impact analysis has nothing to walk without it |
-| 12 | **Incident hand-off** — flow or business rule creating one incident per correlated alert | Flow Designer | The point of the whole exercise |
-| 13 | **Roles and groups** — `sn_ni_core.*` inventory roles, NOC assignment group | Users, Groups and Roles | People cannot see the workspace otherwise |
-
-**Guided setup:** the SGCs ship one — navigate to
-`All > Service Graph Connectors > <connector> > Setup` and it walks you through MID Server,
-connection, credentials, data sources, schedules, filters and properties. TSOM Core and TNI
-themselves are configured through their own product modules rather than a single wizard, so
-treat the table above as the order, and the guided setup as the shortcut for steps 1–6.
-
-### 5.3 Configuring TSOM — the official configuration map (Australia docs)
-
-Section 5.2 is the order an implementer actually works in. This section maps it to the **official Australia-release documentation** ("Configuring TSOM"), so every step above can be traced to its doc page. The docs define the goal in one line: enable *real-time event ingestion, correlation, and automated remediation* by integrating with external network monitoring and discovery systems — alarm ingestion, CMDB population, discrepancy detection, and service impact visibility.
-
-**Step 0 — the plugins the Configure page names** (dependencies resolve automatically during install):
-
-| Plugin | ID | Doc family |
-|---|---|---|
-| TSOM Event Management Connectors | `sn_tsom_em_connectors` | Telecom Assurance |
-| Service Graph Connector for Fortinet Telco SD-WAN | `sn_tsom_fortinet_connector` | Telecom Visibility |
-| Service Graph Connector for Meraki Telco SD-WAN | `sn_tsom_meraki_connector` | Telecom Visibility |
-| Service Graph Connector for VeloCloud Telco SD-WAN | `sn_tsom_vcloud_connector` | Telecom Visibility |
-
-**Configure Telecom Visibility** (the docs' first configuration branch). The Visibility setup page itself is specific: role required is **tsom_visibility_admin**, the instance must be licensed for TSOM, and the procedure is install the plugins, then update **CMDB CI Class Models to version 1.82 or later** (`sn_cmdb_ci_class` — that version introduces the telecom-specific IRE identification rules; installing a TSOM plugin updates it automatically, but pre-Yokohama instances may need it installed manually). The Visibility subscription's own plugin IDs:
-
-| Plugin | ID |
-|---|---|
-| Service Graph Connector for Nokia Altiplano | `sn_sgc_altiplano` |
-| Service Graph Connector for Meraki Telco SD-WAN | `sn_sgc_meraki` |
-| Service Graph Connector for Fortinet Telco SD-WAN | `sn_sgc_fortinet` |
-| Service Graph Connector for VeloCloud Telco SD-WAN | `sn_sgc_vcloud` |
-| Telecommunications Discovery Patterns | `sn_tsom_patterns` |
-| Telecom Visibility core logic | `sn_tsom_core` |
-
-  Before upgrading, **review any custom IRE rules on telecom CIs** — the 1.82 class models can override or impact custom identification rules, specifically for `cmdb_ci_interface_card`, `cmdb_ci_slot`, `cmdb_ci_subslot`, and `cmdb_ci_network_adapter`; validate and merge custom logic after the update.
-
-- **Install Horizontal Discovery** — the pattern-based discovery install that Telecom Discovery depends on.
-- **Activate Discrepancy and Reconciliation**, which itself has three configuration children the implementer must know separately: **configure the certification filter for the audit** (which CIs the audit examines), **configure attribute comparison settings** for attribute value discrepancy in **CMDB 360**, and **control CI attribute updates using reconciliation rules** (which source is allowed to overwrite which attributes — the control that stops a noisy source from clobbering good data).
-- **Configure Telecom Discovery Builder**, as a chain: **create a duplicate TSOM core data source** (a clone of the Generic Schema multi-source data source) → **duplicate the Telecom Discovery Builder ETL** into your connector scope (the docs include a worked example) → **update the connector data source** → **deploy a new Service Graph Connector** on the duplicated ETL → optionally **extend TNI entity support** for the duplicated ETLs → keep payloads to the **standard JSON for Service Graph Connectors** (the standardized common data set every connector is expected to emit).
-
-**Configure each Service Graph Connector** (the docs give each its own branch; the recurring shape is setup → multiple instances → mapping):
-
-| Connector | Configuration specifics the docs call out |
-|---|---|
-| **Nokia Altiplano** | Initial setup procedure · manage **multiple Altiplano instances** · **concurrent import and parallel loading** · map Altiplano CIs and relationships · its system properties are a reference page of their own |
-| **Cisco Meraki** | Set up the connector schedule · manage multiple Meraki SD-WAN instances · configure **allowlists** · map Meraki CIs and relationships |
-| **Fortinet** | Set up the connector schedule · manage multiple instances · configure **ADOM** for the connector instance · **filter ADOMs** (for the pull connector, and ADOM discovery for the SGC) · **customize scripted extension points** · map Fortinet CIs and relationships |
-| **Arista VeloCloud** | Set up the connector schedule · manage multiple instances · map VeloCloud CIs and relationships |
-
-**Configure Telecom Assurance** (the docs' second branch):
-
-- **Configure API notifications**: create a **topic** (manually, or auto-collected from the external system) → create a **topic subscription**, which generates the **callback URL** you register → **activate the endpoint in the Telecommunications Alarm Management Open API** connection, in **Workflow Studio** → hand the callback URL to the external system. From then on, **TMF 688** requests hitting the callback URL initiate the **Default Alarm Event Notification Trigger** flow, which creates the event; external trigger definitions create/update/delete events through the Event Notification Management Open API (the scoped utility behind it is `TMFTopicEventAPIUtilOOB`). The reference side names the tables and roles: Topic [`sn_api_notif_mgmt_topic`] and Topic Subscription [`sn_api_notif_mgmt_subscription`], with standard roles for administering them.
-- **Configure a webhook** for fault management event intake.
-- **Configure a metric pull connector**, and the MPN-specific family: **elastic event pull connectors for MPN**, **elastic connectors for MPN alarm collection**, and **security log collection for MPN**.
-- **Override the default metric-to-CI binding** when a connector's metrics land on the wrong CI.
-- **Configure a metric aggregation job**, or **create a custom metric aggregation implementation** when the shipped modes do not fit.
-
----
-
-## Using TSOM — the day-2 operational tasks (Australia docs)
-
-The docs' "Using TSOM" page lists what operations teams actually *do* once configuration is done — proactively monitor services, validate data integrity, and reconcile discrepancies so the telecom-aware CMDB stays accurate. Four task families:
-
-1. **Run Telecom Discrepancy audits.** Certification audits, run on the CMDB Compliance framework, validate the integrity of CIs and their relationships across telecom inventory against discovered data and reconciliation rules (the audit properties and filters are the §5.1/§5.3 configuration above). The mechanics, from the docs' run page: All > Compliance > **Audits** > open the **Telecom Discrepancy Audit** record (`cert_audit`) > optionally pick a filter > **Run Audit** (or schedule it as a recurring job). Auditing is **phased** — the initial run validates relationships for the supported classes (Slot, Subslot, Card, Interface, Network Gear, including extensions) from sources such as `discovery_source = SG-TSOM-Altiplano` over `Contains::Contained By`; subsequent runs additionally check whether relationships/related CIs changed since the last run. **Every failed audit automatically creates a Follow-On Task** with the discrepancy described (their worked example: Card04 physically replaced by Card05 in Slot04, CMDB still showing Card04 → failed audit → task). Remediation is one click from the task: the **Remediate** UI action runs the **`TSOM CI Decommission`** subflow, which retires the outdated CI and removes the incorrect relationship — and you can attach your own remediation subflows in Flow Designer instead of the shipped examples.
-2. **Validate attribute value mismatches in CMDB 360.** The Attribute Value Discrepancy feature compares attribute values *across discovery sources* — and against the CMDB baseline — and the **attribute value discrepancy report** is how you surface conflicts and outdated records for cleanup. This is a different lens from the relationship audit: relationships vs attribute values.
-3. **Use Telecom Discovery patterns.** Pattern-based discovery identifies and classifies network functions (**xNFs**) from vendor devices — Cisco, Juniper, routers, switches — and maps them into the CMDB. The docs give each shipped pattern its own xNF classification page: **Telecom Router Pattern**, **Telecom Cisco 7613 Router Pattern**, **Telecom Juniper MX SSH Router Pattern**, **Telecom Cisco Switch Pattern**, and **Telecom Switch Pattern**.
-4. **Run and verify import jobs from Service Graph Connectors.** Manually trigger an import schedule (the docs walk through Nokia Altiplano, and the same run-and-verify pattern for Fortinet, Meraki, and VeloCloud) and verify topology and device data landed in the CMDB mapped to the correct CI classes.
-
-Plus the utility every implementer should know exists: **validate JSON payloads with the TSOM Schema Validator** — instantiate `new sn_tsom_core.TsomSchemaValidator()` and call **`isValidJson(payload)`** for a boolean check, or **`checkJsonValidation(payload)`** for the detailed result (a JSON object naming the schema and each error's message, code, data path, and schema path). It validates the telco object families the ETL ingests — Logical Composites, Devices, Logical Connections, Port Relations, Logical Connection Relations, and Topologies (schemas supplied by `TsomGenericSchema`) — *before* an import set exists, so malformed data is caught early instead of surfacing as ETL failures.
-
----
-
-## Metrics: what is out of the box, and what you build
-
-### 6.1 Genuinely out of the box
-
-| Asset | What you get | Where |
-|---|---|---|
-| Event Management dashboards + PA content (`com.snc.pa.em`) | Alert volume, alert-to-incident conversion, MTTR-style alert trends, alert ageing | Platform Analytics / Event Management |
-| ITSM dashboards content pack (`com.snc.pa.itsm_dashboards`) | The incident/change side of the story once TSOM raises incidents | Platform Analytics |
-| Telecom operations workspace | Alert list, service health, affected-service views for the NOC | TSOM navigation |
-| Network Inventory Workspace / TNI dashboards | Inventory coverage, network hierarchy, datacenter floor views, capacity | TNI navigation |
-| MPN metric panels (where the MPN connector is installed) | Latency KPIs, per-KPI trends, last-recorded-value panels | TSOM / MPN views |
-| CMDB Health / compliance scorecards | Completeness, correctness, compliance — includes the telecom audit | CMDB Health |
-
-### 6.2 What is not out of the box (build these)
-
-There is no documented TSOM-specific Performance Analytics content pack that hands you
-"MTTD by customer service". These are the indicators you build, with the source table and the
-recipe:
-
-| Indicator | Source | Recipe |
-|---|---|---|
-| **MTTD** (per service) | `em_alert` | `sys_created_on` (raised) → `acknowledged_at`/first assignment; breakdown by `cmdb_ci` → service |
-| **MTTR** (per service) | `em_alert` / `incident` | `resolved_at` − `sys_created_on`, joined to the service CI; PA collects daily |
-| **Alarm-to-ticket ratio** | `em_alert`, `incident` | Count alerts ÷ count incidents created from alerts (`correlation_id` link) |
-| **Alarm storm ratio** | `em_event`, `em_alert` | Events per alert — a spike means correlation is not grouping |
-| **Unresolved monitored objects** | `em_unique_nodes` | Count where `type = unknown`; trend it, it is your inventory gap |
-| **Reconciliation drift** | Telecom audit / discrepancy tasks | Open discrepancy tasks by class and discovery source |
-| **Service availability** | `em_alert` per service CI | Time in non-critical state ÷ total time, per service, monthly |
-| **Change success on network** | `change_request` (TNI-created) | Successful ÷ closed, filtered to network change models |
-
-### 6.3 Minimum dashboard for a demo
-
-One dashboard, four widgets, all defensible:
-
-1. **Open alerts by severity** (stacked bar) — *is the NOC drowning?*
-2. **Top 10 affected services** (bar) — *is the customer hurting?*
-3. **MTTD / MTTR trend, 28-day** (line) — *are we getting faster?*
-4. **Unresolved monitored objects** (single score) — *is the inventory trustworthy?*
-
-If a widget cannot be traced to a table and a definition, delete it.
-
-
----
-
-### 6.4 The metric machinery, MPN, and the reference components (Australia docs)
-
-The Australia docs document a metric pipeline underneath the dashboards that §6.1–6.3 summarize. The pieces an implementer is expected to know by name:
-
-- **Pull connectors** bring metrics and events in on a schedule (as opposed to pushed alarms): each connector instance has a **metric parameter** that determines what it collects, and each connector type enforces **granularity constraints** — minimum and maximum values for granularity and collection schedule, rejected on the form when out of range.
-- **Pagination in Meraki pull connector requests**: the connector paginates so all records are retrieved for large organizations, with the page size set per endpoint to that endpoint's maximum in Meraki API v1.
-- **Metric-to-CI binding** decides which CI a metric attaches to; it can be **overridden** per connector (see §5.3) when the default binding lands metrics on the wrong CI.
-- **Metric aggregation** turns raw time-series into reportable values: the docs define the **aggregation modes**, a **metric aggregation scripted extension** (a scripted extension point whose configuration object defines what to aggregate, how, and where to publish), and a **metric type IDs** reference — the IDs identify each time-series metric a connector writes to the metrics database, and are how you find a metric in Insights Explorer or build custom indicators.
-- **MPN (Nokia Mobile Packet Core networks)** is a documented sub-family of its own: an **MPN data model**, the **MPN Formula Engine** (formulas live in the MPN Formulas table [`sn_tsom_em_conns_kpi_definitions`], with automatic processing on insert/update of a formula record), **MPN latency KPIs** including the derived **UE-to-switch latency** metric, **MPN security log fields** (the structured fields produced when a raw security log is parsed), and the **MPN Latency Dashboard**.
-- **SD-WAN dashboards** ship for the SD-WAN connectors: the **SD-WAN Alerts Dashboard** and the **SD-WAN Inventory Dashboard** (alerts, events, and metrics), fed by the installed integrations — VeloCloud REST APIs pulling **events**, Fortinet and Meraki REST APIs pulling **metric data** — and each SGC's **API endpoints** are documented as reference pages (what data flows, through which endpoints).
-- **Altiplano over REST**: the reference includes worked examples of retrieving data from Nokia Altiplano via its REST API — the same API the connector's imports are built on, and the fastest way to sanity-check what a connector *should* be bringing in.
-
----
-
-## Workspaces you get, and how to learn this
-
-### Is there a TSOM workspace out of the box?
-
-**There is no separate "TSOM workspace" app.** TSOM's screens live inside
-**Service Operations Workspace (SOW)**, which is where the alert list, service health and service
-visualization views render. What you actually get depends on what else is installed:
-
-| View | Where it appears | Comes from |
-|---|---|---|
-| Alert list, alert details, alert explanation, remediation tasks | Service Operations Workspace | Event Management + TSOM |
-| Service health / service visualization over the topology | Service Operations Workspace | TSOM + CMDB service model |
-| Converged network + IT operations views | Service Operations Workspace ("converged" in Zurich and later) | SOW + ITOM + TSOM |
-| Network inventory, datacenter floor maps, capacity | Network Inventory Workspace / Service Operations Workspace for TNI | TNI (separate app) |
-| Dashboards over time (trends, MTTR) | Platform Analytics | PA + content packs |
-
-So: install TSOM and you get the telecom assurance capability, but the *workspace* is SOW — which
-means your install also needs ITSM/SOW. That is a practical dependency the dependency tables do not
-spell out: **no SOW, no agent workspace**, even though the TSOM plugins install fine.
-
-### ServiceNow learning for TSOM (self-directed)
-
-ServiceNow University / Now Learning publishes a **Telecommunications Service Operations Management
-Implementer Learning Path**, and a **TSOM Accreditation** exam. As of the current catalog:
-
-| Item | Detail |
-|---|---|
-| Learning path | *Telecommunications Service Operations Management* Implementer path (ServiceNow University / Now Learning) |
-| Path courses (on-demand unless noted) | Event Management Fundamentals · Event and Flow in Action · Service Graph Connector Essentials · Operational Intelligence Fundamentals |
-| Also recommended in the path | IT Operations Management (ITOM) Overview · certification prep for CIS-Event Management |
-| Accreditation | **Telecommunications Service Operations Management (TSOM) Accreditation** — exam blueprint on `learning.servicenow.com` |
-| Accreditations in the same family | Telecommunications Network Inventory (TNI) · Telecommunications, Media and Technology (TMT) Service Essentials |
-| Prerequisite courses listed by ServiceNow for the TSOM accreditation | Welcome to ServiceNow · ServiceNow Administration Fundamentals · CMDB Fundamentals · Introduction to ITOM · ITOM Discovery Implementer · ITOM Implementation (Lab Guide) |
-
-Note the shape of that list: **TSOM accreditation is built on ITOM, CMDB and Event Management, not on
-TSOM-specific fundamentals alone.** If you are starting from zero, the honest order is
-Welcome to ServiceNow → CSA fundamentals → CMDB Fundamentals → Introduction to ITOM →
-Event Management Fundamentals → TSOM path.
-
-Free/self-directed complements (no subscription needed):
-
-- [ServiceNow product documentation](https://www.servicenow.com/docs/) — *Explore / Configure / Use / Reference* for TSOM, plus the
-  Telecom data model and TNI pages.
-- [ServiceNow Community](https://www.servicenow.com/community/) **Telecom** forum and the *What's new in ServiceNow's <release> release for
-  Telecom* sessions (recorded).
-- The Best Practices Library (requires a ServiceNow account) linked from the TSOM docs landing page.
-
-### Official ServiceNow video (YouTube)
-
-There is no "TSOM course" on YouTube, but ServiceNow publishes product and release content worth
-watching, in rough order of usefulness:
-
-| Video | Why watch it |
-|---|---|
-| [*TSOM – Auto-discover and Reconcile Network, IT, and Cloud Inventory Data on a Single AI Platform*](https://www.youtube.com/watch?v=rSQGXKCgwz8) | The Visibility half: discovery + reconciliation, i.e. the data model this guide is about |
-| [ServiceNow **Telecom** playlist](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4i9IYJYt6RfQUgas-4Nxdc) | TSM / TSOM / SOMT updates and quick demos in one place |
-| [*What's new in ServiceNow's Zurich release for Telecom*](https://www.youtube.com/watch?v=Njyt-YgpONY) | Current-release feature walkthrough (Discovery Builder, Altiplano SGC, discrepancy audit) |
-| [*Discover What's New: Yokohama Highlights for Telecom*](https://www.youtube.com/watch?v=SBJrGFh2Unw) | Prior-release context; useful for understanding how the product is evolving |
-| [*Transform Telecommunications Field Service Operations*](https://www.youtube.com/watch?v=DHn49aHeroo) | The adjacent FSM story, useful for the end-to-end telco narrative |
-
-Treat partner videos (TSM showcases, webinars by consultancies) as context, not as documentation —
-several are several years old and describe pre-Zurich behaviour.
-
-
----
-
-## The TMT Recommended Implementation Sequence (Now Create)
-
-ServiceNow's own **Now Create** guidance for Telecommunications, Media & Technology sequences every TMT capability into five maturity phases — **Foundation → Crawl → Walk → Run → Fly** — placed by *when implementation may start*, not by product. Three principles run down the side of the official diagram: capabilities are placed by implementation timing and mature customers keep enhancing their initial implementations; you **realize incremental value with every product deployed**; and your maturity path is unique — some capabilities may never be required in your situation. The diagram's legend separates **TMT** capabilities from **Platform** capabilities and **Other Product** capabilities (ITSM/CMDB and the like).
-
-**Before you start** (the diagram's own checklist): 1. Understand TMT · 2. Determine your Desired Outcomes · 3. Plan the next step with Solution Planner · 4. Calculate Business Value · 5. Build a phased program plan · 6. Establish an Organization Change Management Plan — and the program-level gate underneath all of it: **executive sponsorship is in place**, and the customer is willing to embrace modern, lean approaches.
-
-### The five phases
-
-| Phase | What lands there |
-|-------|------------------|
-| **Foundation** | Customer and Service Organization Data Management · User Administration · Case Management · Case Types · Reporting · Configurable Workspace · Integrations · Configuration Management (CMDB) · **Site and Inventory Management** |
-| **Crawl** | Knowledge Management · Customer Facing Portal · Advanced Work Assignment · Chat · Email · Telephony Integration · Service Level Agreements · **Network Model Relationship** · Customer Central · Common Data Model (CSDM) · Platform Analytics |
-| **Walk** | Virtual Agent · Major Case Management · Automatic Case Categorization · Playbooks · **Network Inventory Workspace** · **Telco Assurance Workflows** · Proactive Customer Service · Change / Incident / Problem Management · Surveys and Assessment |
-| **Run** | Omni channel · **Sales and Order Management** · Domain Separation · Guided Decisions · **Network Inventory Templates** · Proactive Issue Notification · **TSOM Event Management** · Account Lifecycle Events · Communities · Request Management · Continual Improvement Management |
-| **Fly** | **Now Assist for TMT** · **TM Forum APIs** · Field Service Management · Process Mining · Workforce Optimization · **Network Change Models** · **Proactive Service Experience Workflows** · **TSOM — Operational Intelligence** · **Service Bridge** · **Horizontal Catalog Dependencies** · Predictive Intelligence |
-
-### Where TSOM actually lands — the part worth remembering
+ actually lands — the part worth remembering
 
 TSOM is **not one phase**. Its pieces are deliberately spread across the whole path (bolded above): inventory in **Foundation** (Site and Inventory Management), network modelling in **Crawl** (Network Model Relationship), daily network operations in **Walk** (Network Inventory Workspace, Telco Assurance Workflows), event management in **Run** (TSOM Event Management), and intelligence in **Fly** (TSOM — Operational Intelligence, Network Change Models). Two consequences:
 
@@ -902,12 +640,67 @@ alarm) — then tied them together. That chain — *order → service → hardwa
 of telecom assurance. Every dashboard, every incident and every SLA number in TSOM is a view over
 that chain.
 
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Telecom Service Operations Management (TSOM):
+
+- **[Telecom Service Operations Management (TSOM) Learning Path](https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-service-management?id=learning_path_prev&path_id=83a683b4c32d719043395230a00131ca)** — The primary end-to-end training.
+- **[Telecom Service Operations Management (TSOM) Course](https://learning.servicenow.com/lxp/en/telecommunications-service-management/what-is-servicenow-telecommunications?id=learning_course_prev&course_id=34950e3d53e00b58c2245a01a0490e6d)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### TSM Showcase
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/9-MMOWXBg0E" title="TSM Showcase" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [TSM Showcase](https://www.youtube.com/watch?v=9-MMOWXBg0E)
+
+---
+
+## 🎓 Official Learning Resources
+
+Direct paths to official ServiceNow training for Telecom Service Operations Management (TSOM):
+
+- **[Telecom Service Operations Management (TSOM) Learning Path](https://learning.servicenow.com/lxp/en/telecommunications-service-management/telecommunications-service-management?id=learning_path_prev&path_id=83a683b4c32d719043395230a00131ca)** — The primary end-to-end training.
+- **[Telecom Service Operations Management (TSOM) Course](https://learning.servicenow.com/lxp/en/telecommunications-service-management/what-is-servicenow-telecommunications?id=learning_course_prev&course_id=34950e3d53e00b58c2245a01a0490e6d)** — Focused on-demand training.
+
+---
+
+## 📺 Visual & Video Guides
+
+### TSM Showcase
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/9-MMOWXBg0E" title="TSM Showcase" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+Fallback link: [TSM Showcase](https://www.youtube.com/watch?v=9-MMOWXBg0E)
 ---
 
 ## Quiz
 
 1. What is the primary table for telecom services in TSOM?
+<details><summary>Answer</summary>sn_tsm_service</details>
+<details><summary>Answer</summary>sn_tsm_service</details>
+
 2. What table stores physical network elements?
+<details><summary>Answer</summary>cmdb_ci_telecom_network_element</details>
+<details><summary>Answer</summary>cmdb_ci_telecom_network_element</details>
+
 3. What is the difference between a service and a service order?
+<details><summary>Answer</summary>Service = Logical definition; Service Order = Instance of a request to fulfill/change.</details>
+<details><summary>Answer</summary>Service = Logical definition; Service Order = Instance of a request to fulfill/change.</details>
+
 4. Which table stores alarms?
+<details><summary>Answer</summary>em_event (or em_alert for processed alarms).</details>
+<details><summary>Answer</summary>em_event (or em_alert for processed alarms).</details>
+
 5. How do you link a circuit to a service?
+<details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
+<details><summary>Answer</summary>Through the cmdb_rel_ci relationship table or specific TSOM service mapping.</details>
+
