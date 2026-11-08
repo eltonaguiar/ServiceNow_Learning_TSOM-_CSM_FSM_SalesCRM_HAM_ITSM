@@ -64,6 +64,17 @@ Each guide covers:
 
 ## The 5-Step Rapid Learning Loop
 
+```mermaid
+graph TD
+    A[Start: Orient] -->|Read Glossary| B[Configure]
+    B -->|Set Roles/Test Record| C[Build]
+    C -->|Run Flow/Integration| D[Verify]
+    D -->|Confirm Artifact| E[Teach Back]
+    E -->|Write Summary| A
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+```
+
 Every module guide follows the same repeatable process:
 
 1. **Orient** — Read the ELI5 glossary + breadcrumbs for the module
@@ -73,6 +84,9 @@ Every module guide follows the same repeatable process:
 5. **Teach Back** — Write a summary
 
 ## Additional Resources
+
+- **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
+- **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos
 
 - **[SUCCESS_PACK_OPENCODE.MD](./SUCCESS_PACK_OPENCODE.MD)** — 90-day ServiceNow career landing strategy (opencode)
 - **[SUCCESS_PACK_HERMES.MD](./SUCCESS_PACK_HERMES.MD)** — ServiceNow 2026 role landing strategy (hermes)
