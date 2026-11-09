@@ -9,6 +9,8 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
 
 ## Available Guides
 
+## Available Guides
+
 <div class="card-grid">
   <div class="card">
     <h3>TSOM</h3>
@@ -49,6 +51,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>HRSD</h3>
     <p>Human Resources Service Delivery — case management, lifecycle events, and employee center portals for HR services.</p>
     <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide/">Open the HRSD guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Other</h3>
+    <p>Enterprise integration, workforce management, legacy systems, ITIL, and Agile — Boomi iPaaS, UKG, AS/400/DB2, ITIL processes, and Agile delivery.</p>
+    <p class="meta"><a href="./docs/modules/other/other-guide/">Open the Other guide</a></p>
   </div>
 </div>
 
