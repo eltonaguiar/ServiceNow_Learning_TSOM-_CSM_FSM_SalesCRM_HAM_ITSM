@@ -411,6 +411,184 @@ Agile is a way of building software in small, repeated cycles instead of one gia
 
 ---
 
+## 6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server
+
+### ELI5
+
+ServiceNow is rarely an island. It needs to send data out (e.g., "create a ticket in Jira when an incident is raised") and receive data in (e.g., "create an incident when a monitoring alert fires"). ServiceNow provides menu paths — breadcrumbs — that admins and developers use to configure these connections without writing everything from scratch.
+
+### Key breadcrumbs (where to click in ServiceNow)
+
+| Breadcrumb | Path | What you configure there |
+|------------|------|--------------------------|
+| System Web Services | System Web Services → ... | REST and SOAP message definitions, inbound and outbound |
+| REST Message | System Web Services → REST Messages | Outbound REST calls: endpoint, HTTP method, auth, headers, body |
+| SOAP Message | System Web Services → SOAP Messages | Outbound SOAP calls: WSDL, endpoint, operation, envelope |
+| Inbound REST (Scripted REST APIs) | System Web Services → Scripted REST APIs | Expose ServiceNow data as a REST endpoint others can call |
+| Message Inbound / Outbound | System Web Services → Inbound/Outbound | Web service inbound/outbound records (legacy SOAP/REST) |
+| MID Servers | MID Server → MID Servers | Install, configure, and monitor Mid Server instances |
+| ECC Queue | MID Server → ECC Queue | View Mid Server probe/sensor commands and results |
+| Import Sets | System Import Sets → ... | Load flat-file/CSV data (often from legacy extracts) into staging tables |
+| Transform Maps | System Import Sets → Transform Maps | Map imported fields to target tables (e.g., CMDB) |
+
+### REST APIs — outbound vs inbound
+
+| Direction | Purpose | Key config |
+|-----------|---------|------------|
+| Outbound REST Message | ServiceNow calls an external API | `System Web Services → REST Messages` → New → set endpoint, method, auth |
+| Inbound Scripted REST API | External system calls ServiceNow | `System Web Services → Scripted REST APIs` → create API, define resources/HTTP methods, return JSON |
+
+### MID Server connectivity
+
+| Concept | What it is | Why it matters |
+|---------|-----------|----------------|
+| MID Server | Java agent installed inside your network | Lets the cloud ServiceNow instance reach on-prem systems behind firewalls |
+| ECC Queue | Queue of commands sent to / received from MID Servers | Where you see probe execution status (Running / Completed / Error) |
+| Probe | Definition of what the MID Server should do | E.g., JDBC query, SSH command, SNMP scan, directory lookup |
+| Sensor | Processes the MID Server's response back into ServiceNow | Turns raw probe output into CMDB records, events, etc. |
+| JDBC Probe | Queries a database (e.g., DB2 for i, SQL Server) via MID Server | Used for legacy middleware extraction (AS/400 inventory → CMDB) |
+
+### Common mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Hard-coding credentials in REST messages | Breaks when passwords rotate | Use basic auth with credential aliases or OAuth2 |
+| No MID Server for on-prem targets | Connection refused / timeout | Install a MID Server inside the target network |
+| Ignoring ECC Queue errors | Integration silently fails | Monitor ECC Queue → State = Error, inspect output |
+| Calling inbound API without auth | 401 Unauthorized | Add basic auth, API key, or OAuth token to the request |
+| Synchronous outbound call too long | Transaction timeout | Use asynchronous outbound (Execution Queue) for long calls |
+
+### Mini lab: Call an external REST API from ServiceNow
+
+1. Go to **System Web Services → REST Messages → New**
+2. Name: "Get UKG Timecards"; Endpoint: `https://api.ukg.com/dimensions/timecards`
+3. Set HTTP method: GET; Auth: Basic (enter username/password or use credential alias)
+4. Add a header `Accept: application/json`
+5. Click **Test** and confirm a 200 response with JSON body
+6. (Optional) Create a **Scripted REST API** under **System Web Services → Scripted REST APIs** to expose a ServiceNow table as JSON to external callers
+
+### Quiz
+
+1. Where do you configure an outbound REST Message?
+2. What does the ECC Queue show?
+3. Why do you need a MID Server for on-prem systems?
+
+<details><summary>Answer</summary>
+1. **System Web Services → REST Messages**.<br>
+2. Commands sent to / received from MID Servers (probe/sensor state, input/output).<br>
+3. ServiceNow is cloud; a MID Server runs inside your network so it can reach databases, mainframes, and APIs behind your firewall.
+</details>
+
+---
+
+## 7. Jelly in ServiceNow
+
+### ELI5
+
+Jelly is ServiceNow's XML-based scripting language. It's used mainly to render the **Service Portal** — the customer/employee-facing website where users browse the service catalog, view knowledge articles, and submit requests. Think of Jelly as HTML with superpowers: it lets you embed ServiceNow logic (GlideRecord queries, variables, conditions) directly inside XML markup that gets turned into the pages users see.
+
+### Is Jelly for Service Portal or Workspaces?
+
+| Platform | Uses Jelly? | Notes |
+|----------|-------------|-------|
+| **Service Portal** | ✅ Yes | Primary use case. Jelly is used in portal widgets, pages, and headers/footers to render dynamic content. |
+| **Workspace (Agent Workspace / now experience)** | ❌ Largely no | Workspaces are built with **Vue.js** (SPA framework), not Jelly. Configuration is JSON-based (pages, panels, views), not Jelly XML. |
+| Legacy UI (11.x / old interface) | ✅ Yes | Older ServiceNow UI used Jelly heavily for list views, forms, and UI pages. |
+
+### Key terms
+
+| Term | Meaning |
+|------|---------|
+| Jelly | XML-based templating/scripting language in ServiceNow |
+| Widget | A reusable Service Portal building block; can contain Jelly, HTML, CSS, and client/script includes |
+| Client Script | Runs in the browser (not Jelly; standard JavaScript) within Service Portal |
+| Server Script | Runs on the server within a widget; has access to GlideRecord, current, etc. |
+| `g_user`, `current`, `glide` | Common Jelly/global objects available in portal server scripts |
+
+### Jelly example
+
+Here's a simple Jelly snippet used inside a Service Portal widget to greet the logged-in user and list their open incidents:
+
+```xml
+<j:jelly trim="true" xmlns:j="jelly:core" xmlns:g="glide">
+  <j:if test="${!gs.hasRole('admin')}">
+    <div class="alert alert-info">
+      Welcome, <span>${g_user.getDisplayName()}</span>. Here are your open incidents:
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>Short Description</th>
+          <th>State</th>
+        </tr>
+      </thead>
+      <tbody>
+        <j:forEach var="inc" items="${current.incidentList}">
+          <tr>
+            <td>${inc.number}</td>
+            <td>${inc.short_description}</td>
+            <td>${inc.state.display_value}</td>
+          </tr>
+        </j:forEach>
+      </tbody>
+    </table>
+  </j:if>
+</j:jelly>
+```
+
+### How it connects to ServiceNow
+
+- Service Portal widgets use Jelly for **server-side rendering** before the page reaches the browser
+- Client-side interactivity in portals uses regular JavaScript / AngularJS (older portals) or vanilla JS + Service Portal APIs
+- Workspaces (the modern agent experience) do **not** use Jelly; they're Vue.js apps driven by JSON page configs
+- If you're maintaining an older ServiceNow implementation (pre-Entity Service Portal), you'll see far more Jelly in UI pages, list views, and form overlays
+
+### Common mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Using Jelly in a Workspace panel | Doesn't render; Workspace expects Vue/JSON | Use Workspace page config (JSON) or a Service Portal page embedded via iframe if needed |
+| Putting heavy logic in Jelly | Slow portal page loads | Move business logic to a Server Script or Script Include; keep Jelly for presentation |
+| Forgetting `trim="true"` | Extra whitespace breaks layout | Add `trim="true"` to the `<j:jelly>` tag |
+| Exposing raw GlideRecord without limits | Performance / security risk | Always add `.setLimit()` and check roles (`gs.hasRole()`) |
+
+### Mini lab: Show user's name in a Service Portal widget
+
+1. Go to **Service Portal → Widgets → New**
+2. In the **Server Script** field, write logic to fetch `gs.getUser().getDisplayName()`
+3. In the **HTML** template, use Jelly: `<h1>Hello, ${user_name}</h1>`
+4. Add the widget to a portal page and preview it as a logged-in user
+5. Verify the name displays correctly
+
+### Quiz
+
+1. Is Jelly used in Agent Workspace?
+2. What is Jelly primarily used for in ServiceNow today?
+3. Name one object available in Jelly/server scripts.
+
+<details><summary>Answer</summary>
+1. No — Workspaces use Vue.js/JSON config, not Jelly.<br>
+2. Rendering Service Portal pages/widgets (server-side templates with embedded ServiceNow logic).<br>
+3. `g_user` (current user), `gs` (GlideSystem), `current` (current record), or `glide` (Glide object).
+</details>
+
+---
+
+## How These Fit With ServiceNow
+
+| "Other" item | ServiceNow connection point | Typical integration direction |
+|--------------|----------------------------|------------------------------|
+| Boomi | ServiceNow Connector / Inbound REST API | Bidirectional (ServiceNow ↔ Boomi ↔ other apps) |
+| UKG | HRSD / Inbound REST API / webhooks | UKG → ServiceNow (timecards, employees, time-off) |
+| AS/400 + DB2 | MID Server JDBC / Import Sets / CMDB | AS/400 → ServiceNow (inventory, assets, orders) |
+| ITIL | ITSM module (incident, problem, change, CMDB) | ServiceNow IS the ITIL platform |
+| Agile | ServiceNow Agile Development / DevOps | ServiceNow tracks Agile work and defects |
+| ServiceNow Integrations | System Web Services, MID Server, ECC Queue | Outbound REST/SOAP / Inbound Scripted REST APIs |
+| Jelly | Service Portal widgets (server-side rendering) | Portal pages display ServiceNow data to end users |
+
+---
+
 ## Quick Glossary (All Sections)
 
 | Term | Plain-English meaning |
@@ -429,6 +607,12 @@ Agile is a way of building software in small, repeated cycles instead of one gia
 | Agile | Build in small cycles, get feedback often |
 | Sprint | Fixed-length work cycle (1–4 weeks) |
 | User Story | Small piece of user-valued work |
+| MID Server | Java agent reaching on-prem systems for ServiceNow |
+| ECC Queue | Queue of Mid Server probe/sensor commands |
+| Scripted REST API | Expose ServiceNow data as REST for external callers |
+| Jelly | XML templating language for Service Portal |
+| Service Portal | Customer/employee-facing website (uses Jelly) |
+| Workspace / Agent Workspace | Modern agent UI (Vue.js, not Jelly) |
 
 ---
 
