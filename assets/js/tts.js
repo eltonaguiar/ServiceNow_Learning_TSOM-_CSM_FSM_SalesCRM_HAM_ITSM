@@ -61,13 +61,26 @@
     };
     populateVoices();
 
+    // Fallback: retry voice loading (Chrome loads voices async)
+    var voiceRetry = 0;
+    function retryVoices() {
+        var voices = synth.getVoices ? synth.getVoices() : [];
+        if (voices.length === 0 && voiceRetry < 10) {
+            voiceRetry += 1;
+            setTimeout(retryVoices, 500);
+        } else if (voices.length > 0) {
+            populateVoices();
+            renderControls();
+        }
+    }
+    setTimeout(retryVoices, 500);
+
     // Make content text clickable for jump-to
     makeContentClickable();
     // Build section list (headings) for quick nav
     buildSections();
 
     // Highlight sync
-    synth.onvoiceschanged = null; // already handled
   }
 
   function loadState() {
@@ -161,6 +174,7 @@
       '<div class="tts-control-row">' +
       '<label for="tts-voice">Voice:</label>' +
       '<select id="tts-voice" class="tts-select"></select>' +
+      '<button type="button" class="tts-btn tts-btn-small" id="tts-refresh-voices" aria-label="Refresh voices">↻</button>' +
       '</div>' +
       '<div class="tts-control-row">' +
       '<label for="tts-section">Section:</label>' +
@@ -203,6 +217,16 @@
     voiceSelect.addEventListener('change', function () {
       state.voiceIndex = voiceSelect.selectedIndex;
       saveState();
+    });
+    document.getElementById('tts-refresh-voices').addEventListener('click', function (e) {
+      e.preventDefault();
+      populateVoices();
+      renderControls();
+    });
+    document.getElementById('tts-refresh-voices').addEventListener('click', function (e) {
+      e.preventDefault();
+      populateVoices();
+      renderControls();
     });
     sectionSelect = document.getElementById('tts-section');
     sectionSelect.addEventListener('change', function () {
