@@ -35,6 +35,7 @@ the success packs say to build.
 | **Sales CRM** | Lead → opportunity → quote → order → sold product and entitlement | [Sales CRM guide](./sales-crm.md) |
 | **HAM** | Where every device is, who has it, what it cost, when it retires | [HAM guide](./ham.md) |
 | **Discovery** | What is actually on the network — MID Server scans, File-Based Discovery, and a CMDB you can trust | [Discovery guide](./discovery.md) |
+| **Service Mapping** | Which CIs support a business service, and how they connect — pattern-based top-down service maps | [Service Mapping guide](./servicemapping.md) |
 | **TSOM** | Telecom network model, alarms, and service/customer impact | [TSOM guide](./tsom.md) |
 
 ---

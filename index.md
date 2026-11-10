@@ -57,6 +57,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p>Enterprise integration, workforce management, legacy systems, ITIL, and Agile — Boomi iPaaS, UKG, AS/400/DB2, ITIL processes, and Agile delivery.</p>
     <p class="meta"><a href="./docs/modules/other/other-guide/">Open the Other guide</a></p>
   </div>
+  <div class="card">
+    <h3>Service Mapping</h3>
+    <p>Application service discovery — pattern-based top-down mapping of CIs to business services, CMDB relationships, and service impact analysis.</p>
+    <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
+  </div>
 </div>
 
 ## What's in Each Guide
