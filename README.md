@@ -89,6 +89,12 @@ ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 │   ├── common-mistakes/mistakes-to-avoid.md
 │   ├── out-of-box/out-of-box-workflows-integrations.md
 │   └── success-packs/success-pack-prerequisites.md
+│   ├── interviews/
+│   │   ├── integrations.md                  # REST/SOAP/MID Server/IntegrationHub deep dive
+│   │   ├── code-deployment.md               # Cloning, update sets, source control, Git
+│   │   ├── custom-application-development.md # Scoped apps, GlideRecord, GlideAjax, ACLs
+│   │   ├── data-management-migration.md     # Import Sets, Transform Maps, IRE, data cleansing
+│   │   └── prioritized-prep-list.md         # Interview-by-interview prep roadmap (5 interviews)
 ├── labs/
 │   ├── rest-message-integration/
 │   └── remote-table/
