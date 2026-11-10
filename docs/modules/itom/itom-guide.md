@@ -50,6 +50,121 @@ ITOM sits on top of the CMDB. Discovery populates CIs; Event Management consumes
 
 ---
 
+## Official Exam Alignment — CIS-Discovery & CIS-Event Management
+
+This guide maps to two official exam blueprints:
+
+### CIS-Discovery (KB0011545)
+| Guide Section | CIS-DISCO Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Discovery Configuration** | Domain 2: Discovery Configuration — Discovery Setup, Process Flow, Troubleshooting | 35% | Behaviors, clusters, IP services, schedules, PCIE phases, ECC Queue, credentials |
+| **CMDB** | Domain 3: Configuration Management Database — CI Class Manager, Identification & Reconciliation | 15% | CI identifiers, reconciliation definitions, data source precedence, de-duplication |
+| **Discovery Pattern Design** | Domain 1: Discovery Pattern Design | 35% | Pattern Designer, operations, application identification and connection sections |
+
+### CIS-Event Management (KB0011604)
+| Guide Section | CIS-EM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Event Management → Incident** | Domain 3: Event Configuration and Use — Event setup, process flow, CI binding | 27% | Event rules, thresholds, CI binding, alert management rules |
+| **Alerts and Tasks** | Domain 4: Alerts and Tasks — Alert process flow, correlation rules, alert intelligence | 30% | Alert grouping, correlation, priority scores, incident creation |
+
+**Official preparation courses (CIS-Discovery):**
+- ServiceNow Fundamentals
+- ServiceNow Get Started with Now Create
+- ServiceNow Platform Implementation
+- CMDB Fundamentals
+- Discovery Fundamentals
+- CIS-Discovery: Certification Test Prep
+
+**Official preparation courses (CIS-EM):**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Event Management Fundamentals
+- ITOM Overview
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## Discovery PCIE Phase Diagram
+
+```mermaid
+flowchart LR
+    A[Probe] --> B[Classifier]
+    B --> C[Identifier]
+    C --> D[Explorer]
+    D --> E[Processor/Sensor]
+    E --> F[CMDB Updated]
+    
+    A -->|IP Address| A
+    B -->|OS Type| B
+    C -->|Serial Number| C
+    D -->|Details| D
+    E -->|CI Data| E
+    
+    style A fill:#e58a8a,color:#fff
+    style B fill:#e5b567,color:#000
+    style C fill:#e5b567,color:#000
+    style D fill:#e5b567,color:#000
+    style E fill:#4cc38a,color:#000
+    style F fill:#4cc38a,color:#000
+    
+    subgraph "PCIE Phases"
+    A
+    B
+    C
+    D
+    E
+    end
+
+    note right of A: Probe - sends request to target
+    note right of B: Classifier - determines CI type
+    note right of C: Identifier - checks for existing CI
+    note right of D: Explorer - gathers detailed info
+    note right of E: Processor - parses and maps data
+```
+
+**Exam focus:** PCIE phases, ECC Queue, Discovery errors, credentials, CI identifiers (35% of CIS-Discovery exam).
+
+---
+
+## Event Management → Incident Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Monitoring Tool] -->|Event| B[em_event Table]
+    B --> C[Event Rule]
+    C -->|Match| D[em_alert Table]
+    C -->|No Match| E[Discard]
+    D --> F[Alert Correlation Rule]
+    F -->|Grouped| G[Single Alert]
+    G --> H[Alert Management Rule]
+    H -->|Create Incident| I[incident Table]
+    H -->|Update Existing| J[Link to Existing Incident]
+    
+    style B fill:#e58a8a,color:#fff
+    style D fill:#e5b567,color:#000
+    style G fill:#e5b567,color:#000
+    style I fill:#4cc38a,color:#000
+    style J fill:#4cc38a,color:#000
+    
+    subgraph "Event Management"
+    B
+    C
+    D
+    F
+    G
+    H
+    end
+
+    note right of C: Event rules evaluate severity, source, node, resource
+    note right of F: Correlation groups related alerts into one
+    note right of H: Alert management rules create incidents based on priority
+```
+
+**Exam focus:** Event rules, CI binding, alert correlation, alert management rules, incident creation (27% + 30% of CIS-EM exam).
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

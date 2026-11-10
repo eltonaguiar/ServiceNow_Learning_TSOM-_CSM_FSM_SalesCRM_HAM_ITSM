@@ -50,6 +50,33 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 
 ---
 
+## Official Exam Alignment — CIS-ITSM
+
+This guide maps to the **Certified Implementation Specialist – IT Service Management (CIS-ITSM)** exam blueprint (ServiceNow University, KB0011560). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-ITSM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Incident Management** (deep dive + lab) | Domain 1: Incident Management — Architecture, Scoping & Requirements, Configuration: Incident lifecycle | 25% | Incident lifecycle, state model, priority (impact × urgency), assignment groups, SLAs, major incident management |
+| **Problem Management** (deep dive) | Domain 2: Problem Management — Architecture, Scoping & requirements, Problem Lifecycle Configuration | 15% | Problem vs incident, root cause analysis, KEDB, problem tasks, permanent fix vs workaround |
+| **Change Management** (deep dive) | Domain 3: Change Management — Architecture and configuration | 25% | Change types (standard/normal/emergency), CAB, state model, risk/impact, conflict detection, blackout windows |
+| **Service Catalog & Request Fulfillment** | Domain 5: Service Catalog and Request Management — Architecture, Scoping & Requirements, Configuration, Integrations | 25% | Catalog items, record producers, order guides, RITM, catalog tasks, approval workflows |
+| **Service Portfolio Management** | Domain 4: Service Portfolio Management | 5% | Business services, service offerings, access to Service Owner Workspace |
+| **CMDB integration** | Domain 6: Configuration Management Database | 5% | cmdb_ci, affected CI relationships, CI lifecycle |
+
+**Official preparation courses** (recommended by ServiceNow for this exam):
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- ServiceNow Administration Advanced
+- ServiceNow Get Started with Now Create
+- ServiceNow Platform Implementation
+- CMDB Fundamentals
+- ServiceNow ITSM Fundamentals
+- ServiceNow ITSM Implementation
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site. Study materials posted elsewhere online are not official.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application
@@ -194,10 +221,38 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 ## 🔍 Process Deep Dives
 
 ### 🚨 Incident Management
-- **Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
-- **Incident Tasks:** Breaking down a complex fix into smaller, assignable pieces.
-- **On-Call / Escalations:** Using `cmn_rota` to ensure the right person is paged when an SLA is about to breach.
-- **SLAs/OLAs:** Service Level Agreements (Customer) vs Operational Level Agreements (Internal Team).
+
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+    
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+**Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
+
+**Priority Matrix (Impact × Urgency):**
+
+| Impact \ Urgency | 1 - High | 2 - Medium | 3 - Low |
+|------------------|----------|------------|---------|
+| 1 - High | **P1** | **P1** | **P2** |
+| 2 - Medium | **P1** | **P2** | **P3** |
+| 3 - Low | **P2** | **P3** | **P4** |
+| 4 - Low | **P3** | **P4** | **P5** |
+
+**Exam focus (Domain 1, 25%):** Incident lifecycle, state transitions, priority calculation, assignment groups, SLAs, major incident management.
+
 
 🚀 **Interview Insight:** Focus on the **"Restore Service"** goal. Mention that Incident is about speed, while Problem is about the root cause.
 
@@ -230,18 +285,51 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ## Key Table Hierarchy
 
-### Core Tables
+### ITSM Core Table Relationship Diagram
 
-| Table | Purpose | Extends | Key Fields |
-|-------|---------|---------|------------|
-| `incident` | Broken things reported by users | `task` | `number`, `title`, `category`, `state`, `priority`, `assignment_group`, `assigned_to`, `caller_id`, `cmdb_ci` |
-| `problem` | Root causes of incidents | `task` | `number`, `short_description`, `state`, `priority`, `assignment_group`, `caused_by` |
-| `change_request` | Planned changes | `task` | `number`, `short_description`, `state`, `type`, `start_date`, `end_date`, `assignment_group` |
-| `change_task` | Tasks within a change | `task` | `number`, `change_request`, `state`, `assigned_to` |
-| `task` | Base task table | `task` | `number`, `short_description`, `state`, `priority`, `assignment_group` |
-| `task_sla` | SLA records | `task` | `task`, `sla`, `state`, `breach_time`, `pause_count` |
-| `cmdb_ci` | Configuration items | `task` | `name`, `serial_number`, `asset_tag`, `location`, `status` |
-| `kb_knowledge` | Knowledge articles | `task` | `short_description`, `text`, `workflow_state`, `kb_category` |
+```mermaid
+graph TD
+    subgraph "Task Base Table"
+        task[task]
+    end
+    
+    subgraph "ITSM Child Tables (extend task)"
+        incident[incident]
+        problem[problem]
+        change_request[change_request]
+        change_task[change_task]
+        task_sla[task_sla]
+    end
+    
+    subgraph "Configuration Management"
+        cmdb_ci[cmdb_ci]
+    end
+    
+    subgraph "Knowledge"
+        kb_knowledge[kb_knowledge]
+    end
+
+    task --> incident
+    task --> problem
+    task --> change_request
+    task --> change_task
+    task --> task_sla
+    
+    incident -.->|affected CI| cmdb_ci
+    problem -.->|root cause CI| cmdb_ci
+    change_request -.->|affected CIs| cmdb_ci
+    incident -.->|related problem| problem
+    problem -.->|related change| change_request
+    change_request -.->|tasks within| change_task
+    task_sla -.->|SLA on| task
+    kb_knowledge -.->|related CI| cmdb_ci
+
+    style task fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
+    style incident fill:#10141a,stroke:#4cc38a
+    style problem fill:#10141a,stroke:#4cc38a
+    style change_request fill:#10141a,stroke:#4cc38a
+    style cmdb_ci fill:#0a0d10,stroke:#e5b567
+```
 
 ### Table Relationships
 

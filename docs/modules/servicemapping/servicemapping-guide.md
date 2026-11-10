@@ -48,6 +48,125 @@ Service Mapping does not normally require you to create every CI and relationshi
 
 ---
 
+## Official Exam Alignment — CIS-Service Mapping
+
+This guide maps to the **Certified Implementation Specialist – Service Mapping (CIS-SM)** exam blueprint (ServiceNow University, KB0011558). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-SM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Deep Dive: Pattern-Based Discovery** | Domain 1: Service Mapping Pattern Design — Pattern Designer, Operations, Scripting, Application Identification and Connection | 30% | Pattern design, match/parse operations, identification and connection sections |
+| **Step 1–6 Worked Example** | Domain 2: Service Mapping Configuration — Setup and Configuration, Service Configuration, Process Flow | 20% | Entry points, CI types, credentials, service maps, schedules, service groups |
+| **Discovery Comparison Table** | Domain 3: Discovery Configuration — Discovery Setup, Process Flow, Troubleshooting | 15% | Discovery behaviors, clusters, MID Servers, PCIE phases |
+| **Discovery Methods Table** | Domain 4: Machine Learning — Service Mapping Methods, ML Powered Mapping | 10% | Top-down, traffic-based, tag-based, predictive intelligence |
+| **CMDB Tables Section** | Domain 5: Configuration Management Database — CI Class Management, Identification and Reconciliation | 15% | CI Class Manager, CMDB Health, identification and reconciliation rules |
+| **Deep Dive: Interview Answer / Infrastructure Changes** | Domain 6: Service Mapping Engagement Readiness — Scoping, Planning, Operationalizing IT | 10% | Service definition, shared services, licensing, KPIs, benefits |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- ServiceNow Platform Implementation
+- Get Started with Now Create
+- ITOM Overview
+- Service Mapping Fundamentals
+- Service Mapping Advanced
+- Service Mapping Extras
+
+**Additional recommended resources:**
+- Common Service Data Model (CSDM) Fundamentals
+- Configuration Management Database (CMDB) Fundamentals
+- MID Server Fundamentals
+- Discovery Fundamentals
+- Event Management Fundamentals
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## Horizontal Discovery vs Top-Down Service Mapping Diagram
+
+```mermaid
+graph TD
+    subgraph "Horizontal Discovery — 'What exists on the network?'"
+        A[MID Server] --> B[Scan IP Range]
+        B --> C[Discover CIs]
+        C --> D[cmdb_ci, cmdb_ci_server, cmdb_ci_appl]
+        D --> E[Standalone CIs]
+    end
+    
+    subgraph "Top-Down Service Mapping — 'Which CIs support this service?'"
+        F[Application Service] --> G[Entry Point: URL/IP]
+        G --> H[Pattern-Based Discovery]
+        H --> I[Follow Dependencies]
+        I --> J[cmdb_ci_service_discovered]
+        J --> K[cmdb_rel_ci Relationships]
+    end
+    
+    E -.->|feed data| J
+    
+    style A fill:#e58a8a,color:#fff
+    style F fill:#4cc38a,color:#000
+    style J fill:#0a0d10,stroke:#e5b567
+    style K fill:#0a0d10,stroke:#e5b567
+
+    note right of A: Horizontal Discovery runs independently
+    note right of F: Service Mapping starts from a business service
+    note right of E: CIs discovered by Horizontal Discovery are consumed by Service Mapping
+```
+
+**Exam focus:** The distinction between horizontal Discovery (what exists) and top-down Service Mapping (which components support a service) is a core concept tested across multiple domains.
+
+---
+
+## Online Banking Service Map Example
+
+```mermaid
+graph TD
+    subgraph "Application Service"
+        svc[Online Banking Service<br/>cmdb_ci_service_discovered]
+    end
+    
+    subgraph "Web Tier"
+        f5[F5 Load Balancer]
+        web[WEB01 - IIS<br/>cmdb_ci_appl]
+        web_server[WEB01 Host<br/>cmdb_ci_server]
+    end
+    
+    subgraph "Application Tier"
+        app[APP01 - Tomcat<br/>cmdb_ci_appl]
+        app_server[APP01 Host<br/>cmdb_ci_server]
+    end
+    
+    subgraph "Database Tier"
+        db[DB01 - SQL Server<br/>cmdb_ci_appl]
+        db_server[DB01 Host<br/>cmdb_ci_server]
+    end
+
+    svc --> f5
+    f5 --> web
+    web --> web_server
+    web --> app
+    app --> app_server
+    app --> db
+    db --> db_server
+
+    style svc fill:#4cc38a,color:#000
+    style f5 fill:#e5b567,color:#000
+    style web fill:#10141a
+    style app fill:#10141a
+    style db fill:#10141a
+
+    linkStyle default stroke:#4cc38a,stroke-width:2px
+
+    note right of svc: Entry point: https://online.mybank.com
+    note right of web: Pattern identifies IIS, app pools, websites, listening ports
+    note right of app: Pattern identifies outbound connections to 10.10.2.30:8080
+    note right of db: Pattern identifies SQL Server instance on 10.10.3.40:1433
+```
+
+**Exam focus:** Service configuration, entry points, CI types, service maps, service groups (20% of CIS-SM exam).
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

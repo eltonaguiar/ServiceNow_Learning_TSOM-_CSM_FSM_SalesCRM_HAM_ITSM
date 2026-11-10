@@ -40,6 +40,17 @@ HRSD is built to provide a consumer-grade experience for employees. Unlike ITSM,
 
 ---
 
+## Certification Alignment Note
+
+HRSD does not have a dedicated mainline CIS exam. HRSD concepts are tested within:
+- **CIS-CSM** (Domain 1: CSM foundational data model — 27%) — install base, entitlements, contracts overlap with HR case management
+- **CSA** (Domain 5: Database Management and Platform Security — 30%) — data schema, access control, CMDB and CSDM overlap
+- **CAD** (Domain 1: Designing and Creating an Application — 20%) — data model design for custom HR applications
+
+For HRSD-specific preparation, ServiceNow recommends the HR Service Delivery Essentials training path on Now Learning.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

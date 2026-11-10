@@ -53,6 +53,104 @@ Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT 
 
 ---
 
+## Official Exam Alignment — CIS-Hardware Asset Management
+
+This guide maps to the **Certified Implementation Specialist – Hardware Asset Management (CIS-HAM)** exam blueprint (ServiceNow University, KB0011563). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-HAM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Asset Lifecycle** | Domain 1: IT Asset Management Overview & Fundamentals — Hardware Asset Lifecycle | 20% | Asset lifecycle stages, asset models, HAM implementation best practices |
+| **Asset vs CI / Data Integrity** | Domain 2: Data Integrity – Attributes and Data Sources — Assets vs CIs, Hardware Discovery and Normalization | 27% | Assets vs CIs, hardware model normalization, Discovery, NDS, CI classes |
+| **Practical Management** | Domain 3: Practical Management of IT Assets — Consumables, Inventory, Audits, Retirement | 30% | Asset states, workflows, audits, contracts, change management |
+| **Operational Integration** | Domain 4: Operational Integration — Reports/Dashboards, Requests and Procurement, Extending AM | 18% | Dashboards, procurement, asset/CI extension, data certification |
+| **Financial Management** | Domain 5: Financial Management of IT Assets — Hardware Contract Financials, IT Cost Management | 5% | Contract rate cards, depreciation, TCO |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Get Started with Now Create
+- ServiceNow Platform Implementation
+- Hardware Asset Management (HAM) Fundamentals (or HAM Fundamentals - On Demand)
+
+**Additional recommended resources:**
+- Hardware Asset Simulator
+- Additional Recommended Courses for Hardware Asset Management (HAM) Implementers
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## HAM Asset Lifecycle Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Procurement : Asset ordered
+    Procurement --> Received : Asset received in warehouse
+    Received --> In Use : Asset assigned to employee
+    In Use --> In Maintenance : Repair needed
+    In Maintenance --> In Use : Repair complete
+    In Use --> Retired : End of life / replacement
+    In Use --> Lost/Stolen : Asset missing
+    Lost/Stolen --> [*]
+    Retired --> [*]
+    In Maintenance --> Retired : Beyond economical repair
+    
+    note right of Procurement: Purchase order, receipt
+    note right of Received: Asset tag assigned, CI created
+    note right of In Use: Assigned to user, location tracked
+    note right of Retired: Disposal, data wipe, asset state = Retired
+
+    style Procurement fill:#e5b567,color:#000
+    style Received fill:#e5b567,color:#000
+    style In Use fill:#4cc38a,color:#000
+    style Retired fill:#e58a8a,color:#fff
+    style [*] fill:#0b0e11,stroke:#4cc38a
+```
+
+**Exam focus:** Hardware asset lifecycle, stages, components, asset states, retirement workflows (20% + 30% of CIS-HAM exam).
+
+---
+
+## Asset vs CI Diagram
+
+```mermaid
+graph TD
+    subgraph "Hardware Asset (alm_asset)"
+        asset[Asset Record]
+        asset -->|tracks| financial[Financial Data<br/>Cost, PO, Contract, Depreciation]
+        asset -->|tracks| assignment[Assignment<br/>User, Location, Department]
+    end
+    
+    subgraph "Configuration Item (cmdb_ci)"
+        ci[CI Record]
+        ci -->|tracks| technical[Technical Data<br/>OS, IP, Serial, CPU, RAM]
+        ci -->|tracks| relationships[Relationships<br/>Runs on, Depends on, Connected to]
+    end
+    
+    subgraph "The Link"
+        asset -->|normalized to| ci
+        ci -->|sourced from| asset
+    end
+
+    style asset fill:#e5b567,color:#000
+    style ci fill:#0a0d10,stroke:#e5b567
+    style financial fill:#10141a
+    style technical fill:#10141a
+
+    note right of asset: Asset = financial + assignment view (ITAM)
+    note right of ci: CI = technical + relationship view (CMDB)
+    note right of asset: Link via Normalization Data Services (NDS) + hardware model
+```
+
+**Key distinction for exam:**
+- **Asset** (`alm_asset`): Financial and ownership view — cost, purchase date, contract, assigned user, depreciation
+- **CI** (`cmdb_ci`): Technical and relationship view — OS, IP address, serial number, what it runs on/depends on
+- **Normalization:** Discovery + NDS reconciles asset data to CI data, preventing duplicates
+
+**Exam focus:** Assets vs CIs, hardware model normalization, asset and CI data synchronization (27% of CIS-HAM exam).
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Application Scope

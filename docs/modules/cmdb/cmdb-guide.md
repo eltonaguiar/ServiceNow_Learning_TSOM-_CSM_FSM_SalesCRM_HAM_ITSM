@@ -49,6 +49,109 @@ The CMDB is the foundation that ITSM, ITOM, Service Mapping, HAM, and other modu
 
 ---
 
+## Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)
+
+This guide maps to the **Certified Implementation Specialist – Data Foundations (CMDB and CSDM)** exam blueprint (ServiceNow University, KB0012913). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-DF Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Key Table Hierarchy** | Domain: CI Class Management — CMDB Tables, CI Class Manager | 15% | CI classes, extensions, relationships, cmdb_ci base |
+| **Identification & Reconciliation Deep Dive** | Domain: Identification & Reconciliation — Identification Rules, Reconciliation Rules, Datasource Precedence, De-duplication | 25% | IRE engine, identification vs reconciliation, source priority, de-duplication |
+| **CMDB Health** | Domain: Govern — CMDB Health Score, CMDB Health Dashboards, Data Manager | 35% | Completeness, correctness, compliance, duplication remediation |
+| **CSDM** | Domain: Design — CSDM framework, business/technical services | 15% | CSDM domains, design vs build vs consume |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Get Started with Now Create
+- ServiceNow Platform Implementation
+- CMDB Fundamentals
+- CMDB Health Micro-Certification Simulator
+- Configure the CMDB Micro-Certification Simulator
+- Common Service Data Model (CSDM Fundamentals)
+- CMDB Health Deep Dive
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## CMDB Table Hierarchy Diagram
+
+```mermaid
+graph TD
+    subgraph "cmdb_ci — Base CI Table"
+        cmdb_ci[cmdb_ci]
+    end
+    
+    subgraph "Extended CI Classes"
+        cmdb_ci_server[cmdb_ci_server]
+        cmdb_ci_appl[cmdb_ci_appl]
+        cmdb_ci_database[cmdb_ci_database]
+        cmdb_ci_service[cmdb_ci_service]
+        cmdb_ci_network[cmdb_ci_network]
+    end
+    
+    subgraph "Relationships"
+        cmdb_rel_ci[cmdb_rel_ci]
+    end
+    
+    subgraph "Discovery Sources"
+        discovery[Discovery]
+        import_set[Import Set]
+        manual[Manual Entry]
+        sgc[Service Graph Connectors]
+    end
+
+    cmdb_ci --> cmdb_ci_server
+    cmdb_ci --> cmdb_ci_appl
+    cmdb_ci --> cmdb_ci_database
+    cmdb_ci --> cmdb_ci_service
+    cmdb_ci --> cmdb_ci_network
+    
+    cmdb_rel_ci -.->|parent| cmdb_ci
+    cmdb_rel_ci -.->|child| cmdb_ci
+    
+    discovery --> cmdb_ci
+    import_set --> cmdb_ci
+    manual --> cmdb_ci
+    sgc --> cmdb_ci
+
+    style cmdb_ci fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
+    style cmdb_rel_ci fill:#0a0d10,stroke:#e5b567
+```
+
+**Exam focus:** CI class management, CMDB tables, CI class manager, relationships.
+
+---
+
+## IRE Process Diagram (Identification & Reconciliation)
+
+```mermaid
+flowchart TD
+    A[Incoming CI Data] --> B{Identification Rule}
+    B -->|Match Found| C[CI Already Exists]
+    B -->|No Match| D[Create New CI]
+    C --> E{Reconciliation Rule}
+    E -->|Source Priority| F[Update CI Attributes]
+    E -->|No Conflict| G[No Change Needed]
+    D --> H[New CI in CMDB]
+    F --> I[CI Updated in CMDB]
+    G --> J[CI Unchanged]
+    
+    style B fill:#e58a8a,color:#fff
+    style E fill:#e5b567,color:#000
+    style D fill:#4cc38a,color:#000
+    style H fill:#4cc38a,color:#000
+```
+
+**Identification:** Answers "Is this CI already existing or is it new?" — uses CI identifiers (serial number, MAC address, hostname + DNS, etc.)
+**Reconciliation:** Answers "If multiple sources update the same CI, whose data should I trust?" — uses source priority (Discovery typically outranks Import Set and Manual)
+**Processing Order:** Identification → (if match) Reconciliation → Update/Create. If identification fails, no reconciliation and no update occur.
+
+**Exam focus:** Identification Rules, Reconciliation Rules, Datasource Precedence Rules, CMDB De-duplication (25% of exam).
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

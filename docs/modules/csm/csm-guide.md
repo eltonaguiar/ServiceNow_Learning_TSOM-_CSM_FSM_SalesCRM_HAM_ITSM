@@ -48,6 +48,64 @@ Customer Service Management (CSM) is ServiceNow's platform for managing customer
 
 ---
 
+## Official Exam Alignment — CIS-CSM
+
+This guide maps to the **Certified Implementation Specialist – Customer Service Management (CIS-CSM)** exam blueprint (ServiceNow University, KB0011529). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-CSM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **CSM Foundational Data Model** | Domain 1: CSM foundational data model — Business models, Product models, Install base management, Contracts and entitlements | 27% | B2B/B2C/B2B2C/B2B2E models, install base, entitlements, contracts, product models |
+| **CSM Configuration** | Domain 2: CSM configuration — CSM in ServiceNow, Routing and assignment, Case types, Channels | 38% | Case routing, assignment rules, case types, communication channels |
+| **Case Management** | Domain 3: Case management — Case state flows, Major issue management, Case digests and service definitions, CSM workspace, Case actions, tasks, and escalations | 17% | Case lifecycle, MIM, workspace, escalations, tasks |
+| **Workspace, Portals, Service Catalog, Analytics** | Domain 4: CSM Workspace, Portals, Service Catalog, Analytics, and Reporting | 8% | Customer portal, service catalog, SLAs, reporting |
+| **Best Practices & Knowledge Management** | Domain 5: CSM Best Practices and Knowledge Management | 10% | Architecture, end-to-end processes, project scope, knowledge management |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Get Started with Now Create
+- ServiceNow Platform Implementation
+- Customer Service Management Essentials
+- Customer Service Management Essentials Simulator
+- Knowledge Management for Customer Service Management Fundamentals
+- Customer Service Management Best Practices for Implementation
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## CSM Business Model Diagram
+
+```mermaid
+graph TD
+    subgraph "B2B — Business to Business"
+        company[Customer Account] --> contact[Contact]
+        company --> entitlement[Entitlement]
+        company --> install_base[Install Base]
+    end
+    
+    subgraph "B2C — Business to Consumer"
+        consumer[Consumer] --> case[Case]
+    end
+    
+    subgraph "B2B2C — Business to Business to Consumer"
+        company2[Customer Account] --> consumer2[Consumer via Portal]
+        company2 --> product[Product Model]
+    end
+    
+    subgraph "B2B2E — Business to Business to Employee"
+        company3[Customer Account] --> employee[Employee User]
+        employee --> case2[Case]
+    end
+
+    style company fill:#0b0e11,stroke:#4cc38a
+    style consumer fill:#10141a,stroke:#4cc38a
+    style company2 fill:#0b0e11,stroke:#4cc38a
+    style company3 fill:#0b0e11,stroke:#4cc38a
+```
+
+**Exam focus (Domain 1, 27%):** Business models (B2B, B2C, B2B2C, B2B2E), product models, install base management, contracts and entitlements.
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application
