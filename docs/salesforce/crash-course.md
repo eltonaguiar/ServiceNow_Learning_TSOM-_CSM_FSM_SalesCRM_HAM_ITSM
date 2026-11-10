@@ -348,6 +348,172 @@ Before Salesforce can call an external API, you must add the external URL to **R
 
 ---
 
+## Governor Limits Deep Dive — Why They Exist and How to Handle Them
+
+Salesforce runs on **multi-tenant architecture**: thousands of customers share the same servers. Without limits, one customer's inefficient code could slow down everyone else's org. Governor limits are Salesforce's way of guaranteeing fair resource usage. If you exceed a limit, Salesforce throws a runtime exception (`LimitException`) and your code stops.
+
+**ELI5 analogy:** Think of governor limits like speed limits on a highway. They exist so one driver can't endanger everyone else. If you go too fast, you get pulled over (the exception fires).
+
+Below is each major limit, why it exists, and concrete best practices to stay under it.
+
+---
+
+### 1. SOQL Queries — 100 per Transaction (Sync)
+
+**Why it exists:** Every SOQL query hits the database. Database is the most expensive resource in a multi-tenant system. If every trigger fired 500 queries, the database would collapse.
+
+**Common violation:** Querying inside a `for` loop.
+
+```apex
+// BAD — querying inside a loop
+for (Case c : Trigger.new) {
+    Account a = [SELECT Id, Name FROM Account WHERE Id = :c.AccountId]; // 1 query per record!
+}
+```
+
+**Best practice:** Collect IDs first, query once, then process in memory.
+
+```apex
+// GOOD — bulkified
+Set<Id> accountIds = new Set<Id>();
+for (Case c : Trigger.new) {
+    if (c.AccountId != null) accountIds.add(c.AccountId);
+}
+Map<Id, Account> accountMap = new Map<Id, Account>(
+    [SELECT Id, Name FROM Account WHERE Id IN :accountIds] // 1 query total
+);
+for (Case c : Trigger.new) {
+    Account a = accountMap.get(c.AccountId);
+    // use a...
+}
+```
+
+**Additional tips:**
+- Use **selective queries**: filter on indexed fields (`Id`, `Name`, `CreatedDate`, custom fields marked External ID or Unique).
+- Don't query fields you don't need.
+- In triggers, always assume `Trigger.new` can contain 200 records (the max batch size).
+
+---
+
+### 2. DML Rows — 10,000 per Transaction
+
+**Why it exists:** Writing records (insert, update, delete, undelete) locks rows and writes to disk. Too many DML operations in one transaction can lock the database and block other users.
+
+**Common violation:** Calling `insert` or `update` inside a loop.
+
+```apex
+// BAD — DML inside a loop
+for (Contact con : contactList) {
+    update con; // 1 DML statement per record!
+}
+```
+
+**Best practice:** Collect records into a list, then do one DML call on the whole list.
+
+```apex
+// GOOD — bulkified
+List<Contact> toUpdate = new List<Contact>();
+for (Contact con : contactList) {
+    con.Phone = '(555) 000-0000';
+    toUpdate.add(con);
+}
+update toUpdate; // 1 DML statement total
+```
+
+---
+
+### 3. Heap Size — 6 MB Synchronous / 12 MB Asynchronous
+
+**Why it exists:** Heap is the memory your code uses while running. If one transaction hogs 2 GB of RAM, other transactions on the same server get starved.
+
+**Common violation:** Loading massive query results into memory, or building huge strings/collections.
+
+**Best practices:**
+- Query only the fields you need (`SELECT Id, Name` not `SELECT *` equivalent).
+- Use `LIMIT` on queries that might return many rows.
+- Process large volumes asynchronously (Batch Apex, Queueable) where the heap limit doubles to 12 MB.
+- Avoid storing large collections (Lists, Maps, Sets) of unnecessary data.
+- Set variables to `null` when you're done with them to free memory.
+
+---
+
+### 4. Callouts — 100 per Transaction
+
+**Why it exists:** Callouts (HTTP requests to external systems) are slow and depend on network availability. If one transaction makes 500 callouts, it ties up a thread for minutes.
+
+**Common violation:** Calling an external API inside a loop.
+
+```apex
+// BAD — callout inside a loop
+for (Account a : accounts) {
+    Http http = new Http();
+    HttpRequest req = new HttpRequest();
+    req.setEndpoint('callout:MyAPI/data/' + a.Id);
+    req.setMethod('GET');
+    http.send(req); // 1 callout per record!
+}
+```
+
+**Best practices:**
+- Use **Named Credentials** (never hardcode URLs/passwords).
+- Make callouts **asynchronous** (`@future(callout=true)`, Queueable, or Batch Apex).
+- Batch external requests where possible (one API call that handles multiple records).
+- Set `Remote Site Settings` or use Named Credentials (which bypasses that requirement).
+
+---
+
+### 5. CPU Time — 10,000 ms Sync / 60,000 ms Async
+
+**Why it exists:** CPU is shared across all tenants on a server. One runaway loop could monopolize the CPU.
+
+**Common violation:** Nested loops, complex string manipulation in triggers, inefficient sorting.
+
+**Best practices:**
+- Avoid nested loops (`for` inside `for` inside `for`).
+- Use Maps for lookups instead of looping to find a match.
+- Keep trigger logic minimal — delegate to helper classes.
+- Move heavy processing to asynchronous code (Batch Apex, Queueable) where the limit is 6x higher.
+
+---
+
+### 6. Other Limits to Know
+
+| Limit | Default | Context |
+|-------|---------|---------|
+| Apex classes/triggers | 1 million characters | Code size limit |
+| Test methods | Must cover 75%+ of code | Deployment requires test coverage |
+| Email (single) | 5,000 per day | `Messaging.SingleEmailMessage` |
+| Email (mass) | 10 per day | `Messaging.MassEmailMessage` |
+| Scheduled jobs | 100 concurrent | `@future`, Queueable, Batch Apex |
+| Batch Apex batch size | 200 default | Max 2,000 records per batch |
+| Flow interviews | Varies by edition | Flow can also hit limits |
+
+---
+
+## How to Monitor Governor Limits in Real Time
+
+**Debug Logs:**
+1. Setup > Debug Logs > New
+2. Select the user to trace
+3. Set log level to `Finest`
+4. Run the operation
+5. Download the log and search for `FATAL_ERROR` or `System.LimitException`
+
+**Apex Limits Class:**
+```apex
+// Check how close you are to limits during execution
+Integer queriesUsed = Limits.getQueries();
+Integer queriesLimit = Limits.getLimitQueries();
+System.debug('SOQL queries used: ' + queriesUsed + ' of ' + queriesLimit);
+
+Integer dmlUsed = Limits.getDmlRows();
+Integer dmlLimit = Limits.getLimitDmlRows();
+```
+
+**Best practice:** Add `System.debug` statements in development to catch limit issues before they hit production.
+
+---
+
 ## Design Considerations
 
 ### Before You Build
