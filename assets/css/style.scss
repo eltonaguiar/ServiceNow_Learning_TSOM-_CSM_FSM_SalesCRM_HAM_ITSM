@@ -309,3 +309,104 @@ body {
   .wordmark-thin { display: none; }
   .topbar { padding: 11px 16px; }
 }
+
+/* ---- Text-to-Speech panel ---- */
+.tts-toggle {
+  position: relative;
+  overflow: hidden;
+}
+.tts-toggle::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  opacity: 0; transition: opacity 0.15s ease;
+  pointer-events: none; border-radius: inherit;
+}
+.tts-toggle.tts-active::after { opacity: 1; }
+
+.tts-panel {
+  position: fixed; left: 50%; top: 72px; z-index: 55;
+  transform: translateX(-50%);
+  width: min(520px, 92vw);
+  max-height: 78vh; overflow-y: auto;
+  background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px 14px; color: var(--ink);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.32);
+}
+.tts-panel.hidden { display: none; }
+.tts-panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line-soft);
+}
+.tts-title {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.tts-close {
+  all: unset; cursor: pointer; color: var(--ink-3); font-size: 1rem;
+  padding: 2px 6px; border-radius: 6px; line-height: 1;
+}
+.tts-close:hover { color: var(--ink); background: var(--bg-2); }
+
+.tts-controls { display: grid; gap: 10px; }
+.tts-control-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.tts-control-row label {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+  color: var(--ink-2); white-space: nowrap;
+}
+.tts-control-row .tts-hint label { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); }
+.tts-hint { font-size: 0.78rem; color: var(--ink-3); }
+
+.tts-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--bg-2);
+  color: var(--ink); border-radius: 8px; padding: 7px 14px;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  cursor: pointer; transition: all 0.15s ease;
+}
+.tts-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.tts-btn:active { transform: translateY(1px); }
+.tts-btn-play { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.tts-btn-play:hover { background: var(--accent); color: var(--accent-ink); }
+.tts-btn-stop { color: var(--rose); border-color: var(--rose-dim); }
+.tts-btn-stop:hover { background: var(--rose-dim); color: var(--rose); }
+.tts-btn-small { padding: 4px 10px; font-size: 0.72rem; margin-left: 8px; }
+
+.tts-select {
+  appearance: none; border: 1px solid var(--line); background: var(--bg-2);
+  color: var(--ink); border-radius: 8px; padding: 6px 10px;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  cursor: pointer; flex: 1; min-width: 200px;
+}
+.tts-select:hover { border-color: var(--ink-2); }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 3px; background: var(--line-soft);
+  border: none; outline: none; flex: 1; margin-left: 10px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+input[type="range"]::-webkit-slider-thumb:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+
+/* Clickable text for jump-to */
+.tts-clickable {
+  cursor: pointer;
+}
+.tts-clickable:hover { background: var(--accent-dim); border-radius: 6px; }
+.tts-speaking {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding-left: 8px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Reduce motion for TTS highlight */
+@media (prefers-reduced-motion: reduce) {
+  .tts-clickable:hover { background: transparent; }
+  .tts-speaking { background: transparent; box-shadow: none; }
+}
