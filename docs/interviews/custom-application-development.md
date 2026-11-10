@@ -35,6 +35,37 @@ A scoped application encapsulates its data, logic, and UI within a namespace (`c
 
 ---
 
+## Official Exam Alignment — CAD & CSA
+
+### CAD — Certified Application Developer (KB0011498)
+| Guide Section | CAD Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Scoped Application Fundamentals** | Domain 1: Designing and Creating an Application — Design and implement a data model, Create modules, Use Application scope | 20% | Scoped apps, application scope, table design |
+| **Data Models & Tables** | Domain 1: Designing and Creating an Application — Design and implement a data model | 20% | Table creation, field types, relationships |
+| **Forms & UI / UI Policies & UI Actions** | Domain 2: Application User Interface — Create, design, customize forms, Add/Remove fields | 20% | Form layouts, UI Policies, UI Actions, Client Scripts |
+| **Business Rules / Client Scripts / GlideRecord & GlideAjax** | Domain 2: Application User Interface — Write, test, debug client-side scripts, Write, test, debug server-side scripts | 20% | Business Rules, Client Scripts, GlideRecord, GlideAjax, Script Includes |
+| **ACLs & Scope Protection** | Domain 3: Security and Restricting Access — Create, test, debug Access Controls, Use Application Scope to protect artifacts | 20% | ACLs, cross-scope access, GlideSystem security methods |
+| **Application Scope & Cross-Scope Access** | Domain 3: Security and Restricting Access — Restrict access to applications and modules | 20% | Application scope, cross-scope access rules |
+
+### CSA — Certified System Administrator (KB0011554, updated January 2026)
+| Guide Section | CSA Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Business Rules / Client Scripts** | Domain 6: Data Migration and Integration — Scripting in ServiceNow | 13% | Server-side and client-side scripting |
+| **ACLs & Scope Protection** | Domain 5: Database Management and Platform Security — Application/Access Control | 30% | Access controls, field-level security |
+
+**Official preparation courses (CAD):**
+- Welcome to ServiceNow
+- Scripting in ServiceNow Fundamentals
+- Application Development Fundamentals
+
+**Official preparation courses (CSA):**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
 ## Scoped Application Fundamentals
 
 ### Application Scope

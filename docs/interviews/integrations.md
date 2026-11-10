@@ -36,6 +36,37 @@ You should also be ready to walk through a real, free, working integration — n
 
 ---
 
+## Official Exam Alignment — CSA & CAD
+
+This page maps to two official ServiceNow certification blueprints:
+
+### CSA — Certified System Administrator (KB0011554, updated January 2026)
+| Guide Section | CSA Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **MID Server & Connectivity** | Domain 5: Database Management and Platform Security — Data Schema, Application/Access Control, Importing Data | 30% | MID Server architecture, on-prem connectivity, ECC Queue |
+| **IntegrationHub & Flow Designer** | Domain 4: Self Service & Automation — Knowledge Management, Service Catalog, Workflow Studio, Virtual Agent | 20% | Flow Designer, automation, integration patterns |
+| **Inbound/Outbound Integrations** | Domain 6: Data Migration and Integration — UI Policies, Business Rules, System update sets, Scripting | 13% | REST/SOAP, inbound actions, import sets, scripting |
+
+### CAD — Certified Application Developer (KB0011498)
+| Guide Section | CAD Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Outbound Integrations (REST/SOAP)** | Domain 5: Working with External Data — Import data, integrate to external data source using REST | 10% | REST callouts, Named Credentials, remote site settings |
+| **IntegrationHub & Flow Designer** | Domain 4: Application Automation — Write, test, debug Workflow and Flow Designer, Script Includes | 20% | Flow Designer, subflows, application automation |
+| **MID Server** | Domain 5: Working with External Data — Integrate to external data source | 10% | MID Server for on-prem connectivity |
+
+**Official preparation courses (CSA):**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+
+**Official preparation courses (CAD):**
+- Welcome to ServiceNow
+- Scripting in ServiceNow Fundamentals
+- Application Development Fundamentals
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
 ## Integration Types Overview
 
 | Type | Direction | Protocol | Typical Use Case |

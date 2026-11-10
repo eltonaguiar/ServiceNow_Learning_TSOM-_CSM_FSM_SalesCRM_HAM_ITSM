@@ -30,6 +30,33 @@ This is critical for migration projects, integrations, and ongoing data quality 
 
 ---
 
+## Official Exam Alignment — CSA & CAD
+
+### CSA — Certified System Administrator (KB0011554, updated January 2026)
+| Guide Section | CSA Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Import Sets & Transform Maps** | Domain 5: Database Management — Importing Data | 30% | Import sets, transform maps, data loading |
+| **Identification & Reconciliation (IRE)** | Domain 5: Database Management — CMDB and CSDM | 30% | Identification rules, reconciliation rules, data source precedence |
+
+### CAD — Certified Application Developer (KB0011498)
+| Guide Section | CAD Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Import Sets & Transform Maps** | Domain 5: Working with External Data — Import data in CSV or Excel format | 10% | Import sets, transform maps, data cleansing |
+| **Legacy Data Migration Strategy** | Domain 5: Working with External Data — Integrate to external data source using REST | 10% | Data migration planning, legacy system integration |
+
+**Official preparation courses (CSA):**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+
+**Official preparation courses (CAD):**
+- Welcome to ServiceNow
+- Scripting in ServiceNow Fundamentals
+- Application Development Fundamentals
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
 ## Import Sets & Transform Maps
 
 ### Import Set Flow

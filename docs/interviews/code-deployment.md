@@ -29,6 +29,34 @@ This page covers the four deployment topics that appear most often in ServiceNow
 
 ---
 
+## Official Exam Alignment — CSA & CAD
+
+### CSA — Certified System Administrator (KB0011554, updated January 2026)
+| Guide Section | CSA Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **Instance Cloning & Maintenance** | Domain 2: Instance Configuration — Installing applications and plugins | 10% | Cloning, instance maintenance, post-clone tasks |
+| **The 3 Types of Update Sets** | Domain 6: Data Migration and Integration — System update sets | 13% | Update set lifecycle, states, default update set |
+| **Source Control & Git Repo** | Domain 6: Data Migration and Integration — Scripting in ServiceNow | 13% | Source control, Git integration, remote update sets |
+
+### CAD — Certified Application Developer (KB0011498)
+| Guide Section | CAD Domain | Exam Weight | What's Covered |
+|---------------|------------|-------------|----------------|
+| **The 3 Types of Update Sets** | Domain 6: Managing Applications — Use Delegated Development, ServiceNow Git integration | 10% | Update sets, source control, delegated development |
+| **Source Control & Git Repo** | Domain 6: Managing Applications — Download and install applications, Git integration | 10% | Git repo connection, push/pull update sets |
+
+**Official preparation courses (CSA):**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+
+**Official preparation courses (CAD):**
+- Welcome to ServiceNow
+- Scripting in ServiceNow Fundamentals
+- Application Development Fundamentals
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
 ## Instance Cloning & Maintenance
 
 ### Cloning
