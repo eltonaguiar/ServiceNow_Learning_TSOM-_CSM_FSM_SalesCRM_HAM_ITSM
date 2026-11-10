@@ -85,12 +85,13 @@
 
   function loadState() {
     try {
-      var enabled = localStorage.getItem(STORAGE_PREFIX + 'enabled');
+      // TTS always starts OFF — user must explicitly turn it on.
+      // Do not persist the enabled state across visits.
       var rate = localStorage.getItem(STORAGE_PREFIX + 'rate');
       var voiceIndex = localStorage.getItem(STORAGE_PREFIX + 'voiceIndex');
       var volume = localStorage.getItem(STORAGE_PREFIX + 'volume');
 
-      state.enabled = enabled !== null ? enabled === 'true' : DEFAULTS.enabled;
+      state.enabled = DEFAULTS.enabled;
       state.rate = rate !== null ? parseFloat(rate) : DEFAULTS.rate;
       state.voiceIndex = voiceIndex !== null ? parseInt(voiceIndex, 10) : DEFAULTS.voiceIndex;
       state.volume = volume !== null ? parseFloat(volume) : DEFAULTS.volume;
@@ -101,7 +102,7 @@
 
   function saveState() {
     try {
-      localStorage.setItem(STORAGE_PREFIX + 'enabled', String(state.enabled));
+      // Do not persist 'enabled' — TTS always starts OFF per visit.
       localStorage.setItem(STORAGE_PREFIX + 'rate', String(state.rate));
       localStorage.setItem(STORAGE_PREFIX + 'voiceIndex', String(state.voiceIndex));
       localStorage.setItem(STORAGE_PREFIX + 'volume', String(state.volume));
@@ -369,11 +370,8 @@
   function jumpTo(index) {
     if (index < 0 || index >= state.blocks.length) return;
     state.currentIndex = index;
-    if (state.isPlaying) {
-      stop();
-    }
-    speakFrom(index);
-    // Scroll into view
+    // Do NOT auto-start TTS — user must click Play explicitly.
+    // Clicking a paragraph only scrolls to that section.
     state.blocks[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
