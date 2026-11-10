@@ -32,10 +32,11 @@
     activeUtterance: null,
     blocks: [],        // DOM elements that are speakable
     blockTexts: [],    // extracted text per block
+    sections: [],      // {blockIndex, text, level} for page headings
   };
 
   // DOM refs
-  var panel, toggleBtn, playBtn, stopBtn, voiceSelect, rateSlider, rateVal, volumeSlider, volumeVal;
+  var panel, toggleBtn, playBtn, stopBtn, voiceSelect, rateSlider, rateVal, volumeSlider, volumeVal, sectionSelect;
 
   // ------------------------------------------------------------------
   // Initialization
@@ -62,6 +63,8 @@
 
     // Make content text clickable for jump-to
     makeContentClickable();
+    // Build section list (headings) for quick nav
+    buildSections();
 
     // Highlight sync
     synth.onvoiceschanged = null; // already handled
@@ -160,6 +163,10 @@
       '<select id="tts-voice" class="tts-select"></select>' +
       '</div>' +
       '<div class="tts-control-row">' +
+      '<label for="tts-section">Section:</label>' +
+      '<select id="tts-section" class="tts-select"></select>' +
+      '</div>' +
+      '<div class="tts-control-row">' +
       '<label for="tts-rate">Speed: <span id="tts-rate-val">1.0×</span></label>' +
       '<input type="range" id="tts-rate" min="0.5" max="2.0" step="0.1" value="1.0">' +
       '</div>' +
@@ -196,6 +203,15 @@
     voiceSelect.addEventListener('change', function () {
       state.voiceIndex = voiceSelect.selectedIndex;
       saveState();
+    });
+    sectionSelect = document.getElementById('tts-section');
+    sectionSelect.addEventListener('change', function () {
+      var selIdx = sectionSelect.selectedIndex;
+      if (selIdx > 0) {
+        var sec = state.sections[selIdx - 1];
+        if (sec) jumpToSection(sec.blockIndex);
+        sectionSelect.selectedIndex = 0;
+      }
     });
     rateSlider = document.getElementById('tts-rate');
     rateVal = document.getElementById('tts-rate-val');
@@ -243,6 +259,54 @@
 
   function populateVoices() {
     renderControls();
+  }
+
+  // ------------------------------------------------------------------
+  // Section extraction (headings) for quick nav
+  // ------------------------------------------------------------------
+  function buildSections() {
+    var content = document.querySelector(CONTENT_SELECTOR);
+    if (!content) return;
+    var headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    state.sections = [];
+    Array.prototype.forEach.call(headings, function (h) {
+      var text = h.textContent.trim();
+      if (!text) return;
+      // Find which speakable block index this heading corresponds to
+      var blockIndex = -1;
+      state.blocks.forEach(function (b, i) {
+        if (b === h || h.contains(b) || b.contains(h)) blockIndex = i;
+      });
+      if (blockIndex < 0) {
+        // Try nearest block by position
+        var rect = h.getBoundingClientRect();
+        var minDist = Infinity;
+        state.blocks.forEach(function (b, i) {
+          var br = b.getBoundingClientRect();
+          var d = Math.abs(br.top - rect.top);
+          if (d < minDist) { minDist = d; blockIndex = i; }
+        });
+      }
+      state.sections.push({ blockIndex: blockIndex, text: text, level: parseInt(h.tagName.charAt(1), 10) || 2 });
+    });
+    renderSectionSelect();
+  }
+
+  function renderSectionSelect() {
+    if (!sectionSelect) return;
+    sectionSelect.innerHTML = '<option value="">Jump to section…</option>';
+    state.sections.forEach(function (s, i) {
+      var indent = '';
+      for (var k = 2; k < (s.level || 2); k++) indent += '  ';
+      var opt = document.createElement('option');
+      opt.value = i + 1;
+      opt.textContent = indent + s.text;
+      sectionSelect.appendChild(opt);
+    });
+  }
+
+  function jumpToSection(blockIndex) {
+    jumpTo(blockIndex);
   }
 
   // ------------------------------------------------------------------

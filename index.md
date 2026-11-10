@@ -64,6 +64,33 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
   </div>
 </div>
 
+## Salesforce Training
+
+Separate track from the ServiceNow guides above. Beginner-friendly ELI5 crash course covering the Salesforce platform, navigation, security, data handling, automation, and code (Apex, Visualforce, LWC).
+
+<div class="card-grid">
+  <div class="card">
+    <h3>Salesforce Crash Course</h3>
+    <p>Objects, records, fields, navigation breadcrumbs, users/profiles/roles, data integrity, Flow vs Apex vs Visualforce vs LWC, REST/SOAP integrations, troubleshooting, design considerations.</p>
+    <p class="meta"><a href="./docs/salesforce/crash-course/">Start the Salesforce crash course</a></p>
+  </div>
+  <div class="card">
+    <h3>Navigation & Breadcrumbs</h3>
+    <p>Quick-reference Setup paths for every Salesforce admin and developer task — objects, security, automation, code, integration, deployment, monitoring, data.</p>
+    <p class="meta"><a href="./docs/salesforce/navigation-breadcrumbs/">Open navigation reference</a></p>
+  </div>
+  <div class="card">
+    <h3>Labs & Design</h3>
+    <p>Four hands-on labs (custom object + Flow, Apex trigger + test, LWC, REST callout) plus design patterns, system properties, and out-of-box features.</p>
+    <p class="meta"><a href="./docs/salesforce/labs-design/">Open labs & design</a></p>
+  </div>
+  <div class="card">
+    <h3>User Management & Data</h3>
+    <p>Users, profiles, permission sets, roles, licenses, import/export, validation rules, field-level security, duplicate management, data design best practices.</p>
+    <p class="meta"><a href="./docs/salesforce/user-management-data/">Open user & data guide</a></p>
+  </div>
+</div>
+
 ## What's in Each Guide
 
 Each guide covers:
