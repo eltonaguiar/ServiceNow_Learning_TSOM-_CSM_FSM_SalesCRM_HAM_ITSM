@@ -239,6 +239,38 @@ ServiceMappingHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined discovery methods and service states. Verify against your instance.
+
+### Discovery Method (cmdb_ci_service_discovered.discovery_method)
+| Method | Description |
+|--------|-------------|
+| `Top-down` | Starts at entry point, follows application dependencies (preferred for accurate app-level mapping) |
+| `Traffic-based` | Uses network traffic and connections to find dependencies patterns may miss |
+| `Tag-based` | Groups CIs using cloud/infrastructure tags |
+| `Predictive Intelligence` | Uses ML to suggest service relationships |
+| `Manual mapping` | Administrator selects CIs and defines membership |
+| `Dynamic CI Groups` | CMDB query-based groups that auto-update membership |
+
+### Application Service State (cmdb_ci_service_discovered.state)
+| State | When to Use |
+|-------|-------------|
+| `Draft` | Service being configured, not yet published |
+| `Published` | Service map is active and being used |
+| `Retired` | Service is decommissioned |
+
+### Relationship Type (cmdb_rel_ci.type)
+| Relationship Type | Meaning |
+|-------------------|---------|
+| `Runs on::Runs` | Application runs on a server/host |
+| `Depends on::Used by` | One CI depends on/consumes another |
+| `Connects to::Connected to` | Network connection between CIs |
+
+**Exam focus (CIS-SM Domain 1, 30%):** Discovery methods, pattern design, identification and connection sections.
+
+---
+
 ## Key Table Hierarchy
 
 | Table | Purpose | Key Fields |

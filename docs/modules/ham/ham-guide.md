@@ -151,6 +151,35 @@ graph TD
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined asset states and substates. Verify against your instance — values can vary by release (e.g., Rome release asset states are numeric 1–11).
+
+### Asset State & Substate (install_status / install_substatus)
+| State | Substates | When to Use |
+|-------|-----------|-------------|
+| `On Order` | — | Assets have only been ordered |
+| `In Stock` | Available, Reserved, Defective, Pending repair, Pending install, Pending disposal, Pending transfer, Pre-allocated, On hold, Legal hold, Quarantine, Pending fulfillment, Pending certificate, Pending return, Test, End of support, Pending Retirement, Pending resale, Pending evaluation | Assets in storage needing assessment or confirmed broken |
+| `In transit` | Available, Reserved, Defective, Pending install, Pending disposal, Pending donation, Pre-allocated, Pending resale | Assets on their way |
+| `In Use` | Pending fulfillment, End of support, Pending retirement | Devices actively assigned to users and operational |
+| `In maintenance` | — | Assets being repaired or scheduled for maintenance |
+| `Retired` | Disposed, Pending disposal, Sold, Donated, Vendor credit, Lease return, Obsolete, RMA, Buy out, Pending resale | Asset completed its lifecycle |
+| `Missing` | Lost, Stolen | Asset is lost or stolen |
+| `Build` | — | Asset being prepared (usually for bundled assets) |
+
+### Hardware Model Lifecycle Phase
+| Phase | Description |
+|-------|-------------|
+| `Availability` | Model is available for purchase |
+| `End of sale` | Model no longer sold by manufacturer |
+| `End of support` | Manufacturer stops support |
+| `End of extended support` | Extended support period ends |
+| `End of life` | Model fully end of life |
+
+**Exam focus (CIS-HAM Domain 2, 27%):** Asset states/substates, hardware model lifecycle phases, hardware model normalization.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Application Scope

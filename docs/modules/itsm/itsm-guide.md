@@ -217,6 +217,48 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined choice list values. Do not hardcode these in scripts — reference them by display value or sys_id, and verify against your instance (values can vary by release).
+
+### Incident — State
+| State | When to Use |
+|-------|-------------|
+| `New` | Incident created, not yet assigned |
+| `In Progress` | Work actively being performed |
+| `On Hold` | Waiting on a dependency (caller, change, problem, vendor) |
+| `Resolved` | Fix applied, awaiting closure |
+| `Closed` | Close code + close notes completed |
+| `Canceled` | Duplicate or invalid incident |
+
+### Incident — On Hold Reason
+| On Hold Reason | Notes |
+|----------------|-------|
+| `Awaiting Caller` | Waiting for the user to respond |
+| `Awaiting Change` | Waiting for a change to be implemented |
+| `Awaiting Problem` | Waiting for problem investigation (ServiceNow recommends removing this choice) |
+| `Awaiting Vendor` | Waiting on a third-party vendor |
+
+### Change — Type
+| Type | Description | Default Values |
+|------|-------------|----------------|
+| `Normal` | Requires CAB approval, risk assessed | State: `New`, Category: `Other`, Risk: `Moderate` |
+| `Standard` | Low risk, pre-approved (e.g., monthly patching) | — |
+| `Emergency` | Fixes critical outage; approved by ECAB | — |
+
+### Problem — State
+| State | When to Use |
+|-------|-------------|
+| `New` | Problem created |
+| `Assess` | Problem under investigation |
+| `Known Error` | Root cause identified, workaround documented in KEDB |
+| `Resolved` | Permanent fix applied |
+| `Closed` | Problem closed |
+
+**Exam focus (CIS-ITSM Domain 1, 25%):** Incident state transitions, On Hold reasons, Change types, default change values, priority calculation.
+
+---
+
 
 ## 🔍 Process Deep Dives
 

@@ -165,6 +165,47 @@ flowchart TD
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined event/alert states and Discovery configurations. Verify against your instance.
+
+### Event Severity (em_event.severity / em_alert.severity)
+| Value | Label | Incident Priority |
+|-------|-------|-------------------|
+| `1` | Critical | P1 |
+| `2` | Major | P2 |
+| `3` | Minor | P3 |
+| `4` | Warning | P4 |
+| `5` | Clear | Auto-close |
+
+### Alert State (em_alert.state)
+| State | When to Use |
+|-------|-------------|
+| `New` | Alert created, not yet processed |
+| `In Progress` | Agent working the alert |
+| `Resolved` | Issue resolved |
+| `Closed` | Alert closed |
+
+### Discovery PCIE Phases
+| Phase | Purpose |
+|-------|---------|
+| `Probe` | Sends request to target (IP address) |
+| `Classifier` | Determines CI type from probe results (OS type) |
+| `Identifier` | Checks if CI already exists (serial number) |
+| `Explorer` | Gathers detailed CI information |
+| `Processor/Sensor` | Parses data and maps to CMDB |
+
+### MID Server Status (sys_mid_server.status)
+| Status | Meaning |
+|--------|---------|
+| `Up` | MID Server is running and reachable |
+| `Down` | MID Server is not reachable |
+| `Warning` | MID Server has issues but is partially functional |
+
+**Exam focus (CIS-Discovery 35%, CIS-EM 27%+30%):** PCIE phases, event severity, alert states, CI binding, ECC Queue.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

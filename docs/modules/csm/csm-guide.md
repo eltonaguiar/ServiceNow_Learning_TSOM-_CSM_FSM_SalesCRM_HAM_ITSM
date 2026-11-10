@@ -106,6 +106,42 @@ graph TD
 
 **Exam focus (Domain 1, 27%):** Business models (B2B, B2C, B2B2C, B2B2E), product models, install base management, contracts and entitlements.
 
+---
+
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined case types and choice list values. Verify against your instance — values can vary by release and plugin activation.
+
+### Case Type Categories (OOB)
+| Category | Description |
+|----------|-------------|
+| `Onboarding` | Customer onboarding cases |
+| `Complaint` | Customer complaint cases |
+| `Orders` | Order-related cases |
+| `General` | General-purpose cases |
+
+**Note:** Additional case types become available through plugins, e.g. `Complaints` via the `sn_csm_complaint` plugin.
+
+### Case Type Selector Versions
+| Version | Behavior | Controlling Property |
+|---------|----------|---------------------|
+| `Multi-select` (default) | Agent selects a case type, optionally narrows by category/subtype | `sncsmcasetypes.casetypesinglefieldselect` |
+| `Single-select` | Agent selects one case type and creates the case with one click | `sncsmcasetypes.casetypesinglefieldselect` |
+| `Product Service Select` | Agent selects a product and/or service to create a case | `sncsmcasetypes.servicedefinitionselect` (takes precedence over single-select) |
+
+### Case State Flow
+| State | When to Use |
+|-------|-------------|
+| `New` | Case created, not yet assigned |
+| `In Progress` | Agent actively working |
+| `On Hold` | Waiting on dependency |
+| `Resolved` | Issue resolved |
+| `Closed` | Case closed |
+
+**Exam focus (CIS-CSM Domain 1, 27%):** Case type categories, case type selector versions, case state flows, business models.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

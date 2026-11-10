@@ -124,6 +124,44 @@ graph TD
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined CI classes, status values, and identifier rules. Verify against your instance — values can vary by release.
+
+### CI Status (cmdb_ci.install_status)
+| Status | When to Use |
+|--------|-------------|
+| `development` | CI is being built or configured |
+| `test` | CI is in test environment |
+| `production` | CI is live in production |
+| `in maintenance` | CI is under maintenance |
+| `retired` | CI is no longer in use |
+| `ordered` | CI has been ordered, not yet received |
+
+### CI Class Hierarchy (OOB)
+| Class | Table | Description |
+|-------|-------|-------------|
+| `cmdb_ci` | Base CI | All configuration items |
+| `cmdb_ci_server` | Server CIs | Windows/Linux servers, hosts |
+| `cmdb_ci_appl` | Application CIs | IIS, Tomcat, SQL Server |
+| `cmdb_ci_database` | Database CIs | Database instances |
+| `cmdb_ci_service` | Logical service | Business services |
+| `cmdb_ci_network` | Network CIs | Routers, switches, firewalls |
+
+### OOB Identifier Rules (Computer CI Class)
+| Priority | Identifier Entry | Match On |
+|----------|-----------------|----------|
+| 100 | Serial Number + Serial Number Type | Serial number + type |
+| 200 | Serial Number | Serial number only |
+| 300 | Name + DNS Domain | Hostname + domain |
+| 400 | MAC Address | Network adapter MAC |
+
+**Processing order:** Identifier entries are evaluated in priority order (lowest first). First match wins — remaining entries are skipped.
+
+**Exam focus (CIS-DF, 25%):** CI classes, identifier rules, data source precedence, de-duplication.
+
+---
+
 ## IRE Process Diagram (Identification & Reconciliation)
 
 ```mermaid
