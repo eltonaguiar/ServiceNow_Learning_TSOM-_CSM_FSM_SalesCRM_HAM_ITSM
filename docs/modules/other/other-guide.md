@@ -526,7 +526,63 @@ IntegrationHub is ServiceNow's built-in, low-code integration layer. Instead of 
 
 **Connection & Credential Aliases:** Instead of hardcoding a username/password in every REST Message, you create one **Credential Alias** (`System Web Services → Connection & Credential Aliases`) and reference it by name. Rotate the password once in the alias; every flow and message using it keeps working.
 
+---
+
+### Mini lab: IntegrationHub — notify Teams on high-priority incident
+
+**Goal:** Use Flow Designer + a Microsoft Teams webhook (free) to post a message to a Teams channel when a Priority 1 or 2 incident is created in ServiceNow. This demonstrates the IntegrationHub pattern: trigger → condition → action → activate → verify.
+
+**Prerequisites:**
+- A ServiceNow PDI with Flow Designer active (free)
+- A Microsoft Teams team and channel (free)
+- A Teams Incoming Webhook connector (free, built into Teams)
+
+**Steps:**
+
+1. **Create the Teams webhook** (free, native Teams feature)
+   - In Teams, go to your channel → `…` (More options) → **Connectors**
+   - Search for **Incoming Webhook**, click **Add**
+   - Name it "ServiceNow Alerts", click **Create**
+   - Copy the webhook URL — **save it**, you cannot view it again
+
+2. **Create the Flow in ServiceNow**
+   - Navigate to **Flow Designer > Flow Designer**
+   - Click **New** → Name: "Notify Teams on High Priority Incident"
+   - Table: `incident`
+   - Trigger: **Record created**
+
+3. **Add a condition block**
+   - Add **Condition** block after the trigger
+   - Condition: `Priority` is `1 - Critical` OR `2 - High`
+
+4. **Add a REST Message action** (posts to the Teams webhook)
+   - Inside the condition branch, add **Action** > **Core** > **REST Message**
+   - HTTP Method: `POST`
+   - Endpoint: Paste the Teams webhook URL from Step 1
+   - Content Type: `application/json`
+   - Request Body:
+     ```json
+     {
+       "text": "🚨 High Priority Incident: ${number} - ${short_description}",
+       "themeColor": "FF0000"
+     }
+     ```
+
+5. **Activate and test**
+   - Click **Activate** (top right)
+   - Create a Priority 1 or 2 incident in ServiceNow
+   - Open **Flow Designer > Flow Designer > [your flow] > Flow Log** (or **Flow Log** related list on the flow record) to confirm the flow ran and the action completed
+   - Verify the message appears in the Teams channel within seconds
+
+**Proof of concept:** The Flow Log shows each run with status (Completed / Failed), inputs, and outputs. If the action failed, the log shows the error — no guessing.
+
+**Why this is free and real:** Teams Incoming Webhooks are a free, native Teams feature. Flow Designer is included on a PDI. No Postman, no webhook echo service, no paid IntegrationHub spoke license required — you're using the core Flow Designer + REST Message capability that comes with ServiceNow.
+
+**IntegrationHub note:** If your instance has the IntegrationHub plugin with the Microsoft Teams spoke licensed, you can replace step 4's REST Message action with the native **Microsoft Teams** spoke action — same result, less manual JSON. The pattern (trigger → condition → action → activate → verify log) is identical.
+
+
 ### MID Server connectivity
+
 
 Concept | What it is | Why it matters
 --------|------------|------------|
