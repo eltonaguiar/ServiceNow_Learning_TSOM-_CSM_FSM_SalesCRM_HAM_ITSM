@@ -1176,5 +1176,6 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 - [ITSM guide](./itsm-guide.md)
 - [TSOM getting-started](./../../getting-started/tsom.md)
 - [TSOM capabilities](./tsom-capabilities.md)
+- [TSOM Assurance](./tsom-assurance.md) — Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Service Observability, Synthetic Monitoring, AIOps LEAP, Now Assist
 
 ---
