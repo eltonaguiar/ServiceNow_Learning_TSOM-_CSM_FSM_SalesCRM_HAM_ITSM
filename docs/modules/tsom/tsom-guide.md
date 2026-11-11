@@ -602,13 +602,13 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS[NMS / EMS / OSS<br/>Nokia · Ericsson · Cisco · …]
-    Event[em_event<br/>raw observation — “something happened”]
-    Rules[Event Rules<br/>filter, map severity, assign CI]
-    Alert[em_alert<br/>scored, de-duplicated, attached to a CI]
-    Corr[Alert Correlation<br/>400 port-down → 1 circuit-down]
-    Incident[incident<br/>one ticket the NOC works]
-    Clear[Clear<br/>device reports recovery → alert closes]
+    NMS["NMS / EMS / OSS<br/>Nokia · Ericsson · Cisco · ..."]
+    Event["em_event<br/>raw observation - something happened"]
+    Rules["Event Rules<br/>filter, map severity, assign CI"]
+    Alert["em_alert<br/>scored, de-duplicated, attached to a CI"]
+    Corr["Alert Correlation<br/>400 port-down -> 1 circuit-down"]
+    Incident["incident<br/>one ticket the NOC works"]
+    Clear["Clear<br/>device reports recovery -> alert closes"]
 
     NMS -->|trap / syslog / API| Event
     Event --> Rules
@@ -624,8 +624,8 @@ flowchart TD
     style Corr fill:#0a0d10,stroke:#e5b567
     style Incident fill:#10141a
 
-    note right of Event: One event per observation — most are noise
-    note right of Alert: One alert per problem — what a human works
+    note right of Event: One event per observation - most are noise
+    note right of Alert: One alert per problem - what a human works
     note right of Corr: Correlation is what turns a storm into a single incident
 ```
 
@@ -633,11 +633,11 @@ flowchart TD
 
 ```mermaid
 graph TD
-    svc[Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service]
-    circuit[Circuit<br/>fibre / MPLS / leased line]
-    ne[Network Element<br/>router / switch / OLT]
-    card[Card / Slot]
-    port[Port / Interface]
+    svc["Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service"]
+    circuit["Circuit<br/>fibre / MPLS / leased line"]
+    ne["Network Element<br/>router / switch / OLT"]
+    card["Card / Slot"]
+    port["Port / Interface"]
 
     svc -->|runs over| circuit
     circuit -->|terminates at| ne
@@ -649,18 +649,18 @@ graph TD
     style ne fill:#0a0d10,stroke:#e5b567
 
     note right of svc: The only layer the customer understands
-    note right of ne: CMDB + TNI model — equipment, cards, ports, links
+    note right of ne: CMDB + TNI model - equipment, cards, ports, links
 ```
 
 ### Service → Customer Impact Map (Blast Radius)
 
 ```mermaid
 flowchart TD
-    Port[Router port fails]
-    Circuit[Circuit down]
-    Service[Customer service degraded — fiber broadband]
-    Subscribers[40 subscribers affected]
-    Incident[One incident raised — not 40]
+    Port["Router port fails"]
+    Circuit["Circuit down"]
+    Service["Customer service degraded - fiber broadband"]
+    Subscribers["40 subscribers affected"]
+    Incident["One incident raised - not 40"]
 
     Port --> Circuit
     Circuit --> Service
@@ -674,7 +674,7 @@ flowchart TD
     style Incident fill:#10141a
 
     note right of Circuit: Impact walks the relationships upward
-    note right of Incident: TSOM's job — one prioritised work item instead of a wall of alarms
+    note right of Incident: TSOM's job - one prioritised work item instead of a wall of alarms
 ```
 
 ---
