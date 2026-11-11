@@ -461,6 +461,15 @@ Fallback link: [FSM Getting Started]()
 Fallback link: [FSM Getting Started]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: FSM uses the `task_sla` table for work order SLA tracking. SLA definitions are managed at **All > Service Level Management > SLA Definitions**. SLA compliance is checked against work order scheduled start/end times. Module-specific SLA metrics include on-time completion rate and time-to-dispatch, influenced by territory assignment, skill matching, and travel time calculations.
+
+**OOTB Dashboards**: FSM OOTB dashboards are accessible at **All > Field Service Management > Dashboards**. Key dashboards include the **Dispatch Board** (shows real-time agent-task mapping, territory coverage, and SLA breach indicators) and the Scheduling dashboard (displays travel time, resource utilization, and work order completion rates).
+
+**OOTB Workspaces**: 
+- **Field Service Management Workspace** - **All > Field Service Management > Dispatch > Dispatch Board**
+
 ## Quiz
 
 1. What is the difference between a work order, a task, and an assignment?

@@ -698,6 +698,17 @@ Fallback link: [ITSM Demo]()
 Fallback link: [ITSM Demo]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: The ITSM module uses the `task_sla` table for SLA tracking (confirmed in Prerequisites: tables include `task_sla` alongside `incident`, `problem`, `change_request`, `change_task`, `task`). SLA Definitions are managed at **All > Service Level Management > SLA Definitions**. Typical SLA metrics include **time to resolve**, **time to assign**, and **time to acknowledge**, driven by incident priority (Impact × Urgency matrix).
+
+**OOTB Dashboards**: ITSM OOTB dashboards are accessible at **All > ITSM > Dashboards**. Key dashboards include the **IT Agent Dashboard** (displays incident volumes, open/closed counts, SLA breach rates by priority) and the SLA compliance dashboard (shows SLA target vs actual performance across severity levels).
+
+**OOTB Workspaces**: 
+- **Service Operations Workspace** - **All > IT Service Management > Service Operations**
+- **Dispatcher Workspace** - **All > IT Service Management > Dispatch**
+- **IT Agent Workspace** - **All > IT Service Management > Agent Workspace**
+
 ## Quiz
 
 1. What fields determine incident priority, and where is that matrix defined?

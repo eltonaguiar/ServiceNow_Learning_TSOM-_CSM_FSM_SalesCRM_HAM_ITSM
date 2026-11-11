@@ -266,6 +266,51 @@ graph LR
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+App Engine / Creator apps are built on custom scoped tables (e.g., `x_*`) that can extend `task` or other base tables. When they extend `task`, they inherit `task_sla` support — SLAs can be applied to app records just like any other task-based record.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| App record processing | Time from record creation to first status change | Per business process |
+| Approval SLAs | Time from approval request to decision | < 48 hours |
+| Task completion | Time from task creation to `Resolved` | Per app workflow |
+
+**How to use `task_sla`:**
+- Attach SLA definitions to custom app tables that extend `task`
+- Track breach risk via `stage`, `has_breached`, and `business_duration` fields
+- Configure SLA business rules to escalate when app records approach thresholds
+- App Engine Studio apps can reference SLAs via Flow Designer actions (e.g., "Check SLA Status")
+
+**Note:** App Engine itself does not ship OOTB SLA definitions — they are created per app. The SLA framework is inherited from the core `task` table.
+
+### Out-of-Box Dashboards
+
+App Engine does not ship OOTB dashboards for custom apps. Instead, each app can have its own analytics dashboard built with UI Builder or Workspace components:
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| **App Analytics** | Built-in app usage and performance metrics | App Engine Studio > App Analytics |
+| **Flow Designer Dashboard** | Flow execution counts, failures, and performance | Flow Designer > Dashboard |
+| **Custom App Dashboards** | Per-app KPIs built with UI Builder / Workspace | Inside each app's Workspace |
+
+**Key metrics surfaced:** app adoption, flow success/failure rates, deployment frequency, user activity, and transaction performance.
+
+### Out-of-Box Workspaces
+
+App Engine uses **Workspace Builder** to create configurable Workspaces for custom apps:
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| **App Engine Studio Workspace** | Central hub for builders: app creation, deployment, analytics | All > App Engine Studio > Workspace |
+| **Custom App Workspaces** | Per-app workspaces built with UI Builder | Inside each app (via Experience experience) |
+
+**Breadcrumb path:** `All > App Engine Studio > Workspace`. From here you access the app catalog, deployment pipelines, and analytics. Custom workspaces are built in the **Experience** experience of AES using UI Builder components.
+
+---
+
 ## Quiz
 
 1. What is the difference between a Flow and a Subflow?

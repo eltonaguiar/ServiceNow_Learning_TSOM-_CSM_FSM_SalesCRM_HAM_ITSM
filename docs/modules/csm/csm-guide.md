@@ -516,6 +516,15 @@ graph TD
 Fallback link: [CSM Full Overview]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: CSM uses the `task_sla` table for entitlement-based SLA tracking. SLA coverage is determined by active entitlements attached to customer accounts. SLA Definitions are managed at **All > Service Level Management > SLA Definitions**. Module-specific SLAs are checked on case creation and updated during state transitions, with entitlement validation enabled via the `sn_customerservice.csm_case_entitlement_check` system property.
+
+**OOTB Dashboards**: CSM OOTB dashboards include the **CSM Workspace dashboard** and **CSAT dashboard**, accessible at **All > Customer Service > Dashboards**. These display case volumes by entitlement, response/resolution time trends, CSAT scores, and SLA compliance rates per case type and priority.
+
+**OOTB Workspaces**: 
+- **CRM Workspace** - **All > Customer Service > Agent Workspace**
+
 ## Quiz
 
 1. What field determines which case workflow fires?

@@ -153,6 +153,65 @@ Boomi is like a universal translator and courier for business software. Instead 
 4. Deploy to an Atom, note the web listener URL, and call it from an external system
 5. Check Boomi **Execution Records** to confirm the ServiceNow insert succeeded
 
+### Mini lab: Conceptual Boomi → ServiceNow sync
+
+1. Create a Boomi **Process** with a **ServiceNow Connector** operation (Query)
+2. Set the source shape to a Boomi **Web Listener** (inbound REST trigger)
+3. Map the incoming JSON (e.g., `employeeNumber`, `email`) to ServiceNow `u_employee_id` / `email` fields on the `user` table
+4. Deploy to an Atom, note the web listener URL, and call it from an external system
+5. Check Boomi **Execution Records** to confirm the ServiceNow insert succeeded
+
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+**N/A — Other modules (Boomi, UKG, legacy middleware, ITIL, Agile) do not have native ServiceNow `task_sla` support.** These are external systems or third-party integrations that operate outside ServiceNow's task-based SLA framework. Any SLA tracking for these systems must be done at the integration layer (e.g., Boomi monitor, UKG integration monitoring) or via external monitoring tools.
+
+| Area | What It Tracks | Typical Target |
+|------|---------------|----------------|
+| Integration uptime | Boomi Atom / UKG webhook availability | 99.9% SLA from integration provider |
+| Data sync latency | Time from source change to ServiceNow record | < 15 minutes for near-real-time syncs |
+| Batch job completion | Daily legacy extract/load success | 100% completion, zero failed records |
+
+SLAs for external systems are governed by their own SLAs (vendor contracts) rather than ServiceNow `task_sla`.
+
+### Out-of-Box Dashboards
+
+Other modules do not ship OOTB ServiceNow dashboards — dashboards for these systems live in their own platforms:
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| **Boomi AtomSphere Platform** | Atom health, process execution records, error rates, integration latency | Boomi Platform (external) |
+| **UKG Dimensions / Pro** | Workforce data freshness, timecard sync status, payroll batch results | UKG (external) |
+| **Legacy middleware / AS400** | Job schedules, data extract completion, error logs | Native system consoles |
+
+### Out-of-Box Workspaces
+
+**Other modules have no native ServiceNow workspaces.** These are external systems that do not integrate into ServiceNow's configurable Workspace framework:
+
+| System | Native Workspace? | Notes |
+|--------|------------------|-------|
+| **Boomi** | No | Management via Boomi AtomSphere Platform |
+| **UKG** | No | Management via UKG Dimensions / Pro admin console |
+| **Legacy / AS400** | No | Management via native system consoles |
+| **ITIL / Agile** | No | Methodology frameworks, not software with a workspace |
+
+For ServiceNow-side AI governance/observability (if AI features are used alongside), use **AI Control Tower** — see AI guide for details.
+
+---
+
+### Quiz
+
+1. What is an Atom in Boomi?
+2. Name one way Boomi connects to ServiceNow.
+3. What's the difference between a Shape and a Map?
+
+<details><summary>Answer</summary>
+1. A lightweight runtime engine that executes integration processes (can run in cloud or on-prem).<br>
+2. Via the Boomi ServiceNow connector (CRUD on ServiceNow tables) or by exposing a Boomi web listener that ServiceNow's REST Message calls.<br>
+3. A Shape defines a data structure (fields); a Map transforms fields from one shape to another.
+</details>
+
 ### Quiz
 
 1. What is an Atom in Boomi?
