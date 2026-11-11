@@ -32,11 +32,55 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.itsm` — core ITSM scoped application (tables: incident, problem, change_request, change_task, task, task_sla; roles: itil, sn_incident.read, sn_incident.write, sn_change.write, sn_problem.write, admin)
+- `com.snc.cmdb` — CMDB integration for affected CI relationships and CI lifecycle
+- `com.snc.discovery` — Discovery / MID Server for auto-discovering CIs and maintaining identifier reconciliation
+- `com.snc.service_catalog` — Service Catalog for request fulfillment, record producers, and order guides
+- `com.snc.km` — Knowledge Management for containment articles and KEDB publication
+
+**Guided Setup:**
+- Run **ITSM Guided Setup** (All > ITSM > Administration > Guided Setup) to configure incident categories, assignment groups, SLAs, priority matrices, and default change types. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `glide.incident.close_code_required` — enforce close codes on incident close
+- `glide.incident.close_notes_required` — enforce close notes on incident close
+- `glide.sla.enabled` — global SLA engine toggle
+- `sn_incident.use_assignment_groups` — route incidents by assignment group
+- `glide.cmdb.use_cmdb` — enable CMDB for CI relationships
+
+**Cross-module dependencies:**
+- CMDB (`cmdb_ci`) — affected CI lookups, CI lifecycle state, service-mapping relationships
+- Discovery — auto-discovery of CIs, identifier & reconciliation rules
+- Service Catalog (`sc_request`) — request fulfillment, record producers, order guides
+- Knowledge Management (`kb_knowledge`) — articles for containment, KEDB publication
+- Event Management (`em_event`) — create incidents from monitoring alerts
+- CSM (`com.snc.customerservice`) — case↔incident integration patterns
+
+**ACLs related to core tables:**
+- **incident** (`sn_incident`): read/write by `itil`, `sn_incident.read`, `sn_incident.write`; assignment_group and assignment_group_id require `itil` or equivalent; close_code/close_notes visibility controlled by UI policy/ACL
+- **problem** (`sn_problem`): read/write by `sn_problem.write`, visible under `itil`; root_cause and kedb_link fields require appropriate ACLs
+- **change_request** (`sn_change`): read/write by `sn_change.write`, CAB approvals require `change_admin` or `cab` roles; risk and implementation_plan fields have field-level ACLs
+- **sc_request** (`sc_request`): read by `sc_request.read`, write by `sc_request.write`; used by Service Catalog order flows; catalog item ACLs control who can submit
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.itsm` is active (System Definition → Plugins)
+2. Run ITSM Guided Setup to provision categories, groups, SLAs
+3. Ensure CMDB is populated (Discovery or manual CI import)
+4. Configure Service Catalog items and record producers
+5. Enable Knowledge Management if containment articles are needed
+6. Enable Event Management if alert→incident integration is required
+7. Enable CSM plugin if cross-module case↔incident patterns are needed
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > IT Service Management > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > IT Service Management > ... |
 | Incidents | All > Incident > All |
 | Problems | All > Problem > All |
 | Changes | All > Change > All |

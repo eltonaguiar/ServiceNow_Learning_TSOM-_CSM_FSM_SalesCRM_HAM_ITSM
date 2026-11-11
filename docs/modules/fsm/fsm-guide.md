@@ -31,11 +31,57 @@ Field Service Management (FSM) is ServiceNow's platform for managing field servi
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.field_service` — core FSM scoped application (tables: wm_order, wm_task, wm_territory, wm_agent, wm_crew, wm_schedule_plan; roles: wm_admin, wm_dispatcher, wm_agent, admin)
+- `com.snc.cmdb` — CMDB for asset linking and CI relationships on work orders
+- `com.snc.service_catalog` — Service Catalog for work order intake and record producer patterns
+- `com.snc.fsm_mobile` — Mobile app plugin for Now Mobile technician access
+- `com.snc.csm` — CSM integration for case→work order patterns
+
+**Guided Setup:**
+- Run **FSM Guided Setup** (All > Field Service Management > Administration > Guided Setup) to configure territories, skills, scheduling rules, and work order types. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `sn_fsm.enable_travel_time` — enable automatic travel time calculation
+- `sn_fsm.auto_dispatch` — auto-assign work orders based on territory/skills matrix
+- `sn_fsm.scheduling_enabled` — enable the dynamic scheduling engine
+- `glide.fsm.use_crews` — enable crew-based assignment
+- `sn_fsm.parts_tracking` — enable parts consumption and inventory tracking
+
+**Cross-module dependencies:**
+- CMDB (`cmdb_ci`) — asset linking, CI relationships, work order CI population
+- CSM (`com.snc.customerservice`) — case↔work order patterns, customer asset context
+- ITSM (`com.snc.itsm`) — incident↔work order integration patterns
+- Service Catalog (`sc_request`) — work order intake via record producers, order guides
+- Inventory/parts management — parts tracking, stockroom configuration
+- Time tracking — time entry and timesheet integration
+
+**ACLs related to core tables:**
+- **wm_order** (`wm`): read/write by `wm_dispatcher`, `wm_admin`; territory and assigned_agent fields have field-level ACLs
+- **wm_task** (`wm`): read/write by `wm_agent`, `wm_dispatcher`; assigned_agent and skill fields have ACLs
+- **wm_agent** (`wm`): read/write by `wm_agent`, `admin`; territory and skills M2M table (`sys_user_has_skill`) ACLs
+- **wm_territory** (`wm`): read by `wm_dispatcher`, write by `wm_admin`; territory hierarchy and nesting permissions
+- **wm_crew** (`wm`): read/write by `wm_admin`; crew membership management
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.field_service` is active (System Definition → Plugins)
+2. Configure CMDB assets and CI relationships
+3. Set up territories and skills (All > Field Service > Territories / Skills)
+4. Define work order types and templates (All > Field Service > Work Order Types / Templates)
+5. Configure scheduling rules and constraints (All > Field Service > Scheduling)
+6. Enable mobile app plugin and Now Mobile user profiles
+7. Enable Service Catalog integration if work order intake from catalog is needed
+8. Enable CSM integration if case→work order patterns are required
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > Field Service Management > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > Field Service Management > ... |
 | Work Orders | All > Field Service Management > Work Orders > All |
 | Tasks | All > Field Service Management > Tasks > All |
 | Dispatch Board | All > Field Service Management > Dispatch > Dispatch Board |

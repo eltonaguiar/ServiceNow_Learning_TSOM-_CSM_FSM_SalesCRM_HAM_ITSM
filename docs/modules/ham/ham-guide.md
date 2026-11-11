@@ -12,6 +12,7 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)

@@ -31,11 +31,56 @@ Customer Service Management (CSM) is ServiceNow's platform for managing customer
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.customerservice` — core CSM scoped application (tables: sn_customerservice_case, customer_account, sn_customerservice_consumer, sn_customerservice_entitlement; roles: sn_customerservice_agent, sn_customerservice_manager, sn_customerservice.customer)
+- `com.snc.knowledge` — Knowledge Management for customer portal articles and internal agent articles
+- `com.snc.service_catalog` — Service Catalog for customer self-service requests and order guides
+- `com.snc.csn` — Customer Service Network for case routing and entitlement checks
+- `com.snc.complaints` — Complaints plugin for complaint case types and workflows
+
+**Guided Setup:**
+- Run **CSM Guided Setup** (All > Customer Service > Administration > Guided Setup) to configure case types, entitlements, customer portal settings, and routing rules. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `sn_customerservice.csm_case_entitlement_check` — validate entitlement before case creation
+- `sn_customerservice.csm_case_auto_assign` — enable automatic case assignment rules
+- `glide.csm.use_csm_portal` — enable customer portal functionality
+- `sn_csm.csat_enabled` — enable customer satisfaction surveys post-case closure
+- `glide.sla.enabled` — global SLA engine toggle (applies to CSM SLAs)
+
+**Cross-module dependencies:**
+- ITSM (`com.snc.itsm`) — case↔incident integration patterns, case-to-incident conversion
+- Service Catalog (`sc_request`) — customer order fulfillment, record producers, service items
+- Knowledge Management (`kb_knowledge`) — customer-facing articles and internal agent knowledge base
+- CMDB (`cmdb_ci`) — product/asset relationships for entitlement and case context
+- AWA (`advanced work assignment`) — Advanced Work Assignment queues and work-item definitions
+- CSDM (`core_cdmi`) — business model and product model definitions for customer data
+
+**ACLs related to core tables:**
+- **sn_customerservice_case** (`sn_customerservice`): read/write by `sn_customerservice_agent`, `sn_customerservice_manager`, `sn_customerservice.customer`; assignment_group and entitlement fields require appropriate ACLs
+- **customer_account** (`sn_customerservice`): read by `sn_customerservice_agent`, write by `sn_customerservice_manager`; account data validation and entitlement assignment
+- **sn_customerservice_entitlement** (`sn_customerservice`): read/write by `sn_customerservice_manager`; SLA enforcement and entitlement validation
+- **sn_customerservice_consumer** (`sys_user`): read/write by `sn_customerservice_agent`; customer profile and contact information
+- **sc_request** (`sc_request`): read by `sc_request.read`, write by `sc_request.write`; used by Service Catalog order flows
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.customerservice` is active (System Definition → Plugins)
+2. Configure entitlements and customer accounts (Administration > Entitlements)
+3. Set up Service Catalog items and record producers
+4. Configure customer portal settings (All > Customer Service > Customer Service Portal)
+4. Enable Knowledge Management for customer articles
+5. Configure AWA queues and work-item definitions if needed
+6. Enable CSM plugin if complaint case types are required
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > Customer Service > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > Customer Service > ... |
 | Cases | All > Customer Service > Cases > All |
 | Accounts | All > Customer Service > Accounts |
 | Consumers | All > Customer Service > Consumers |

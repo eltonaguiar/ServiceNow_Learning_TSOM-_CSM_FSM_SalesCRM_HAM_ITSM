@@ -47,6 +47,75 @@ ServiceNow's AI packaging evolved to three tiers around April 2026 (Foundation, 
 
 ---
 
+## Prerequisites & Setup
+
+Before you can use AI features, ensure the following are in place.
+
+### Required Plugins / AI Entitlements
+
+| Plugin / Entitlement | ID | Required? | Notes |
+|---|---|---|---|
+| **Now Assist** | `com.snc.na_skill_kit` | ✅ Yes | Core AI Skill Kit plugin for building custom AI skills. |
+| **AI Control Tower** | `com.snc.ai_control_tower` | ✅ Yes | Central governance hub for AI usage, quotas, and monitoring. |
+| **Predictive Intelligence** | `com.glide.platform_ml` | ✅ Yes | Required for classification, similarity, and predictive models. |
+| **AI Agent Studio** | `com.snc.ai_agent` | ✅ Yes | Visual builder for creating and managing AI agents. |
+| **Virtual Agent** | `com.snc.virtual_agent` | ✅ Yes | Required for conversational AI and virtual agent topics. |
+| **IntegrationHub Spokes** | `com.snc.integrationhub.speaks.*` | As needed | Spokes for third-party LLM providers (Azure OpenAI, OpenAI, Google Gemini, etc.) and IntegrationHub connectors. |
+| **AI Skill Kit** | `com.snc.na_skill_kit` | ✅ Yes | Required for custom skill development (separate from Now Assist). |
+
+### Guided Setup
+
+AI does not have a traditional Guided Setup wizard. Configuration is done through the **AI Control Tower** and **Now Assist** administration consoles:
+
+1. **Verify AI Tier Entitlements**: Confirm your contract includes the required AI tier (Foundation, Advanced, or Prime) with sufficient Assist allocation. Check AI Control Tower > Overview > Usage Analytics for Assist allocation.
+2. **Activate Required Plugins**: System Definition > Plugins > Activate `com.snc.na_skill_kit`, `com.snc.ai_control_tower`, `com.snc.ai_agent`, and `com.snc.virtual_agent`. For third-party LLMs, ensure IntegrationHub spokes are configured with valid credentials.
+3. **Set Up Predictive Intelligence Models**: Create Solution Definitions (Predictive Intelligence > Classification > Solution Definitions) for each use case (e.g., Incident Classification, Similarity). Train on 30K–300K clean, labeled historical records.
+4. **Configure AI Control Tower Alerts**: Set quota alerts at 50%, 80%, and 95% of monthly Assist allocation to prevent overage.
+5. **Assign AI Roles**: Assign roles like `ai_admin`, `ai_builder`, `ai_viewer` via User Administration > Roles > Edit > Assign to users who need AI capabilities.
+
+### System Properties to Consider
+
+| Property | Default | Description |
+|---|---|---|
+| `glide.ai.enabled` | `true` | Enables all AI capabilities across tiers. |
+| `glide.ai.assist_quota` | Varies by tier | Monthly Assist allocation (Foundation: ~1,500; Advanced: ~3,000; Prime: ~6,000). |
+| `glide.ai.llm.provider` | `Now LLM` | Primary LLM provider; can be changed to third-party (Azure, OpenAI, etc.) via IntegrationHub. |
+| `glide.ai.guardrail.offensiveness_mode` | `log_only` | Controls content safety: `log_only`, `block_and_log`, or `block`. Start with `log_only`. |
+| `glide.ai.data_quality_threshold` | `80%` | Minimum data quality threshold for Predictive Intelligence model training. |
+
+### Cross-Module Dependencies
+
+| Dependent Module | Why It Matters | Integration Point |
+|---|---|---|
+| **ITSM** | AI Summarization, Similar Incidents, Classification | `incident` table → AI Similarity and Classification |
+| **CSM** | Now Assist Summarization, Case Summarization | `case` table → AI Summarization |
+| **HRSD** | Case Summarization, Reply Generation | `hrsd_case` → AI Summarization |
+| **ITOM** | Similarity, Clustering, Process Mining | `cmdb_ci`, `cmdb_ci_relationship` → AI Similarity |
+| **Workflows** | Flow Generation, Flow Execution | Flow Designer AI (Advanced, Prime) |
+| **Discovery** | Clean data prerequisite for accurate models | `cmdb_ci` and `cmdb_ci_relationship` data quality directly impacts Similarity accuracy |
+
+### ACLs Related to Core Tables
+
+| Table | Key ACLs | Typical Roles |
+|---|---|---|
+| `incident` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user`, `sn_sales.reader` |
+| `case` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user`, `sn_sales.reader` |
+| `hrsd_case` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user`, `sn_sales.reader` |
+| `cmdb_ci` | `read`, `read` (limited write) | `sn_sales.reader`, `sn_sales.admin` (read/write CI) |
+| `alm_asset` | `read`, `read` (limited write) | `sn_sales.reader`, `sn_sales.admin` |
+
+**Note:** AI capabilities typically require read access to core tables and write access to specific fields (e.g., `short_description`, `description`, `work_notes`). Ensure ACLs reflect these permissions.
+
+### Breadcrumbs — Enable First
+
+1. **Verify AI Tier Entitlement**: Confirm your contract includes AI tier (Foundation minimum, Advanced for agentic workflows, Prime for custom skills). Check AI Control Tower > Overview > Usage Analytics for Assist allocation.
+2. **Activate Required Plugins**: System Definition > Plugins > Activate `com.snc.na_skill_kit`, `com.snc.ai_control_tower`, `com.snc.ai_agent`, and `com.snc.virtual_agent`. For third-party LLMs, ensure IntegrationHub spokes are configured with valid credentials.
+3. **Enable AI Control Tower**: Navigate to AI Control Tower > Overview > Enable Assist Metering and configure Alert Policies at 50%/80%/95% of monthly allocation.
+4. **Assign AI Roles**: Assign roles like `ai_admin`, `ai_builder`, `ai_viewer` to users. These roles control access to AI features and AI Control Tower configuration.
+5. **Verify Data Quality**: Ensure Predictive Intelligence has access to 30K–300K clean, labeled records for classification and similarity. Use AI Control Tower > Performance Monitoring to check model accuracy and drift.
+
+---
+
 ## AI Feature Stack
 
 ServiceNow AI is built as a layered stack. Each layer depends on the quality of the layer below it — you can't run agentic automation on top of broken Discovery data or poor Predictive Intelligence models.

@@ -8,6 +8,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [How Discovery Works](#how-discovery-works)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)

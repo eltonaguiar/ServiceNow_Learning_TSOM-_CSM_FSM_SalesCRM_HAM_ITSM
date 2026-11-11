@@ -52,6 +52,73 @@ ServiceNow Sales CRM is the platform's customer relationship management applicat
 
 ---
 
+## Prerequisites & Setup
+
+Before you can use Sales CRM, ensure the following are in place.
+
+### Required Plugins / Scoped Apps
+
+| Plugin / App | ID | Required? | Notes |
+|---|---|---|---|
+| **ServiceNow Sales** | `com.snc.sales` | ✅ Yes | Core Sales CRM application. Installs scoped app `sn_sales`. |
+| **ServiceNow Sales & Order Management** | `com.snc.som` | Conditional | Required for quote-to-order and product catalog features; includes `sn_sales` plus `sn_som` scope. |
+| **IntegrationHub** | `com.glide.integrationhub` | Recommended | For connecting to ERP, CRM, e-signature, payment gateways via spokes. |
+| **IntegrationHub Spokes (ERP, DocuSign, Stripe, etc.)** | Various | As needed | One per external system (SAP, Oracle, NetSuite, DocuSign, Stripe, etc.). |
+
+### Guided Setup
+
+Sales CRM does **not** ship a dedicated Guided Setup wizard. Configuration is done through the **Administration** module (All > Sales > Administration). Key setup steps:
+
+1. **Activate roles**: Assign `sn_sales.admin` to administrators, `sn_sales.user` to sales reps, `sn_sales.reader` to viewers.
+2. **Configure Price Lists**: Create price lists and pricing rules (Administration > Price Lists).
+3. **Set up Lead/Opportunity Stages**: Customize choice lists `sn_sales.lead_status` and `sn_sales.opportunity_stage` to match your sales process.
+4. **Define Products & Price Lists**: Create products (`sn_sales_product`) and associate with price lists.
+5. **Enable Email Integration**: Configure inbound/outbound email for lead creation and quote delivery (System Mailboxes + Email Accounts).
+6. **Configure Quote Templates**: Set up standard quote structures and terms (Administration > Quote Templates).
+
+### System Properties to Consider
+
+| Property | Default | Description |
+|---|---|---|
+| `sn_sales.auto_create_opportunity` | `true` | Auto-create opportunity when lead is qualified. |
+| `sn_sales.quote_validity_days` | `30` | Default validity period for new quotes. |
+| `sn_sales.opportunity_stage_default` | `prospecting` | Default stage for new opportunities. |
+| `sn_sales.enable_email_notifications` | `true` | Enables quote/order email notifications. |
+| `glide.ui.escape_text` | `true` | Security: escape HTML in sales fields; disable only if you trust all input. |
+
+### Cross-Module Dependencies
+
+| Dependent Module | Why It Matters | Integration Point |
+|---|---|---|
+| **ITSM** | Create incident from opportunity risk; link problems to accounts | `sn_sales_account` ↔ `account` (core) |
+| **CSM** | Won opportunity → create CSM case for onboarding/service | Business Rule: `sn_sales.rule.create_csm_case` |
+| **FSM** | Order fulfillment → create Work Order for field delivery | Business Rule: `sn_sales.rule.create_work_order` |
+| **HAM** | Track assets sold through quotes/orders | `sn_sales_order` → `alm_asset` via decomposition |
+| **CMDB** | Products extend `cmdb_ci`; account CI relationships | `sn_sales_product` extends `cmdb_ci` |
+
+### ACLs Related to Core Tables
+
+| Table | Key ACLs | Typical Roles |
+|---|---|---|
+| `sn_sales_account` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write own), `sn_sales.reader` (read) |
+| `sn_sales_contact` | `create`, `read`, `write`, `delete` | Same as account |
+| `sn_sales_lead` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (create/read/write own) |
+| `sn_sales_opportunity` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write assigned) |
+| `sn_sales_quote` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write on own opportunities) |
+| `sn_sales_order` | `create`, `read`, `write`, `delete` | `sn_sales.admin` (orders typically created from accepted quote) |
+
+**Tip:** ACLs are scoped under `sn_sales`. Admins can override via `security_admin` but prefer role-based assignment.
+
+### Breadcrumbs — Enable First
+
+1. **Activate Plugin**: System Definition > Plugins > Search `com.snc.sales` > Activate (requires `admin` role, instance restart may be needed).
+2. **Assign Roles**: User Administration > Users > [sales users] > Edit > Add `sn_sales.user` (and `sn_sales.admin` for leads).
+3. **Verify Module Visibility**: Impersonate a sales user > All > Sales > verify Accounts, Contacts, Leads, Opportunities, Quotes, Orders appear.
+4. **Configure Email** (if using lead-from-email): System Mailboxes > New > configure inbound for lead creation.
+5. **Set Up Price Lists**: All > Sales > Administration > Price Lists > create at least one active price list.
+
+---
+
 ## Re-usable Code / Metadata
 
 ### Scoped Application

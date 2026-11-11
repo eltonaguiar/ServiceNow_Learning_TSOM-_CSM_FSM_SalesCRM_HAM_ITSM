@@ -27,6 +27,72 @@ The Creator workflow allows business analysts and "citizen developers" to build 
 
 ---
 
+## Prerequisites & Setup
+
+Before building apps on App Engine / Creator, ensure your ServiceNow environment is configured for low-code development and deployment.
+
+### Required Plugins / Scoped Apps
+
+| Plugin / App | ID | Required? | Notes |
+|---|---|---|---|
+| **App Engine Studio (AES)** | `com.snc.app_engine_studio` | ✅ Yes | Low-code development environment for scoped apps. |
+| **App Engine Management Center (AEMC)** | `com.snc.app_engine_management` | ✅ Yes | Pipeline management: environments, deployment requests, approvals, version tracking. |
+| **Flow Designer** | `com.snc.flow_designer` | ✅ Yes | Process automation within AES Data/Process experiences. |
+| **UI Builder** | `com.snc.ui_builder` | ✅ Yes | Configurable Workspaces and portal pages within AES Experience experience. |
+| **Application Repository** | `com.snc.app_repository` | ✅ Yes | Central versioned artifact store; publish app versions from dev, install on test/prod. |
+| **IntegrationHub** | `com.glide.integrationhub` | Conditional | Required if app integrations use spokes/Flow actions. |
+| **Agile Development** | `com.snc.agile` | Conditional | For Agile planning/tracking labs. |
+
+### Guided Setup
+
+App Engine does not have a traditional Guided Setup wizard. Configuration steps:
+
+1. **Verify App Engine subscription**: Confirm your contract includes App Engine; AES requires a subscription.
+2. **Activate required plugins**: System Definition > Plugins > Activate `com.snc.app_engine_studio`, `com.snc.app_engine_management`, `com.snc.flow_designer`, `com.snc.ui_builder`, `com.snc.app_repository`.
+3. **Provision deployment environments**: Configure dev → test → staging → prod instances in AEMC > Pipelines and Deployments > Environments.
+4. **Set up source control (optional but recommended)**: Link scoped apps to Git repos (non-production instances only).
+5. **Create pipelines in AEMC**: Define deployment order, approvals, and environment targets.
+
+### System Properties to Consider
+
+| Property | Default | Description |
+|---|---|---|
+| `glide.aes.enabled` | `true` | Enables App Engine Studio features. |
+| `glide.aemc.pipeline.enabled` | `true` | Enables pipeline management in AEMC. |
+| `glide.scoped.acl.restricted` | `true` | Enforces scoped ACL restrictions; disable only if you trust all code. |
+| `glide.sys.update_sets.commit_validation` | `true` | Validates update sets before commit to production. |
+
+### Cross-Module Dependencies
+
+| Dependent Module | Why It Matters | Integration Point |
+|---|---|---|
+| **Task / CMDB** | Custom tables often extend `task` or `cmdb_ci` | `sn_sales_account` etc. extend `task` |
+| **Flow Designer** | Process logic inside AES Process experience | Flow actions trigger AES table updates |
+| **UI Builder** | Workspace/Portal experience for AES apps | `sc_palette`, `sc_category` etc. |
+| **Service Catalog** | AES apps can surface catalog items | `sc_cat_item`, `sc_cat_item_producer` |
+
+### ACLs Related to Core Tables
+
+| Table | Key ACLs | Typical Roles |
+|---|---|---|
+| `x_*` (custom scoped app tables) | `create`, `read`, `write`, `delete` | Scoped app roles / `admin` |
+| `task` | `read`, `read` (limited write) | `admin`, `sn_task_admin` |
+| `cmdb_ci` | `read`, `read` (limited write) | `admin`, `cmdb_admin` |
+| `sys_app` | `read`, `read` | `admin`, `sn_app_admin` |
+| `sys_scope` | `read`, `read` | `admin`, `security_admin` |
+
+**Tip:** Scoped app tables are isolated to their scope. Grant ACLs per scope/role rather than using global `admin` ACLs for custom apps.
+
+### Breadcrumbs — Enable First
+
+1. **Activate AES plugin**: System Definition > Plugins > Activate `com.snc.app_engine_studio` (requires `admin` role).
+2. **Access App Engine Studio**: Navigate to All > App Engine Studio > verify AES home page loads.
+3. **Configure AEMC environments**: Pipelines and Deployments > Environments > add dev, test, staging, production instances.
+4. **Create Application Repository**: Publish your first scoped app version from dev to Application Repository.
+5. **Verify roles**: Ensure developers have `sn_app_developer` (or equivalent) and testers/reviewers have read access.
+
+---
+
 ## The Low-Code Stack
 
 | Tool | Purpose | Equivalent in Pro-Code |

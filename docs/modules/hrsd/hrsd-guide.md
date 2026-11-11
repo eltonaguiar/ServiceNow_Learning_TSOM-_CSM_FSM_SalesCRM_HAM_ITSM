@@ -12,6 +12,7 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -27,6 +28,92 @@
 ## Purpose
 
 HRSD is built to provide a consumer-grade experience for employees. Unlike ITSM, which is designed for "fixing broken things," HRSD is designed for "managing life events." It provides a secure, confidential way for employees to interact with HR, using a separate data model to ensure that sensitive HR data (like salary or medical info) is not visible to IT admins.
+
+---
+
+---
+
+## Prerequisites & Setup
+
+Before HRSD can deliver its "consumer-grade HR life-event experience," the underlying platform and HR-specific configuration must be in place. The sections below cover the plugins, guided setup steps, system properties, cross-module dependencies, and ACLs that must be addressed before go-live.
+
+### Plugins / Scoped Apps That Must Be Active
+
+| Plugin / App | Plugin ID / Scope | Why It's Required |
+|--------------|-------------------|-------------------|
+| **HR Core / HRSD** | `sn_hr_core` (scoped app) | Core HRSD tables (`sn_hr_core_case`, `sn_hr_core_profile`, COE tables) and the HR module menu. Must be installed and activated. |
+| **Service Catalog** | `com.sc` | HR Services are catalog items. Without the catalog, employees have no way to request HR services. |
+| **Employee Center** | `com.snow.employeeservice.employee_center` | Provides the unified "front door" portal for HR, IT, and Legal. Required for the Employee Center intake flow. |
+| **Workflow** | `com.snow.workflow` | Underpins Lifecycle Event journey orchestration and HR case workflows. |
+| **Service Desk (CSM recommended)** | `com.snow.osd` / CSM | HR cases use SLAs, routing, and assignment rules from the CSM/Service Desk stack. Not strictly required but strongly recommended for SLA-driven case management. |
+| **HR Analytics (optional)** | `sn_hr_analytics` | Pre-built HR dashboards and KPI tracking. Add later if HR reporting is needed. |
+
+### Guided Setup Required
+
+1. **Enable the HRSD module** — Install and activate the `sn_hr_core` scoped application from the ServiceNow Store (or request via your CSM). Verify it appears under `All > Human Resources`.
+2. **Define HR Service Categories** — Navigate to `All > Human Resources > HR Services > Categories`. Create top-level categories (e.g., Payroll, Benefits, Time & Attendance, Employee Lifecycle) that will anchor your COE tables.
+3. **Create COE (Center of Excellence) Tables** — For each category, create a COE table (e.g., `sn_hr_core_case_payroll`, `sn_hr_core_case_benefits`). These hold category-specific fields and security rules. COE tables extend `sn_hr_core_case`.
+4. **Configure HR Profiles** — Navigate to `All > Human Resources > Employee Profiles`. Ensure the `sn_hr_core_profile` table is populated for all employees. HR Profiles hold sensitive data and must NOT be stored in `sys_user`.
+5. **Set Up HR Services (Catalog)** — In `All > Service Catalog > HR Services`, create catalog items for each HR offering. Each service must map to exactly one COE table and one HR Service definition.
+6. **Define HR Templates** — Create pre-fill templates for common requests (e.g., "New Hire Onboarding," "Benefits Enrollment," "Payroll Correction") to standardize case intake.
+7. **Configure Lifecycle Events** — Navigate to `All > Human Resources > Lifecycle Events > Definitions`. Define event types (Onboarding, Offboarding, Transfer, etc.) and build journey templates that group tasks across departments (HR, IT, Facilities).
+8. **Set Up Employee Center** — Navigate to `All > Employee Center > Portal`. Configure the taxonomy so HR services appear under the correct categories. Brand and configure the portal search and self-service experience.
+9. **Define SLAs and Routing** — Create SLA definitions on `sn_hr_core_case` (and each COE table) so HR cases meet service-level targets. Configure assignment rules / assignment groups for each COE.
+
+### System Properties to Consider
+
+| Property | Purpose |
+|----------|---------|
+| `glide.hr.core.enable_employee_center` | Toggles Employee Center integration with HRSD. Verify it is `true`. |
+| `glide.hr.core.case_management` | Controls case-management behavior on the HR case model. |
+| `glide.case.management.sla` | Global SLA engine switch — ensure enabled if HR cases use SLAs. |
+| `glide.sc.catalog.client_script` | Catalog client-side behavior; relevant if customizing HR service catalog items. |
+| `hr.service.default_owner` | Default assignment group for HR services without explicit ownership. |
+| `glide.user.default_department` | Used when auto-populating department on new HR Profiles. |
+
+> **Tip:** Many HRSD behaviors are driven by metadata (services, templates, COE tables) rather than system properties. Check the properties above when HR cases are not routing, SLAs are not firing, or the Employee Center is not showing HR services.
+
+### Cross-Module Dependencies
+
+| Dependent Module | Direction | What It Provides to HRSD |
+|------------------|-----------|--------------------------|
+| **Service Catalog** | Inbound | HR Services are catalog items; intake flows from catalog → HR Service → HR Case. |
+| **Employee Center** | Inbound | The unified portal UI; employees request HR services through it. |
+| **CSM / Service Desk** | Bidirectional | SLAs, assignment groups, and case-management infrastructure for HR cases. |
+| **Workflow / Flow Designer** | Inbound | Lifecycle Event orchestration and HR case task automation. |
+| **HR Analytics** | Outbound | HRSD case and lifecycle data feeds HR dashboards and KPI tracking. |
+| **CMDB** | Optional | Some Lifecycle Event tasks (e.g., IT asset provisioning) reference CIs in CMDB. Not a hard dependency for core HRSD. |
+
+### ACLs Related to Core Tables
+
+| Table | ACLs / Roles | Notes |
+|-------|-------------|-------|
+| `sn_hr_core_case` | `hr_case_agent`, `hr_case_admin`, `sn_hr_core_case` (table-level) | All HR case agents. Read/write controlled by COE-specific ACLs below. |
+| `sn_hr_core_profile` | `hr_profile_agent`, `hr_profile_admin` | **Highly restricted.** Contains sensitive employee data (salary, benefits, medical). Never grant broad access. |
+| `sn_hr_core_service` | `hr_service_agent`, `hr_service_admin` | HR Service definitions. HR admins only. |
+| `sn_hr_core_case_payroll` (COE) | `hr_payroll_agent`, `hr_payroll_admin` | Payroll COE. Restricted to payroll team; prevents general HR agents from seeing salary data. |
+| `sn_hr_core_case_benefits` (COE) | `hr_benefits_agent`, `hr_benefits_admin` | Benefits COE. Restricted to benefits team. |
+| `sys_user` | Standard user ACLs (read) | HRSD reads `sys_user` for name/email/department but stores sensitive HR data in `sn_hr_core_profile`. |
+| `sn_hr_le_case` | `hr_lifecycle_agent`, `hr_lifecycle_admin` | Lifecycle Event case records. |
+
+> **Security rule of thumb:** COE tables must have tighter ACLs than the base `sn_hr_core_case` table. A general HR agent should be able to see the case header but not the payroll/benefits detail unless explicitly granted.
+
+### Breadcrumbs — What Needs to Be Enabled First
+
+The order matters. Do not skip steps:
+
+1. **Activate the HR Core / HRSD plugin** (`sn_hr_core`) — everything else depends on it.
+2. **Verify Service Catalog is active** (`com.sc`) — HR services cannot exist without it.
+3. **Enable Employee Center** (`com.snow.employeeservice.employee_center`) — required for the unified portal.
+4. **Create HR Service Categories** — the top-level grouping for COE tables.
+5. **Create COE Tables and their ACLs** — define the security boundary per category before any data lands.
+6. **Create HR Services and map them to COEs** — the catalog → service → COE chain.
+7. **Populate HR Profiles** — ensure every employee has a profile record.
+8. **Configure Lifecycle Event definitions** — define journeys and their tasks.
+9. **Set up Employee Center taxonomy** — surface HR services in the portal.
+10. **Define SLAs and routing rules** — finalize the operational model for HR case handling.
+
+Once these are in place, HRSD is ready for pilot and then full go-live.
 
 ---
 

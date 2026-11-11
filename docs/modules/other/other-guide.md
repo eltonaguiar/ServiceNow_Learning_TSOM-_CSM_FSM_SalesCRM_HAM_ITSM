@@ -34,6 +34,69 @@ For each item you'll find an ELI5 explanation, the business reason companies use
 
 ---
 
+## Prerequisites & Setup
+
+Before working through the integration and framework content in this guide, ensure your ServiceNow instance is ready for the patterns covered.
+
+### Required Plugins / Scoped Apps
+
+| Plugin / App | ID | Required? | Notes |
+|---|---|---|---|
+| **IntegrationHub** | `com.glide.integrationhub` | ✅ Yes | Low-code integration layer; required for spokes, flows, connection aliases, and Flow Designer integration actions. |
+| **IntegrationHub Spokes** | Various | As needed | E.g., Salesforce, Microsoft Teams, Jira spokes; Boomi/UKG connectors as needed. |
+| **Flow Designer** | `com.snc.flow_designer` | ✅ Yes | Core automation engine for triggers → conditions → actions; required for integrationHub flows. |
+| **MID Server** | — | Conditional | Required for on-prem targets (AS/400 via JDBC, legacy databases); not needed for pure cloud SaaS integrations. |
+| **Agile Development** | `com.snc.agile` | Conditional | Required for the Agile/Scrum labs. |
+| **ServiceNow API Access** | `com.snc.api_access` | ✅ Yes | Enables REST/SOAP API access for integration labs. |
+
+### Guided Setup
+
+There is no single Guided Setup wizard for cross-enterprise integrations. Configuration is done per-pattern:
+
+1. **Set up IntegrationHub**: Navigate to IntegrationHub > IntegrationHub to confirm spokes/flows are available.
+2. **Create Connection & Credential Aliases**: System Web Services > Connection & Credential Aliases for reusable auth across flows/REST messages.
+3. **Deploy MID Server** (for AS/400 / on-prem): Install and configure MID Server in the target network; monitor ECC Queue (MID Server > ECC Queue).
+4. **Configure Inbound REST**: System Web Services > Scripted REST APIs for external callers (e.g., Boomi web listeners, UKG webhooks).
+5. **Enable Flow Designer**: Flow Designer > Flow Designer; flows activate on save.
+
+### System Properties to Consider
+
+| Property | Default | Description |
+|---|---|---|
+| `glide.rest.max_request_size` | `2MB` | Max REST payload size; increase for bulk integration uploads. |
+| `glide.integrations.enabled` | `true` | Enables IntegrationHub features. |
+| `glide.midsrv.*` | — | MID Server configuration properties. |
+| `glide.email.*` | — | Email properties for inbound mail flows (lead ingestion, notifications). |
+
+### Cross-Module Dependencies
+
+| Dependent Module | Why It Matters | Integration Point |
+|---|---|---|
+| **ITSM** | Incident creation from monitoring alerts via inbound REST | `incident` table |
+| **HRSD** | HR cases from UKG data | `hrsd_case` |
+| **ITOM** | CMDB sync from AS/400 inventory | `cmdb_ci`, `alm_asset` |
+| **Agile Development** | Agile tracking of integration work | `x_agile_*` tables |
+| **ITSM / CSM** | Integration patterns reused for service integrations | `sn_*` scoped tables |
+
+### ACLs Related to Core Tables
+
+| Table | Key ACLs | Typical Roles |
+|---|---|---|
+| `incident` | `create`, `read`, `write` | `admin`, `sn_incident_*` roles |
+| `cmdb_ci` | `read`, `write` | `admin`, `cmdb_admin`, `sn_importer` |
+| `alm_asset` | `read`, `write` | `admin`, `alm_admin` |
+| `x_*` (custom integration staging tables) | `create`, `read`, `write` | Integration roles / `admin` |
+
+### Breadcrumbs — Enable First
+
+1. **Enable IntegrationHub**: IntegrationHub > IntegrationHub > activate spokes needed.
+2. **Set up MID Server**: MID Server > MID Servers > New; deploy MID Server in target network; monitor ECC Queue (MID Server > ECC Queue).
+3. **Set up REST**: System Web Services > REST Messages; Scripted REST APIs for inbound.
+4. **Set up Email**: System Mailboxes for inbound email (lead ingestion, notifications).
+5. **Set up Flow Designer**: Flow Designer > Flow Designer for flow-based automations.
+
+---
+
 ## 1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS
 
 ### ELI5
@@ -408,6 +471,101 @@ Agile is a way of building software in small, repeated cycles instead of one gia
 1. Individuals & interactions over processes & tools; working software over comprehensive documentation; customer collaboration over contract negotiation; responding to change over following a plan.<br>
 2. "As a [role], I want [goal] so that [benefit]."<br>
 3. Sprint Planning, Daily Standup, Sprint Review, Sprint Retrospective (any two).
+</details>
+
+---
+
+## 6. SNUtils — ServiceNow Utility Script Library
+
+### ELI5
+
+SNUtils is a collection of reusable server-side utility functions (Script Includes) that ServiceNow developers build once and call from everywhere — business rules, UI actions, workflows, flows, and other script includes. Instead of writing the same date formatting, GlideRecord query, or logging code in ten different places, you write it once in SNUtils and call it from any script.
+
+Think of it as your instance's "standard library" — like `Math` or `String` in JavaScript, but for ServiceNow-specific operations.
+
+### Why companies use it
+
+- **DRY principle:** Don't repeat yourself — write common logic once, reuse everywhere
+- **Consistent behavior:** Date formatting, null handling, and logging work the same across the instance
+- **Faster development:** Developers call `SNUtils.getFormattedDate()` instead of writing GlideDateTime boilerplate every time
+- **Easier maintenance:** Fix a bug in one utility function, and every script that uses it is fixed automatically
+- **Cleaner code:** Business rules and script includes stay short and readable because the heavy lifting lives in SNUtils
+
+### Key terms & background
+
+| Term | Meaning |
+|------|---------|
+| Script Include | Server-side JavaScript library stored in `sys_script_include`; callable from any server-side script |
+| Scoped app | Application sandbox that owns its tables, scripts, and records; SNUtils is usually packaged as one |
+| GlideRecord | ServiceNow's server-side API for querying and manipulating table records |
+| GlideDateTime / GlideDate | ServiceNow's date/time handling classes |
+| gs.log / gs.info / gs.error | Platform logging functions that write to the system log (`sys_log`) |
+| `sys_script_include` | The table that stores all Script Includes on an instance |
+
+### Common utility functions in SNUtils
+
+Typical SNUtils Script Includes include:
+
+- **`SNUtils.String`** — `isEmpty()`, `trim()`, `capitalize()`, `formatMessage()`
+- **`SNUtils.Date`** — `getFormattedDate()`, `daysBetween()`, `addBusinessDays()`, `getStartOfWeek()`
+- **`SNUtils.Record`** — `getRecordBySysId()`, `safeGetValue()`, `insertOrUpdate()`
+- **`SNUtils.Log`** — `info()`, `warn()`, `error()` with consistent prefix and timestamp
+- **`SNUtils.Array`** — `unique()`, `intersect()`, `flatten()`
+- **`SNUtils.System`** — `getPropertySafe()`, `isProduction()`, `getCurrentUserName()`
+
+### How it connects to ServiceNow
+
+- Lives in `sys_script_include` — same table as OOTB Script Includes like `SnCustomLogger` or `GlideSystem`
+- Called from business rules, UI actions, client scripts (via GlideAjax), workflows, and Flow Designer custom actions
+- Usually packaged as a scoped app (`x_snc_snutils` or customer namespace like `x_myco_snutils`)
+- Can be deployed via Update Set or App Engine Studio / Git linkage between instances
+
+### Common mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Putting business logic in SNUtils | Utility library becomes a dumping ground; hard to test | Keep SNUtils for generic utilities; domain logic belongs in domain-specific script includes |
+| No null-safety | `NullPointerException` when a field is missing | Always check `nil` / `undefined` / empty before using a value |
+| Hard-coding table names | Breaks when table names differ between dev/test/prod | Use `gs.getTableName()` or pass table names as parameters |
+| Logging everything at `gs.error` | System log flooded; real errors hard to find | Use `gs.info` / `gs.debug` for routine; `gs.error` only for actual failures |
+| No versioning | Can't tell which instance has which SNUtils version | Tag releases in update sets or App Engine Studio |
+
+### Mini lab: Create your first SNUtils function
+
+1. Navigate to **System Definition → Script Includes** → **New**
+2. Name: `SNUtils.String.isBlank` (or similar)
+3. Application scope: your scoped app (e.g., `x_myco_snutils`)
+4. Script body:
+
+```javascript
+var SNUtils = Class.create();
+SNUtils.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+    isBlank: function(value) {
+        return (value === null || value === undefined || value === '' || value === 'null');
+    },
+    type: 'SNUtils'
+});
+```
+
+5. Save, then test from another script include or business rule:
+```javascript
+if (SNUtils.String.isBlank(current.short_description)) {
+    gs.error('Short description is required');
+}
+```
+
+> **Note:** If you use a scoped app, make the Script Include "Accessible from" other scopes (set the **Accessible from** field to `All` or your consumer scopes) so other scripts can call it.
+
+### Quiz
+
+1. Where do Script Includes live on a ServiceNow instance?
+2. What does the DRY principle mean in the context of SNUtils?
+3. Name two utility categories you might put in SNUtils.
+
+<details><summary>Answer</summary>
+1. `sys_script_include` table (System Definition → Script Includes)<br>
+2. Don't Repeat Yourself — write common logic once, reuse everywhere instead of duplicating code<br>
+3. String manipulation, date/time handling, GlideRecord helpers, logging, array operations (any two)
 </details>
 
 ---

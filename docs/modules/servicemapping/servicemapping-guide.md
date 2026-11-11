@@ -46,6 +46,49 @@ Service Mapping does not normally require you to create every CI and relationshi
 
 **Tip:** Service Mapping is an ITOM application. Verify the `com.snc.service_mapping` plugin is active (System Definition → Plugins). Discovery (`com.snc.discovery.core`) and a MID Server are required prerequisites.
 
+## Prerequisites & Setup
+
+### Plugins and Scoped Apps
+- **Service Mapping**: `com.snc.service_mapping` — scoped app for ITOM; must be activated in System Definition → Plugins
+- **Discovery Core**: `com.snc.discovery.core` — required as upstream discovery engine
+- **MID Server**: `com.snc.mid_server` — agent executing Discovery probes inside your network
+- **Pattern Designer Enhancements**: Shared libraries for pattern customization
+- **CMDB CI Class Models**: `sn_cmdb_ci_class` (version 1.69.0+) for telecom-style inventory models
+
+### Guided Setup Requirements
+1. **Install Service Mapping Plus** (`sn_sm_scoped_app`) if you have admin role for automated suggestions
+2. **Install and configure MID Server** — validate it on all target hosts (All > MID Server > Servers)
+3. **Configure credentials** — host credentials per OS/application, SNMP community credentials for network devices
+4. **Define Application Services** — create an application service record (e.g., "Online Banking") with entry point URL/IP/hostname (All > Service Mapping > Application Services > All)
+5. **Create or run discovery schedule** targeting the entry point's host (All > Discovery > Discovery Schedules)
+6. **Verify MID Server capabilities** — assign SSH/WMI/SNMP/Cloud Provisioning as needed (All > MID Server > Servers > Capabilities)
+
+### System Properties to Consider
+- `sa.topdown.enablecmdbbasedmapping` — enables CMDB-based mapping instead of MID Server (default false)
+- `glide.service_mapping.computation_depth` — max map depth (default 3000)
+- `sa.max_relations_in_service` — max CI relations per service (default 5000)
+- `snsmscopedapp.app.svcbytags.maxcandidatesperfamily` — tag-based candidate limit (default 200)
+- `sn_sm_scopedapp.max_valid_discovery_period_in_days` — days a host stays valid for candidate generation (default 1000)
+
+### Cross-Module Dependencies
+- **Discovery**: Must produce CIs in `cmdb_ci`, `cmdb_ci_server`, `cmdb_ci_appl` via horizontal discovery
+- **CMDB**: Stores mapped CIs and relationships (`cmdb_rel_ci`); identification rules prevent duplicates
+- **ITOM**: Service Mapping consumes discovered CIs for impact analysis and asset matching
+- **TSOM**: Uses Service Mapping maps to trace dependencies from infrastructure to business services
+
+### ACLs Related to Core Tables
+- `service_mapping_admin` role sets up Service Mapping application
+- `itil`, `admin`, `sm_admin` roles for configuration and maintenance
+- `mid_server` role on instance side for MID Server service account
+- ACLs on `cmdb_ci_service_discovered`, `cmdb_rel_ci`, `cmdb_ci_server`, `cmdb_ci_appl`
+
+### Breadcrumbs — What Needs to Be Enabled First
+1. **MID Server** — Install, validate, and confirm "Up" status (All > MID Server > Servers)
+2. **Credentials** — Configure host credentials with appropriate permissions (All > Service Mapping > Administration > Credentials)
+3. **Application Service** — Create/select the business service record with entry point (All > Service Mapping > Application Services > All)
+4. **Discovery Schedule** — Run discovery against the entry point's host (All > Discovery > Discovery Schedules)
+5. **Map Generation** — Generate the service map and verify relationships (All > Service Mapping > Maps > All)
+
 ---
 
 ## Official Exam Alignment — CIS-Service Mapping

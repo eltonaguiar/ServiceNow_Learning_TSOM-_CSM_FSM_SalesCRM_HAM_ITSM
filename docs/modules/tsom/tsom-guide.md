@@ -14,7 +14,7 @@
 - [Purpose](#purpose)
 - [ELI5 — the whole module in plain English](#eli5--the-whole-module-in-plain-english)
 - [Where to Find It](#where-to-find-it)
-- [Prerequisites and availability](#prerequisites-and-availability)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Exploring TSOM — the official picture (Australia docs)](#exploring-tsom--the-official-picture-australia-docs)
 - [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
 - [Using TSOM — the day-2 operational tasks (Australia docs)](#using-tsom--the-day-2-operational-tasks-australia-docs)
@@ -122,11 +122,70 @@ for the full map before you go hunting in Telecom Service Operations.
 
 ---
 
-## Prerequisites and availability
+## Prerequisites & Setup
 
 > **Read this before you plan a lab.** Everything else in this guide assumes the TSOM
 > applications are installed. They usually are not — including on a Personal Developer
 > Instance.
+
+### Plugins and Scoped Apps
+- **TSOM Core**: `sn_tsom_core` / `com.sn_tsom_core` — the core app; installs the telecom data model, ETL framework and properties
+- **TNI Advanced**: `sn_ni_adv` → installs `sn_ni_core` — **Separate app**, separate entitlement; install TNI Advanced, then load TNI Core demo data manually if you want it
+- **CMDB CI Class Models**: `sn_cmdb_ci_class` — **Version 1.69.0+**; auto-upgraded by the TSOM apps
+- **Expanded Model and Asset Classes**: `sn_ent` — Store app
+- **Visibility Content**: `sn_pattern_design` — Store app
+- **Integration Commons for CMDB**: `sn_cmdb_int_util` — Store app
+- **IntegrationHub Starter Pack Installer**: `com.glide.hub.integration` — Family plugin
+- **Discovery Core**: `com.snc.discovery.core` — Installed by Discovery
+- **ITOM Discovery License**: `com.snc.itom.discovery.license` — Must be activated
+- **ITOM Licensing**: `com.snc.itom.license` — Required for Discovery patterns
+- **IntegrationHub ETL**: `sn_int_studio` — Development instances only
+- **Telecom Discovery Patterns**: `sn_tsom_patterns` — for direct SNMP/CLI discovery
+- **Telecom Alarm Management Open API**: `sn_ind_tmf642` — for alarm ingestion and incident detail views
+- **Customer Service Problem Management**: `sn_sprb_mgmt` — for incident/alert detail views inside TNI
+
+### Guided Setup Requirements
+1. **Install TSOM apps** — Work with your ServiceNow account team to activate the TSOM subscription and install `sn_tsom_core`
+2. **Install TNI separately** — Install `sn_ni_adv` (TNI Advanced), then load TNI Core demo data manually if you want it
+3. **Install and configure MID Server** — Place a MID Server in each network zone; assign capabilities (SNMP, SSH, WMI) as needed
+4. **Configure Discovery** — Set up Discovery schedules with telecom patterns; ensure horizontal discovery is operational
+5. **Configure Service Graph Connectors** — Set up per-vendor connectors (Nokia Altiplano, Cisco Meraki SD-WAN, etc.) with API access and MID Server
+6. **Configure Event Management** — Create event rules, alert correlation rules, and maintenance windows (All > Event Management > Event Rules)
+7. **Set up Alarm API Topic & Subscriptions** — Create the Telecommunications API notification topic and endpoint subscriptions for southbound alarm sources
+8. **Define Service Model Templates (CSDM)** — Define services and service-offering structures in the CMDB for impact analysis
+
+### System Properties to Consider
+- `sn_tsom_patterns.itom_pattern_enabled` — gates whether telecom discovery patterns are active
+- `sn_tsom_core.audit.*` properties — control discrepancy audit logging, relationship types, and discovery sources
+- `sn_tsom_core.em.*` properties — control event management integration behavior
+- `sn_tsom_core.discovery.*` properties — control telecom discovery framework behavior
+
+### Cross-Module Dependencies
+- **Discovery / ITOM Visibility**: Must produce CIs in the CMDB; telecom discovery patterns (`sn_tsom_patterns`) extend Discovery for network elements
+- **TNI**: Stores the telecom inventory; TSOM reconciles discovered data against TNI entities
+- **Event Management**: TSOM consumes EM for alarm ingestion, correlation, suppression, and alert creation
+- **CMDB**: Stores CIs and relationships; IRE identification rules prevent duplicate CIs
+- **ITSM / CSM**: Required for the subscriber-facing story (entitlements, install base, cases); not required for TSOM Core/Visibility/TNI
+- **Flow Designer / Orchestration**: For guided remediation workflows reacting to alerts and incidents
+- **Now Assist for ITOM**: For AI-assisted alert investigation (separate SKU/entitlement)
+
+### ACLs Related to Core Tables
+- `admin` role for installation and configuration
+- `sn_tsom.admin`, `sn_tsom.user`, `sn_tsom.reader` roles for TSOM access
+- TNI inventory roles: `sn_ni_core.inventory_admin`, `sn_ni_core.inventory_agent`, `sn_ni_core.inventory_template_manager`, `sn_ni_core.telco_inventory_catalog_manager`
+- `mid_server` role on instance side for MID Server service account
+- `sam_admin` role for file signature normalization (when SAM is active)
+- ACLs on `cmdb_ci_telco_equipment`, `cmdb_ci_network_packet_broker`, `em_event`, `em_alert`, `cmdb_ci_service`, `cmdb_rel_ci`
+
+### Breadcrumbs — What Needs to Be Enabled First
+1. **TSOM Subscription & Installation** — Request `sn_tsom_core` from your ServiceNow account team
+2. **TNI Installation** — Install `sn_ni_adv` separately (separate entitlement)
+3. **MID Server** — Install, validate, and confirm "Up" status (All > MID Server > Servers)
+4. **Discovery** — Configure telecom discovery patterns and schedules (All > Discovery > Discovery Definition > Patterns)
+5. **Service Graph Connectors** — Set up per-vendor connectors (All > Service Graph Connectors)
+6. **Event Management** — Configure event rules, alert correlation, and maintenance windows (All > Event Management)
+7. **Alarm API Topic** — Create the Telecommunications API notification topic and subscriptions (IntegrationHub / Event Management)
+8. **Service Model (CSDM)** — Define services and service-offering structures (All > Configuration)
 
 ### Does a PDI support telecom out of the box?
 
