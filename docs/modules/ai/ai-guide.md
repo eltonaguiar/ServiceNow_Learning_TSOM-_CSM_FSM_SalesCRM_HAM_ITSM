@@ -398,6 +398,107 @@ AI Control Tower is the centralized governance and observability hub for all AI 
 
 ---
 
+## AI Cost Management — Avoiding Surprise Bills & Limit Breaks
+
+Operationalizing AI at scale requires cost control. Without guardrails, Assist consumption can burn through your monthly allocation quickly, and once the quota is hit, AI features (Now Assist skills, AI agents, Predictive Intelligence predictions) can stop working — breaking workflows that depend on them.
+
+### Cost management levers
+
+| Lever | What it does | How to use it |
+|---|---|---|
+| **Assist Metering** | Tracks real-time Assist consumption by skill, agent, user, department | Enable in AI Control Tower > Overview; review daily/monthly burn rate |
+| **Alert Policies** | Notifies when quota thresholds are approached | Configure alerts at 50%, 80%, 95% of monthly allocation via email, Slack, or ServiceNow notifications |
+| **Top-up Options** | Purchase Assist packs via account team; auto-top-up can be enabled | Enable auto-top-up in Control Tower if you cannot afford feature interruption |
+| **Tier Right-sizing** | Match tier to actual usage | Foundation for OOTB summarization/drafting; Advanced for agentic workflows; Prime only for custom agents/skills |
+| **Skill Consumption Review** | Identify top-consuming skills/users/departments | Control Tower > Usage Analytics shows daily/monthly burn, top consumers, projected overage |
+| **Disable Unused Skills** | Stops Assist drain from low-value skills | Turn off OOTB skills nobody uses; consolidate duplicate custom skills |
+
+### What breaks when you hit limits
+
+| Limit hit | What breaks | Symptom |
+|---|---|---|
+| **Monthly Assist quota exhausted** | All Now Assist skills and AI agent runs stop | Summarization buttons return errors; agents stop responding; Predictive Intelligence stops predicting |
+| **Skill failure rate spike** | Specific skill stops working | "Draft Resolution Notes" button returns errors; check skill logs in Control Tower |
+| **Model accuracy drift** | Predictions become unreliable | Classification routes incidents to wrong groups; Similarity match rate drops |
+| **Latency spike** | Slow AI responses | Now Assist panel takes >5s to respond; users abandon it |
+
+### Cost optimization tactics
+
+- **Disable unused OOTB skills** — every active skill consumes Assists when invoked
+- **Consolidate similar custom skills** — don't maintain three skills that do the same thing
+- **Use caching for repeated queries** — don't re-summarize the same incident thread multiple times
+- **Right-size the tier** — don't buy Prime for OOTB summarization; Foundation covers summarization/drafting/categorization
+- **Set alerts before you hit the wall** — 50%/80%/95% alerts give you time to top up or throttle before features break
+
+---
+
+## AI Oversight — Monitoring Usage & Identifying Risky Chats/Topics
+
+AI Control Tower provides observability into *who is using AI, what they’re asking, and whether anything looks risky*. This is essential for governance, compliance, and cost control.
+
+### What you can oversee
+
+| Oversight area | What to look for | Where in Control Tower |
+|---|---|---|
+| **Usage by user/department** | Who is consuming the most Assists? Is one team burning 50% of the quota? | Usage Analytics dashboard |
+| **Skill adoption** | Which skills are used most? Which are unused? | Skill consumption report |
+| **Risky chats/topics** | Users asking about sensitive data (salaries, personal info, proprietary code), attempting to bypass security, or generating harmful content | Audit Trail + skill failure/error logs |
+| **Model accuracy drift** | Classification routing incidents to wrong groups; Similarity match rate dropping | Performance Monitoring (accuracy, precision/recall, F1) |
+| **Latency & availability** | P50/P95/P99 response times for Now Assist panel, Virtual Agent, AI Search | Performance & Reliability Monitoring |
+| **System impact** | Transaction times, semaphore waits, DB load from AI workloads | System Diagnostics > Stats; Performance Analytics |
+
+### Identifying risky chats or topics
+
+Control Tower's **Audit Trail** logs all AI actions, configurations, and governance decisions immutably. Use it to:
+
+1. **Review prompts and outputs** — see what users are asking and what the AI is returning
+2. **Flag sensitive data exposure** — users pasting salaries, personal information, or proprietary code into AI prompts
+3. **Detect prompt injection attempts** — users trying to bypass security or get the AI to ignore its rules
+4. **Monitor skill failure rates** — a spike in failures can indicate users are testing the AI's limits or asking unsupported questions
+
+### Oversight setup
+
+| Step | Action |
+|---|---|
+| **1. Enable metering** | AI Control Tower > Overview > Enable Assist Metering |
+| **2. Configure alert policies** | Set quota thresholds at 50%/80%/95%; route alerts to the AI CoE or IT leadership |
+| **3. Assign roles** | `ai_control_tower_admin` for configurers; `ai_control_tower_viewer` for read-only oversight |
+| **4. Review weekly** | Control Tower > Usage Analytics — check top consumers, top skills, projected overage |
+| **5. Audit monthly** | Audit Trail — review AI actions, configurations, governance decisions for compliance |
+| **6. Enforce policies** | Policy Enforcement — allowed model providers (Now LLM vs third-party), data residency rules, approval workflows for new custom skills (Prime) |
+
+### AI Center of Excellence (CoE) — recommended governance body
+
+Establish an AI CoE with representatives from IT, Security, Legal, and Business Units. The CoE should:
+
+- Define **AI Policy**: approved use cases, data classification handling, human-in-the-loop requirements, escalation paths
+- Implement **Change Management** for all AI config changes (skill activation, model retraining, agent deployment)
+- Schedule **Quarterly Reviews**: quota burn, model performance, skill adoption, ROI measurement
+- Document **Data Lineage** for all training data used in Predictive Intelligence and custom skills
+
+---
+
+## Agentic AI — AI Agents & Agentic Workflows
+
+AI Agents go beyond Now Assist summarization — they **reason, plan, and act** within guardrails.
+
+| Capability | What it does | Tier |
+|---|---|---|
+| AI Agent Studio | Visual builder for creating, testing, deploying AI agents | Advanced, Prime |
+| Now Assist Skill Kit | Framework for building custom generative skills | Prime (custom); Advanced (OOTB) |
+| OOTB Agentic Workflows | Pre-built agents for ITSM, CSM, HRSD, ITOM (e.g., Incident Resolution Agent) | Advanced, Prime |
+| AI Action Fabric (A2A/MCP) | Multi-agent orchestration across external systems | Prime |
+| Agentic Task Execution | Agents complete multi-step tasks autonomously with human-in-the-loop | Advanced, Prime |
+
+**Example — Incident Resolution Agent (OOTB):** Activates on P1/P2 incidents → auto-gathers similar incidents, KB articles, recent changes on affected CIs, runbook links → presents in Now Assist panel: *"Likely cause: Change CHG004521 (DNS update). Runbook: KB009876. Rollback steps: …"* Agent clicks *"Execute rollback"* → agent runs Flow. MTTR -35%.
+
+**Agentic AI decision guardrails:**
+- Agents should **draft, not decide** — propose actions, require human approval for high-stakes changes (reassign, change priority, close, notify executives)
+- Agents should **read more than they write** — prefer read-only tools (Get Incident Details, Find Similar Incidents) over write tools unless accuracy is proven
+- **Security first** — define who can invoke the agent, which tables/fields it can read; ACLs control data access, not just agent instructions
+
+---
+
 ## Best Practices That Actually Provide Value
 
 | Practice | Why it provides value |
