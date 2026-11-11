@@ -181,6 +181,86 @@ The pattern to notice: **schedules are the *when and where*, everything above is
 
 ---
 
+## Appendix: IntegrationHub & e-Bonding — connecting discovered data out
+
+Discovery populates the CMDB. IntegrationHub and e-bonding are how that data (and incidents, changes, CIs) flows *out* to external systems and *back in* — without building custom REST code for every connection.
+
+### What is IntegrationHub?
+
+IntegrationHub is ServiceNow's low-code integration layer: **spokes** (prebuilt adapters), **Flow Designer** actions, and **Connection & Credential Aliases** for secure auth. Instead of writing a REST Message from scratch for Salesforce, Teams, Jira, or SAP, you drag a spoke onto a flow canvas and map fields.
+
+| Concept | What it is | Example |
+|---|---|---|
+| **Spoke** | Prebuilt adapter wrapping an external API | ServiceNow, Salesforce, Microsoft Teams, Jira, ServiceNow (instance-to-instance) |
+| **Flow** | Low-code automation built in Flow Designer | "When a CI changes in Discovery, post to Teams" |
+| **Action** | One step in a flow | Create a Jira issue, send a Teams message, query a CMDB CI |
+| **Connection & Credential Alias** | Stored auth (OAuth2, basic, API key) | One alias reused across flows; rotate the password in one place |
+
+### What is e-bonding?
+
+E-bonding is **bidirectional synchronization** between ServiceNow and an external ITSM/monitoring tool. Both sides create and update records, and a correlation ID prevents infinite loops (ServiceNow → external → ServiceNow → external …).
+
+Common e-bonding pairs:
+- ServiceNow ↔ ServiceNow (MSP ↔ customer instances)
+- ServiceNow ↔ SolarWinds Service Desk
+- ServiceNow ↔ BMC Helix / Remedy
+- ServiceNow ← third-party monitoring (PagerDuty, Datadog alerts → incidents)
+
+### How Discovery + e-bonding fit together
+
+Discovery finds CIs and writes them to the CMDB. E-bonding then syncs those CIs (and the incidents/problems built on them) to an external tool — and pulls the external tool's status back onto the CI. Without Discovery's CMDB data, e-bonding has nothing reliable to correlate.
+
+```
+Discovery run → CI created/updated in CMDB
+                    │
+                    ▼
+          E-bonding sync (IntegrationHub flow or REST Message)
+                    │
+                    ▼
+        External tool (SolarWinds, BMC, second SN instance)
+                    │
+                    ▼
+          Status comes back → updated on the CI / incident
+```
+
+### Integration patterns compared
+
+| Pattern | Best for | Discovery relevance |
+|---|---|---|
+| **IntegrationHub spoke + Flow Designer** | Low-code, no custom code, prebuilt adapters | Sync discovered CIs to Teams/Jira/ServiceNow |
+| **Outbound REST Message** | Custom APIs, full control | Push CI changes to a home-grown CMDB consumer |
+| **Inbound Scripted REST API** | External systems write into ServiceNow | External tool creates incidents on discovered CIs |
+| **MID Server** | On-prem targets the cloud can't reach | Discovery itself uses this; so does JDBC-based e-bonding |
+| **Import Sets** | Bulk one-time loads | Initial CMDB population before live e-bonding starts |
+
+### Mini lab: Conceptual e-bond — Discovery CI change → Teams
+
+1. **Flow Designer → New flow**, Table: `cmdb_ci`, Trigger: **Field updated** on `install_status` or `discovery_source`
+2. **Condition:** only run when `discovery_source` = `ServiceNow Discovery` (avoid sync loops)
+3. **Action:** Microsoft Teams → Post message (via the Teams spoke, or a REST Message to a Teams webhook)
+4. **Message body:** `CI ${name} (${
+sys_class_name}) was discovered/updated by ${discovery_source} at ${discovered}`
+5. **Activate.** Run Discovery against a target; confirm the Teams message arrives.
+
+**Why this isn't a loop:** the condition checks `discovery_source`, so only Discovery-originated changes post to Teams — manual CMDB edits don't retrigger the flow.
+
+### Common e-bonding mistakes
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| **No correlation ID** | Each side creates a new record every sync — endless duplicates | Store the external system's record ID on the CI (custom field `u_external_ci_id`) and match on it |
+| **No loop guard** | ServiceNow update triggers external update which triggers ServiceNow update … | Check `discovery_source` / `u_external_updated` before writing; skip if already synced |
+| **Hard-coded credentials** | Password rotation breaks the e-bond | Use Connection & Credential Aliases; never embed passwords in flow actions |
+| **Syncing every field** | Massive payloads, slow syncs, field conflicts | Sync only the fields that matter (CI name, status, discovery source, last_discovered) |
+| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
+
+### Official Learning Resources
+- [ServiceNow IntegrationHub Fundamentals](https://nowlearning.com/) — Search "IntegrationHub" on Now Learning Portal
+- [ServiceNow Product Documentation — IntegrationHub](https://docs.servicenow.com/) → Search "IntegrationHub", "e-bonding", "spokes"
+- [Flow Designer documentation](https://docs.servicenow.com/) → Search "Flow Designer"
+
+---
+
 ## Deep Dive: Customizing an Out-of-Box Pattern — and Making Your Own
 
 Patterns are where Discovery's real behaviour lives, sooner or later every implementer has to change one: collect one more attribute, parse one vendor's odd output format, identify one application ServiceNow never heard of. There are three routes, in increasing order of commitment.

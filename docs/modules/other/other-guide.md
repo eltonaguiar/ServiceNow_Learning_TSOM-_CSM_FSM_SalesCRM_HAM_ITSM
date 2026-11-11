@@ -19,6 +19,19 @@ Not every system a ServiceNow developer touches is a ServiceNow module. Enterpri
 
 For each item you'll find an ELI5 explanation, the business reason companies use it, key terms, the API/integration surface, and how it relates to ServiceNow.
 
+## Free vs Paid — what you can actually touch
+
+| Item | Free on ServiceNow PDI? | Paid / subscription needed? | What you can practice free |
+|------|-------------------------|------------------------------|----------------------------|
+| **ServiceNow PDI** (Personal Developer Instance) | ✅ Yes — completely free | No | Everything ServiceNow-native: HRSD, REST/SOAP inbound & outbound, MID Server config, Import Sets, Transform Maps, Scripted REST APIs, ITIL (ITSM module), Agile Development app, Jelly, Service Portal |
+| **Boomi (Dell Boomi / AtomSphere)** | ❌ No | Paid enterprise iPaaS | Boomi offers a limited free trial, but no ongoing free tier. You can read Boomi's connector docs and learn the ServiceNow-side patterns (REST Message → Boomi web listener → target app) on PDI, then connect when you have a Boomi account |
+| **UKG (Pro / Dimensions)** | ❌ No | Paid enterprise HCM / workforce management | No free tier. You can read UKG's API docs and build the ServiceNow-side inbound REST API / webhook receiver on PDI, but you need a real UKG customer account to test against |
+| **AS/400 (IBM i) / DB2** | ❌ No | Paid legacy hardware + software | No free tier. You can practice the ServiceNow side (JDBC probe config, Import Sets, Transform Maps, DB2-for-i concepts) on PDI without the AS/400, then point it at a real DB2 when you have access |
+| **ITIL framework** | ✅ Yes — public knowledge | No | ITIL concepts are free to study; practice incident/problem/change/CMDB end-to-end on PDI |
+| **Agile / Scrum** | ✅ Yes — methodology | No | Practice Agile tracking in ServiceNow's Agile Development app on PDI |
+
+**Bottom line:** Everything on the *ServiceNow side* of each integration can be built and tested free on a PDI. The external systems (Boomi, UKG, AS/400) require paid accounts — you learn their concepts and the ServiceNow integration patterns on PDI, then connect to the real systems when you have access to them.
+
 ---
 
 ## 1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS
