@@ -25,6 +25,7 @@
 - [Real AI Agent Example: “Incident Triage Assistant”](#real-ai-agent-example--incident-triage-assistant)
 - [Install / Enablement per Module](#install--enablement-per-module)
 - [AI Control Tower — Governance & Observability](#ai-control-tower--governance--observability)
+- [AI Guardrails & Subagents — Where Controls Are Set](#ai-guardrails--subagents--where-controls-are-set)
 - [Best Practices That Actually Provide Value](#best-practices-that-actually-provide-value)
 - [Lab: Deploy a Custom AI Skill on Incident](#lab--deploy-a-custom-ai-skill-on-incident)
 - [Quiz](#quiz)
@@ -498,6 +499,118 @@ AI Agents go beyond Now Assist summarization — they **reason, plan, and act** 
 - **Security first** — define who can invoke the agent, which tables/fields it can read; ACLs control data access, not just agent instructions
 
 ---
+
+## AI Guardrails & Subagents — Where Controls Are Set
+
+ServiceNow AI Agents use **three layered controls**: (1) **ACLs** govern who can invoke an agent; (2) **execution identities + role filtering** govern what the agent can access at runtime; (3) **AI Guardian** governs content safety at the prompt/output layer independent of ACLs. Every agent action is audited through **AI Control Tower**.
+
+---
+
+### 1. Invocation Guardrails — Who Can Invoke an Agent (ACLs)
+
+**Breadcrumb:** `AI Agent Studio > AI Agent > guided setup > Define security controls` (also available for agentic workflows via `Define security controls for an agentic workflow`)
+
+ACLs are configured **per agent, per agentic workflow, per external agent, and per certain tools** (GenAI Skills, Flows, Flow Actions). Each needs its own unique ACL — do not share one ACL across multiple agents.
+
+| ACL field | Options | Purpose |
+|---|---|---|
+| Who can access / invoke | Users with specified roles (default) / Authenticated users / Public | Grants who can invoke the agent |
+| User identity (data access scope) | Dynamic user / AI user | Which identity the agent executes under at runtime |
+| Approved roles (Dynamic user) | Multi-select role list | Limits roles the dynamic user runs with — restricts data access to an allow-list |
+
+**Key security model facts:**
+- ACL type is **Allow If** (grants when any condition met). **Deny-Unless** (strict all-conditions) exists only in the `sys_security_acl` table.
+- Newly activated Australia+ instances enforce **deny-by-default** for agentic components without an explicit ACL — an unset agent cannot be invoked.
+- Role filtering applies only to **Dynamic user** execution (AI user runs with its fixed roles, no filtering).
+- AI Agent Studio Home page shows warning banners when agents/workflows lack ACLs.
+
+**Fluent SDK config example:**
+```typescript
+securityAcl: { $id: Now.ID['acl'], type: 'Specific role', roles: [...] }
+runAsUser: 'sys_user_sys_id'   // OR dataAccess.roleMap / roleList
+```
+
+**Separation of concerns:** ACL controls **who can invoke**; runAsUser/dataAccess controls **which identity the agent acts as**. Keep them separate.
+
+---
+
+### 2. Runtime Content Guardrails — AI Guardian
+
+**Breadcrumb:** `AI Agent Studio > Settings tab > Offensiveness / Prompt Injection` ; also `AI Admin Hub > Settings > AI Guardian`
+
+Guardian runs **independently of ACLs and user identity** — it is a runtime content layer, not an access layer. Enable it in **log-only mode first**, review test-run logs, then enable blocking (avoids false positives breaking production flows).
+
+| Guardrail | What it detects | Scope | Default action | Configurable per |
+|---|---|---|---|---|
+| **Offensiveness detection** | Toxic, defamatory, fraudulent, harmful content (input + output) | Specific Now Assist skills and agentic workflows | Log only (can block + log) | Agent/workflow level |
+| **Prompt injection detection** | Attempts to override LLM instructions / expose restricted info | All generative AI applications and features | Block + log (on by default except Platform/custom skills) | Instance level or individual skill |
+| **Sensitive topic filters** | Subjects unsuited for AI response (workplace safety, compensation, well-being) | Virtual Agent conversational skills only (HRSD/CSM) | Redirect to fallback topic (human agent / case) | Virtual Agent skill level |
+
+**Enable procedure:**
+1. `AI Agent Studio > Settings > turn on Offensiveness for AI agents` → Detection impact: Log or Block and log
+2. `Settings > Prompt Injection > Configure`
+3. Configure **Data Privacy/PII anonymization** before going live (assign a data steward)
+
+**PII** is anonymized before requests reach the LLM (configurable via Data Privacy for Now Assist).
+
+---
+
+### 3. Subagents — How Multi-Agent Teams Work
+
+ServiceNow does not use the term "subagent" in official docs. The concept is **AI Agentic Workflows** orchestrated by the **AI Agent Orchestrator**. Individual AI agents within a workflow function as specialized subagents/team members.
+
+#### AI Agent Orchestrator (central coordinator)
+- Coordinates AI agents to collaborate on complex workflows
+- Agents operate iteratively, seeking Orchestrator assistance when stuck; Orchestrator can retrieve missing context from users
+- Uses **ReAct prompt** with **Route scheduling mode** — enables asynchronous, parallel tool execution within agents
+- **Dynamic Orchestrator:** when more than ~8–10 agents are available for a workflow, it identifies only the relevant agents in the planning phase
+
+#### AI Agentic Workflows (multi-agent teams)
+- **Team structure:** `team: { $id, name, members: [...] }` — each member is a specialized agent
+- Agents share data through the **orchestration context**. Instructions must explicitly state what data to pass between steps
+- **Decomposition rule:** one capability per agent; split when an agent needs >5 tools; match agent count to complexity (2–3 agents typical, 4+ only for complex multi-phase)
+- **Ideal agent count per workflow:** ~8–10; beyond that the Dynamic Orchestrator filters which agents to consider
+
+#### MCP (Model Context Protocol) — Agent → Tools
+ServiceNow AI Agent acts as **MCP client**, connecting to external MCP servers (Jira, Salesforce, SAP, GitHub, etc.) to use external tools.
+- **MCP Server Console** (`AI Agent Studio > Settings > Discoverability`): exposes ServiceNow capabilities (Now Assist skills, Flow Actions, Scripted REST) as MCP tools for external AI clients. Requires `sn_mcp_server` plugin.
+- An AI Agent can be configured as an MCP tool itself: enable `Allow third party access to this AI agent` on the Define the specialty screen; set communication mode to Synchronous; select A2A auth scope
+- Governed via AI Control Tower (identity-verified, OAuth, audit trails, metering); MCP traffic governed by AI Gateway
+
+#### A2A (Agent-to-Agent) — Agent → Agent
+- Google's open protocol for direct collaboration between AI agents across systems
+- ServiceNow agents can be **primary** (delegating outward) or **secondary** (receiving delegation)
+- To add an external agent: create AI Agent of type `External`, add a Provider record with Connection & Credential alias containing the Agent Card URL
+- A2A connections use OAuth 2.0 or API key authentication, configured per external agent in AI Agent Studio
+- **A2A does not natively enforce RBAC or delegated authorization** — must be implemented manually
+
+#### Best Practices for Multi-Agent / Subagent Design
+| Practice | Why |
+|---|---|
+| **One capability per agent** | Split when an agent needs fundamentally different tool types (CRUD vs script vs search) |
+| **Split at >5 tools per agent** | Beyond that the agent becomes unfocused; tool-selection reliability degrades |
+| **Keep total tools per use case ≤ 15** | Orchestration complexity and reliability degrade past this threshold |
+| **Ideal 2–3 agents per workflow; max ~8–10** | Dynamic Orchestrator filters candidates beyond this |
+| **Organize tools by data domain / workflow phase** | Minimize cross-agent context passing |
+| **Explicitly define data handoffs in instructions** | What to retrieve, reference previous results, handle missing data |
+| **Use supervision / human-in-the-loop** for high-risk, irreversible, or sensitive tool actions | Mitigates role-masking misconfigurations |
+| **For external connections:** MCP for agent→tools; A2A for agent→agent | Remember A2A lacks native RBAC — implement authorization manually |
+
+---
+
+## AI Guardrails & Subagents — Quick Reference
+
+| Layer | What it controls | Where configured | Enforcement point |
+|---|---|---|---|
+| **ACLs** | Who can invoke an agent/workflow | AI Agent Studio > guided setup > Define security controls | Invocation time |
+| **Execution identity** | What data the agent can access (Dynamic user / AI user + approved roles) | AI Agent Studio > Define security controls | Runtime |
+| **AI Guardian** | Content safety at prompt/output layer (offensiveness, prompt injection, sensitive topics) | AI Agent Studio > Settings | Request/response time |
+| **AI Control Tower** | Governance, audit, quota, policy enforcement across all AI | AI Control Tower > Overview | Every AI action |
+| **AI Agent Orchestrator** | Multi-agent coordination, task decomposition | AI Agent Studio > Workflows | Execution time |
+| **MCP / A2A** | External tool and agent connectivity | AI Agent Studio > Settings > Discoverability / External agents | Cross-system calls |
+
+---
+
 
 ## Best Practices That Actually Provide Value
 
