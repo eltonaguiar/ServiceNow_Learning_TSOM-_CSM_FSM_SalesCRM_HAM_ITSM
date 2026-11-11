@@ -25,7 +25,11 @@
 - [Real AI Agent Example: “Incident Triage Assistant”](#real-ai-agent-example--incident-triage-assistant)
 - [Install / Enablement per Module](#install--enablement-per-module)
 - [AI Control Tower — Governance & Observability](#ai-control-tower--governance--observability)
+- [AI Cost Management — Avoiding Surprise Bills & Limit Breaks](#ai-cost-management--avoiding-surprise-bills--limit-breaks)
+- [AI Oversight — Monitoring Usage & Identifying Risky Chats/Topics](#ai-oversight--monitoring-usage--identifying-risky-chats-topics)
+- [Agentic AI — AI Agents & Agentic Workflows](#agentic-ai--ai-agents--agentic-workflows)
 - [AI Guardrails & Subagents — Where Controls Are Set](#ai-guardrails--subagents--where-controls-are-set)
+- [ServiceNow AI Success Packs, Best Practices & Sales Materials](#servicenow-ai-success-packs-best-practices--sales-materials)
 - [Best Practices That Actually Provide Value](#best-practices-that-actually-provide-value)
 - [Lab: Deploy a Custom AI Skill on Incident](#lab--deploy-a-custom-ai-skill-on-incident)
 - [Quiz](#quiz)
@@ -633,7 +637,61 @@ ServiceNow AI Agent acts as **MCP client**, connecting to external MCP servers (
 
 ---
 
-## Lab: Deploy a Custom AI Skill on Incident
+## ServiceNow AI Success Packs, Best Practices & Sales Materials
+
+### Official ServiceNow AI Best Practices Documentation
+
+| Resource | URL | Key Content |
+|---|---|---|
+| **Implementing AI on the ServiceNow AI Platform** | https://www.servicenow.com/docs/r/intelligent-experiences/sn-ai-implementation-landing.html | Foundational guide: assess readiness → install plugins → establish AI governance policy → choose LLM strategy → prepare data & search → activate skills → deploy agents → measure → drive a culture of AI adoption |
+| **ServiceNow AI Platform Best Practices** | https://mynow.servicenow.com/now/best-practices/collections/now-platform-best-practices | Best practices for automating processes, boosting productivity, and streamlining app development across IT, HR, and customer service workflows |
+| **AI Control Tower Welcome Guide** | https://www.servicenow.com/community/ai-control-tower-articles/ai-control-tower-welcome-guide/ta-p/3560221 | AICT is ServiceNow's AI governance platform — central hub to discover, govern, secure, observe, and measure all AI |
+| **Guide to ServiceNow's Licensing Change (April 2026)** | https://www.servicenow.com/community/servicenow-ai-platform-articles/guide-to-servenow-s-licensing-change-april-2026/ta-p/3610010 | AI included by default, 3-tier packaging, hybrid pricing (seat + metered assists). Treat assist consumption as a non-functional requirement; governance before go-live |
+
+### ServiceNow Success Packs Related to AI
+
+Success Packs are curated implementation guidance (process guides, recommended sequences, scoping guides, implementation insights) that consolidate Now Create and other guidance into unified destinations (unified destination released Dec 2025). Key AI-relevant packs:
+
+| Success Pack | Focus | URL |
+|---|---|---|
+| **AI Control Tower** | AI governance, observability, quota management | https://learn.servicenow.com/learning-plans/ai-control-tower |
+| **AI Agent Studio** | Building, testing, deploying AI agents | https://learn.servicenow.com/learning-plans/ai-agent-studio |
+| **Now Assist for ITSM: Incident Summarization** | Generative AI summarization for incidents | https://learn.servicenow.com/learning-plans/now-assist-itsm-incident-summarization |
+| **Predictive Intelligence: Classification / Similarity** | ML-based auto-routing and similar-record matching | https://learn.servicenow.com/learning-plans/predictive-intelligence-classification |
+
+### AI Pricing & Packaging (April 2026 Licensing Change)
+
+Since April 2026, ServiceNow AI is **bundled into all three tiers** — there is no separate Now Assist SKU. Pricing is hybrid (seat + metered assists):
+
+| Tier | Fulfiller Allocation (Assists/year) | Requester Allocation (Assists/year) | Agentic Workflow Pricing |
+|---|---|---|---|
+| **Foundation** | ~1,500 | ~200 | — |
+| **Advanced** | ~3,000 | ~400 | 25 assists (0–4 actions) |
+| **Prime** | ~6,000 | ~800 | 50 assists (5–8 actions), 150 assists (9–20 actions) |
+
+*One "Assist" = one skill invocation (varies by skill complexity). Tier allocations vary by contract — confirm with your ServiceNow account team. Auto-top-up can be enabled in AI Control Tower.*
+
+### AI People Readiness — Don't Go Live Without It
+
+ServiceNow's **AI People Readiness Playbook** (community blog, "Unlocking ROI on your AI") emphasizes that technical readiness alone is insufficient. Key recommendations:
+
+- **Assess readiness** before enabling AI — people, process, data, governance
+- **Establish AI governance policy** before activating any skills
+- **Choose LLM strategy** (Now LLM vs third-party) based on data residency and cost
+- **Prepare data & search** — clean, labeled historical data is non-negotiable for Predictive Intelligence
+- **Activate skills on purpose** — default to off; enable with named business owners
+- **Deploy agents incrementally** — start narrow (e.g., P1/P2 incident triage only), prove accuracy, then expand
+- **Measure and drive adoption** — track acceptance rate, edit rate, fallback rate
+
+### Community Content
+
+| Resource | URL | Focus |
+|---|---|---|
+| **AI People Readiness Playbook** | https://www.servicenow.com/community/ceg-ai-coe-blog/teams-using-this-playbook-to-guide-their-ai-rollout-report/ba-p/3568406 | "Unlocking ROI on your AI — Don't Go Live Without It" |
+| **Now Assist in Virtual Agent Release Notes** | https://www.servicenow.com/docs/r/zurich/release-notes/now-assist-va-rn.html | Zurich release updates for Now Assist in Virtual Agent |
+| **AI Control Tower Community** | https://www.servicenow.com/community/ai-control-tower-articles/ | Governance, observability, quota management discussions |
+
+---
 
 **Goal:** Create and deploy a “Draft Resolution Notes” AI skill on the Incident table using Now Assist Skill Kit.
 
