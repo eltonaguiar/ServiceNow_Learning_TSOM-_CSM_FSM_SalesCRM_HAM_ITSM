@@ -580,9 +580,9 @@ graph TD
         bre[Breached]
         clo[Closed]
     end
-    dir --> act : Define terms
-    act --> bre : Breach time reached
-    bre --> clo : SLA resolution / escalation
+    dir -->|Define terms| act
+    act -->|Breach time reached| bre
+    bre -->|SLA resolution / escalation| clo
     
     subgraph "Priority Matrix (Impact × Urgency)"
         direction LR

@@ -466,16 +466,16 @@ graph TD
 ### CSM Business Model (B2B / B2C / B2B2C / B2B2E)
 ```mermaid
 graph TD
-    subgraph "B2B"
+    subgraph sg_b2b["B2B"]
         B2B[Business Service]
     end
-    subgraph "B2C"
+    subgraph sg_b2c["B2C"]
         B2C[Customer]
     end
-    subgraph "B2B2C"
+    subgraph sg_b2b2c["B2B2C"]
         B2B2C[Business to Consumer]
     end
-    subgraph "B2B2E"
+    subgraph sg_b2b2e["B2B2E"]
         B2B2E[Business to Employee]
     end
     B2B --> B2C

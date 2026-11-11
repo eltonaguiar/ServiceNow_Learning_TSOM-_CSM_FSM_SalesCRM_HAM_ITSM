@@ -87,27 +87,32 @@ This guide maps to the **Certified Implementation Specialist – Hardware Asset 
 
 ```mermaid
 stateDiagram-v2
+    state "In Use" as InUse
+    state "In Maintenance" as InMaintenance
+    state "Lost / Stolen" as LostStolen
+
     [*] --> Procurement : Asset ordered
     Procurement --> Received : Asset received in warehouse
-    Received --> In Use : Asset assigned to employee
-    In Use --> In Maintenance : Repair needed
-    In Maintenance --> In Use : Repair complete
-    In Use --> Retired : End of life / replacement
-    In Use --> Lost/Stolen : Asset missing
-    Lost/Stolen --> [*]
+    Received --> InUse : Asset assigned to employee
+    InUse --> InMaintenance : Repair needed
+    InMaintenance --> InUse : Repair complete
+    InUse --> Retired : End of life / replacement
+    InUse --> LostStolen : Asset missing
+    LostStolen --> [*]
     Retired --> [*]
-    In Maintenance --> Retired : Beyond economical repair
-    
+    InMaintenance --> Retired : Beyond economical repair
+
     note right of Procurement: Purchase order, receipt
     note right of Received: Asset tag assigned, CI created
-    note right of In Use: Assigned to user, location tracked
+    note right of InUse: Assigned to user, location tracked
     note right of Retired: Disposal, data wipe, asset state = Retired
 
-    style Procurement fill:#e5b567,color:#000
-    style Received fill:#e5b567,color:#000
-    style In Use fill:#4cc38a,color:#000
-    style Retired fill:#e58a8a,color:#fff
-    style [*] fill:#0b0e11,stroke:#4cc38a
+    classDef proc fill:#e5b567,color:#000
+    classDef live fill:#4cc38a,color:#000
+    classDef gone fill:#e58a8a,color:#fff
+    class Procurement,Received proc
+    class InUse,InMaintenance live
+    class Retired,LostStolen gone
 ```
 
 **Exam focus:** Hardware asset lifecycle, stages, components, asset states, retirement workflows (20% + 30% of CIS-HAM exam).
