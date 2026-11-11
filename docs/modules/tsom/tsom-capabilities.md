@@ -49,10 +49,12 @@ Two directions, and both exist in TSOM. Confusing them is a classic exam trap.
 
 | Mechanism | Direction | What it does |
 |---|---|---|
-| **TMF 642 Alarm Management Open API** (`sn_ind_tmf642`) | Inbound + outbound | RESTful CRUD contract for alarms: external OSS creates/updates/clears alarm records in a standard schema |
-| **TMF 688 Event Management API notifications** | Inbound | Subscription-based: the external system registers a **callback URL**, and each pushed notification triggers an **event-creation flow** in ServiceNow |
-| **REST Poll / Push** | Inbound | Generic pull on a schedule or push to an endpoint; per-payload, not a stream |
-| **Kafka Stream Connect** | **Bidirectional** | The streaming option: consumes external Kafka topics into ServiceNow *and* publishes event data back to the platform — this is the only one of the four that satisfies "receive continuously **and** send back" |
+|| **TMF 642 Alarm Management Open API** (`sn_ind_tmf642`) | Inbound + outbound | RESTful CRUD contract for alarms: external OSS creates/updates/clears alarm records in a standard schema |
+|| **TMF 688 Event Management API notifications** | Inbound | Subscription-based: the external system registers a **callback URL**, and each pushed notification triggers an **event-creation flow** in ServiceNow |
+|| **TMF 624 (verify)** | Inbound + outbound | *Not yet confirmed as a standard TMF Open API number in ServiceNow docs — verify on your instance.* If referring to trouble-ticket exchange, the confirmed TSOM/TSM counterpart is **TMF 621 Trouble Ticket Open API** (create/update/retrieve Case, Incident, Service Problem Case). |
+|| **Webhooks** | Outbound (ServiceNow → external) | ServiceNow pushes a JSON payload to an external endpoint when an event occurs — eliminates polling, real-time. Tied to specific events (e.g., alert state change, CI create/update). |
+|| **REST Poll / Push** | Inbound | Generic pull on a schedule or push to an endpoint; per-payload, not a stream |
+|| **Kafka Stream Connect** | **Bidirectional** | The streaming option: consumes external Kafka topics into ServiceNow *and* publishes event data back to the platform — this is the only one of the four that satisfies "receive continuously **and** send back" |
 
 **Rule of thumb:** *CRUD on alarms → TMF 642. Callback notifications → TMF 688. Sustained
 bidirectional streaming → Kafka Stream Connect.*

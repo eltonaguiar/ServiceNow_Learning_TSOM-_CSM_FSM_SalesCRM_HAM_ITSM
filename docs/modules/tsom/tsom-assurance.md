@@ -128,10 +128,12 @@ This is how alarms get into ServiceNow. Two directions exist, and confusing them
 
 | Mechanism | Direction | What it does |
 |-----------|-----------|--------------|
-| **TMF 642 Alarm Management Open API** (`sn_ind_tmf642`) | Inbound + outbound | RESTful CRUD contract for alarms — external OSS creates/updates/clears alarm records in a standard schema |
-| **TMF 688 Event Management API notifications** | Inbound | Subscription-based: external system registers a callback URL; each pushed notification triggers an event-creation flow |
-| **REST Poll / Push** | Inbound | Generic pull on a schedule or push to an endpoint; per-payload, not a stream |
-| **Kafka Stream Connect** | Bidirectional | The streaming option — consumes external Kafka topics into ServiceNow **and** publishes event data back to the platform |
+| | **TMF 642 Alarm Management Open API** (`sn_ind_tmf642`) | Inbound + outbound | RESTful CRUD contract for alarms — external OSS creates/updates/clears alarm records in a standard schema |
+| | **TMF 688 Event Management API notifications** | Inbound | Subscription-based: external system registers a callback URL; each pushed notification triggers an event-creation flow |
+| | **TMF 624 (verify)** | Inbound + outbound | *Not confirmed as a standard TMF Open API number in ServiceNow docs — verify on your instance.* For trouble-ticket exchange, the confirmed counterpart is **TMF 621 Trouble Ticket Open API** (Case/Incident/Service Problem Case). |
+| | **Webhooks** | Outbound (ServiceNow → external) | ServiceNow pushes a JSON payload to an external endpoint when an event occurs — eliminates polling, real-time. Tied to specific events (alert state change, CI create/update, etc.). |
+| | **REST Poll / Push** | Inbound | Generic pull on a schedule or push to an endpoint; per-payload, not a stream |
+| | **Kafka Stream Connect** | Bidirectional | The streaming option — consumes external Kafka topics into ServiceNow **and** publishes event data back to the platform |
 
 **Rule of thumb:** *CRUD on alarms → TMF 642. Callback notifications → TMF 688. Sustained bidirectional streaming → Kafka Stream Connect.*
 

@@ -26,6 +26,7 @@
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [REST Integration — RESTMessageV2 vs IntegrationHub Spoke](#rest-integration--restmessagev2-vs-integrationhub-spoke)
+- [Webhooks — General Integration Pattern](#webhooks--general-integration-pattern)
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
@@ -416,6 +417,76 @@ Authentication is configured at the **REST Message** level (not per call). All c
 - Use **IntegrationHub REST Spoke** when you want a low-code, reusable flow that operations teams can maintain without writing JavaScript.
 - Authentication is set **once on the REST Message / spoke**, not per request — secure credentials via the Credential/Secret store.
 - For CMDB inbound (external → ServiceNow), prefer **Service Graph Connector** or **Import Set + Transform Map** rather than pushing via REST, so IRE and reconciliation run natively.
+
+---
+
+## Webhooks — General Integration Pattern
+
+A **webhook** is a push-based, event-driven integration: ServiceNow (or an external system) sends a JSON payload to a pre-registered URL the moment an event happens. It eliminates polling — instead of ServiceNow repeatedly asking "has anything changed?", the source tells ServiceNow (or vice versa) the instant something does.
+
+### Outbound webhook — ServiceNow tells an external system about an event
+
+Use this when ServiceNow is the **source of truth** and an external system needs to react (e.g., post to Teams, notify an NMS, trigger a downstream ticket).
+
+**Sections needed to set it up:**
+
+| Section | Where | What to configure |
+|---------|-------|-------------------|
+| **Webhook listener (external)** | The external system | A public HTTPS endpoint that accepts `POST` with a JSON body; note the webhook URL and any secret/token it requires |
+| **Authentication** | System Definition > Secrets (Credential record) | Store the webhook secret/bearer token here; do not hard-code it in the flow |
+| **Flow / REST Message** | Flow Designer or System Web Services > REST Messages | Build the payload (fields from the triggering record), set the endpoint URL, add the auth header, choose `POST` |
+| **Trigger** | Flow Designer (Record-based flow) or Business Rule | What fires the webhook — e.g., `cmdb_ci` insert/update, `em_alert` state change, incident close |
+
+**Example:** A Flow Designer record-based flow on `cmdb_ci` fires on update. When `install_status` changes to `retired`, it POSTs `{ci_name, serial_number, status, source_sys_id}` to the external asset-management webhook URL with a Bearer token from Secrets.
+
+### Inbound webhook — external system tells ServiceNow about an event
+
+Use this when an external system is the source and ServiceNow must react (e.g., UKG timecard approved, GitHub repo pushed, Jira issue updated).
+
+**Sections needed to set it up:**
+
+| Section | Where | What to configure |
+|---------|-------|-------------------|
+| **Inbound REST API** | System Web Services > Scripted REST APIs | Create a Scripted REST API with a base path, then add a Resource (HTTP method `POST`) whose script reads `request.body.dataString` and writes to the target table |
+| **Webhook registration (external)** | The external system | Point its webhook URL at your Scripted REST API endpoint (`https://<instance>/api/snc/<api_id>/<resource_path>`); subscribe to the events it should send |
+| **Authentication** | Scripted REST API resource | Set auth type (None with token validation in script, Basic, or OAuth) and validate the incoming secret |
+| **Target table / logic** | The resource script | Parse the payload, map fields, create/update `incident`, `cmdb_ci`, `sn_hr_core_case`, etc., and apply any IRE/reconciliation if writing CIs |
+
+### What gets tied to a webhook — alignment to events
+
+A webhook is not tied to a table; it's tied to an **event**. What you send depends on what happened:
+
+| Event source | What the webhook carries | Typical target table in ServiceNow |
+|--------------|-------------------------|------------------------------------|
+| CI created/updated/deleted | CI sys_id, class, key attributes (`name`, `serial_number`, `install_status`, `data_source`) | `cmdb_ci` (+ IRE/reconciliation if inbound) |
+| Alert state change | Alert sys_id, severity, CI, description, correlation key | `em_alert` → incident/case |
+| Incident created/closed | Incident number, state, assignment group, caller, CMDB CI | `incident` / `sn_customerservice_case` |
+| HR case / profile change | Case sys_id, category, employee, sensitive fields (restricted by ACL) | `sn_hr_core_case` / `sn_hr_core_profile` |
+
+**Rule:** Tie the webhook to the *event*, not the table. The payload should contain just enough for the receiver to act (CI sys_id + changed fields), not the whole record.
+
+### Service (Flow Designer / IntegrationHub spoke) vs webhook — when to use which
+
+| | **Service / Flow Designer / IntegrationHub Spoke** | **Webhook** |
+|---|---------------------------------|-------------|
+| Direction | Usually ServiceNow-initiated or orchestrated inside ServiceNow | Push notification, either direction |
+| Best for | Multi-step workflows with conditions, approvals, multiple systems, retries | Simple "something happened" notification to one external URL |
+| Latency | Near real-time, but flow must be triggered | Real-time, immediate push |
+| Auth | Credential store / connection config | Secret/token in header or query param |
+| Maintenance | Flow Designer UI, operations-team friendly | Script or flow + external endpoint ownership |
+| Volume | High, with built-in queuing/retry | Lower; external endpoint must accept the rate |
+
+**When to use a webhook:** You need real-time push, the payload is small, and there's a single external URL to notify (e.g., alert an NMS when a CI retires, post to Teams on P1 incident, tell UKG a timecard was approved).
+
+**When to use a service/flow instead:** You need multi-step logic, retries, approvals, multiple targets, or the external system doesn't expose a webhook URL (then you poll via REST message on a schedule).
+
+**When to use REST poll/push instead:** The external system has no webhook capability and you must pull data on a schedule (REST poll), or you need reliable per-payload delivery with acknowledgment (REST push).
+
+### Webhooks vs events — are they the same?
+
+No, but they're related. An **event** (`em_event`) is a ServiceNow internal record of something that happened. A **webhook** is the delivery mechanism that tells an external system about that event (or receives an external event into ServiceNow). You typically:
+- Fire an **outbound webhook** from a Flow Designer flow triggered by an `em_alert` or `cmdb_ci` change (the event → webhook mapping).
+- Receive an **inbound webhook** at a Scripted REST API, then create an `em_event` / `incident` / `cmdb_ci` from the payload (the webhook → event mapping).
 
 ---
 
