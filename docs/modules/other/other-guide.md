@@ -499,6 +499,33 @@ Direction | Purpose | Key config
 Outbound REST Message | ServiceNow calls an external API | `System Web Services → REST Messages` → New → set endpoint, method, auth |
 Inbound Scripted REST API | External system calls ServiceNow | `System Web Services → Scripted REST APIs` → create API, define resources/HTTP methods, return JSON |
 
+### IntegrationHub — low-code integration platform
+
+IntegrationHub is ServiceNow's built-in, low-code integration layer. Instead of writing every REST Message or SOAP call from scratch, you use **spokes** (prebuilt adapters), **Flow Designer** actions, and **Connection & Credential Aliases** for secure, reusable auth.
+
+| Concept | What it is | Example |
+|---|---|---|
+| **Spoke** | Prebuilt adapter wrapping an external API | Salesforce, Microsoft Teams, Jira, ServiceNow (instance-to-instance), SAP |
+| **Flow** | Low-code automation built in Flow Designer | "When a CI changes in Discovery, post to Teams" |
+| **Action** | One step in a flow | Create a Jira issue, send a Teams message, query a CMDB CI |
+| **Connection & Credential Alias** | Stored auth (OAuth2, basic, API key) | One alias reused across flows; rotate the password in one place |
+
+### IntegrationHub vs raw REST Messages
+
+| | Raw REST Message | IntegrationHub Spoke + Flow |
+|---|---|---|
+| **Effort** | Build endpoint, auth, parsing from scratch | Drag-and-drop spoke, map fields |
+| **Prebuilt adapters** | None — you write every call | Dozens of spokes (Salesforce, Teams, Jira, SAP, etc.) |
+| **Auth** | Configure per message | Connection & Credential Alias reused across flows |
+| **Best for** | Custom APIs, one-off integrations | SaaS-to-SaaS sync, webhooks, event-driven flows |
+| **Breadcrumbs** | `System Web Services → REST Messages` | `IntegrationHub → IntegrationHub` / Flow Designer |
+
+**Practical example:** You need to post a message to Microsoft Teams when a high-priority incident is created.
+- **Raw REST:** Build a REST Message, figure out Teams' webhook JSON schema, handle auth, parse responses — all by hand.
+- **IntegrationHub:** Use the Microsoft Teams spoke in Flow Designer, map `incident.number` and `short_description` to the Teams message fields, activate. Done.
+
+**Connection & Credential Aliases:** Instead of hardcoding a username/password in every REST Message, you create one **Credential Alias** (`System Web Services → Connection & Credential Aliases`) and reference it by name. Rotate the password once in the alias; every flow and message using it keeps working.
+
 ### MID Server connectivity
 
 Concept | What it is | Why it matters
