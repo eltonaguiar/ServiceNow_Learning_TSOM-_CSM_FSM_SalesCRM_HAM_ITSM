@@ -15,6 +15,7 @@
 - [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
 - [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
+- [CI Attribute vs Model Attribute](#ci-attribute-vs-model-attribute)
 - [IRE Process Diagram (Identification & Reconciliation)](#ire-process-diagram-identification--reconciliation)
 - [Identification Rules Deep Dive](#identification-rules-deep-dive)
 - [Reconciliation Rules Deep Dive](#reconciliation-rules-deep-dive)
@@ -610,6 +611,116 @@ Fields used in identification rules (serial number, MAC, hostname + DNS) **must*
 - Don't put model-specific attributes on `cmdb_ci` — they clutter every CI form and break CMDB Health completeness expectations.
 - Add cross-class fields to `cmdb_ci` so all subclasses inherit them automatically.
 - Dictionary changes on `cmdb_ci` cascade to all extending classes — test in a sub-prod instance first.
+
+### CI Attribute vs Model Attribute — Syntax, Dot-Walk, and Structure
+
+**CI attribute** lives on the CI record itself (`cmdb_ci` or a subclass like `cmdb_ci_computer`). It describes an individual instance — this specific server, this specific router.
+
+**Model attribute** lives on the Model record (`cmdb_model` / `cmdb_hardware_product_model`). It describes the make/model — every Cisco ISR 4331 shares the same model attributes (CPU type, RAM, form factor, warranty term).
+
+| | CI attribute | Model attribute |
+|---|-------------|-----------------|
+| Lives on | `cmdb_ci` / subclass (e.g., `cmdb_ci_computer`) | `cmdb_model` / `cmdb_hardware_product_model` |
+| Describes | One CI instance | One hardware/software model |
+| Example | `hostname`, `ip_address`, `serial_number`, `install_status`, `u_slots` | `manufacturer`, `model_number`, `cpu_type`, `ram`, `form_factor`, `warranty_term` |
+| Inherited by subclasses | Yes (from `cmdb_ci`) | N/A — models are separate records linked to CIs |
+| Used by IRE identification | Yes (e.g., serial number) | No — IRE identifies CIs, not models |
+
+#### Dot-walk syntax
+
+A CI record holds a reference to its model (`cmdb_ci.model` → `cmdb_model`). To read a model attribute from a CI record you dot-walk through the reference:
+
+```javascript
+// Server-side (GlideRecord / business rule / script include)
+var ci = new GlideRecord('cmdb_ci_computer');
+ci.get('some_sys_id');
+
+// CI attribute — direct field access
+gs.print(ci.getValue('hostname'));              // WEB01
+gs.print(ci.getValue('u_slots'));               // 2  (custom CI attribute)
+
+// Model attribute — dot-walk through cmdb_ci.model
+gs.print(ci.getValue('model.model_number'));    // ISR-4331
+gs.print(ci.getValue('model.manufacturer.name'));// Cisco
+gs.print(ci.getValue('model.cpu_type'));        // Intel Xeon
+gs.print(ci.getValue('model.warranty_term'));   // 36 months
+```
+
+The equivalent dot-walk on a form or in a UI policy condition:
+
+```
+model.model_number IS [ISR-4331]
+model.cpu_type CONTAINS [Xeon]
+```
+
+#### What the model looks like
+
+Model records live in **All > Hardware Asset Management > Asset Models** (or `cmdb_model`):
+
+| Field | Example value |
+|-------|---------------|
+| Name | Cisco ISR 4331 |
+| Model number | ISR-4331 |
+| Manufacturer | Cisco |
+| Category | Network |
+| CPU type | Intel Xeon |
+| RAM | 8 GB |
+| Form factor | Rack-mount |
+| Warranty term | 36 months |
+
+A `cmdb_ci_computer` CI for a specific router links to that model via the `model` reference field:
+
+```
+cmdb_ci_computer (WEB01)
+  ├─ hostname = WEB01            ← CI attribute (instance-specific)
+  ├─ serial_number = SN-12345    ← CI attribute (instance-specific)
+  ├─ u_slots = 2                 ← CI attribute (instance-specific custom field)
+  ├─ model → cmdb_model record   ← reference to model
+  │    ├─ model_number = ISR-4331   ← Model attribute (shared)
+  │    ├─ manufacturer = Cisco       ← Model attribute (shared)
+  │    └─ cpu_type = Intel Xeon      ← Model attribute (shared)
+```
+
+**Key distinction:** Two WEB01-class routers of the same model share the *same* model record and therefore the same model attributes, but each has its own CI attributes (hostname, serial number, slots).
+
+---
+
+### Per-Attribute Discrepancies
+
+A discrepancy can exist at the **attribute level** — not just "does a CI exist?" but "does this field on the CI match the authoritative source?"
+
+**Examples of per-attribute discrepancies:**
+- `hostname` on `cmdb_ci_computer` says `WEB01`; SCCM says `WEB01-PROD`
+- `serial_number` on the CI is blank; Soroc has `SN-999`
+- `model.model_number` says `ISR-4331`; the physical device is actually `ISR-4431` (model mismatch)
+- `u_slots` says `2`; the asset record says `4` (CI attribute vs inventory mismatch)
+- `install_status` = `production`; the OSS shows the circuit decommissioned
+
+**How to quickly identify discrepancies:**
+
+| Method | What it does | Best for |
+|--------|-------------|----------|
+| **CMDB Health dashboards** | Completeness / correctness / compliance per CI class | Bulk data-quality scan across all CIs |
+| **Data Manager** | Side-by-side compare of source vs target field values; remediate in bulk | Per-attribute field conflicts |
+| **Identification/Reconciliation rules** | Surfaces CIs where sources disagree on identifier fields (serial, name, MAC) | Identity-critical attributes |
+| **List view + filters** | `All > Configuration > CI List` → filter `[field] [is not] [source value]` | Ad-hoc spot checks |
+| **Report / Metric** | Report on `cmdb_ci` where `field` differs from transform-map staging value | Scheduled discrepancy detection |
+| **Business Rule / UI Policy** | Flag a CI when a manually edited field diverges from the trusted source | Real-time detection on forms |
+| **CMDB Health Micro-Certification** | Scorecards that flag classes below completeness thresholds | Governance / SLA tracking |
+
+#### OOB ServiceNow features to detect discrepancies (platform + TSOM)
+
+| Feature | Where | Detects |
+|---------|-------|---------|
+| **CMDB Health** | All > CMDB Health > Dashboards | Completeness, correctness, compliance, duplication per CI class |
+| **Data Manager** | All > CMDB Health > Data Manager | Source-vs-target field conflicts; bulk remediation |
+| **CMDB De-duplication** | All > Configuration > Identification/Reconciliation > De-duplication | Duplicate CIs from failed identification |
+| **Identification / Reconciliation rules** | All > Configuration > Identification/Reconciliation | Identifier field conflicts between sources |
+| **CI List filters** | All > Configuration > CI List | Ad-hoc per-attribute mismatch hunts |
+| **TSOM: Inventory vs CMDB reconciliation** | TSOM-specific flows | `sn_tsom_inventory_item` vs `cmdb_ci` / `sn_tsom_network_element` mismatch |
+| **TSOM: Alarm correlation** | TSOM alarms on `sn_tsom_network_element` | Alarms on CIs with stale/missing model or attribute data |
+
+**TSOM note:** For telecom assets (ONT, OLT, circuit, SD-WAN edge), the model attribute (`model.model_number`, `model.manufacturer`) often drives the CSDM resource mapping. If the model attribute disagrees with what Discovery/OSS observes, service-to-resource alignment breaks — treat model-attribute discrepancies as seriously as CI-attribute discrepancies.
 
 ---
 
