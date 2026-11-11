@@ -467,9 +467,52 @@ stateDiagram-v2
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+ITOM alerting and incident handling use ServiceNow SLAs defined on `task_sla`, which tracks SLA records against task-based tables (`incident`, `em_alert`, `task`).
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| Alert acknowledgment | Time from alert creation to `In Progress` state | < 15 minutes |
+| Alert resolution | Time from alert creation to `Resolved` state | < 4 hours |
+| Incident response | Time from incident creation to first agent action | < 30 minutes |
+| Incident resolution | Time from incident creation to `Resolved` state | < 4 hours |
+
+**MTTD (Mean Time to Detect)** — measured from the triggering event in `em_event` until an alert exists in `em_alert`. Typical target: under 5 minutes.
+
+**MTTR (Mean Time to Resolve)** — measured from alert creation until the related incident reaches `Resolved`. Typical target: under 30 minutes for P1/P2, under 4 hours for P3/P4.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents created from critical alerts (`severity = 1`)
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| Cloud Operations Workspace | Unified view of cloud resource health, cost, and alerts across AWS/Azure/GCP | All > Cloud Operations > Cloud Operations Workspace |
+| Event Management Dashboard | Alert volume, severity distribution, top nodes, correlation health | All > Event Management > Dashboards > Event Management |
+| Cloud Operations Dashboard | Cloud account usage, spend anomalies, resource utilization trends | All > Cloud Management > Dashboards |
+
+**Key metrics surfaced OOTB:** alert count by severity, MTTD, MTTR, top offending CIs, correlation rate, MID Server health, cloud spend variance.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| Cloud Operations Workspace | Monitor cloud resources, costs, and alerts in one console | All > Cloud Operations > Cloud Operations Workspace |
+| IT Operations Management Workspace | Central entry point for Discovery, Event Management, Service Mapping, Orchestration, MID Server | All > IT Operations Management > IT Operations Management Workspace |
+
+**Workflow tip:** Start in the ITOM Workspace to launch Discovery schedules or Event Management rules, then switch to the Cloud Operations Workspace for cloud-specific health and cost monitoring.
+
+---
+
 ## Quiz
 
-1. What is the difference between an event and an alert?  
+1. What is the difference between an event and an alert?
    <details><summary>Answer</summary>Event = raw data from a monitoring tool; Alert = processed, de-duplicated event ready for human action</details>
 
 2. What table stores raw events?  
@@ -496,6 +539,7 @@ stateDiagram-v2
 - [CMDB guide](./cmdb-guide.md)
 - [ITSM guide](./itsm-guide.md)
 - [TSOM guide](./tsom-guide.md)
+- [ITOM getting-started](./../../getting-started/itom.md)
 
 ---
 

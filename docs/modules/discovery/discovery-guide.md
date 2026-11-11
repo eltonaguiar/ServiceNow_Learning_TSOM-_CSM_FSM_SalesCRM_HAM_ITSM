@@ -731,6 +731,50 @@ The full treatment — plugin (`com.snc.file_signature_normalization`), tables (
 7. **Verify on the target:** Check `C:\Windows\Temp` for the `snc_tmp_*.tmp` scan file timestamped with your run.
 8. **Write down** which layer of the filtering model explains every file you saw collected — and every one you didn't.
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+Discovery itself does not own SLA definitions — it feeds the CMDB, and SLAs are attached to the *tasks and incidents that consume CMDB data* (incidents, service requests, work orders) via `task_sla`. The SLA records that matter for Discovery are the ones triggered when a CI is stale, a Discovery run fails, or a SAM/HAM/TSOM downstream process cannot reconcile.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| CI freshness | Time since `cmdb_ci.last_discovered` exceeds the freshness window | Alert when a CI is > 30 days stale |
+| Discovery run success | Time since the last successful scheduled run per range | Escalate when a schedule fails > 2 consecutive runs |
+| ECC Queue error rate | Time `ecc_queue` rows remain in `error` state | Escalate when > 2% of rows are stuck in error |
+| SAM normalization lag | Time from File-Based Discovery collection to `cmdb_sam_sw_install` creation | < 24 hours after FBD run completes |
+
+**MTTD (Mean Time to Detect)** — measured from a CI going stale or a Discovery run failing until the discrepancy is surfaced. Typical target: under 24 hours for stale CIs, under 1 hour for failed runs.
+
+**MTTR (Mean Time to Resolve)** — measured from the alert/incident creation until the CI is re-discovered or the run is re-established. Typical target: under 48 hours for CI re-discovery, under 8 hours for a failed schedule.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents raised when a Discovery schedule fails (`discovery_status.state = error`)
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold, e.g. a CI freshness SLA nearing breach
+
+> **Note:** Discovery does not create its own SLA definitions. SLAs are defined centrally (All > Service Level Management > SLA Definitions) and attached to the incident/task types that Discovery operations generate. The Discovery guide's [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics) section lists the underlying KPIs (CMDB coverage ≥ 95%, schedule success ≥ 98%, duplicate CI rate < 1%) that these SLAs are built to protect.
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| Discovery Dashboard / Home | Overall Discovery health: run success rates, ECC Queue status, MID Server status, CI count over time | All > Discovery > Dashboard |
+| CMDB Health Dashboard | CMDB completeness, correctness, and compliance — including Discovery coverage and CI freshness | All > CMDB Health > Dashboards |
+| Discovery Status Report | Per-run outcomes: devices found, state, timing, errors per schedule | All > Discovery > Status (list view) |
+
+**Key metrics surfaced OOTB:** Discovery schedule success rate, CI freshness (% discovered in last 30 days), ECC Queue error rate, MID Server status, duplicate CI rate, File-Based Discovery match rate, CMDB coverage vs expected ranges.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| Discovery Admin Workspace | Configure Discovery: schedules, ranges, patterns, classifiers, credentials, MID Servers, and the Configuration Console — plus run status and logs | All > Discovery > Discovery Admin Workspace |
+
+**Workflow tip:** Start in the Discovery Admin Workspace to configure and run Discovery, monitor the ECC Queue and Discovery Log, then switch to the CMDB Health Dashboard to verify CI freshness and coverage — and to the TSOM Workspace (see the TSOM guide) when reconciling discovered network state against inventory.
+
+---
+
 ## Quiz
 
 1. What are the four phases of a Discovery run, and in which phase does File-Based Discovery execute?
@@ -905,5 +949,6 @@ Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?
 - [Service Mapping guide](./servicemapping-guide.md)
 - [ITOM guide](./itom-guide.md)
 - [ITSM guide](./itsm-guide.md)
+- [Discovery getting-started](./../../getting-started/discovery.md)
 
 ---

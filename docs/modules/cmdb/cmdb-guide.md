@@ -443,6 +443,21 @@ When multiple data sources provide data for the same CI, reconciliation decides 
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+- **task_sla usage**: CMDB CIs (`cmdb_ci`) can have SLAs attached for maintenance windows, retirement timelines, and identification reconciliation SLAs. Primary table is `cmdb_ci` with source-specific SLA policies.
+- **Module-specific SLA tables**: `cmdb_ci` (base), `cmdb_ci_server`, `cmdb_ci_appl`, etc. SLA policies are tied to CI class identifiers and data source priority.
+- **Typical metrics**: CI SLA attainment, identification reconciliation timeliness, de-duplication rate, data source compliance percentage.
+
+### OOTB Dashboards
+- **CMDB Data Foundations Dashboard**: Displays CMDB completeness, correctness, and compliance scores across CI classes, with drill-through to data quality issues and source imbalance.
+- **CMDB Health Dashboard**: Shows overall CMDB health score, completeness by class, duplication rate, and attribute coverage.
+
+### OOTB Workspaces
+- **CMDB Workspace**: `All > Configuration > CMDB`. Breadcrumb: `All > Configuration > CMDB`.
+- **CMDB Health Dashboard**: `All > CMDB Health > Dashboards`. Breadcrumb: `All > CMDB Health > Dashboards`.
+
 ## Quiz
 
 1. What is the base table for all CIs?  
@@ -472,6 +487,7 @@ When multiple data sources provide data for the same CI, reconciliation decides 
 - [ITSM guide](./itsm-guide.md)
 - [HAM guide](./ham-guide.md)
 - [ITOM guide](./itom-guide.md)
+- [CMDB getting-started](./../../getting-started/cmdb.md)
 
 ---
 

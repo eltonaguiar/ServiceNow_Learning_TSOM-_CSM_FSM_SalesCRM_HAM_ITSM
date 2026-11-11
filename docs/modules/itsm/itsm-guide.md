@@ -760,5 +760,6 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 - [TSOM guide](./tsom-guide.md)
 - [ITOM guide](./itom-guide.md)
 - [HRSD guide](./hrsd-guide.md)
+- [ITSM getting-started](./../../getting-started/itsm.md)
 
 ---

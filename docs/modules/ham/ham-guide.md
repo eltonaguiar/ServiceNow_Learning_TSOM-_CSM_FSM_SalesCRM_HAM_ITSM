@@ -667,6 +667,19 @@ Fallback link: [HAM Overview]()
 Fallback link: [HAM Overview]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+- **task_sla usage**: Hardware assets tracked via `alm_asset` leveraging Task SLA for maintenance and lifecycle milestones. SLAs are attached to asset lifecycle states (e.g., warranty expiration, retirement milestones) and contract end dates.
+- **Module-specific SLA tables**: `alm_asset` (primary), `ast_contract` (contract-linked SLAs). SLA policies are driven by contract terms and asset state transitions.
+- **Typical metrics**: Asset SLA attainment (warranty compliance), contract renewal timeliness, retirement adherence rate.
+
+### OOTB Dashboards
+- **Hardware Asset Management Dashboard**: Shows asset lifecycle distribution, warranty status, retirement compliance, and asset utilization by category.
+
+### OOTB Workspaces
+- **Hardware Asset Workspace**: `All > Asset Management > Hardware Asset Management`. Breadcrumb: `All > Asset Management > Hardware Asset Management`.
+
 ## Quiz
 
 1. What is the difference between `alm_asset` and `cmdb_ci`?
@@ -729,5 +742,6 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
 - [ITSM guide](./itsm-guide.md)
 - [CSM guide](./csm-guide.md)
 - [FSM guide](./fsm-guide.md)
+- [HAM getting-started](./../../getting-started/ham.md)
 
 ---

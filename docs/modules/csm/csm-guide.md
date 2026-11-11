@@ -577,5 +577,6 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 - [Sales CRM guide](./sales-crm-guide.md)
 - [CMDB guide](./cmdb-guide.md)
 - [HAM guide](./ham-guide.md)
+- [CSM getting-started](./../../getting-started/csm.md)
 
 ---

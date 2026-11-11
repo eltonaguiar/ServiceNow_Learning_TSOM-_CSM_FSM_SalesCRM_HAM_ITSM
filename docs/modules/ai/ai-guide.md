@@ -944,6 +944,48 @@ flowchart TD
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+**N/A — AI has no native `task_sla` support.** ServiceNow AI (Now Assist, Predictive Intelligence, Virtual Agent, AI Agents) is a platform capability layer, not a task-driven module with its own tables. SLAs apply to the underlying modules where AI features are enabled (e.g., `incident` SLA in ITSM, `case` SLA in CSM).
+
+AI **governance and quota tracking** is handled via **AI Control Tower** — it monitors Assist consumption, model accuracy drift, and latency, but this is metering/observability, not SLA enforcement on AI records.
+
+| Governance Area | What It Tracks | Typical Target |
+|-----------------|---------------|----------------|
+| Assist quota | Monthly consumption vs. tier allocation | < 80% utilization (alert at 50/80/95%) |
+| Model accuracy | Classification/similarity model F1, drift | < 5% drift quarter-over-quarter |
+| Skill latency | P50/P95 response time for Now Assist skills | < 3s P50, < 8s P95 |
+| Cost control | Auto-top-up / throttle before quota exhaustion | Zero feature interruption |
+
+**How to monitor:** Enable Assist Metering in **AI Control Tower > Overview**, then configure Alert Policies at 50%/80%/95% of monthly allocation.
+
+### Out-of-Box Dashboards
+
+AI does not ship traditional OOTB dashboards — instead, **AI Control Tower** provides built-in analytics views:
+
+| Dashboard / View | Purpose | Where to Find It |
+|------------------|---------|------------------|
+| **AI Control Tower Overview** | Real-time Assist consumption, active models/skills/agents, quota burn rate | All > AI Control Tower > Overview |
+| **Usage Analytics** | Daily/monthly Assist consumption by skill, agent, user, department | All > AI Control Tower > Usage Analytics |
+| **Performance Monitoring** | Model accuracy, drift, latency, adoption per model/skill | All > AI Control Tower > Performance Monitoring |
+| **Audit Trail** | Immutable log of all AI actions, config changes, governance decisions | All > AI Control Tower > Audit Trail |
+
+**Key metrics surfaced:** Assist consumption trend, top-consuming skills/users/departments, projected overage date, model F1/precision/recall, skill acceptance/edit/fallback rates, P50/P95/P99 latency.
+
+### Out-of-Box Workspaces
+
+**AI has no native ServiceNow workspace.** Governance and observability live in **AI Control Tower**, which serves as the central hub:
+
+| Workspace / Console | Purpose | Path |
+|---------------------|---------|------|
+| **AI Control Tower** | Unified governance, observability, quota management, and policy enforcement for all AI capabilities | All > AI Control Tower > Overview |
+
+**Breadcrumb path:** `All > AI Control Tower > Overview`. From here you access Usage Analytics, Performance Monitoring, Model Inventory, Policy Enforcement, and Audit Trail — the "workspace" for AI governance.
+
+---
+
 ## Quiz
 
 1. **Which ServiceNow AI tier is required to build net-new custom AI skills and agents?**

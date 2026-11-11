@@ -522,6 +522,48 @@ graph LR
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `task`), enabling time-bound commitments on the sales lifecycle.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| Opportunity response | Time from creation to first stage change | < 24 hours |
+| Quote turnaround | Time from quote creation to `Sent` | < 2 business days |
+| Quote validity | Days until `valid_until` expires | 30 days (configurable) |
+| Order fulfillment | Time from `Confirmed` to `Fulfilled` | Per fulfillment SLA (ties to FSM) |
+
+**How to use `task_sla`:**
+- Attach SLA definitions to `sn_sales_opportunity` (e.g., stage-based: Prospecting → Qualification within 7 days)
+- Track breach risk via `stage`, `has_breached`, and `business_duration` fields
+- Escalate when an opportunity stalls past its threshold using SLA business rules
+- Quote SLAs can trigger reminders as `valid_until` approaches
+
+**Note:** SLAs are inherited from the core `task` table — opportunities, quotes, and orders all support them because they extend `task`. Configure in **SLAs > Definitions** (All > SLAs > Definitions).
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| **Sales Dashboard** | Pipeline health: open opportunities by stage, quota attainment, win rate, average deal size | All > Sales > Dashboards > Sales Dashboard |
+| **Pipeline Dashboard** | Stage-weighted forecast, deal flow, and sales cycle length trends | All > Sales > Dashboards > Pipeline |
+| **Forecast Dashboard** | Quarterly/monthly forecast accuracy vs. actual close | All > Sales > Dashboards > Forecast |
+| **Quota Attainment Dashboard** | Per-rep quota achievement YTD, team attainment rate | All > Sales > Dashboards > Quota Attainment |
+
+**Key metrics surfaced OOTB:** pipeline value by stage, win rate, lead conversion rate, quote acceptance rate, average deal size, sales cycle length, quota attainment, forecast accuracy.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| **Sales Workspace** | Central hub for sales reps: leads, opportunities, quotes, and orders in one console | All > Sales > Sales Workspace |
+
+**Breadcrumb path:** `All > Sales > Sales Workspace`. The Sales Workspace surfaces relevant lists (My Opportunities, My Leads, My Quotes), forecast summaries, and quick-create actions for accounts, contacts, leads, and opportunities.
+
+---
+
 ## Quiz
 
 1. What field determines which sales workflow fires?
@@ -609,5 +651,6 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 - [FSM guide](./fsm-guide.md)
 - [HAM guide](./ham-guide.md)
 - [CMDB guide](./cmdb-guide.md)
+- [Sales CRM getting-started](./../../getting-started/sales-crm.md)
 
 ---

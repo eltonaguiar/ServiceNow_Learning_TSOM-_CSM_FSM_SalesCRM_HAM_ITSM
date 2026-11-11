@@ -262,6 +262,19 @@ flowchart LR
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+- **task_sla usage**: HR cases use the Task SLA engine on `sn_hr_core_case` table. SLAs are defined per COE table (e.g., `sn_hr_core_case_payroll`, `sn_hr_core_case_benefits`) and trigger breach notifications, escalation paths, and SLA attainment reporting.
+- **Module-specific SLA tables**: `sn_hr_core_case` (base), `sn_hr_core_case_payroll`, `sn_hr_core_case_benefits` (COEs). SLA policies are attached to service definitions and mapped through HR Service catalog items.
+- **Typical metrics**: HR case SLA attainment ≥ 90%, average SLA breach time, escalation count per service category.
+
+### OOTB Dashboards
+- **HR Service Delivery Dashboard**: Displays case volume by category, SLA attainment rate, open cases by priority, and lifecycle journey completion status.
+
+### OOTB Workspaces
+- **HR Service Delivery Workspace**: `All > Human Resources > HR Service Delivery`. Breadcrumb: `All > Human Resources > HR Service Delivery`.
+
 ## Quiz
 
 1. What is a COE in HRSD, and why is it used instead of a single table?
@@ -311,5 +324,6 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
 
 - [ITSM guide](./itsm-guide.md)
 - [CMDB guide](./cmdb-guide.md)
+- [HRSD getting-started](./../../getting-started/hrsd.md)
 
 ---

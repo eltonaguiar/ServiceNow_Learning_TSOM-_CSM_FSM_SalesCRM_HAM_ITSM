@@ -816,6 +816,56 @@ Fallback link: [TSM Showcase]()
 Fallback link: [TSM Showcase]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+TSOM's SLA layer sits on top of the telecom service lifecycle — from order capture through activation, assurance, and billing. SLA definitions are attached to `task_sla` records against task-based tables (`sn_tsom_service`, `sn_tsom_service_order`, `incident`, `em_alert`), and they drive MTTD/MTTR, escalation, and breach tracking across the NOC workflow.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| MTTD (Mean Time to Detect) | Time from trap/event in `em_event` until an alert exists in `em_alert` | < 5 minutes |
+| MTTR (Mean Time to Resolve) | Time from alert/incident creation until the service is restored | < 2 hours for P1/P2, < 4 hours for P3/P4 |
+| Service availability | % of customer services available over a period | ≥ 99.9% |
+| Alarm correlation rate | % of alarms collapsed into a single actionable alert | ≥ 85% (e.g. 400 port-down → 1 circuit-down) |
+| False positive rate | % of alerts closed as noise/duplicate | < 5% |
+| Discrepancy resolution | % of discovered-vs-inventory gaps fixed per audit cycle | ≥ 90% |
+| SLA breach protection | % of planned changes carrying a maintenance window (suppression coverage) | 100% |
+
+**MTTD (Mean Time to Detect)** — measured from the triggering event in `em_event` until an alert exists in `em_alert`. Typical target: under 5 minutes. This is the first half of the TSOM value story — catching a fault before the customer calls.
+
+**MTTR (Mean Time to Resolve)** — measured from alert creation until the related incident reaches `Resolved`. Typical target: under 2 hours for service-impacting (P1/P2) incidents, under 4 hours for P3/P4. This is the second half — restoring service fast enough to protect SLAs and avoid credits and churn.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents created from critical alerts (`severity = 1`) on telecom CIs
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold — e.g. a circuit-down alert nearing breach on a high-revenue service
+
+> **Note:** SLA definitions are created centrally (All > Service Level Management > SLA Definitions) and attached to the incident/task types that TSOM operations generate. The TSOM guide's [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics) section lists the underlying KPIs (MTTD < 5 min, MTTR < 2h, correlation rate ≥ 85%, availability ≥ 99.9%) that these SLAs are built to protect. For the subscriber-facing entitlement story (is this customer entitled to a fix?), see the CSM guide's entitlement/SLA model.
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| TSOM Service Health Dashboard | Service availability, SLA attainment, and degraded services at a glance | All > Telecom Service Operations > Home |
+| TSOM Alarms Dashboard | Alarm volume by severity, correlation health, top offending network elements | All > Telecom Service Operations > Alarms > All |
+| TSOM Inventory Dashboard | Discrepancy rate, discovered-vs-inventory gaps, reconciliation status | All > Telecom Service Operations > Inventory > ... |
+| Event Management Dashboard | Alert volume, severity distribution, top nodes, correlation health | All > Event Management > Dashboards > Event Management |
+| ITOM Health Dashboard | CI and service health scores (0–100), health events, health rule violations | All > IT Operations Management > ITOM Health |
+
+**Key metrics surfaced OOTB:** MTTD, MTTR, service availability %, alarm correlation rate, false positive rate, discrepancy resolution rate, suppression coverage, top offending CIs, customer impact count (subscribers affected per incident).
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| TSOM Workspace | Central entry point for telecom operations: service orders, alarms, inventory, and administration | All > Telecom Service Operations > TSOM Workspace |
+| Network Inventory Workspace | Model and manage the telecom network: sites, equipment, cards, interfaces, connections, circuits | All > Telecom Service Operations > Network Inventory Workspace |
+
+**Workflow tip:** Start in the TSOM Workspace to triage alarms and service orders, then switch to the Network Inventory Workspace to inspect the topology behind a fault — and to the Event Management Dashboard (see the TSOM guide's [Event Management Fundamentals](#event-management-fundamentals--tsoms-alarm-engine)) when correlating a storm of traps into one actionable alert.
+
+---
+
 ## Quiz
 
 1. What is the primary table for telecom services in TSOM?
@@ -1083,5 +1133,7 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 - [CMDB guide](./cmdb-guide.md)
 - [ITOM guide](./itom-guide.md)
 - [ITSM guide](./itsm-guide.md)
+- [TSOM getting-started](./../../getting-started/tsom.md)
+- [TSOM capabilities](./tsom-capabilities.md)
 
 ---

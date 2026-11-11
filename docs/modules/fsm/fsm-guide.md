@@ -521,5 +521,6 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
 - [ITSM guide](./itsm-guide.md)
 - [HAM guide](./ham-guide.md)
 - [CMDB guide](./cmdb-guide.md)
+- [FSM getting-started](./../../getting-started/fsm.md)
 
 ---

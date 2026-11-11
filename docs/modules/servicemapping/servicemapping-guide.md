@@ -803,9 +803,53 @@ Official documentation:
 
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+Service Mapping does not own its own SLA definitions — it generates `cmdb_ci_service_discovered` records and `cmdb_rel_ci` relationships, and SLAs are attached to the *tasks and incidents that consume the service map* (incidents, service requests, work orders) via `task_sla`. The SLA records that matter for Service Mapping are the ones triggered when a mapped CI fails, a service map goes stale, or impact analysis cannot trace a dependency.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| Service map coverage | % of Tier-1 services with a Published map | ≥ 90% of critical services mapped |
+| Map freshness | Time since a service was last re-discovered | Re-discover within 30 days |
+| Blast radius identification | Time from incident creation to full impact trace | < 5 minutes per incident |
+| Incident-to-service routing | Time from CI failure to correctly assigned service owner | < 15 minutes |
+
+**MTTD (Mean Time to Detect)** — measured from a CI failure (e.g. a server down) until the affected service is identified through the map. Typical target: under 5 minutes.
+
+**MTTR (Mean Time to Resolve)** — measured from incident creation until the service is restored. Typical target: under 2 hours for service-impacting incidents.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents raised against mapped CIs (`cmdb_ci_service_discovered` → `cmdb_rel_ci` chain)
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold — e.g. a service-impacting P1 incident nearing breach
+
+> **Note:** SLA definitions are created centrally (All > Service Level Management > SLA Definitions) and attached to the incident/task types that Service Mapping operations generate. The Service Mapping guide's [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics) section lists the underlying KPIs (map coverage ≥ 90%, blast radius < 5 minutes, map freshness ≥ 95%) that these SLAs are built to protect.
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| Service Mapping Dashboard | Mapped service count, discovery method breakdown, map freshness, services without maps | All > Service Mapping > Service Maps > All (list view) |
+| CMDB Health Dashboard | CMDB completeness, correctness, and compliance — including duplicate CI rate in service maps | All > CMDB Health > Dashboards |
+| Service Impact / Operations Dashboard | CI health, service availability, incidents by service | All > IT Operations Management > Dashboards |
+
+**Key metrics surfaced OOTB:** Service map coverage, map freshness, duplicate CI rate in maps, automated vs manual mapping ratio, incidents correctly mapped to a service, blast radius identification time.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| Service Mapping Workspace | Central entry point for application services, service maps, map administration, and discovery configuration | All > Service Mapping > Service Mapping Workspace |
+
+**Workflow tip:** Start in the Service Mapping Workspace to define application services and generate maps, then switch to the CMDB Health Dashboard to verify map accuracy — and to the IT Operations Management Workspace (see the ITOM guide) when correlating map changes with event management and incident response.
+
+---
+
 ## Quiz
 
-1. Is Service Mapping primarily automated or manual?  
+1. Is Service Mapping primarily automated or manual?
    <details><summary>Answer</summary>Primarily automated through pattern-based top-down discovery, but requires initial configuration (entry point, credentials, patterns) and manual override for unsupported applications.</details>
 
 2. What is the difference between horizontal Discovery and top-down Service Mapping?  
@@ -834,6 +878,7 @@ Official documentation:
 - [CMDB guide](./cmdb-guide.md)
 - [ITOM guide](./itom-guide.md)
 - [ITSM guide](./itsm-guide.md)
+- [Service Mapping getting-started](./../../getting-started/servicemapping.md)
 
 ---
 
