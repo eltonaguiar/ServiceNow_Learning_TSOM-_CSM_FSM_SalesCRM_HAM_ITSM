@@ -58,7 +58,7 @@ flowchart TD
 graph TD
     svc["Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service"]
     circuit["Circuit<br/>fibre / MPLS / leased line"]
-    ne["Network Element<br/>router / switch / OLT"]
+    ne["Network Element<br/>router / switch / OLT<br/>(Optical Line Terminal)"]
     card["Card / Slot"]
     port["Port / Interface"]
 
