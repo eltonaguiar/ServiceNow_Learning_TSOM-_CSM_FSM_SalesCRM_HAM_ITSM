@@ -16,6 +16,10 @@
 - [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [IRE Process Diagram (Identification & Reconciliation)](#ire-process-diagram-identification--reconciliation)
+- [Identification Rules Deep Dive](#identification-rules-deep-dive)
+- [Reconciliation Rules Deep Dive](#reconciliation-rules-deep-dive)
+- [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence--sccm--soroc-example)
+- [Data Refresh & Staleness Rules](#data-refresh--staleness-rules)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -391,30 +395,155 @@ flowchart TD
 
 IRE is the engine that prevents duplicate CIs and keeps data accurate.
 
-### Identification
-When Discovery finds a server, it checks identification rules to see if that server already exists in the CMDB.
+### Identification Rules Deep Dive
+
+**What they do:** Identification rules answer the question "Does this incoming CI already exist in the CMDB, or is it brand new?" They are evaluated before reconciliation. If no rule matches, a new CI is created and reconciliation is skipped entirely.
+
+**Where they live:** All > Configuration > Identification/Reconciliation > Identification
+
+**How a rule is structured:**
+- **Target table** (e.g., `cmdb_ci_computer`, `cmdb_ci_server`, `cmdb_ci_network`)
+- **Identifier entries** — each entry lists the fields to match on, combined with AND logic (all fields in an entry must match)
+- **Priority** — lower number = evaluated first
+- **Match type** — exact match, contains, starts with, etc.
+- **Active** — only active rules are evaluated
+
+**Evaluation flow:**
+1. Incoming CI data arrives (Discovery, Import Set, Service Graph Connector, etc.)
+2. IRE loads the active identification rules for the target table
+3. Rules are sorted by priority (lowest number first)
+4. Each rule's identifier entries are AND-ed together; the first rule to produce a match wins
+5. Match found → existing CI identified → proceed to reconciliation
+6. No rule matches → new CI created (reconciliation skipped)
 
 **Common identification criteria:**
-- Serial number + Manufacturer + Model
-- MAC address
-- Hostname + DNS domain
+- Serial number + Manufacturer + Model (hardware)
+- MAC address (network interfaces)
+- Hostname + DNS domain (servers, workstations)
 - Asset tag
+- Circuit ID (telecom)
+- IMEI / MEID (mobile devices)
+- Device ID / serial (SD-WAN edges, vManage)
+
+**Important:** Identification operates on the `cmdb_ci` hierarchy. A rule on `cmdb_ci_computer` matches against `cmdb_ci_computer` records, which are also `cmdb_ci` records. Fields used in identification must exist on the target table (or be inherited from `cmdb_ci`). Fields that live only on a Model table (`cmdb_model`) cannot be used to identify a CI record — IRE identifies the CI, not the model.
 
 If a match is found, the existing CI is updated. If not, a new CI is created.
 
-### Reconciliation
-When multiple data sources provide data for the same CI, reconciliation decides which value wins.
+### Reconciliation Rules Deep Dive
 
-**Typical priority:**
-1. Discovery (most trusted — directly observed)
-2. Import Set (bulk loads from trusted sources)
-3. Manual (least trusted — human entry)
+**What they do:** Reconciliation rules answer the question "Multiple sources have data for this CI — which source wins for each field?" They run only after identification finds an existing match.
+
+**Where they live:** All > Configuration > Identification/Reconciliation > Reconciliation
+
+**How a rule is structured:**
+- **Target table / CI class** (e.g., `cmdb_ci_computer`, `cmdb_ci_server`)
+- **Data source** (e.g., `SCCM`, `Soroc`, `Discovery`, `Import Set`, `Manual`)
+- **Priority** — lower number = higher priority
+- **Field mappings** — which fields this source is allowed to update
+- **Staleness / refresh behavior** — whether a source can update if its data is older than another source's
+
+**Processing order:**
+1. Identified CI exists → reconciliation evaluates all active sources for that CI
+2. For each field on the CI, IRE looks at all sources providing that field
+3. The source with the highest priority (lowest number) wins — **unless** staleness rules allow override
+4. Losing sources' values are discarded for that field (the CI keeps the winner's value)
+
+**Typical source priority:**
+
+| Priority | Source | Rationale |
+|----------|--------|-----------|
+| 100 | Discovery | Directly observed from the device |
+| 200 | SCCM / enterprise inventory | Managed, agent-based inventory |
+| 300 | Soroc / external CMDB | Trusted external source |
+| 400 | Import Set | Bulk load, varies in quality |
+| 500 | Manual | Human entry — least trusted |
+
+---
+
+### Field-Specific Precedence — SCCM / Soroc Example
+
+**Scenario:** Table `cmdb_ci_computer`. You have two authoritative sources:
+- **SCCM** is authoritative for `name`
+- **Soroc** is authoritative for `serial_number`
+
+This is **field-specific precedence**, not table-wide. You do NOT pick one source to win all fields on `cmdb_ci_computer`. Instead, you configure reconciliation so that each field has its own winner.
+
+**How to configure:**
+
+| Step | Action | Detail |
+|------|--------|--------|
+| 1 | Open Reconciliation Rules | All > Configuration > Identification/Reconciliation > Reconciliation |
+| 2 | Create rule for SCCM | Table: `cmdb_ci_computer`, Source: `SCCM`, Priority: `100`, Fields: `name` (and other SCCM-owned fields) |
+| 3 | Create rule for Soroc | Table: `cmdb_ci_computer`, Source: `Soroc`, Priority: `200`, Fields: `serial_number` (and other Soroc-owned fields) |
+| 4 | Create fallback rule | Table: `cmdb_ci_computer`, Source: `Discovery`, Priority: `300`, Fields: all remaining fields |
+| 5 | Activate all rules | Only active rules participate in reconciliation |
+
+**Result per field:**
+- `name`: SCCM wins (priority 100). Soroc's `name` is ignored even if Soroc sends one.
+- `serial_number`: Soroc wins (priority 200). SCCM's `serial_number` is ignored even if SCCM sends one.
+- `os`, `ip_address`, etc.: Discovery wins (priority 300) as fallback.
+
+**Mermaid — Field-specific precedence flow:**
+
+```mermaid
+flowchart TD
+    CI[cmdb_ci_computer record] --> RECON{Reconciliation}
+
+    subgraph "Field: name"
+        SCCM[SCCM: name = WEB01] --> P1[Priority 100 — WINNER]
+        Soroc[Soroc: name = WEB01-ALT] --> P2[Priority 200 — overridden]
+    end
+
+    subgraph "Field: serial_number"
+        SCCM2[SCCM: serial = SN-111] --> P3[Priority 100 — overridden]
+        Soroc2[Soroc: serial = SN-999] --> P4[Priority 200 — WINNER]
+    end
+
+    P1 --> FINAL[CI name = WEB01]
+    P4 --> FINAL2[CI serial_number = SN-999]
+
+    style P1 fill:#4cc38a,color:#000
+    style P4 fill:#4cc38a,color:#000
+    style P2 fill:#e58a8a,color:#fff
+    style P3 fill:#e58a8a,color:#fff
+```
+
+**Key point:** Field-specific precedence means different sources can own different fields on the same CI record. A source that loses on one field may win on another.
+
+---
+
+### Data Refresh & Staleness Rules
+
+**Can a secondary source update a field if the primary source's data has gone stale?** Yes — but only if you configure it. By default, reconciliation is **priority-based, not time-based**: the highest-priority source wins regardless of how old its data is. A stale value from a priority-100 source will beat a fresh value from a priority-200 source.
+
+**Staleness / refresh behavior is configured per reconciliation rule, not per table.** Each rule can specify whether the source can update a field if its own data is newer than the current CMDB value, and whether it yields to a higher-priority source even if that source is stale.
+
+**Two common models:**
+
+| Model | Behavior | Use case |
+|-------|----------|----------|
+| **Strict priority** | Highest-priority source always wins, regardless of age | SCCM is always authoritative for `name`; never let Soroc overwrite it |
+| **Staleness-aware (refresh)** | A source can update if its data is newer AND the primary source hasn't refreshed within a threshold | Allow Soroc to refresh `serial_number` if SCCM hasn't sent an update in 90 days |
+
+**Field-specific vs table-specific:**
+- **Field-specific (recommended):** Each reconciliation rule lists the specific fields it owns. SCCM owns `name`; Soroc owns `serial_number`. One source's staleness on `name` does not affect `serial_number`.
+- **Table-specific (avoid):** A single rule claiming all fields on `cmdb_ci_computer` for one source. This creates coupling — if SCCM goes stale on `name`, it can't be refreshed by Soroc for `name`, and Soroc may be blocked from updating other fields too.
+
+**Configuration for staleness-aware refresh:**
+
+| Step | Action |
+|------|--------|
+| 1 | On each reconciliation rule, set **Refreshable** = true if the source can update when its data is newer |
+| 2 | Set **Stale threshold** (e.g., 90 days) — if the winning source hasn't updated within this window, a lower-priority source may refresh |
+| 3 | Scope rules to specific fields — do not use catch-all rules |
+| 4 | Test: send SCCM data, then stop SCCM for 90+ days, send Soroc data, verify Soroc updates the field |
+
+**Warning:** Staleness-aware rules can cause "ping-pong" if two sources refresh each other alternately. Use strict priority for critical identity fields (serial number, name) and staleness-aware only for non-identifying attributes.
 
 ### The Cost of Poor IRE
 - Duplicate CIs → wrong impact analysis
 - Stale data → wrong change risk assessment
 - Missing relationships → incomplete service maps
-
 ---
 
 ## Lab: Create a CI and a Relationship
@@ -812,6 +941,22 @@ In a telecom service provider environment, the CMDB must reconcile network inven
 - **Service Mapping ADM:** Use Application Dependency Mapping patterns to auto-discover service↔resource relationships where possible, supplemented by provisioning workflows that create `cmdb_rel_ci` links at activation.
 - **Prevention:** Make service→resource mapping a mandatory step in the service activation flow (Flow Designer) — no service is marked Active without a `Realized by` relationship to its delivery CIs.
 
+### Discrepancy Type 4: SD-WAN Discrepancy Audit (TSOM Context)
+
+**What it is:** SD-WAN edge devices (vEdge, vSmart, vManage, WAN edge routers) appear in the OSS/BSS inventory and in Discovery, but the CMDB lacks a consistent audit trail linking each SD-WAN device to its circuits, sites, and services. Discrepancies surface as: an SD-WAN device discovered but no matching `cmdb_ci_network` CI; a device decommissioned in SD-WAN orchestrator but still `production` in CMDB; or circuit-to-edge mappings that don't match the actual SD-WAN overlay topology — breaking TSOM service activation, path assurance, and alarm correlation for SD-WAN services.
+
+**Examples:**
+- vManage discovers a new SD-WAN edge at Branch X, but no `cmdb_ci_network` CI exists — TSOM can't activate the branch SD-WAN service or link it to the underlying circuit.
+- An SD-WAN edge is removed from vManage (decommissioned) but its `cmdb_ci` CI still shows `install_status = production` — alarms on the device generate false service-impact incidents.
+- SD-WAN overlay shows Branch X ↔ Hub Y over Circuit C, but `cmdb_rel_ci` still references the old MPLS path — change risk assessment and service mapping use stale topology.
+
+**ServiceNow-endorsed solutions & prevention:**
+- **Discovery / Service Mapping for SD-WAN:** Use Discovery patterns (SNMP/SSH/REST to vManage/vSmart) to detect SD-WAN edges and create/update `cmdb_ci_network` CIs. Use Service Mapping ADM patterns to discover SD-WAN overlay paths and populate `cmdb_rel_ci` with actual `Connected to::Connects to` and `Carries::Carried by` relationships.
+- **Identification & Reconciliation (IRE):** Configure identifier rules on `cmdb_ci_network` using serial number / device ID / management IP so SD-WAN discovery re-identifies existing CIs instead of duplicating them. Set data source precedence so SD-WAN orchestrator (vManage) outranks manual entry.
+- **CMDB Health + Data Manager:** Run completeness/correctness dashboards on `sn_tsom_network_element` / `cmdb_ci_network` filtered for SD-WAN device class to surface discovered devices without matching CIs and CIs without a corresponding SD-WAN device. Use Data Manager to remediate in bulk.
+- **SD-WAN discrepancy audit job:** Schedule a periodic reconciliation job comparing vManage device inventory against `cmdb_ci_network` records — flag (a) CMDB CIs with no SD-WAN device (candidates for retirement), and (b) SD-WAN devices with no CMDB CI (candidates for creation). Route mismatches to Data Manager.
+- **Prevention:** Make SD-WAN edge provisioning/decommissioning create or retire the matching CMDB CI via Flow Designer, triggered from the SD-WAN orchestrator (webhook/REST) — never treat CMDB sync as a manual afterthought.
+
 ---
 
 ## Quiz
@@ -833,6 +978,129 @@ In a telecom service provider environment, the CMDB must reconcile network inven
 
 ---
 
+
+---
+
+## CMDB Gotchas & Pitfalls — Prioritized
+
+This section covers the most common ServiceNow CMDB failure modes, ranked by operational impact. Each entry lists the symptom, the root cause (ServiceNow-specific mechanism), and the fix.
+
+### Prioritized Summary
+
+|| Priority | Gotcha | Symptom | Root Cause | Fix |
+||----------|--------|--------|------------|-----|
+|| 1 | Manual CI edits bypass IRE | Duplicate CIs for the same device; stale identifying data after form save | IRE only runs on inbound data (Discovery, Import Sets, SGC); manual form saves never re-identify or reconcile | Invoke IRE explicitly from the form (Identify UI action, async business rule on `cmdb_ci`, or `sn_cmdb.Identification` API) when identifying fields change |
+|| 2 | Duplicate CI creation | Multiple `cmdb_ci` records with same `serial_number` / `asset_tag` / `name`+`dns_domain`; Discovery creates new CI instead of updating | Identification rules missing, mis-prioritized, or not aligned with inbound data; first-match-wins on identifier entries; transform maps without coalesce insert instead of update | Configure identifier entries per class with correct priority; deactivate irrelevant inherited entries on child classes; set `coalesce=true` on key fields in transform maps; run de-duplication periodically |
+|| 3 | Relationship orphans | `cmdb_rel_ci` rows point to deleted CIs; Service Mapping paths incomplete; incidents reference missing CIs | CIs hard-deleted instead of retired (`install_status = retired`); deletion does not cascade-delete `cmdb_rel_ci` parent/child references | Never delete CIs — set `install_status = retired` (+ `end_date`); run `cmdb_rel_ci` cleanup to remove dangling parent/child references; protect delete with ACLs/business rules |
+|| 4 | Data source precedence conflicts | Manual value overwrites discovered value on the same CI; `data_source` flips; conflicting OS version, IP, `install_status` | Reconciliation rules not configured or source priority not set; last write wins instead of trusted-source-wins | Configure reconciliation rules per CI class with source priority (Discovery > Import Set > Manual); specify reconcilable fields; monitor CMDB Health source-imbalance dashboards |
+|| 5 | Field placement (cmdb_ci vs Model table) | Model-specific attribute bloats every CI form and skews CMDB Health completeness; or universal field stuck on Model table so IRE can't match on it | Confusing instance-level vs model-level attributes; IRE identifies CI records (`cmdb_ci` hierarchy), not `cmdb_model` records | Universal/CI-instance fields → `cmdb_ci` (inherited by all subclasses, usable in IRE); model/vendor attributes → `cmdb_model` / `cmdb_hardware_product_model`; verify identification-rule fields exist on `cmdb_ci` |
+|| 6 | CMDB Health data quality issues | Low completeness/correctness/compliance scores; duplication rate climbing; Health Score trending down | Custom fields added to `cmdb_ci` but never populated; no governance on data entry; IRE/reconciliation not enforced; retirement vs deletion inconsistent | Review CMDB Health dashboards monthly (`All > CMDB Health > Dashboards`); remediate via Data Manager; only add truly universal fields to `cmdb_ci`; automate IRE on manual edits; enforce retirement over deletion |
+
+---
+
+### Priority 1 — Manual CI Edits Bypass IRE
+
+**Symptom.** Discovery creates a server CI with `serial_number = SN-12345`. An admin manually creates another CI (or edits an existing one) with the same serial number. No duplicate is flagged. Later, an admin changes `serial_number` or `name` on a CI form, and the CMDB still contains two CIs for one physical device. Impact analysis returns ambiguous or wrong results.
+
+**Root Cause.** IRE (Identification & Reconciliation Engine) runs only when data arrives through an inbound source — Discovery, Import Sets, Service Graph Connectors, or REST inbound transforms. A manual save on a `cmdb_ci` form (or any subclass) does **not** trigger identification, duplicate detection, or reconciliation. Editing identifying fields (`serial_number`, `asset_tag`, `name`, `dns_domain`, `mac_address`) on a form just persists the value; the IRE engine never sees the change.
+
+**Fix.** Explicitly invoke IRE from the form when identifying fields change:
+
+- **One-off:** Add the out-of-box "Identify" related action / UI action on the CI form and train admins to click it after editing identifying fields.
+- **Automatic:** Add an async, after business rule on `cmdb_ci` (or the specific subclass) that calls the identification API when `serial_number.changes()`, `name.changes()`, `dns_domain.changes()`, etc.:
+
+```javascript
+(function rule(current, previous) {
+    if (current.serial_number.changes() || current.name.changes() || current.dns_domain.changes()) {
+        var idEngine = new sn_cmdb.Identification(current);
+        idEngine.identify();
+    }
+})(current, previous);
+```
+
+`sn_cmdb.Identification` availability varies by release — verify on your instance; if unavailable, trigger the out-of-box identify business rule or UI action instead.
+
+**Rule:** Any process that writes identifying fields outside Discovery/Import must explicitly invoke IRE, or duplicates will accumulate.
+
+---
+
+### Priority 2 — Duplicate CI Creation
+
+**Symptom.** Multiple `cmdb_ci` records share the same `serial_number`, `asset_tag`, or `name` + `dns_domain`. A Discovery run creates a brand-new CI instead of updating the existing one. Impact analysis and change risk assessment return duplicate or conflicting CIs for the same device.
+
+**Root Cause.** Identification rules are missing, mis-prioritized, or not aligned with the data arriving. Identifier entries are evaluated lowest-priority-number first; first match wins and remaining entries are skipped. If no identifier entry matches, IRE creates a new CI rather than updating. Transform maps without `coalesce = true` on key fields (`serial_number`, `name`, `asset_tag`) also insert new records instead of matching existing ones. Child classes that inherit irrelevant parent identifier entries (e.g., `cmdb_ci_virtual_server` inheriting a serial-number rule it can't satisfy) will systematically fail to match.
+
+**Fix.**
+
+1. Configure CI identifier entries per class with correct priority (OOB Computer CI example: Serial Number + Type = 100, Serial Number = 200, Name + DNS Domain = 300, MAC Address = 400).
+2. For child classes where an inherited identifier doesn't apply (e.g., virtual servers without serial numbers), deactivate the inherited entry and add a class-specific one (e.g., hostname + DNS domain).
+3. Set `coalesce = true` on key fields in every transform map that loads CIs.
+4. Run CMDB de-duplication (`cmdb_duplicate` cleanup) on a schedule to merge residual duplicates.
+
+---
+
+### Priority 3 — Relationship Orphans / Broken References
+
+**Symptom.** `cmdb_rel_ci` records point to CIs that no longer exist or are retired. Service Mapping impact analysis shows incomplete paths. Incident or problem records reference CIs that can't be found. Relationship queries return empty or partial graphs.
+
+**Root Cause.** CIs are hard-deleted instead of retired. Deleting a `cmdb_ci` record does **not** cascade-delete `cmdb_rel_ci` rows where that CI is the `parent` or `child`, leaving dangling references. Retiring without relationship hygiene can also leave stale links to inactive CIs.
+
+**Fix.**
+
+1. Never delete CIs. Set `install_status = retired` (and optionally `end_date`) so relationships remain valid for historical impact analysis.
+2. Run `cmdb_rel_ci` cleanup to remove rows where `parent` or `child` references a deleted or (per policy) retired CI.
+3. Protect deletes with ACLs or a before business rule that aborts delete and forces retirement instead.
+
+---
+
+### Priority 4 — Data Source Precedence Conflicts
+
+**Symptom.** A CI updated by both Discovery and Manual entry shows the manually entered `os_version`, `ip_address`, or `install_status` instead of the discovered value. `data_source` flips back and forth between sources. Different admins see different values for the same CI depending on when they last looked.
+
+**Root Cause.** Reconciliation rules are not configured, or source priority is not set for the CI class. Without an active reconciliation rule, the last write wins regardless of source trustworthiness. ServiceNow's typical trust order is Discovery (most trusted — directly observed) > Import Set > Manual (least trusted — human entry), but this order only applies when reconciliation rules enforce it.
+
+**Fix.**
+
+1. Configure reconciliation rules per CI class with explicit source priority: Discovery highest, Manual lowest.
+2. Specify which fields each reconciliation rule covers (e.g., `os`, `os_version`, `ip_address`, `serial_number`).
+3. Verify `cmdb_ci.data_source` is populated correctly on all inbound data.
+4. Monitor CMDB Health source-imbalance dashboards to detect fields where lower-priority sources are overwriting higher-priority ones.
+
+---
+
+### Priority 5 — Field Placement (cmdb_ci vs Model Table)
+
+**Symptom.** A model-specific attribute (CPU type, RAM, form factor, warranty term, vendor model number) placed on `cmdb_ci` bloats every CI form — server, network, database, and application CIs all show fields that only apply to hardware models — and skews CMDB Health completeness metrics. Conversely, a universal field needed for IRE matching or Health completeness lives only on `cmdb_model` / `cmdb_hardware_product_model`, so the IRE engine cannot use it to identify a CI record.
+
+**Root Cause.** Confusing instance-level attributes (vary per CI) with model-level attributes (identical for every CI of that model). IRE identifies records in the `cmdb_ci` hierarchy, not records in `cmdb_model`. A field that exists only on a model table cannot be used as an identification criterion for a CI.
+
+**Fix.**
+
+| Place on | Use when | Example fields |
+|----------|----------|----------------|
+| `cmdb_ci` (base) | The attribute applies to **every** CI regardless of class; needed for cross-class reporting, IRE matching, or CMDB Health completeness | `name`, `serial_number`, `asset_tag`, `location`, `install_status`, `data_source` |
+| `cmdb_model` / `cmdb_hardware_product_model` | The attribute describes a **hardware/software model**, not an individual CI instance | CPU type, RAM, form factor, vendor, model number, warranty term |
+
+Rules of thumb:
+- If every CI class needs it → `cmdb_ci` (all subclasses inherit automatically).
+- If only a specific model/class needs it → the Model table or that class's extension.
+- Dictionary changes on `cmdb_ci` cascade to all extending classes — test in sub-prod first.
+
+---
+
+### Priority 6 — CMDB Health Data Quality Issues
+
+**Symptom.** CMDB Health dashboards (`All > CMDB Health > Dashboards`) show low completeness, correctness, or compliance scores. The duplication rate is climbing. Required fields are empty across CI classes. The overall CMDB Health Score trends downward month over month.
+
+**Root Cause.** Custom fields added to `cmdb_ci` are never populated but still count against completeness. No governance on manual data entry. IRE and reconciliation are not enforced on non-inbound writes. Retirement vs. deletion is applied inconsistently, leaving orphaned relationships. Relationship hygiene is neglected.
+
+**Fix.**
+
+1. Review CMDB Health dashboards monthly — completeness by class, correctness, duplication rate, and source imbalance.
+2. Use Data Manager for bulk remediation of empty required fields and duplicate CIs.
+3. Only add truly universal fields to `cmdb_ci`; exclude model-specific attributes from Health completeness expectations.
+4. Automate IRE invocation on manual edits (see Priority 1).
+5. Enforce `install_status = retired` over deletion (see Priority 3) and run `cmdb_rel_ci` cleanup to keep the relationship graph intact.
 
 ---
 
