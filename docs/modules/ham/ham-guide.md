@@ -140,9 +140,6 @@ graph TD
     style financial fill:#10141a
     style technical fill:#10141a
 
-    note right of asset: Asset = financial + assignment view (ITAM)
-    note right of ci: CI = technical + relationship view (CMDB)
-    note right of asset: Link via Normalization Data Services (NDS) + hardware model
 ```
 
 **Key distinction for exam:**

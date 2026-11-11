@@ -151,9 +151,6 @@ graph TD
     style J fill:#0a0d10,stroke:#e5b567
     style K fill:#0a0d10,stroke:#e5b567
 
-    note right of A: Horizontal Discovery runs independently
-    note right of F: Service Mapping starts from a business service
-    note right of E: CIs discovered by Horizontal Discovery are consumed by Service Mapping
 ```
 
 **Exam focus:** The distinction between horizontal Discovery (what exists) and top-down Service Mapping (which components support a service) is a core concept tested across multiple domains.
@@ -200,10 +197,6 @@ graph TD
 
     linkStyle default stroke:#4cc38a,stroke-width:2px
 
-    note right of svc: Entry point: https://online.mybank.com
-    note right of web: Pattern identifies IIS, app pools, websites, listening ports
-    note right of app: Pattern identifies outbound connections to 10.10.2.30:8080
-    note right of db: Pattern identifies SQL Server instance on 10.10.3.40:1433
 ```
 
 **Exam focus:** Service configuration, entry points, CI types, service maps, service groups (20% of CIS-SM exam).
@@ -357,8 +350,6 @@ flowchart TD
     style Rel fill:#0a0d10,stroke:#e5b567
     style Map fill:#10141a
 
-    note right of Service: Discovery method: top-down / traffic-based / tag-based / manual
-    note right of Rel: Relationship types: Runs on::Runs, Depends on::Used by, Connects to::Connected to
 ```
 
 ### CI Relationship Hierarchy in a Service Map
@@ -412,8 +403,6 @@ flowchart LR
     style HD fill:#10141a,stroke:#e58a8a
     style SM fill:#10141a,stroke:#4cc38a
 
-    note right of HD: Runs on a schedule, independent of any service
-    note right of SM: Starts from a business service and walks dependencies
 ```
 
 ---

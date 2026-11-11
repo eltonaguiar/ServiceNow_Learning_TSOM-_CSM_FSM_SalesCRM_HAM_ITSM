@@ -116,11 +116,6 @@ flowchart LR
     E
     end
 
-    note right of A: Probe - sends request to target
-    note right of B: Classifier - determines CI type
-    note right of C: Identifier - checks for existing CI
-    note right of D: Explorer - gathers detailed info
-    note right of E: Processor - parses and maps data
 ```
 
 **Exam focus:** PCIE phases, ECC Queue, Discovery errors, credentials, CI identifiers (35% of CIS-Discovery exam).
@@ -156,9 +151,6 @@ flowchart TD
     H
     end
 
-    note right of C: Event rules evaluate severity, source, node, resource
-    note right of F: Correlation groups related alerts into one
-    note right of H: Alert management rules create incidents based on priority
 ```
 
 **Exam focus:** Event rules, CI binding, alert correlation, alert management rules, incident creation (27% + 30% of CIS-EM exam).

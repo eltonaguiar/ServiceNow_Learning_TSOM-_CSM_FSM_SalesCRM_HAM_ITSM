@@ -47,9 +47,6 @@ flowchart TD
     style Corr fill:#0a0d10,stroke:#e5b567
     style Incident fill:#10141a
 
-    note right of Event: One event per observation - most are noise
-    note right of Alert: One alert per problem - what a human works
-    note right of Corr: Correlation is what turns a storm into a single incident
     </div>
     <p class="slide-caption">TSOM ingests raw observations from network management systems, scores and de-duplicates them into alerts, correlates storms into single incidents — so the NOC works one ticket instead of a wall of alarms.</p>
   </div>
@@ -74,8 +71,6 @@ graph TD
     style circuit fill:#e5b567,color:#000
     style ne fill:#0a0d10,stroke:#e5b567
 
-    note right of svc: The only layer the customer understands
-    note right of ne: CMDB + TNI model - equipment, cards, ports, links
     </div>
     <p class="slide-caption">TSOM models the telecom network as a CI hierarchy — from the customer service down to individual ports. Only the service layer is visible to customers; everything below it is CMDB + TNI inventory.</p>
   </div>
@@ -102,8 +97,6 @@ flowchart TD
     style Subscribers fill:#0a0d10,stroke:#e5b567
     style Incident fill:#10141a
 
-    note right of Circuit: Impact walks the relationships upward
-    note right of Incident: TSOM's job - one prioritised work item instead of a wall of alarms
     </div>
     <p class="slide-caption">When a port fails, impact walks upward through the relationships: port → circuit → service → subscribers → one incident. TSOM's job is to raise one prioritised work item instead of a wall of alarms.</p>
   </div>

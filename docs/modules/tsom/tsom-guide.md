@@ -624,9 +624,6 @@ flowchart TD
     style Corr fill:#0a0d10,stroke:#e5b567
     style Incident fill:#10141a
 
-    note right of Event: One event per observation - most are noise
-    note right of Alert: One alert per problem - what a human works
-    note right of Corr: Correlation is what turns a storm into a single incident
 ```
 
 ### Telecom CI Hierarchy
@@ -648,8 +645,6 @@ graph TD
     style circuit fill:#e5b567,color:#000
     style ne fill:#0a0d10,stroke:#e5b567
 
-    note right of svc: The only layer the customer understands
-    note right of ne: CMDB + TNI model - equipment, cards, ports, links
 ```
 
 ### Service → Customer Impact Map (Blast Radius)
@@ -673,8 +668,6 @@ flowchart TD
     style Subscribers fill:#0a0d10,stroke:#e5b567
     style Incident fill:#10141a
 
-    note right of Circuit: Impact walks the relationships upward
-    note right of Incident: TSOM's job - one prioritised work item instead of a wall of alarms
 ```
 
 ---

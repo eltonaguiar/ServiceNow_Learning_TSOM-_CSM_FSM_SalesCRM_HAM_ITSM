@@ -142,9 +142,6 @@ flowchart TD
     style Explore fill:#4cc38a,color:#000
     style CI fill:#10141a
 
-    note right of Classify: Trigger = banner, open port, fingerprint
-    note right of Identify: cmdb_identifier rules per CI class
-    note right of Explore: sa_pattern steps run on the MID; sensors write the CI
 ```
 
 ### MID Server → ECC Queue → CI Flow
@@ -172,8 +169,6 @@ flowchart LR
     style MID fill:#4cc38a,color:#000
     style CI fill:#10141a
 
-    note right of ECC: queue direction = output (instance→MID) / input (MID→instance)<br/>states: ready · processed · error
-    note right of MID: MID capabilities + IP ranges route work to the right MID
 ```
 
 ### Pattern → Probe → Sensor Flow
@@ -196,8 +191,6 @@ flowchart TD
     style Sensor fill:#0a0d10,stroke:#e5b567
     style CI fill:#10141a
 
-    note right of Pattern: Identification section runs first; connection sections link CIs
-    note right of Sensor: One probe/sensor pair serves every classifier that uses it
 ```
 
 ---
