@@ -865,21 +865,16 @@ Discovery / IntegrationHub / Service Graph
 
 ```mermaid
 flowchart TD
-    IN[Incoming CI payload<br/>Discovery / IntegrationHub / SGC] --> IDR{1. Identification<br/>Does this CI exist?}
-
-    IDR -->|MATCH FOUND<br/>Existing CI| REC[2. Reconciliation Rules<br/>Existing CIs only]
-    IDR -->|NO MATCH<br/>New CI| DS[4. IRE Data Source Rules<br/>New CIs only]
-
-    REC --> RECON_EVAL{Evaluate per field:<br/>• Source priority<br/>• Field-specific vs "Apply to all"<br/>• Staleness / refresh}
+    IN[Incoming CI payload] --> IDR{1. Identification<br/>Does this CI exist?}
+    IDR -->|MATCH FOUND| REC[2. Reconciliation Rules<br/>Existing CIs only]
+    IDR -->|NO MATCH| DS[4. IRE Data Source Rules<br/>New CIs only]
+    REC --> RECON_EVAL{Evaluate per field:<br/>Source priority<br/>Field-specific vs Apply to all<br/>Staleness / refresh}
     RECON_EVAL --> AUTHORIZED{Source authorized<br/>to update this field?}
-
     AUTHORIZED -->|YES| UPDATE[CI updated —<br/>authorized changes committed]
     AUTHORIZED -->|NO| NOCHANGE[No change —<br/>CI unchanged]
-
     DS --> DS_CHECK{Source allowed<br/>to insert into<br/>this CI class?}
     DS_CHECK -->|PERMITTED| NEWCI[New CI inserted<br/>into CMDB]
     DS_CHECK -->|BLOCKED| REJECT[Insert rejected —<br/>no CI created]
-
     style IDR fill:#e58a8a,color:#fff
     style REC fill:#e5b567,color:#000
     style DS fill:#4cc38a,color:#000
@@ -1320,7 +1315,6 @@ flowchart TD
     G -->|Yes| H[Reconcile / update existing CI]
     G -->|No| I[CI remains as-is / new CI]
     style E fill:#e58a8a,color:#fff
-    style J fill:#4cc38a,color:#000
 ```
 
 ### Relationship Population Flow
