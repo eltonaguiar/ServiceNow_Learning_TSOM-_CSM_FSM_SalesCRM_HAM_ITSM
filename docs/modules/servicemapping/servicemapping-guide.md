@@ -271,6 +271,110 @@ ServiceNow ships with predefined discovery methods and service states. Verify ag
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+| Business Goal | Benefit | Key Metric (KPI) | Example Value | Where to measure |
+|---------------|---------|------------------|---------------|------------------|
+| Map every critical business service | Impact analysis knows exactly what breaks when a CI fails | Service map coverage — % of Tier-1 services with a published map | ≥90% | `cmdb_ci_service_discovered.state = Published` |
+| Find blast radius in minutes | NOC can tell affected customers before they call | Mean time to identify blast radius | <5 minutes per incident | Walk `cmdb_rel_ci` from failing CI up to the service |
+| Keep maps current as infrastructure changes | Stale maps stop causing wrong incident assignments | Map freshness — % of services re-discovered in 30 days | ≥95% | Recurring Discovery schedules update `cmdb_rel_ci` |
+| Prevent duplicate CIs in maps | Accurate counts and correct relationships | Duplicate CI rate in service maps | <2% | IRE identification rules per CI class |
+| Map without creating CIs by hand | Scales to thousands of CIs across the estate | Automated vs manual mapping ratio | ≥80% automated | Patterns / traffic-based vs manual `cmdb_rel_ci` rows |
+| Route incidents to the right team | Faster resolution, fewer escalations | Incidents correctly mapped to a service | ≥90% | Alert → CI → service relationship chain |
+| Reduce customer-facing outage duration | Quicker fixes protect SLAs | MTTR for service-impacting incidents | <2 hours | Incident open → service restored |
+
+> Indicative starting KPIs — baseline your instance, then set targets.
+
+---
+
+## Core Concept Diagrams
+
+### Top-Down Service Mapping Flow
+
+```mermaid
+flowchart TD
+    Entry[Entry Point<br/>URL / hostname / IP<br/>e.g. online.mybank.com]
+    Service[Application Service<br/>cmdb_ci_service_discovered<br/>state = Published]
+    MID[MID Server<br/>discovers the host behind the entry point]
+    Pattern[Pattern-Based Discovery<br/>identifies IIS, Tomcat, SQL Server…]
+    Dep[Follow Outbound Dependencies<br/>10.10.2.30:8080 → 10.10.3.40:1433]
+    Rel[cmdb_rel_ci Relationships<br/>Runs on · Depends on · Connects to]
+    Map[Service Map<br/>graphical dependency view]
+
+    Entry --> Service
+    Service --> MID
+    MID --> Pattern
+    Pattern --> Dep
+    Dep --> Rel
+    Rel --> Map
+
+    style Entry fill:#e58a8a,color:#fff
+    style Service fill:#4cc38a,color:#000
+    style Pattern fill:#e5b567,color:#000
+    style Rel fill:#0a0d10,stroke:#e5b567
+    style Map fill:#10141a
+
+    note right of Service: Discovery method: top-down / traffic-based / tag-based / manual
+    note right of Rel: Relationship types: Runs on::Runs, Depends on::Used by, Connects to::Connected to
+```
+
+### CI Relationship Hierarchy in a Service Map
+
+```mermaid
+graph TD
+    svc[Online Banking Service<br/>cmdb_ci_service_discovered]
+    f5[F5 Load Balancer]
+    web[WEB01 — IIS<br/>cmdb_ci_appl]
+    webhost[WEB01 Host<br/>cmdb_ci_server]
+    app[APP01 — Tomcat<br/>cmdb_ci_appl]
+    apphost[APP01 Host<br/>cmdb_ci_server]
+    db[DB01 — SQL Server<br/>cmdb_ci_appl]
+    dbhost[DB01 Host<br/>cmdb_ci_server]
+
+    svc --> f5
+    f5 --> web
+    web --> webhost
+    web --> app
+    app --> apphost
+    app --> db
+    db --> dbhost
+
+    style svc fill:#4cc38a,color:#000
+    style f5 fill:#e5b567,color:#000
+    style web fill:#10141a
+    style app fill:#10141a
+    style db fill:#10141a
+
+    linkStyle default stroke:#4cc38a,stroke-width:2px
+```
+
+### Horizontal Discovery vs Service Mapping
+
+```mermaid
+flowchart LR
+    subgraph HD[Horizontal Discovery — “What exists on the network?”]
+        H1[Scan IP ranges] --> H2[Discover CIs]
+        H2 --> H3[cmdb_ci · cmdb_ci_server · cmdb_ci_appl]
+        H3 --> H4[Standalone CIs]
+    end
+
+    subgraph SM[Top-Down Service Mapping — “Which CIs support this service?”]
+        S1[Application service + entry point] --> S2[Pattern / traffic discovery]
+        S2 --> S3[CI-to-CI relationships]
+        S3 --> S4[cmdb_ci_service_discovered + cmdb_rel_ci]
+    end
+
+    H4 -.->|feeds discovered CIs| S3
+
+    style HD fill:#10141a,stroke:#e58a8a
+    style SM fill:#10141a,stroke:#4cc38a
+
+    note right of HD: Runs on a schedule, independent of any service
+    note right of SM: Starts from a business service and walks dependencies
+```
+
+---
+
 ## Key Table Hierarchy
 
 | Table | Purpose | Key Fields |
@@ -675,6 +779,18 @@ Official documentation:
 
 6. What role does the MID Server play in Service Mapping?  
    <details><summary>Answer</summary>It executes Discovery probes and patterns inside the network, receiving requests through the ECC Queue.</details>
+
+---
+
+
+---
+
+## Related Guides
+
+- [Discovery guide](./discovery-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [ITSM guide](./itsm-guide.md)
 
 ---
 

@@ -691,11 +691,141 @@ There is no diff view in ServiceNow. You only see the aftermath:
 
 ---
 
-### Official Learning Resources
+#
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [Sales CRM guide](./sales-crm-guide.md)
+
+---
+
+## Official Learning Resources
 - [Deploy your app — ServiceNow Product Documentation](https://www.servicenow.com/docs/r/application-development/deploy-your-app.html) — Application Repository vs Update Sets
 - [Link an app to source control — ServiceNow Studio](https://www.servicenow.com/docs/r/zurich/application-development/servicenow-studio-classic/link-app-to-source-control.html) — Git linkage (non-prod only)
 - [App Engine Studio overview — ServiceNow](https://www.servicenow.com/docs/r/application-development/app-engine-studio/aes-overview.html) — AES, AEMC, pipelines
 - [Configure your pipeline environments — AES](https://www.servicenow.com/docs/r/yokohama/application-development/app-engine-studio/config-pipeline-environments.html) — dev/test/staging/prod pipeline setup
+
+## Goals, Benefits & Key Metrics
+
+The "Other" systems (Boomi, UKG, legacy AS/400, ITIL, Agile) are measured on integration reliability, data fidelity, and process discipline — not on feature adoption inside ServiceNow. These KPIs apply to the integration layer and the teams that own it.
+
+| Business Goal | Benefit Provided | Key Metric | Example Target Value |
+|---------------|------------------|------------|----------------------|
+| Connect systems without custom code per pair | One iPaaS instead of N² point-to-point connectors | **Integration Success Rate** (successful runs ÷ total runs) | 99.5%+ |
+| Data moves when it's supposed to | Real-time webhooks + scheduled batches | **Sync Latency** (event → record in ServiceNow) | < 5 min (webhook); < 2h (batch) |
+| Fewer data errors | Transform maps + error routing + dead-letter queues | **Integration Error Rate** (failed ÷ total records) | < 0.5% |
+| New integrations ship fast | Reusable spokes, connection aliases, low-code flows | **Time-to-Integrate** (days from requirement → production) | < 5 days for standard sync |
+| Legacy data is trustworthy | Delta queries, lookup tables, reconciliation jobs | **Extract Data Accuracy** (spot-check match rate) | 99%+ vs source system |
+| Pipelines don't silently die | ECC Queue monitoring + alerting on MID Server | **ECC Queue Error Count** (state = Error, last 24h) | 0 |
+| IT processes are auditable | ITIL records (incident/problem/change) with full history | **Change Approval Compliance** (approved changes ÷ total) | 100% |
+| Teams deliver predictably | Agile tracking in ServiceNow Agile Development app | **Sprint Velocity** (story points completed ÷ committed) | Stable within ±15% over 3 sprints |
+| Manual work is eliminated | Automated syncs replace spreadsheet shuffling | **Manual Effort Hours Saved / Month** | 20–40h per integration |
+| Uptime of connected systems | Retry logic, circuit breakers, runbooks | **Pipeline Uptime** (integration available ÷ time) | 99.9% |
+
+**How to measure in ServiceNow:** Monitor **ECC Queue** (MID Server → ECC Queue) for probe/sensor errors. Check **IntegrationHub > Flow Log** for flow run status. Review **System Import Sets > Import Set History** for batch load failures. Track ITIL metrics in **ITSM > Performance > SLA Tracking**. Use **Agile Development > Reports** for sprint velocity.
+
+---
+
+## Core Concept Diagrams
+
+### Diagram 1: Boomi Integration Flow (ServiceNow ↔ Boomi ↔ Target Apps)
+
+```mermaid
+graph LR
+    SN[ServiceNow] -->|REST Message / Outbound| Boomi[Boomi AtomSphere]
+    Boomi -->|ServiceNow Connector| SN2[ServiceNow<br/>Inbound REST API]
+    Boomi -->|Process + Map| Salesforce[Salesforce]
+    Boomi -->|Process + Map| SAP[SAP]
+    Boomi -->|Process + Map| NetSuite[NetSuite]
+    Boomi -->|Web Listener| Ext[External system calls Boomi]
+
+    subgraph Boomi internals
+        Atom[Atom runtime] --> Shape[Shape] --> Map[Map] --> Dest[Destination]
+    end
+
+    style Boomi fill:#e3f2fd,color:#000
+    style SN fill:#e1f5e1,color:#000
+```
+
+### Diagram 2: UKG → ServiceNow Timecard Flow
+
+```mermaid
+flowchart TD
+    UKG[UKG Dimensions<br/>timecard approved] -->|Webhook| API[ServiceNow Inbound REST API]
+    API --> BR[Business Rule<br/>map UKG fields]
+    BR --> Case[Create/update hr_case / u_timecard]
+    Case --> Assign{Total hours > 40?}
+    Assign -->|Yes| OT[Auto-assign to Payroll<br/>+ overtime flag]
+    Assign -->|No| Normal[Auto-assign to standard group]
+    OT --> Notify[Notify payroll team]
+    Normal --> Done[Record saved]
+
+    style UKG fill:#fff3e0,color:#000
+    style Case fill:#e1f5e1,color:#000
+```
+
+### Diagram 3: AS/400 (DB2 for i) → ServiceNow CMDB Extraction
+
+```mermaid
+graph TD
+    AS400[AS/400 / DB2 for i<br/>ITEMMAST table] -->|JDBC query| MID[MID Server<br/>JDBC probe]
+    MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
+    staging --> TM[Transform Map<br/>ITEMNUMBER → cmdb_ci.name]
+    TM --> CMDB[cmdb_ci / alm_asset<br/>in ServiceNow CMDB]
+    CMDB --> Disc[Discovery reconciliation]
+
+    subgraph Error handling
+        Fail[Failed rows] --> DL[Dead-letter queue]
+        DL --> Retry[Retry / alert]
+    end
+
+    style AS400 fill:#fce4ec,color:#000
+    style CMDB fill:#e1f5e1,color:#000
+```
+
+### Diagram 4: ITIL v3 Service Lifecycle → ServiceNow Mapping
+
+```mermaid
+graph TD
+    SS[Service Strategy] --> SD[Service Design]
+    SD --> ST[Service Transition]
+    SO[Service Operation] --> CSI[Continual Service Improvement]
+
+    subgraph ServiceNow mapping
+        SO --> Inc[Incident: incident table]
+        SO --> Prob[Problem: problem table]
+        SO --> Req[Request: sc_request]
+        ST --> Chg[Change: change_request]
+        SD --> KB[Knowledge: knowledge_base]
+        SS --> SLA[SLA: sla_definition]
+        CSI --> Rep[Reports / dashboards]
+    end
+
+    style SO fill:#fff3e0,color:#000
+    style ST fill:#e3f2fd,color:#000
+```
+
+### Diagram 5: Agile Sprint Flow in ServiceNow Agile Development
+
+```mermaid
+stateDiagram-v2
+    [*] --> Backlog : stories created
+    Backlog --> Sprint_Planning : team pulls stories
+    Sprint_Planning --> In_Progress : sprint starts
+    In_Progress --> In_Test : dev complete
+    In_Test --> Done : QA passes
+    In_Test --> Backlog : QA fails / scope change
+    Done --> [*] : sprint ends
+    Done --> Retrospective : velocity measured
+    Retrospective --> Next_Sprint : plan next
+    Next_Sprint --> Sprint_Planning
+```
+
+---
 
 ## How These Fit With ServiceNow
 

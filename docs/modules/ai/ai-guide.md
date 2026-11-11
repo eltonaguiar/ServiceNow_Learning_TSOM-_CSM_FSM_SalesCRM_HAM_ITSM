@@ -41,9 +41,47 @@
 
 ServiceNow AI is the platform layer that adds generative AI, predictive ML, and agentic automation on top of the core Now Platform. It is **not** a module you install like ITSM or CSM — it is a set of capabilities (Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, AI Control Tower) that you license in tiers and activate across existing modules (Incident, Change, Asset, CMDB, etc.).
 
-**The core question AI answers:** *“Can the platform do the reading, drafting, routing, and triage so humans only do the deciding?”*
+**The core question AI answers:** *"Can the platform do the reading, drafting, routing, and triage so humans only do the deciding?"*
 
-ServiceNow’s AI packaging evolved to three tiers around April 2026 (Foundation, Advanced, Prime), replacing the prior five-tier model. Entitlements are contract-specific — what is “included” vs “add-on” varies by agreement. Confirm with your ServiceNow account team.
+ServiceNow's AI packaging evolved to three tiers around April 2026 (Foundation, Advanced, Prime), replacing the prior five-tier model. Entitlements are contract-specific — what is "included" vs "add-on" varies by agreement. Confirm with your ServiceNow account team.
+
+---
+
+## AI Feature Stack
+
+ServiceNow AI is built as a layered stack. Each layer depends on the quality of the layer below it — you can't run agentic automation on top of broken Discovery data or poor Predictive Intelligence models.
+
+```mermaid
+graph TD
+    subgraph "Layer 4: Agentic AI (Prime/Advanced)"
+        A[AI Agents<br/>Incident Triage,<br>Resolution Agent]
+    end
+    subgraph "Layer 3: Virtual Agent (All tiers)"
+        B[Conversational AI<br/>Deflection,<br>Self-service]
+    end
+    subgraph "Layer 2: Generative AI — Now Assist (All tiers)"
+        C[Summarization,<br>Drafting,<br>Resolution Notes,<br>KB Generation]
+    end
+    subgraph "Layer 1: Predictive Intelligence (All tiers)"
+        D[Classification,<br>Similarity,<br>Regression,<br>Clustering]
+    end
+    subgraph "Foundation: Data & Platform"
+        E[CMDB,<br>Clean Data,<br>Workflow Data Fabric,<br>RaptorDB]
+    end
+
+    E --> D
+    D --> C
+    C --> B
+    B --> A
+
+    style E fill:#e1f5e1,color:#000
+    style D fill:#fff3e0,color:#000
+    style C fill:#e3f2fd,color:#000
+    style B fill:#f3e5f5,color:#000
+    style A fill:#ffebee,color:#000
+```
+
+**Rule of thumb:** Start at Layer 1 (clean data + Predictive Intelligence classification) and work upward. Don't deploy AI Agents (Layer 4) until Layer 1–2 are working — agents need accurate CIs, good classification, and reliable Now Assist skills to reason over.
 
 ---
 
@@ -716,6 +754,127 @@ ServiceNow's **AI People Readiness Playbook** (community blog, "Unlocking ROI on
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+ServiceNow AI is measured on adoption, quality, cost control, and business outcome improvement. Because AI spans Generative AI, Predictive ML, Virtual Agent, and Agentic Automation, the KPI set is broader than a single module.
+
+| Business Goal | Benefit ServiceNow AI Provides | Key Metric | Example Target Value |
+|---------------|-------------------------------|------------|----------------------|
+| Reduce agent workload | Now Assist auto-summarizes threads and drafts notes | **Time Saved per Agent / Week** | 3–5 hours |
+| Route tickets correctly | Predictive Intelligence Classification auto-assigns | **Classification Accuracy** | 90%+ (target); <5% misroutes |
+| Deflect tickets before they reach agents | Virtual Agent resolves common requests via chat | **Deflection Rate** (resolved without ticket) | 55–75% |
+| Resolve incidents faster | AI Agents gather context + recommend runbooks | **Incident MTTR** (mean time to resolve) | −25–35% vs baseline |
+| Scale AI without surprise bills | Assist metering + quota alerts in Control Tower | **Assist Quota Utilization** (consumed ÷ allocated) | 70–90% (no overage) |
+| Ensure AI is trustworthy & governed | Control Tower audit trail + AI Guardian content filters | **AI Adoption Rate** (active users ÷ licensed) | 60%+ |
+| Predict problems before they hit | Clustering + Similarity surface recurring patterns | **Similarity Match Rate** (matched ÷ total incidents) | 30%+ |
+| Skills actually get used | Measure acceptance/edit/fallback to refine prompts | **Skill Acceptance Rate** (edits < 20%) | 75%+ |
+| Models stay accurate over time | Performance monitoring detects drift | **Model Drift Alert Response Time** | < 48h to retrain |
+| Predictive routing pays for itself | Fewer misroutes = less reassignment churn | **Reassignment Rate** (tickets reassigned ≥2×) | < 10% |
+
+**How to measure in ServiceNow:** Enable Assist Metering in **AI Control Tower > Overview**. Review the **Usage Analytics** dashboard for consumption by skill/user/department. Track Classification accuracy and Similarity match rate in **Predictive Intelligence > Model Performance**. Monitor Virtual Agent deflection in **Conversational Interfaces > Analytics**. Set alert policies at 50%/80%/95% of monthly Assist allocation.
+
+---
+
+## Core Concept Diagrams
+
+### Diagram 1: AI Feature Stack (Foundation → Predictive → Generative → Agentic)
+
+```mermaid
+graph TD
+    F[Foundation Layer<br/>Clean Data, CMDB, Workflow Data Fabric, RaptorDB] --> P[Predictive Intelligence<br/>Classification, Similarity, Regression, Clustering]
+    P --> G[Generative AI — Now Assist<br/>Summarization, Drafting, KB Generation, Code]
+    G --> V[Virtual Agent<br/>Conversational AI, Deflection, NLU]
+    V --> A[Agentic AI<br/>AI Agents, Multi-step Execution, Orchestrator]
+
+    style F fill:#e1f5e1,color:#000
+    style P fill:#fff3e0,color:#000
+    style G fill:#e3f2fd,color:#000
+    style V fill:#f3e5f5,color:#000
+    style A fill:#ffebee,color:#000
+```
+
+### Diagram 2: Now Assist Skill Lifecycle (Record → AI Skill → LLM → Output)
+
+```mermaid
+flowchart LR
+    Rec[Record: Incident] --> Skill[Now Assist Skill<br/>e.g., Summarize]
+    Skill -->|Grounded prompt + tools| LLM[LLM Provider<br/>Now LLM / Azure OpenAI / etc.]
+    LLM -->|Generated output| Out[Draft: Summary / Note / Reply]
+    Out --> Agent[Human Agent reviews]
+    Agent -->|Edits & saves| Rec2[Record updated]
+    Out -->|Rejected / unsafe| Guardian[AI Guardian<br/>Offensiveness / Prompt Injection]
+    Guardian -->|block + log| Alert[Control Tower Audit]
+
+    style LLM fill:#e3f2fd,color:#000
+    style Guardian fill:#ffebee,color:#000
+```
+
+### Diagram 3: Predictive Intelligence — Classification & Similarity Data Flow
+
+```mermaid
+graph TD
+    Hist[Historical Records<br/>30K–300K clean rows] --> Train[Model Training Service]
+    Train --> Model[Predictive Model<br/>Classification / Similarity]
+    Model --> Deploy[Activate model]
+    Deploy --> New[New Incident / Case]
+    New --> Predict{Predictive call}
+    Predict -->|Classification| Assign[Auto-assign group/category]
+    Predict -->|Similarity| Sim[Similar Incidents related list]
+    Sim --> Agent[Agent reviews matches]
+    Assign --> Agent
+    Agent --> Close[Close / update record]
+    Close --> Feed[(Feedback loop<br/>improves model)]
+
+    style Model fill:#fff3e0,color:#000
+    style Feed fill:#e1f5e1,color:#000
+```
+
+### Diagram 4: AI Agent Orchestrator — Multi-Agent Team
+
+```mermaid
+graph TD
+    Orch[AI Agent Orchestrator<br/>ReAct + Route scheduling] --> A1[Agent A<br/>Read incident]
+    Orch --> A2[Agent B<br/>Find similar incidents]
+    Orch --> A3[Agent C<br/>Search KB]
+    Orch --> A4[Agent D<br/>Check recent changes]
+
+    A1 --> Merge[Context package]
+    A2 --> Merge
+    A3 --> Merge
+    A4 --> Merge
+    Merge --> Panel[Now Assist Panel<br/>Triage summary + recommendation]
+    Panel --> Human{Human approves?}
+    Human -->|Yes| Exec[Execute flow / runbook]
+    Human -->|No| Draft[Keep as draft]
+    Exec --> Done[Incident updated]
+    Draft --> Done
+
+    MCP[MCP servers: Jira, SAP, GitHub] -.->|tool calls| A1
+    A2 -.->|A2A| Ext[External agents]
+
+    style Orch fill:#e3f2fd,color:#000
+    style Panel fill:#f3e5f5,color:#000
+```
+
+### Diagram 5: Assist Metering & Cost Control Flow
+
+```mermaid
+flowchart TD
+    Invoke[Skill/Agent invoked] --> Meter[Assist Metering<br/>+1 Assist]
+    Meter --> Quota[(Monthly quota)]
+    Quota --> Check{Threshold?}
+    Check -->|50%| Alert1[Email/Slack alert]
+    Check -->|80%| Alert2[Escalate to CoE]
+    Check -->|95%| Alert3[Auto-top-up or throttle]
+    Check -->|Exhausted| Block[Skills stop working<br/>Predictions fail]
+    Check -->|OK| Continue[Continue normally]
+
+    style Block fill:#ffebee,color:#000
+    style Alert3 fill:#fff3e0,color:#000
+```
+
+---
+
 ## Quiz
 
 1. **Which ServiceNow AI tier is required to build net-new custom AI skills and agents?**
@@ -735,6 +894,19 @@ ServiceNow's **AI People Readiness Playbook** (community blog, "Unlocking ROI on
 
 6. **Which breadcrumb opens Now Assist Skill Kit?**
    <details><summary>Answer</summary>All > AI Skill Kit > ...</details>
+
+---
+
+
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [CSM guide](./csm-guide.md)
+- [TSOM guide](./tsom-guide.md)
+- [Discovery guide](./discovery-guide.md)
 
 ---
 

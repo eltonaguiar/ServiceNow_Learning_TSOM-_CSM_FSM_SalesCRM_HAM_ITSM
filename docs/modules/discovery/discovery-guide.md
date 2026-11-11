@@ -52,6 +52,47 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 
 Roles that matter: **discovery_admin** (configure and run Discovery), **admin**, the MID Server's service account user (with the `mid_server` role) on the instance side, and local/domain credentials on the target side.
 
+## Prerequisites & Setup
+
+### Plugins and Scoped Apps
+- **Discovery Core**: `com.snc.discovery.core` — required for all Discovery functionality
+- **MID Server**: `com.snc.mid_server` — the agent that executes Discovery probes in your network
+- **File-Based Discovery**: `com.snc.discovery.file_based_discovery` — included with Discovery subscription, activation must be requested
+- **SAM File Signature Normalization**: `com.snc.file_signature_normalization` — activated automatically with File-Based Discovery
+- **Cloud Discovery** (optional): `com.snc.discovery.cloud_discovery` — for AWS, Azure, GCP discovery
+
+### Guided Setup Requirements
+1. **MID Server Installation**: Install and validate MID Server(s) in your private network (All > Discovery > MID Servers). Ensure status is "Validated" and "Up"
+2. **Credentials Configuration**: Configure credentials for target hosts (All > Discovery > Credentials) and test connectivity
+3. **Discovery Schedule**: Create a discovery schedule with IP ranges (All > Discovery > Discovery Definition > Schedules)
+4. **File-Based Discovery Activation**: Enable in Configuration Console (All > Discovery > Discovery Definition > Configuration Console)
+5. **CDS Synchronization**: Ensure initial Content Data Service sync has completed (~24 hours) before enabling File-Based Discovery
+
+### System Properties to Consider
+- `glide.discovery.file_discovery.wildcard.windows` — additive extensions for FBD on Windows
+- `glide.discovery.file_discovery.blacklist.windows` — hard filter extensions on Windows
+- `discovery_private_properties.list` — internal Discovery settings (filter in navigator)
+- Timeout properties: `glide.discovery.timeout`, `glide.discovery.scan_timeout`
+
+### Cross-Module Dependencies
+- **CMDB**: Discovery populates `cmdb_ci` and subclasses (e.g., `cmdb_ci_server`, `cmdb_ci_appl`); IRE identification rules prevent duplicates
+- **ITSM**: Discovery CIs feed impact analysis and incident management
+- **SAM/HAM**: File-Based Discovery installations flow into `cmdb_sam_sw_install` records
+- **TSOM**: Reconciles discovered network state against inventory; requires CMDB accuracy
+
+### ACLs Related to Core Tables
+- `discovery_admin` role required for configuration and run permissions
+- `mid_server` role required on instance side for MID Server service account
+- `admin` role for Configuration Console access
+- ACLs on `cmdb_ci`, `discovery_status`, `ecc_queue`, `discovery_credentials`, `sa_pattern`, etc.
+
+### Breadcrumbs — What Needs to Be Enabled First
+1. **MID Server** — Must be installed, validated, and "Up" status (All > Discovery > MID Servers)
+2. **Credentials** — Configure host credentials with appropriate OS permissions (All > Discovery > Credentials)
+3. **Discovery Schedule** — Define IP ranges and schedule frequency (All > Discovery > Discovery Definition > Schedules)
+4. **Run Discovery** — Populates CMDB with CIs (All > Discovery > Status)
+5. **File-Based Discovery** — Enable in Configuration Console after prerequisite steps (All > Discovery > Discovery Definition > Configuration Console)
+
 ## How Discovery Works
 
 A Discovery run moves through four phases, all coordinated through the **ECC Queue** (`ecc_queue`) between the instance and a **MID Server** sitting inside the network:
@@ -62,6 +103,103 @@ A Discovery run moves through four phases, all coordinated through the **ECC Que
 4. **Exploration** — probes and patterns gather the detail: OS, CPU, memory, running processes, installed software — and this is the phase where **File-Based Discovery runs**.
 
 Work is sent to the MID Server as ECC Queue **output** records; results come back as **input** records, where sensors/pattern steps process them into the CMDB.
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Business Goal | Benefit | Key Metric (KPI) | Example Value | Where to measure |
+|---------------|---------|------------------|---------------|------------------|
+| Build an accurate, current CMDB | ITSM impact, SAM licenses, HAM assets, and TSOM inventory all trust the same device data | CMDB discovery coverage — % of expected in-scope devices with a CI | ≥95% | `discovery_range` vs `cmdb_ci` |
+| Surface new devices before they cause incidents | New hardware is visible to change and impact processes immediately | Mean Time to Discover (new CIs) | <24h from first scan to CI created | `discovery_status` → `cmdb_ci.last_discovered` |
+| Keep CI data fresh enough to act on | Stale CIs break impact maps and license counts | CI freshness — % of CIs discovered in the last 30 days | ≥90% | `cmdb_ci.last_discovered` |
+| Prevent duplicate CIs | Clean relationships; correct blast-radius math | Duplicate CI rate | <1% | `cmdb_identifier` (IRE) match results |
+| Run schedules reliably | Predictable dashboards and maintenance windows | Discovery schedule success rate | ≥98% of scheduled runs complete | `discovery_status.state` |
+| Identify installed software from disk | SAM can count licenses for software that never registered itself | File-Based Discovery match rate | ≥80% of scanned files matched to a known product | `cmdb_file_information` → `cmdb_sam_sw_install` |
+| Debug failed runs fast | Less MTTR on Discovery itself | ECC Queue error rate | <2% of `ecc_queue` rows in error state | `ecc_queue.state = error` |
+
+> Indicative starting KPIs — baseline your own instance, then set targets.
+
+---
+
+## Core Concept Diagrams
+
+### Discovery Phases — Scan → Classify → Identify → Explore
+
+```mermaid
+flowchart TD
+    Start[Discovery Schedule fires] --> Scan[1. Scanning<br/>Shazzam port probes find live IPs]
+    Scan --> Classify[2. Classification<br/>Classifiers decide device type — Windows, Linux, switch, …]
+    Classify --> Identify[3. Identification<br/>IRE matches an existing CI or creates a new one]
+    Identify --> Explore[4. Exploration<br/>Patterns/probes gather OS, CPU, software<br/>File-Based Discovery runs here]
+    Explore --> CI[CI created or updated in CMDB<br/>cmdb_ci · cmdb_ci_server · cmdb_file_information]
+    CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
+
+    style Start fill:#e58a8a,color:#fff
+    style Classify fill:#e5b567,color:#000
+    style Identify fill:#0a0d10,stroke:#e5b567
+    style Explore fill:#4cc38a,color:#000
+    style CI fill:#10141a
+
+    note right of Classify: Trigger = banner, open port, fingerprint
+    note right of Identify: cmdb_identifier rules per CI class
+    note right of Explore: sa_pattern steps run on the MID; sensors write the CI
+```
+
+### MID Server → ECC Queue → CI Flow
+
+```mermaid
+flowchart LR
+    Instance[ServiceNow Instance] <==>|output records<br/>work sent to MID| ECC[ECC Queue<br/>ecc_queue]
+    ECC <==>|input records<br/>results returned| MID[MID Server<br/>inside your network]
+    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device<br/>server, switch, appliance]
+    Target -->|returns data| MID
+    MID -->|parsed by Sensors / pattern steps| CI[(CMDB<br/>cmdb_ci + subclasses)]
+
+    subgraph InstanceSide [Instance side]
+        Instance
+        ECC
+        CI
+    end
+    subgraph NetworkSide [Network side]
+        MID
+        Target
+    end
+
+    style Instance fill:#e58a8a,color:#fff
+    style ECC fill:#e5b567,color:#000
+    style MID fill:#4cc38a,color:#000
+    style CI fill:#10141a
+
+    note right of ECC: queue direction = output (instance→MID) / input (MID→instance)<br/>states: ready · processed · error
+    note right of MID: MID capabilities + IP ranges route work to the right MID
+```
+
+### Pattern → Probe → Sensor Flow
+
+```mermaid
+flowchart TD
+    Pattern[Discovery Pattern<br/>sa_pattern<br/>steps and operations]
+    Probe[Probe<br/>discovery_probe<br/>runs on the MID Server]
+    Sensor[Sensor<br/>instance-side parser]
+    CI[(CMDB CI<br/>cmdb_ci_*)]
+
+    Pattern -->|calls| Probe
+    Probe -->|collects from| Target[Target device<br/>files · registry · WMI · SNMP]
+    Target -->|raw output| Probe
+    Probe -->|returns payload| Sensor
+    Sensor -->|maps onto CI fields| CI
+
+    style Pattern fill:#e5b567,color:#000
+    style Probe fill:#4cc38a,color:#000
+    style Sensor fill:#0a0d10,stroke:#e5b567
+    style CI fill:#10141a
+
+    note right of Pattern: Identification section runs first; connection sections link CIs
+    note right of Sensor: One probe/sensor pair serves every classifier that uses it
+```
+
+---
 
 ## Re-usable Code / Metadata
 
@@ -757,3 +895,14 @@ Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "ITOM Discovery"
+
+---
+
+## Related Guides
+
+- [CMDB guide](./cmdb-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [ITSM guide](./itsm-guide.md)
+
+---

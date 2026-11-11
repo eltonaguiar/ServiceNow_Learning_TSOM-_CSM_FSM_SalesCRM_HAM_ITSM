@@ -17,6 +17,8 @@
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Common Mistakes](#common-mistakes)
 - [Deep Dive: Identification & Reconciliation (IRE)](#deep-dive-identification--reconciliation-ire)
 - [Lab: Create a CI and a Relationship](#lab-create-a-ci-and-a-relationship)
@@ -323,9 +325,60 @@ cmdb_ci (Base CI)
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+The CMDB's business goal is to act as the single source of truth for all configuration items, so operational decisions about impact, change, and ownership are based on accurate data.
+
+|| Business Goal | Benefit | Example Key Metric | Example Value |
+|----------------|-------------|--------------------|----------------|
+|| Single source of truth | Trust for impact analysis | CMDB completeness | ≥ 95% of CIs with required attributes |
+|| Data accuracy | Reliable impact analysis | CMDB data accuracy score | ≥ 90% |
+|| Data quality and health | Proactive remediation | CMDB Health Score | ≥ 90 / 100 |
+|| De-duplication | Prevent duplicate CIs | Duplicate CI rate | < 3% |
+|| Impact accuracy and operations | Faster incident handling | Mean Time to Identify | ≥ 85% correct impact sets |
+|| Change governance | Reduce change risk | Change success rate | ≥ 80% |
+
+---
+
+## Core Concept Diagrams
+
+### CI to CI Relationship Graph
+
+```mermaid
+graph TD
+    SVC[Service CI] -->|Depends On Used By| APP[Application CI]
+    APP -->|Runs On Runs| WEB[Server CI]
+    APP -->|Depends On Used By| DB[Database CI]
+
+### Discovery to CMDB Population Flow
+
+```mermaid
+flowchart TD
+    DISC[Discovery Run] --> COL[Collection]
+    COL --> ID{Identified}
+    ID -->|No| NEW[Create CI]
+    ID -->|Yes| EXIST[Reconcile CI]
+    EXIST --> REC{Reconcile}
+    REC -->|Conflict| PR[Apply Source Priority]
+    REC -->|No Conflict| SKIP[No Change]
+    NEW --> REL[Create Relationships]
+
+### IRE Identification and Reconciliation Flow
+
+```mermaid
+flowchart TD
+    IN[Incoming CI Data] --> IDR{Identification}
+    IDR -->|Match| EX[CI Exists]
+    IDR -->|No Match| NEW[Create CI]
+    EX --> REC{Reconciliation}
+    REC -->|Conflict| UP[Update With Trusted Source]
+    REC -->|No Conflict| UN[No Change Needed]
+
+---
+
 ## Common Mistakes
 
-| Mistake | Symptom | Fix |
+|| Mistake | Symptom | Fix |
 |---------|---------|-----|
 | No identification rules | Duplicate CIs for the same server | Configure IRE identification rules before large discovery |
 | Not reconciling data sources | Conflicting data for same CI | Set reconciliation priority (Discovery > Import > Manual) |
@@ -405,6 +458,19 @@ When multiple data sources provide data for the same CI, reconciliation decides 
 
 5. Name two relationship types used in CMDB.  
    <details><summary>Answer</summary>Runs on::Runs, Depends on::Used by</details>
+
+---
+
+
+---
+
+## Related Guides
+
+- [Discovery guide](./discovery-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [HAM guide](./ham-guide.md)
+- [ITOM guide](./itom-guide.md)
 
 ---
 

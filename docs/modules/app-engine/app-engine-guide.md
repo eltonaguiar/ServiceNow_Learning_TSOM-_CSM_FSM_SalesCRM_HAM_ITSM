@@ -87,6 +87,119 @@ Every app built in AES is a **Scoped App**.
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+App Engine / Creator is measured on development speed, quality, and reuse — the core promise of low-code. These KPIs track how well the platform turns business needs into working apps.
+
+| Business Goal | Benefit App Engine Provides | Key Metric | Example Target Value |
+|---------------|----------------------------|------------|----------------------|
+| Ship apps faster | Visual dev (AES) beats hand-coding from scratch | **Time-to-Market** (idea → production) | < 6 weeks for standard app |
+| Empower citizen developers | Drag-and-drop data/process/UI; no Java/JS required | **Citizen Dev Adoption** (active builders ÷ licensed) | 50%+ of business analysts |
+| Build once, reuse everywhere | Subflows, components, templates, scoped app packages | **Reuse Rate** (flows/components used ≥3×) | 60%+ of new flows |
+| Move from dev to prod reliably | App Repo + pipeline environments (dev→test→staging→prod) | **Deployment Frequency** (successful deploys / month) | 4–8 per app |
+| Apps don't break the platform | Scoped isolation prevents collisions with core tables | **Scope Violations** (cross-scope writes blocked) | 0 in production |
+| Apps are actually used | Workspace/Portal adoption by end users | **User Adoption** (active users ÷ target users) | 70%+ within 90 days |
+| Low maintenance burden | Flows over scripts; one place to change logic | **Maintenance Tickets / App** (per quarter) | < 3 |
+| Quality stays high | Automated flows with validation; fewer manual steps | **Defect Leakage** (bugs found in prod ÷ total) | < 5% |
+| Dev→Prod pipeline is smooth | Update Sets + App Repo; no manual XML shuffling | **Pipeline Success Rate** (clean installs ÷ installs) | 95%+ |
+| Compliance with security policy | Roles/ACLs defined in the Security experience | **ACL Coverage** (apps with defined access control) | 100% of production apps |
+
+**How to measure in ServiceNow:** Track app metrics in **App Engine Studio > App Analytics** (or the app's own dashboard). Monitor **Flow Designer > Flow Log** for failures. Use **Application Repository** install history for deployment frequency. Check **System Diagnostics > Stats** for transaction performance of custom apps. Report on scoped table usage via **System Definition > Tables & Columns**.
+
+---
+
+## Core Concept Diagrams
+
+### Diagram 1: AES Four Experiences (Data → Process → Experience → Security)
+
+```mermaid
+graph TD
+    D[Data Experience<br/>Tables, columns, relationships] --> P[Process Experience<br/>Flows, subflows, approvals]
+    P --> E[Experience Experience<br/>Portals, Workspaces, Mobile]
+    E --> S[Security Experience<br/>Roles, ACLs, policies]
+    S --> D
+
+    subgraph Output
+        O[Scoped App<br/>x_ namespace, App Repo package]
+    end
+
+    D --> O
+    P --> O
+    E --> O
+    S --> O
+
+    style D fill:#e3f2fd,color:#000
+    style P fill:#fff3e0,color:#000
+    style E fill:#e1f5e1,color:#000
+    style S fill:#f3e5f5,color:#000
+```
+
+### Diagram 2: Flow Designer Trigger → Action → Subflow
+
+```mermaid
+flowchart TD
+    Trig[Trigger<br/>Record Created / Scheduled / API] --> Cond{Condition?}
+    Cond -->|Yes| Act1[Action 1<br/>Update record]
+    Act1 --> Act2[Action 2<br/>Send email]
+    Act2 --> Sub[Subflow<br/>Reusable chunk]
+    Sub --> Act3[Action 3<br/>IntegrationHub spoke]
+    Act3 --> Done[Record updated]
+    Cond -->|No| Skip[Skip branch]
+
+    style Trig fill:#e3f2fd,color:#000
+    style Sub fill:#fff3e0,color:#000
+    style Done fill:#e1f5e1,color:#000
+```
+
+### Diagram 3: Scoped App Deployment Pipeline (Dev → Test → Prod)
+
+```mermaid
+graph LR
+    Dev[Dev instance<br/>AES build] --> Repo[Application Repository<br/>Publish version]
+    Repo --> Test[Test instance<br/>Install + verify]
+    Test --> Staging[Staging instance<br/>UAT]
+    Staging --> Prod[Production instance<br/>Install from App Repo]
+
+    style Prod fill:#ffebee,color:#000
+    style Repo fill:#e3f2fd,color:#000
+```
+
+### Diagram 4: UI Builder / Workspace Component Hierarchy
+
+```mermaid
+graph TD
+    Page[Workspace Page<br/>JSON config] --> Panel1[Panel: List]
+    Page --> Panel2[Panel: Form]
+    Page --> Panel3[Panel: Detail]
+
+    Panel1 --> Comp1[Component: Data Table]
+    Panel1 --> Comp2[Component: Filter]
+
+    Panel2 --> Comp3[Component: Field Group]
+    Panel2 --> Comp4[Component: Button]
+    Comp4 -->|Event| Server[Server script / API call]
+    Server -->|Client state update| Comp3
+
+    style Page fill:#e3f2fd,color:#000
+    style Comp4 fill:#fff3e0,color:#000
+```
+
+### Diagram 5: Low-Code Stack vs Pro-Code Mapping
+
+```mermaid
+graph LR
+    AES[App Engine Studio<br/>Workbench] --> IDE[IDE: VS Code / IntelliJ]
+    DM[Data Model<br/>Tables & columns] --> SQL[SQL / Schema]
+    FD[Flow Designer<br/>Logic & process] --> JS[JavaScript / Python]
+    UB[UI Builder<br/>Screens & portals] --> HTML[HTML / CSS / React]
+
+    style AES fill:#e3f2fd,color:#000
+    style FD fill:#fff3e0,color:#000
+    style UB fill:#e1f5e1,color:#000
+```
+
+---
+
 ## Quiz
 
 1. What is the difference between a Flow and a Subflow?
@@ -131,3 +244,13 @@ Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/wat
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "App Engine Studio"
+
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+
+---

@@ -339,6 +339,122 @@ sn_sales_product
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+Sales CRM is measured on pipeline health, deal velocity, and revenue predictability. Below are the typical business goals, the benefits Sales CRM delivers toward them, and the KPIs used to track progress — with example values drawn from mature Sales & Order Management deployments.
+
+| Business Goal | Benefit Sales CRM Provides | Key Metric | Example Target Value |
+|---------------|---------------------------|------------|----------------------|
+| Win more deals | Single system of record from lead to order; full history at every stage | **Win Rate** (closed_won ÷ total closed opportunities) | 35–45% |
+| Grow pipeline value | All open opportunities visible in one forecast; no orphaned deals | **Pipeline Value** (sum of open opportunity amounts) | $12M (target), tracked monthly |
+| Close faster | Stage progression tracked end-to-end; no deals stuck in limbo | **Sales Cycle Length** (create date → close date, days) | 45 days (down from 70) |
+| Convert more leads | Automated qualification + auto-create opportunity from qualified leads | **Lead Conversion Rate** (qualified leads ÷ total leads) | 25–35% |
+| Hit revenue quota | Real-time quota attainment per rep visible on the Sales Dashboard | **Quota Attainment** (closed_won YTD ÷ quota YTD) | 95%+ team attainment |
+| Larger deals | Cross-sell/upsell via quote lines and product offerings | **Average Deal Size** (closed_won amount ÷ closed_won count) | $42K |
+| Accurate forecasting | Stage-weighted forecast; expected close dates enforced | **Forecast Accuracy** (actual close vs forecast within ±10%) | 80%+ |
+| Efficient quoting | Quote templates + pricing rules; no manual price entry | **Quote Acceptance Rate** (accepted quotes ÷ sent quotes) | 60%+ |
+| Rep productivity | Fewer manual tasks; one system, not five | **Opportunities per Rep / Month** | 8–12 |
+| Quote-to-cash integrity | Accepted quote auto-creates an order; no orphaned revenue | **Quote→Order Conversion** (orders ÷ accepted quotes) | 95%+ |
+
+**How to measure in ServiceNow:** Build a Sales Dashboard on `sn_sales_opportunity` grouped by stage, with a forecast panel using `expected_close_date` quarter buckets. Track win rate via a Report on `stage = closed_won` vs `stage = closed_lost`. Enable the OOTB Sales Dashboard (All > Sales > Dashboards) as the starting point.
+
+---
+
+## Core Concept Diagrams
+
+### Diagram 1: Lead → Opportunity → Quote → Order (State Machine)
+
+```mermaid
+stateDiagram-v2
+    [*] --> New : lead created
+    New --> Contacted : outreach
+    Contacted --> Qualified : qualifies
+    Qualified --> Unqualified : not a fit
+    Qualified --> Prospecting : opportunity auto-created
+    Unqualified --> [*]
+
+    Prospecting --> Qualification : deal qualified
+    Qualification --> Proposal : proposal sent
+    Proposal --> Negotiation : terms discussed
+    Negotiation --> Closed_Won : deal signed
+    Negotiation --> Closed_Lost : deal lost
+    Closed_Won --> Order : accepted quote
+    Closed_Lost --> [*]
+
+    Draft --> Sent : quote submitted
+    Sent --> Accepted : customer accepts
+    Sent --> Rejected : customer rejects
+    Sent --> Expired : valid_until passed
+    Accepted --> Order : order created
+    Order --> Confirmed : confirmed
+    Confirmed --> Fulfilled : fulfilled
+    Confirmed --> Cancelled : cancelled
+```
+
+### Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)
+
+```mermaid
+graph TD
+    A[sn_sales_account<br/>Customer / B2B account] --> C[sn_sales_contact<br/>Individual at account]
+    A --> O[sn_sales_opportunity<br/>Deal at account]
+    C --> O
+
+    L[sn_sales_lead<br/>Prospect] --> O2[sn_sales_opportunity<br/>from qualified lead]
+    O --> Q[sn_sales_quote<br/>Quotes on opportunity]
+    Q --> OR[sn_sales_order<br/>Order from accepted quote]
+    Q --> QL[sn_sales_quote_line<br/>Line items / products]
+
+    P[sn_sales_product<br/>Catalog item] --> QL
+    P --> OR2[sn_sales_order_line<br/>Ordered product lines]
+
+    style A fill:#e3f2fd,color:#000
+    style O fill:#fff3e0,color:#000
+    style Q fill:#f3e5f5,color:#000
+    style OR fill:#ffebee,color:#000
+```
+
+### Diagram 3: Sales Pipeline Stages (Weighted Forecast)
+
+```mermaid
+graph LR
+    P1[Prospecting<br/>$1.2M] --> P2[Qualification<br/>$2.4M]
+    P2 --> P3[Proposal<br/>$1.8M]
+    P3 --> P4[Negotiation<br/>$0.9M]
+    P4 --> W[Closed Won<br/>$0.6M]
+    P4 --> L2[Closed Lost<br/>$0.3M]
+
+    style P1 fill:#c8e6c9,color:#000
+    style P2 fill:#fff9c4,color:#000
+    style P3 fill:#ffecb3,color:#000
+    style P4 fill:#ffccbc,color:#000
+    style W fill:#a5d6a7,color:#000
+    style L2 fill:#ef9a9a,color:#000
+```
+
+### Diagram 4: Quote → Order → Service (Quote-to-Cash-to-Service Loop)
+
+```mermaid
+graph LR
+    Opp[Opportunity] --> Quote[Quote/CPQ]
+    Quote -->|Accepted| Order[Sales Order]
+    Order -->|Fulfillment| Fulfill[Order Tasks]
+    Fulfill -->|Delivered| Service[CSM/FSM Case]
+    Service -->|Renewal| Opp
+
+    subgraph External Systems
+        ERP[ERP: SAP/NetSuite]
+        Acct[Accounting: Invoices]
+    end
+
+    Order -->|Push| ERP
+    Order -->|Push| Acct
+
+    style Quote fill:#e1f5e1,color:#000
+    style Order fill:#fce4ec,color:#000
+```
+
+---
+
 ## Quiz
 
 1. What field determines which sales workflow fires?
@@ -417,3 +533,14 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Sales CRM / Order Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [HAM guide](./ham-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+
+---

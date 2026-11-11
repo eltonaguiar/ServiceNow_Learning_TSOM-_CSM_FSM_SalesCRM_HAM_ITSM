@@ -361,7 +361,82 @@ sn_customerservice_entitlement
 | Testing portal as admin | Can't see customer experience | Test as actual customer user |
 | One case type for everything | Workflow can't differentiate | Create case types per request type |
 | Missing account on case | No entitlement/SLA resolution | Always populate account |
-| Not setting contact | No notification recipient | Always set contact/consumer |
+|| Not setting contact | No notification recipient | Always set contact/consumer |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| CSAT Score | Customer satisfaction post-case close | 4.5/5.0 |
+| First Contact Resolution Rate | % of cases resolved without escalation | 58% |
+| Case Volume | Total cases created per period | 850/month |
+| Entitlement Compliance % | Cases within entitlement SLA terms | 92% |
+| Average Resolution Time | Average time to resolve across all severity levels | 12 hours |
+| Response Time | Time to first agent reply | 30 minutes |
+| Case Reopen Rate | % of closed cases reopened within 7 days | 6% |
+| Agent Utilization | % of agent time billable on cases | 75% |
+
+---
+
+## Core Concept Diagrams
+
+### Case Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on dependency
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+### Account → Case → Entitlement Flow
+```mermaid
+graph TD
+    subgraph "Account"
+        AC[Customer Account]
+    end
+    subgraph "Case"
+        CASE[Customer Case]
+    end
+    subgraph "Entitlement"
+        ENT[Entitlement / SLA]
+    end
+    AC --> CASE
+    CASE --> ENT
+    ENT --> CASE
+```
+
+### CSM Business Model (B2B / B2C / B2B2C / B2B2E)
+```mermaid
+graph TD
+    subgraph "B2B"
+        B2B[Business Service]
+    end
+    subgraph "B2C"
+        B2C[Customer]
+    end
+    subgraph "B2B2C"
+        B2B2C[Business to Consumer]
+    end
+    subgraph "B2B2E"
+        B2B2E[Business to Employee]
+    end
+    B2B --> B2C
+    B2C --> B2B2C
+    B2B2C --> B2B2E
+```
 
 ---
 
@@ -447,3 +522,15 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Customer Service Management"
+
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [Sales CRM guide](./sales-crm-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [HAM guide](./ham-guide.md)
+
+---

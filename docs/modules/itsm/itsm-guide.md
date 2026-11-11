@@ -467,8 +467,96 @@ cmdb_ci
 | Deleting demo users | Flows break that reference them | Never delete; deactivate |
 | Testing as admin only | ACLs bypassed; "it works" means nothing | Test as actual user |
 | Making assignment_group optional | Tickets orphaned | Always required |
-| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
-| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
+|| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
+|| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| First-time Resolution Rate | % of incidents resolved on first contact without reopening | 65% |
+| MTTR (Mean Time To Resolve) | Average time from incident creation to final resolution | 4 hours |
+| MTBF (Mean Time Between Failures) | Average time between recurring incidents for the same CI | 30 days |
+| SLA Compliance % | Incidents meeting SLA target within agreed time window | 95% |
+| Incident Volume | Total incidents created per 30-day period | 1,200/month |
+| Backlog Age | Average age of open incidents older than 30 days | 23 days |
+| Reopened Rate | % of closed incidents that reopen within 7 days | 8% |
+| Average Resolution Time | Average time to resolve across all severity levels | 6.5 hours |
+
+---
+
+## Core Concept Diagrams
+
+### Incident Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+### Incident → Problem → Change → Request Flow
+```mermaid
+graph TD
+    subgraph "Incident"
+        INC[Incident Created]
+        INC --> PR[Problem Identified]
+    end
+    subgraph "Problem"
+        PR --> CR[Related Change Requested]
+    end
+    subgraph "Change"
+        CR --> REQ[Service Request / Catalog Item]
+    end
+    subgraph "Request"
+        REQ --> FUL[Service Fulfillment]
+    end
+    FUL -->|Closed| INC
+```
+
+### SLA Lifecycle and Priority Matrix
+```mermaid
+graph TD
+    subgraph "SLA Stages"
+        dir[Draft]
+        act[Active]
+        bre[Breached]
+        clo[Closed]
+    end
+    dir --> act : Define terms
+    act --> bre : Breach time reached
+    bre --> clo : SLA resolution / escalation
+    
+    subgraph "Priority Matrix (Impact × Urgency)"
+        direction LR
+        P1[P1 - Critical]
+        P2[P2 - High]
+        P3[P3 - Medium]
+        P4[P4 - Low]
+        P5[P5 - Optional]
+    end
+    P1 -->|Impact 1×| Urg1[Urgency 1 - High]
+    P1 -->|Impact 1×| Urg2[Urgency 2 - Medium]
+    P2 -->|Impact 2×| Urg1
+    P2 -->|Impact 2×| Urg2
+    P3 -->|Impact 3×| Urg1
+    P3 -->|Impact 3×| Urg2
+    P4 -->|Impact 4×| Urg2
+    P5 -->|Impact 4×| Urg3
+```
 
 ---
 
@@ -616,3 +704,17 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "IT Service Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [Discovery guide](./discovery-guide.md)
+- [TSOM guide](./tsom-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [HRSD guide](./hrsd-guide.md)
+
+---

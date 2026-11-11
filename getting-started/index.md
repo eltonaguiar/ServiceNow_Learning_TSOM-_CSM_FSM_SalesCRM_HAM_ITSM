@@ -82,7 +82,7 @@ are back to synchronising systems.
 
 ---
 
-## Provenance
+## Where this content comes from
 
 - Table names and object relationships are taken from ServiceNow product documentation for the
   current releases (Brazil/Zurich), including the

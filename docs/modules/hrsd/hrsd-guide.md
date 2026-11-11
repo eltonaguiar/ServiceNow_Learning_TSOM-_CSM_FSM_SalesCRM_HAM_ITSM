@@ -17,6 +17,8 @@
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [HR Lifecycle Events](#hr-lifecycle-events)
 - [Employee Center](#employee-center)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [⚠️ ServiceNow Learning Warnings](#-servicenow-learning-warnings)
 - [Quiz](#quiz)
 
@@ -105,6 +107,64 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+The business goal of HRSD is to give employees a consumer-grade, self-service way to manage HR life events, while giving HR teams a secure, SLA-driven case model for sensitive HR services.
+
+|| Business Goal | Benefit | Example Key Metric | Example Value |
+|----------------|-------------|--------------------|----------------|
+|| Employee self-service adoption | Reduces HR service desk volume | Self-service adoption rate | ~60% of HR transactions via Employee Center |
+|| HR case SLA attainment | Consistent service delivery | HR case SLA attainment | ≥ 90% of cases resolved within SLA |
+|| Lifecycle journey completion | Coordinated employee experience | Lifecycle journey completion rate | ~100% within 30 days |
+|| Benefits enrollment compliance | Reduce benefits errors | Benefits enrollment compliance rate | ≥ 95% |
+|| HR CSAT | Employee satisfaction | HR CSAT | ≥ 4.5 / 5.0 |
+|| Sensitive data exposure incidents | Privacy and compliance | Sensitive data exposure incidents | 0 critical findings |
+
+**Example implementation targets:** ~90% HR case SLA attainment, ~60% self-service adoption, and ~100% lifecycle journey completion within defined windows.
+
+---
+
+## Core Concept Diagrams
+
+### HR Lifecycle Event Journey Orchestration
+
+```mermaid
+flowchart TD
+    Emp[Employee] --> Portal[Employee Center]
+    Portal --> LE[Lifecycle Event Trigger]
+    LE --> J[Onboarding Journey]
+    J --> T1[HR Task Contract Paperwork]
+    J --> T2[IT Task Laptop Access]
+    J --> T3[HR Task Benefits Orientation]
+    J --> T4[HR Task Payroll Setup]
+    T1 --> C1[Task Completed]
+    T2 --> C2[Task Completed]
+    T3 --> C3[Task Completed]
+    T4 --> C4[Journey Completed]
+
+### HR Service to COE Data Segregation
+
+```mermaid
+graph TD
+    HRSvc[HR Service Payroll] -->|maps to| COEpay[COE Table Payroll]
+    HRSvc -->|maps to| COEben[COE Table Benefits]
+    COEpay -->|restricts access| ACLE[COE ACLs]
+    COEben -->|restricts access| ACLB[COE ACLs]
+    HRSvc -->|flows to| HRCas[HR Case]
+
+### Employee Center Request Intake Flow
+
+```mermaid
+flowchart LR
+    Emp[Employee] --> EC[Employee Center]
+    EC --> CAT[HR Service Catalog Item]
+    CAT --> SVC[HR Service]
+    SVC --> CAS[HR Case]
+    CAS --> WFA[Workflow Task]
+    WFA --> FUL[Fulfillment]
+
+---
+
 ## ⚠️ ServiceNow Learning Warnings
 
 - **Putting HR data in `sys_user`:** Never do this. Use the HR Profile. The `sys_user` table is too visible across the platform.
@@ -157,3 +217,12 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Human Resources Service Delivery"
+
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+
+---

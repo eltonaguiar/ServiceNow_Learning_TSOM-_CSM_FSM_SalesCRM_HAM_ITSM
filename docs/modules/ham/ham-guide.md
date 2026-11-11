@@ -17,6 +17,8 @@
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Common Mistakes](#common-mistakes)
 - [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
@@ -425,9 +427,72 @@ ast_contract
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+HAM's business goals center on maintaining an accurate hardware asset inventory and controlling cost from procurement through retirement.
+
+|| Business Goal | Benefit | Example Key Metric | Example Value |
+|----------------|-------------|--------------------|----------------|
+|| Complete hardware inventory | Foundation for ITAM decisions | Inventory completeness | ≥ 98% of procured assets recorded |
+|| Cost control and TCO | Optimize purchasing and renewals | Asset utilization rate | ~72% in use; target ≥ 70% |
+|| TCO management | Reduce lifecycle cost | TCO and cost avoidance via reuse | ~15% reduction over 3 years |
+|| Retirement compliance | Reduce orphaned assets | Asset retirement compliance rate | ≥ 98% |
+|| Financial data accuracy | Accurate cost tracking | Depreciation and cost accuracy | ≥ 95% |
+|| License compliance | Prevent over and under purchasing | License compliance rate | ≥ 95% |
+
+**Example targets:** ~70% asset utilization, ~98% retirement compliance, and ~98% inventory completeness.
+
+---
+
+## Core Concept Diagrams
+
+### Asset Lifecycle Journey
+
+```mermaid
+flowchart TD
+    PO[Purchased] --> RC[Receiving Check In]
+    RC --> IS[In Stock]
+    IS --> AS[In Use Assigned]
+    AS --> IM[In Maintenance Repair]
+    IM --> AS2[In Use Repair Complete]
+    AS --> RT[Retired End Of Life]
+    RT --> DP[Disposal Data Wipe]
+    AS --> LOST[Lost Or Stolen]
+    LOST --> WR[Write Off]
+
+### Asset to CI Normalization Link
+
+```mermaid
+flowchart LR
+    subgraph ITAM["ITAM View Asset"]
+        A[Asset Record]
+        A --> FIN[Financial Data Cost PO Contract Depreciation]
+        A --> ASG[Assignment Data User Location]
+    end
+    subgraph CMDB["CMDB View CI"]
+        C[CI Record]
+        C --> TEC[Technical Data OS IP Serial]
+        C --> REL[Relationships Runs On Depends On]
+    end
+    A -->|Normalized via NDS| C
+    C -->|Sourced From Asset| A
+```
+
+### Asset Relationship Map
+
+```mermaid
+graph TD
+    AST[Asset Record] -->|under contract with| CON[Contract Record]
+    AST -->|stored in| STO[Stockroom Record]
+    AST -->|assigned to| USR[User Record]
+    AST -->|normalized to| CIH[Hardware CI]
+    AST -->|depreciates via| MOD[Asset Model]
+
+---
+
 ## Common Mistakes
 
-| Mistake | Symptom | Fix |
+|| Mistake | Symptom | Fix |
 |---------|---------|-----|
 | Creating assets without categories | Asset form missing fields | Define categories first |
 | Duplicate asset tags | Can't identify physical asset | Enforce unique asset tags |
@@ -653,3 +718,15 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Hardware Asset Management"
+
+---
+
+## Related Guides
+
+- [CMDB guide](./cmdb-guide.md)
+- [Discovery guide](./discovery-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+
+---

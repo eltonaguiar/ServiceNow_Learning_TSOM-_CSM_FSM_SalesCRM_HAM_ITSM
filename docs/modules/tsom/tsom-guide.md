@@ -517,7 +517,106 @@ arrows is missing, the demo looks fine and production does not work.*
 | Ignoring territory/region constraints | Orders fail to assign | Set territory on service order |
 | Creating duplicate circuits | Same circuit appears twice | Use circuit ID as identification rule |
 | Forgetting activation date | SLA calculations wrong | Set `activation_date` on provision |
-| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
+|| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Business Goal | Benefit | Key Metric (KPI) | Example Value | Where to measure |
+|---------------|---------|------------------|---------------|------------------|
+| Detect network faults before customers call | NOC works the issue, not complaint tickets | MTTD — Mean Time to Detect | <5 minutes | Trap → `em_event` → `em_alert` elapsed time |
+| Restore service fast and protect SLAs | Fewer SLA breaches, credits, and churn | MTTR — Mean Time to Repair/Resolve | <2 hours | Incident open → alert cleared → service restored |
+| Turn alarm storms into one actionable alert | NOC isn't drowned by duplicate traps | Alarm correlation rate | ≥85% of alarms collapsed — e.g. 400 port-down → 1 circuit-down alert | `em_alert` correlation rules |
+| Keep customer services available | SLA compliance and fewer refunds | Service availability % | ≥99.9% | Service Impact Analysis on `cmdb_ci_service` |
+| Stop false alarms waking the NOC | Trust in the alerting platform | False positive rate | <5% of alerts closed as noise/duplicate | Alert disposition |
+| Silence alarms during planned work | No pages for scheduled maintenance | Suppression coverage | 100% of planned changes carry a maintenance window | Event Management suppression rules |
+| Trust the inventory behind every impact call | Wrong CMDB = wrong blast radius | Discrepancy resolution rate | ≥90% of found-vs-inventory gaps fixed per audit cycle | TSOM discrepancy / CMDB Health audits |
+
+> Indicative starting KPIs — baseline your instance, then set targets.
+
+---
+
+## Core Concept Diagrams
+
+### Alarm → Event → Alert → Incident Flow
+
+```mermaid
+flowchart TD
+    NMS[NMS / EMS / OSS<br/>Nokia · Ericsson · Cisco · …]
+    Event[em_event<br/>raw observation — “something happened”]
+    Rules[Event Rules<br/>filter, map severity, assign CI]
+    Alert[em_alert<br/>scored, de-duplicated, attached to a CI]
+    Corr[Alert Correlation<br/>400 port-down → 1 circuit-down]
+    Incident[incident<br/>one ticket the NOC works]
+    Clear[Clear<br/>device reports recovery → alert closes]
+
+    NMS -->|trap / syslog / API| Event
+    Event --> Rules
+    Rules --> Alert
+    Alert --> Corr
+    Corr --> Incident
+    Incident -->|resolved| Clear
+    Clear --> Alert
+
+    style NMS fill:#e58a8a,color:#000
+    style Event fill:#e5b567,color:#000
+    style Alert fill:#4cc38a,color:#000
+    style Corr fill:#0a0d10,stroke:#e5b567
+    style Incident fill:#10141a
+
+    note right of Event: One event per observation — most are noise
+    note right of Alert: One alert per problem — what a human works
+    note right of Corr: Correlation is what turns a storm into a single incident
+```
+
+### Telecom CI Hierarchy
+
+```mermaid
+graph TD
+    svc[Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service]
+    circuit[Circuit<br/>fibre / MPLS / leased line]
+    ne[Network Element<br/>router / switch / OLT]
+    card[Card / Slot]
+    port[Port / Interface]
+
+    svc -->|runs over| circuit
+    circuit -->|terminates at| ne
+    ne -->|contains| card
+    card -->|has| port
+
+    style svc fill:#4cc38a,color:#000
+    style circuit fill:#e5b567,color:#000
+    style ne fill:#0a0d10,stroke:#e5b567
+
+    note right of svc: The only layer the customer understands
+    note right of ne: CMDB + TNI model — equipment, cards, ports, links
+```
+
+### Service → Customer Impact Map (Blast Radius)
+
+```mermaid
+flowchart TD
+    Port[Router port fails]
+    Circuit[Circuit down]
+    Service[Customer service degraded — fiber broadband]
+    Subscribers[40 subscribers affected]
+    Incident[One incident raised — not 40]
+
+    Port --> Circuit
+    Circuit --> Service
+    Service --> Subscribers
+    Subscribers --> Incident
+
+    style Port fill:#e58a8a,color:#fff
+    style Circuit fill:#e5b567,color:#000
+    style Service fill:#4cc38a,color:#000
+    style Subscribers fill:#0a0d10,stroke:#e5b567
+    style Incident fill:#10141a
+
+    note right of Circuit: Impact walks the relationships upward
+    note right of Incident: TSOM's job — one prioritised work item instead of a wall of alarms
+```
 
 ---
 
@@ -915,3 +1014,15 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations Management"
+
+---
+
+## Related Guides
+
+- [Discovery guide](./discovery-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [ITSM guide](./itsm-guide.md)
+
+---

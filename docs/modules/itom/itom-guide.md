@@ -394,6 +394,79 @@ cmdb_ci
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+| Goal | Benefit | Key Metric | Example Target |
+|------|---------|------------|----------------|
+| Reduce unplanned downtime | Faster detection of infrastructure issues | Mean Time to Detect (MTTD) | < 5 minutes |
+| Faster incident resolution | Events auto-create incidents with full context | Mean Time to Resolve (MTTR) | < 30 minutes |
+| Proactive problem prevention | Pattern detection before users notice | Incident volume trend | -10% quarter-over-quarter |
+| Better infrastructure visibility | All CIs and their health in one view | CMDB coverage % | > 95% |
+| Reduce alert noise | Correlation rules suppress duplicate events | Alert volume | -50% after tuning |
+| Faster change impact assessment | Know which services a CI supports | Change success rate | > 95% |
+
+---
+
+## Core Concept Diagrams
+
+```mermaid
+graph TD
+    subgraph "Monitoring Sources"
+        A[Servers]
+        B[Network Devices]
+        C[Cloud Accounts]
+        D[Applications]
+    end
+    subgraph "MID Server"
+        E[Probes & Sensors]
+    end
+    subgraph "Event Management"
+        F[Events]
+        G[Alert Correlation Rules]
+        H[Alerts]
+    end
+    subgraph "Incident Management"
+        I[Incidents]
+    end
+
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+
+    style A fill:#e1f5e1,color:#000
+    style B fill:#e1f5e1,color:#000
+    style C fill:#e1f5e1,color:#000
+    style D fill:#e1f5e1,color:#000
+    style E fill:#fff3e0,color:#000
+    style F fill:#e3f2fd,color:#000
+    style G fill:#f3e5f5,color:#000
+    style H fill:#ffebee,color:#000
+    style I fill:#e8eaf6,color:#000
+```
+
+**Reading the diagram:** Monitoring sources feed events through the MID Server → Event Management creates alerts → Correlation rules reduce noise → Alerts become incidents for resolution teams.
+
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> InProgress: Acknowledged
+    InProgress --> Resolved: Fixed
+    Resolved --> Closed: Verified
+    InProgress --> Escalated: SLA breach
+    Escalated --> InProgress: Re-assigned
+    Resolved --> Reopened: Issue returns
+    Reopened --> InProgress: Work resumes
+```
+
+**Event/alert lifecycle states** — tracking an event from detection through resolution and closure.
+
+---
+
 ## Quiz
 
 1. What is the difference between an event and an alert?  
@@ -410,6 +483,19 @@ cmdb_ci
 
 5. What severity value means Critical in Event Management?  
    <details><summary>Answer</summary>`1`</details>
+
+---
+
+
+---
+
+## Related Guides
+
+- [Discovery guide](./discovery-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [TSOM guide](./tsom-guide.md)
 
 ---
 

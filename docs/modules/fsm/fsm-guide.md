@@ -287,7 +287,83 @@ wm_territory
 | Not setting scheduled dates | Scheduling engine can't place work | Always set start/end dates |
 | Work order without territory | Order stays unassigned | Always assign territory |
 | Ignoring travel time | Technician arrives late | Enable travel time calculation |
-| Creating tasks without work order | Orphaned tasks | Always link task to work order |
+|| Creating tasks without work order | Orphaned tasks | Always link task to work order |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| First-Time Fix Rate | % of work orders resolved on first visit | 45% |
+| Mean Time to Dispatch | Time from work order creation to agent assignment | 1.5 hours |
+| Travel Time % | % of work day spent traveling | 20% |
+| Work Order Completion Rate | % of work orders completed on schedule | 88% |
+| SLA Compliance % | Work orders meeting scheduled dates/times | 93% |
+| Technician Utilization | % of available hours worked on billable WOs | 70% |
+| Parts Availability Rate | % of jobs with required parts on-hand | 85% |
+| Mean Time Between Work Orders | Average time between successive WOs for same territory | 14 days |
+
+---
+
+## Core Concept Diagrams
+
+### Work Order Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Scheduled : Schedule created
+    Scheduled --> Dispatched : Agent assigned
+    Dispatched --> In Progress : Technician en route / arrived
+    In Progress --> Completed : Task finished
+    Completed --> Closed : All tasks done, parts returned
+    Closed --> [*]
+    Draft --> Canceled : Cancelled before scheduling
+    Canceled --> [*]
+
+    note right of Draft: Territory and skills required
+    note right of Completed: Time entries captured
+    note right of Closed: SLA fulfilled / breach checked
+```
+
+### Dispatch → Technician → Task Flow
+```mermaid
+graph TD
+    subgraph "Dispatch Board"
+        DB[Dispatch Board]
+    end
+    subgraph "Technician"
+        TECH[Technician + Skills + Territory]
+    end
+    subgraph "Task"
+        TSK[Work Order Task]
+    end
+    DB -->|Auto-assign| TECH
+    TECH -->|Start work| TSK
+    TSK -->|Update state| DB
+    TSK -->|Consume parts| Inventory[Parts Inventory]
+    TSK -->|Log time| Time[Time Entries]
+```
+
+### Scheduling and Travel Time Flow
+```mermaid
+graph TD
+    subgraph "Constraints"
+        SK[Skills Required]
+        TR[Territory Boundary]
+        AV[Agent Availability]
+        TT[Travel Time Estimate]
+    end
+    subgraph "Optimization Engine"
+        OE[Dynamic Scheduling Engine]
+    end
+    SK --> OE
+    TR --> OE
+    AV --> OE
+    OE -->|Place work order| WO[Work Order]
+    WO --> TT[Travel Time Added to Schedule]
+    TT -->|Adjust start/end| AV
+```
 
 ---
 
@@ -390,3 +466,14 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Field Service Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](./csm-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [HAM guide](./ham-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+
+---
