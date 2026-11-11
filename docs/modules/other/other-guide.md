@@ -412,6 +412,118 @@ Agile is a way of building software in small, repeated cycles instead of one gia
 
 ---
 
+## 8. App Engine Studio & Code Deployment Methods
+
+Not all ServiceNow development happens the same way. Depending on who is building (citizen developer vs pro-code developer) and where the code is going (lower environment vs production), you choose different tools and different deployment paths.
+
+### App Engine Studio (AES) — who uses it and where
+
+**App Engine Studio** is ServiceNow's guided, low-code development environment. It sits inside **App Engine** — the platform layer that provides infrastructure, governance, and application lifecycle management. AES is the development tool you use within that layer.
+
+| Who uses AES | What they do |
+|---|---|
+| **Citizen developers** (line-of-business, little/no coding) | Build apps from templates or scratch using guided, visual flows — tables, forms, experiences, automation |
+| **Pro-code developers** | Build more complex scoped apps, write scripts, edit metadata, integrate with external systems |
+| **App Engine Studio admin** | Manages the pipeline via App Engine Management Center (AEMC) — reviews submissions, approves deployments, controls collaborator access |
+
+**Key facts about AES:**
+- AES requires an **App Engine subscription** (or a product packaged with one).
+- **Development happens on a non-production instance** — delegated developers build safely without touching production.
+- When an app is complete, the AES admin uses AEMC to request deployment into the pipeline (development → test → staging → production).
+- Final approval deploys the app to **production**, where it's available organization-wide.
+- AES is **not production-only** — you build and test in lower environments, then promote through the pipeline to prod.
+
+---
+
+### Code deployment methods — comparison
+
+ServiceNow offers two primary ways to move applications between environments:
+
+| Method | What it is | Best for | Production? |
+|---|---|---|---|
+| **Application Repository (App Repo)** | Central, versioned artifact store. Publish an app version from dev; test/prod instances install that published version. | Moving full applications across environments (preferred method) | ✅ Yes — install published version on prod |
+| **Update Sets** | Groups of configuration changes moved between instances. Move from dev → test → prod ("bottom of the stack up"). | Patches/changes to installed apps; when App Repo isn't available | ✅ Yes — commit on prod, but not for installing new apps |
+
+**Important:** Update Sets and the Application Repository are **mutually exclusive per application per instance**. Once you deploy via App Repo on an instance, you can't switch to Update Sets for that app on that instance (and vice versa).
+
+---
+
+### Source control / repository linkage (Git)
+
+Linking a scoped application to a **Git repository** (GitHub, Bitbucket, Azure DevOps) is another deployment method — but with an important constraint:
+
+- Source control linkage works on **non-production instances only** (development, test).
+- It is **not supported on production instances**.
+- On production, you manage applications using the **Application Repository**, an **Update Set**, or **ServiceNow Studio**.
+
+**Typical Git-based flow:**
+1. Developer builds in a sandbox/dev instance, pushes work to a feature branch in Git.
+2. Feature branch merged to `main` via pull request.
+3. `main` installed on the main development instance.
+4. App published from dev to **Application Repository** — this published version becomes the immutable artifact.
+5. Test instance installs the published version from App Repo; once it passes testing, production installs the same version.
+
+**Why this matters:** Git is the source of truth for development, but **production installs from the published Application Repository version**, not directly from Git. This gives you immutability, rollback, and an audit trail on prod.
+
+---
+
+### Lower environments vs production — the practical distinction
+
+The user's question: *"One method is for lower environments, and one is for prod only where it's just packaged?"*
+
+That's essentially right, with nuance:
+
+| Environment | What you do | Deployment method |
+|---|---|---|
+| **Development / Test** (lower) | Build, edit, iterate, break things safely | Source control (Git), Update Sets, or App Repo publish |
+| **Production** | Run the stable, approved version | Install from **Application Repository** (published version) or **Update Set** — **not** direct source control linkage |
+
+So in lower environments you use **source control + Update Sets + App Repo publish** to develop and validate. In production you consume the **packaged, published version** from App Repo. You don't link Git directly on production.
+
+---
+
+### Mini lab: Deploy an app from dev to test via Update Sets
+
+**Goal:** Move a custom scoped application from a development instance to a test instance using Update Sets.
+
+**Prerequisites:**
+- Two ServiceNow instances (dev and test)
+- A scoped application built on the dev instance
+- `admin` role on both instances
+
+**Steps:**
+
+1. **Create the Update Set on dev**
+   - On the dev instance, go to **System Update Sets > Update Sets > New**
+   - Name it (e.g., "My App v1.0"), set State = "In progress"
+   - Make it the **current** update set (so changes are captured)
+
+2. **Build your app while the update set is current**
+   - Create tables, fields, forms, business rules, etc. in your scoped app
+   - All changes are automatically added to the current update set
+
+3. **Complete the update set**
+   - When done, open the update set record and set State = **Complete**
+
+4. **Move to test**
+   - On the test instance, go to **System Update Sets > Retrieve Update Sets**
+   - Select the dev instance as the source, retrieve the completed update set
+   - Open the retrieved update set, review the changes, then click **Commit**
+
+5. **Verify on test**
+   - Confirm your scoped app and its customizations appear on the test instance
+   - Test the app thoroughly before any production move
+
+**Proof of concept:** The Update Set record on test shows State = "Committed" and all customization records (`sys_update_xml`) are applied. If something is wrong, you can fix it on dev with a new update set and repeat.
+
+---
+
+### Official Learning Resources
+- [Deploy your app — ServiceNow Product Documentation](https://www.servicenow.com/docs/r/application-development/deploy-your-app.html) — Application Repository vs Update Sets
+- [Link an app to source control — ServiceNow Studio](https://www.servicenow.com/docs/r/zurich/application-development/servicenow-studio-classic/link-app-to-source-control.html) — Git linkage (non-prod only)
+- [App Engine Studio overview — ServiceNow](https://www.servicenow.com/docs/r/application-development/app-engine-studio/aes-overview.html) — AES, AEMC, pipelines
+- [Configure your pipeline environments — AES](https://www.servicenow.com/docs/r/yokohama/application-development/app-engine-studio/config-pipeline-environments.html) — dev/test/staging/prod pipeline setup
+
 ## How These Fit With ServiceNow
 
 | "Other" item | ServiceNow connection point | Typical integration direction |
@@ -729,7 +841,8 @@ Here's a simple Jelly snippet used inside a Service Portal widget to greet the l
 | ITIL | ITSM module (incident, problem, change, CMDB) | ServiceNow IS the ITIL platform |
 | Agile | ServiceNow Agile Development / DevOps | ServiceNow tracks Agile work and defects |
 | ServiceNow Integrations | System Web Services, MID Server, ECC Queue | Outbound REST/SOAP / Inbound Scripted REST APIs |
-| Jelly | Service Portal widgets (server-side rendering) | Portal pages display ServiceNow data to end users |
+|| Jelly | Service Portal widgets (server-side rendering) | Portal pages display ServiceNow data to end users ||
+|| App Engine Studio & Code Deployment | App Engine Studio (low-code build), Source Control (Git), Update Sets, Application Repository | Build in AES on non-prod → publish to App Repo → install on prod ||
 
 ---
 
@@ -756,7 +869,11 @@ Here's a simple Jelly snippet used inside a Service Portal widget to greet the l
 | Scripted REST API | Expose ServiceNow data as REST for external callers |
 | Jelly | XML templating language for Service Portal |
 | Service Portal | Customer/employee-facing website (uses Jelly) |
-| Workspace / Agent Workspace | Modern agent UI (Vue.js, not Jelly) |
+|| Workspace / Agent Workspace | Modern agent UI (Vue.js, not Jelly) ||
+|| App Engine Studio (AES) | Guided low-code development environment inside App Engine; build apps without heavy coding ||
+|| Application Repository (App Repo) | Central, versioned artifact store; publish app versions from dev, install on test/prod ||
+|| Update Set | Group of configuration changes moved from dev → test → prod ||
+|| Source Control (Git) | Link scoped apps to Git repos on non-prod instances; Git is source of truth, prod installs from App Repo ||
 
 ---
 
