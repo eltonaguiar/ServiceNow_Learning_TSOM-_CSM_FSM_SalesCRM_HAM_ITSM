@@ -107,6 +107,19 @@
 <script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js"></script>
 <script>
   mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+  // Convert ```mermaid code fences to <div class="mermaid"> blocks for rendering
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre > code.language-mermaid, pre > code.mermaid').forEach(function (codeEl) {
+      var preEl = codeEl.parentElement;
+      var mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = codeEl.textContent;
+      preEl.parentNode.replaceChild(mermaidDiv, preEl);
+    });
+    if (window.mermaid) {
+      window.mermaid.init(undefined, undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
 </script>
 </body>
 </html>
