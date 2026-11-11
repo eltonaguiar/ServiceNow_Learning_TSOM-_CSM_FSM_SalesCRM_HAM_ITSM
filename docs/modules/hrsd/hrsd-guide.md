@@ -21,6 +21,7 @@
 - [Employee Center](#employee-center)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
+- [HRSD Roles & Role Containment](#hrsd-roles--role-containment)
 
 ---
 
@@ -96,6 +97,61 @@ Before HRSD can deliver its "consumer-grade HR life-event experience," the under
 | `sn_hr_le_case` | `hr_lifecycle_agent`, `hr_lifecycle_admin` | Lifecycle Event case records. |
 
 > **Security rule of thumb:** COE tables must have tighter ACLs than the base `sn_hr_core_case` table. A general HR agent should be able to see the case header but not the payroll/benefits detail unless explicitly granted.
+
+## HRSD Roles & Role Containment
+
+ServiceNow roles can **contain** other roles. When a role contains another role, anyone with the containing role inherits all the capabilities of the contained role. This is the root cause of the most common HRSD security misconfiguration: the `admin` (System Administrator) role contains `sn_hr_core.admin` (HR Administrator) by default, so every IT admin can see sensitive HR data unless you break that containment.
+
+### How role containment works
+
+| Concept | Detail |
+|---------|--------|
+| **Role contains role** | If Role A contains Role B, a user with Role A automatically has Role B's capabilities. |
+| **Grant flow** | Granting access to a role also grants access to every role that role contains (transitively). |
+| **Where configured** | User Administration > Roles > open a role > **Contains Roles** tab > move roles between Available and Collection columns. |
+
+### The default containment that creates an HR security risk
+
+When the HR Core / HRSD plugin (`sn_hr_core`) activates:
+
+- **HR Administrator (`sn_hr_core.admin`)** is contained in **System Administrator (`admin`)**.
+- This means **every IT System Administrator automatically has full HR Administrator access** — they can view salary, medical info, and all HR cases/profiles via forms, lists, and UI.
+- Only the HR Administrator (`sn_hr_core.admin`) can assign scoped HR roles.
+- Lifecycle Events Administrator (`sn_hr_le.admin`) is also part of/contained in HR Admin (`sn_hr_core.admin`) when Lifecycle Events is active.
+
+### Recommended end state (security best practice)
+
+After HRSD system configuration is complete:
+
+1. **Assign `sn_hr_core.admin` to at least two dedicated HR administrators.** The base system enforces a minimum admin count (property `sn_hr_core.min_admin_count`, default `2`) so you cannot accidentally delete your only HR admin.
+   - If only one person has the HR admin role and that person is deactivated, no one can perform HR admin duties.
+2. **Remove `sn_hr_core.admin` (and `sn_hr_le.admin`) from the `admin` role.** This prevents IT System Administrators from viewing sensitive HR information.
+   - Navigate to **User Administration > Roles > admin > Contains Roles > Edit**.
+   - Highlight `sn_hr_core.admin` (and `sn_hr_le.admin`) in the Contains Roles List and move them to the Collection column.
+   - Click **Save**, then log out and log back in for the change to take effect.
+3. **Re-point scheduled jobs.** The base system still requires a `admin` user to run scheduled jobs. Change the **Run as** field on each HR scheduled job to a dedicated user that has the HR admin role.
+4. **Validate System user context.** The `system` user inherits `admin`. When you remove HR admin from `admin`, `system` loses HR admin access — validate any customizations/business rules that run as `system`.
+
+### Key HRSD roles at a glance
+
+| Role | What it can do | Contained in |
+|------|---------------|--------------|
+| `sn_hr_core.admin` (HR Administrator) | Assign any HR role; view/create/edit HR cases and HR profiles (incl. salary); access HR Administration, dashboards, reports; associate users to HR roles/groups/skills | `admin` (by default — remove after setup) |
+| `sn_hr_le.admin` (Lifecycle Events Admin) | Manage Lifecycle Events groups, roles, UI config, dashboards; onboarding/offboarding journeys | `sn_hr_core.admin` |
+| `sn_hr_pa.admin` (HR Performance Analytics Admin) | HR PA content packs, PA properties, Admin Console, dependency assessment | `sn_hr_core.admin` |
+| `hr_case_agent` / `hr_case_admin` | HR case read/write on `sn_hr_core_case` | — |
+| `hr_profile_agent` / `hr_profile_admin` | HR profile read/write on `sn_hr_core_profile` (sensitive: salary, benefits, medical) | — |
+
+### Common HRSD role mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Leaving `sn_hr_core.admin` inside `admin` | Every IT admin can see salary and HR cases | Remove HR admin from `admin` after setup |
+| Only one HR admin | No one can assign HR roles if that person leaves/is deactivated | Maintain ≥ 2 active HR admins (`sn_hr_core.min_admin_count`) |
+| Storing sensitive HR data in `sys_user` | IT admins and broad roles can read private HR data | Use `sn_hr_core_profile` (HR Profile) instead |
+| Forgetting scheduled-job `Run as` after removing HR admin from `admin` | HR scheduled jobs fail or lose access | Re-point Run as to a dedicated HR admin user |
+
+---
 
 ### Breadcrumbs — What Needs to Be Enabled First
 
