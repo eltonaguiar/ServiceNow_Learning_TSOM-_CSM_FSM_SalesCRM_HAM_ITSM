@@ -761,21 +761,34 @@ ServiceNow CMDB relies on four distinct mechanisms that work together in a speci
 
 ---
 
-#### Data Source Rules — class-level, not attribute-level
+#### IRE Data Source Rules — class-level, not attribute-level
 
-**Purpose:** Prevent a particular source from inserting new CIs into a specified class.
+**Official ServiceNow name:** IRE Data Source Rules (often shortened to "Data Source Rules")
 
-| Source | Can insert servers? |
-|--------|---------------------|
-| Discovery | Yes |
-| IntegrationHub | No |
+**Purpose:** Prevent a particular source from inserting new CIs into a specified CI class. This is a **create-only** gate — it governs whether a source is permitted to create new CI records, not whether it can update existing ones.
 
-**Configuration:**
-* **CI class:** Server
-* **Discovery source:** IntegrationHub source
+| Source | Can insert new servers? | Can update existing servers? |
+|--------|------------------------|------------------------------|
+| Discovery | Yes | Yes (subject to reconciliation) |
+| IntegrationHub | No (if blocked) | Yes (subject to reconciliation) |
+
+**Configuration:** All > Configuration > Identification/Reconciliation > Data Sources
+* **CI class:** Server (or any CI class)
+* **Discovery source:** IntegrationHub source (or other source name)
 * **Insert Not Allowed:** Enabled
 
-IntegrationHub can still update an existing server, subject to reconciliation rules. Data Source Rules have **no attribute selector**, no "Apply to all attributes" option, and no field-specific configuration — they are strictly about whether a source is allowed to create new CIs of a given class.
+**What IRE Data Source Rules can and cannot do:**
+
+| Can do | Cannot do |
+|--------|-----------|
+| Block a source from inserting new CIs of a specific class | Restrict updates to specific attributes (RAM vs CPU) |
+| Prevent untrusted sources from creating CIs | Gate updates to existing CIs |
+| Apply at the CI class level | Apply at the field/attribute level |
+| Work independently of reconciliation priority | Use "Apply to all attributes" |
+
+IntegrationHub (or any blocked source) can still update an existing server's attributes, subject to reconciliation rules. IRE Data Source Rules are strictly about **creation**, not modification.
+
+**Important:** Data Source Rules are checked **only** when a new CI is being created (no identification match found). They do not affect updates to existing CIs — that is the exclusive domain of Reconciliation Rules.
 
 ---
 
@@ -850,26 +863,28 @@ Incoming CI payload
 
 Discovery / IntegrationHub / Service Graph
 
-```
-1. Identification Rules
-   Does this CI already exist?
-   ├─ Existing CI ────────→ Update path (go to step 2)
-   └─ New CI ─────────────→ Insert path (go to step 4)
-        │
-        ▼
-2. Reconciliation Rules (existing CIs only)
-   Is this source authorized to update these attributes?
-   Field-specific precedence applied
-   Staleness / refresh rules evaluated
-   │
-   ▼
-   Update existing CI — authorized changes committed
-   │
-   ▼
-4. Data Source Rules (new CIs only)
-   Is this source allowed to insert into this CI class?
-   ├─ Permitted ──→ Insert new CI into CMDB
-   └─ Blocked ─────→ Reject insert (no CI created)
+```mermaid
+flowchart TD
+    IN[Incoming CI payload<br/>Discovery / IntegrationHub / SGC] --> IDR{1. Identification<br/>Does this CI exist?}
+
+    IDR -->|MATCH FOUND<br/>Existing CI| REC[2. Reconciliation Rules<br/>Existing CIs only]
+    IDR -->|NO MATCH<br/>New CI| DS[4. IRE Data Source Rules<br/>New CIs only]
+
+    REC --> RECON_EVAL{Evaluate per field:<br/>• Source priority<br/>• Field-specific vs "Apply to all"<br/>• Staleness / refresh}
+    RECON_EVAL --> AUTHORIZED{Source authorized<br/>to update this field?}
+
+    AUTHORIZED -->|YES| UPDATE[CI updated —<br/>authorized changes committed]
+    AUTHORIZED -->|NO| NOCHANGE[No change —<br/>CI unchanged]
+
+    DS --> DS_CHECK{Source allowed<br/>to insert into<br/>this CI class?}
+    DS_CHECK -->|PERMITTED| NEWCI[New CI inserted<br/>into CMDB]
+    DS_CHECK -->|BLOCKED| REJECT[Insert rejected —<br/>no CI created]
+
+    style IDR fill:#e58a8a,color:#fff
+    style REC fill:#e5b567,color:#000
+    style DS fill:#4cc38a,color:#000
+    style NEWCI fill:#4cc38a,color:#000
+    style REJECT fill:#ff0000,color:#fff
 ```
 
 **Step-by-step examples**
