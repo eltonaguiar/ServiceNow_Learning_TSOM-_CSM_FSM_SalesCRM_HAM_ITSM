@@ -683,6 +683,90 @@ Fallback link: [TSM Showcase]()
 
 ---
 
+## TSOM Implementer Curriculum Cross-Check
+
+The table below maps the official **Telecommunications Service Operations Management (TSOM) Implementer** learning path (ServiceNow University) to where each topic is covered in this guide, the Discovery guide, or what remains external (course lab instance required).
+
+| TSOM Implementer path course | Covered in this guide? | Covered in Discovery guide? | Notes |
+|---|---|---|---|
+| Discovery Fundamentals | — | ✅ Full deep dive | Discovery guide: phases, schedules, patterns, FBD, Configuration Console |
+| Discovery Extras | — | ✅ Partial | Discovery guide: FBD deep dive, pattern customization; SGC for OTel added |
+| Integrate SGC for OpenTelemetry | — | ✅ New section | Discovery guide: "Deep Dive: Service Graph Connector for OpenTelemetry" |
+| Now Assist for SGC Implementation | — | — | Course lab instance required; concepts in Discovery guide OTel section |
+| Event Management Fundamentals | ⬜ New section below | — | Alert ingestion, correlation, suppression — TSOM's alarm engine |
+| Event and Flow in Action | ⬜ New section below | — | Event → alert → incident flow; guided remediation |
+| Operational Intelligence Fundamentals | — | — | Metric Intelligence, Health Log Analytics — ITOM features TSOM consumes |
+| Predictive Intelligence Fundamentals | — | — | Anomaly detection, forecasting — ITOM AIOps layer |
+| Now Assist for ITOM Implementer | ⬜ New section below | — | Alert Investigation / Alert Analysis skills |
+| Now Assist for ITOM Implementation | ⬜ New section below | — | Agentic workflows on top of TSOM/TNI foundation |
+| TSOM Essentials (March 2026 Store Release) | ✅ Purpose, ELI5, data model | — | This guide's Purpose, ELI5, tables, labs |
+| Exam: TSOM Delivery Accreditation | — | — | No CIS-TSOM exam; routes through CIS-EM (Event Management) |
+
+---
+
+### Event Management Fundamentals — TSOM's alarm engine
+
+TSOM does not invent its own alarm machinery. It consumes **Event Management** (an ITOM feature) for event ingestion, correlation, suppression, and alert creation. This is the "beep → alert" half of TSOM.
+
+| Concept | What it is | TSOM relevance |
+|---|---|---|
+| **Event** | A raw observation (`em_event`) — a device said something | The smoke detector's raw signal |
+| **Alert** | A cleaned, scored, de-duplicated event (`em_alert`) | The fire panel showing one light for 40 detectors |
+| **Correlation** | Grouping related alerts into one | 400 port-down alarms → 1 circuit-down alert |
+| **Suppression** | Muting alarms during planned maintenance | Don't wake the NOC for scheduled work |
+| **Severity** | Critical → Major → Minor → Warning | Drives who gets paged |
+| **Clear** | The device reports the problem is over | Unclosed alerts make dashboards lie |
+
+**Breadcrumbs:** All > Event Management > Event Rules / Alert Correlation / Maintenance Windows
+
+**How it fits TSOM:**
+- OSS/EMS (Nokia, Ericsson, Cisco) pushes alarms → Event Management ingests → correlation rules group them → alerts attach to CIs discovered by Discovery/SGC → Service Impact Analysis propagates impact to customer services → NOC sees one prioritized incident instead of 400 alarms.
+
+---
+
+### Event and Flow in Action
+
+This is the operational loop: an alert fires, a flow responds, and the NOC works the incident.
+
+| Step | What happens | Where |
+|---|---|---|
+| 1. Alert fires | Metric breach or trap received → `em_alert` created | Event Management |
+| 2. Correlation | Related alerts grouped → one alert represents the root cause | Alert Correlation rules |
+| 3. Incident created | Alert → incident (auto or manual) | Incident table (`incident`) |
+| 4. Flow responds | Flow Designer triggers on incident state change | Flow Designer |
+| 5. Remediation | Runbook / playbook executes (restart service, open change) | Orchestration / Playbooks |
+| 6. Clear | Device reports recovery → alert clears → incident closes | Event Management |
+
+**Key breadcrumb:** All > Flow Designer > Flow Designer (build flows that react to `em_alert` / `incident` state changes)
+
+---
+
+### Now Assist for ITOM — Implementer level
+
+Now Assist for ITOM adds generative AI to the alert investigation workflow. It is part of the "AI for Telecommunications" layer that sits on top of the TSOM/TNI foundation.
+
+| Capability | What it does | Implementer relevance |
+|---|---|---|
+| **Alert Investigation** | Summarizes an alert, suggests probable cause, recommends next steps | NOC agent opens an alert → Now Assist writes the summary |
+| **Alert Analysis** | Groups similar alerts, identifies patterns across time | Reduces noise; surfaces recurring root causes |
+| **Guided remediation** | Suggests or executes a remediation flow | From "what's wrong" to "here's the fix" in one click |
+
+**Breadcrumb:** Now Assist for ITOM skills are configured under **Now Assist > Now Assist for ITOM** (or via the Now Assist admin console, depending on release).
+
+**Implementer note:** Now Assist for ITOM requires a separate SKU/entitlement. It does not create CIs or run Discovery — it operates on top of the alert and event data that Discovery + Event Management already produce.
+
+---
+
+### Service Graph Connector for OpenTelemetry — TSOM angle
+
+Covered in depth in the Discovery guide ("Deep Dive: Service Graph Connector for OpenTelemetry"). For TSOM implementers, the key takeaway:
+
+- **Discovery** builds the topology (routers, circuits, services → CMDB)
+- **SGC for OpenTelemetry** feeds the metrics (CPU, latency, errors → `sn_otel_metric`)
+- **Together** they give TSOM both *what exists* and *whether it's healthy* — the two inputs Service Impact Analysis needs to turn a port failure into a customer-impacting incident
+
+---
+
 ## 🎓 Official Learning Resources
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:

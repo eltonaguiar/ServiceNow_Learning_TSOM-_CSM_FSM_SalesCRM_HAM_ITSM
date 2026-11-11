@@ -252,9 +252,94 @@ sys_class_name}) was discovered/updated by ${discovery_source} at ${discovered}`
 | **No loop guard** | ServiceNow update triggers external update which triggers ServiceNow update … | Check `discovery_source` / `u_external_updated` before writing; skip if already synced |
 | **Hard-coded credentials** | Password rotation breaks the e-bond | Use Connection & Credential Aliases; never embed passwords in flow actions |
 | **Syncing every field** | Massive payloads, slow syncs, field conflicts | Sync only the fields that matter (CI name, status, discovery source, last_discovered) |
-| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
+|| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
 
-### Official Learning Resources
+---
+
+## Deep Dive: Service Graph Connector for OpenTelemetry
+
+Service Graph Connector (SGC) for OpenTelemetry is how ServiceNow ingests **metrics, traces, and logs** from OpenTelemetry collectors — the CNCF open-source observability standard. This is **not** Discovery. Discovery scans and polls infrastructure to fill the CMDB with CIs. OpenTelemetry pushes **telemetry data** (metrics, traces, logs) from applications and infrastructure that is already instrumented.
+
+### What OpenTelemetry is
+
+OpenTelemetry (OTel) is a vendor-neutral framework for instrumenting applications to generate and export telemetry data:
+- **Metrics** — numerical measurements over time (CPU %, memory %, response time)
+- **Traces** — distributed request traces across microservices (span ID, trace ID, latency)
+- **Logs** — structured log records with severity, timestamp, attributes
+
+OTel collectors receive this data, process it, and export it to backends — including ServiceNow via the SGC for OpenTelemetry.
+
+### SGC for OpenTelemetry vs Discovery
+
+| Aspect | ITOM Discovery | SGC for OpenTelemetry |
+|---|---|---|
+| Direction | Instance **pulls** (scans/polls targets) | External **pushes** telemetry to ServiceNow |
+| What it creates | CIs in the CMDB (`cmdb_ci_*`) | Metric data, trace data, log entries |
+| Typical targets | Servers, network devices, cloud accounts | Instrumented apps, Kubernetes clusters, microservices |
+| Timing | Scheduled (daily, weekly, monthly) | Continuous / near real-time |
+| Primary consumer | CMDB, ITOM Visibility, TSOM inventory | Metric Intelligence, Health Log Analytics, TSOM assurance |
+| TSOM role | Builds the topology (what connects to what) | Feeds performance metrics and alerts for service impact |
+
+In TSOM, you need **both**: Discovery builds the network topology (routers, circuits, services), and OpenTelemetry feeds the metrics that tell you *whether* that topology is healthy.
+
+### Breadcrumbs
+
+| Destination | Breadcrumb |
+|---|---|
+| SGC central | All > Service Graph Connectors > Service Graph Connectors |
+| OpenTelemetry connector setup | All > Service Graph Connectors > OpenTelemetry > Setup |
+| Data sources | All > Service Graph Connectors > OpenTelemetry > Data Sources |
+| Credentials | All > Service Graph Connectors > OpenTelemetry > Credentials |
+| Schedules | All > Service Graph Connectors > OpenTelemetry > Schedules |
+| Ingested data | `sn_otel_metric`, `sn_otel_trace`, `sn_otel_log` tables |
+
+### Configuration steps
+
+1. **Install the connector** — Store app `sn_otel_sgc` (Service Graph Connector for OpenTelemetry)
+2. **Create a data source** — Define the OTel endpoint (OTLP HTTP/gRPC URL) the collector will export to
+3. **Configure credentials** — API token or basic auth for the OTel export endpoint
+4. **Create a schedule** — How often ServiceNow polls the OTel endpoint (or set up webhook push)
+5. **Map telemetry to CIs** — Configure identification rules so OTel metrics attach to existing CIs discovered by ITOM Discovery or SGC
+6. **Activate** — Turn on the connector; verify data appears in `sn_otel_metric`, `sn_otel_trace`, `sn_otel_log`
+
+### How OpenTelemetry feeds TSOM assurance
+
+OTel metrics flow into **Metric Intelligence** and **Health Log Analytics** (ITOM features TSOM consumes), which then feed:
+- **Event Management** — metric threshold breaches become events → alerts
+- **Service Impact Analysis** — alerts on a network element CI propagate impact to the customer service CI
+- **Now Assist for ITOM** — AI-assisted alert investigation using the metric context
+
+### Common OpenTelemetry SGC mistakes
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| **No CI identification mapping** | Metrics ingest but don't attach to any CI | Configure identification rules so OTel resource attributes match `cmdb_ci` fields (name, serial_number, etc.) |
+| **Wrong export protocol** | Collector can't reach ServiceNow | OTLP HTTP is the standard; confirm the endpoint URL and port (4318 for HTTP, 4317 for gRPC) |
+| **Missing MID Server** | OTel collector is on-prem, ServiceNow is cloud | Install a MID Server between the collector and the instance, or use OTel collector's built-in ServiceNow exporter |
+| **No schedule or wrong frequency** | Data is stale or missing | Set a schedule that matches the OTel export interval (typically 30s–5m for metrics) |
+| **Confusing OTel with Discovery** | Expecting OTel to create CIs | OTel creates metric/trace/log records, not CIs. Run Discovery first to build the CI topology |
+
+### Mini lab: Verify OpenTelemetry SGC data flow
+
+**Goal:** Confirm OTel metrics are ingested and attached to a CI.
+
+**Prerequisites:**
+- ServiceNow instance with ITOM Discovery and SGC for OpenTelemetry installed
+- An OTel collector running and exporting to the ServiceNow OTLP endpoint
+- A discovered CI (e.g., a server) whose name matches an OTel resource attribute
+
+**Steps:**
+1. **All > Service Graph Connectors > OpenTelemetry > Setup** — confirm the connector is active
+2. **All > Service Graph Connectors > OpenTelemetry > Data Sources** — verify your OTel endpoint is listed and active
+3. **All > Service Graph Connectors > OpenTelemetry > Schedules** — confirm a schedule exists and is enabled
+4. Run the schedule manually; open the **Schedule Status** record and confirm it completed without errors
+5. Query `sn_otel_metric` — confirm rows exist with recent `sys_created_on` timestamps
+6. Open a metric record and check the **CI reference** field — if identification mapping is correct, it should point to a discovered `cmdb_ci` (e.g., your server)
+7. Open that CI in the CMDB and confirm related metric data appears (if your instance has Metric Intelligence configured)
+
+**Proof of concept:** A metric row in `sn_otel_metric` with a populated `cmdb_ci` reference means OTel telemetry is successfully attached to your discovered topology — the foundation for TSOM service impact analysis.
+
+---
 - [ServiceNow IntegrationHub Fundamentals](https://nowlearning.com/) — Search "IntegrationHub" on Now Learning Portal
 - [ServiceNow Product Documentation — IntegrationHub](https://docs.servicenow.com/) → Search "IntegrationHub", "e-bonding", "spokes"
 - [Flow Designer documentation](https://docs.servicenow.com/) → Search "Flow Designer"
