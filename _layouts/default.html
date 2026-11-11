@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
 <meta name="description" content="{{ site.description }}">
 <script>
@@ -104,7 +107,7 @@
 
 <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/tts.js' | relative_url }}"></script>
-<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js?v=20261110"></script>
 <script>
   mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
   document.addEventListener('DOMContentLoaded', function () {
