@@ -12,6 +12,7 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [AI Feature Types Breakdown](#ai-feature-types-breakdown)
 - [Where to Find It](#where-to-find-it)
 - [AI Product Packaging — Foundation, Advanced, Prime](#ai-product-packaging--foundation-advanced-prime)
 - [Core AI Features Catalog](#core-ai-features-catalog)
@@ -38,6 +39,41 @@ ServiceNow AI is the platform layer that adds generative AI, predictive ML, and 
 **The core question AI answers:** *“Can the platform do the reading, drafting, routing, and triage so humans only do the deciding?”*
 
 ServiceNow’s AI packaging evolved to three tiers around April 2026 (Foundation, Advanced, Prime), replacing the prior five-tier model. Entitlements are contract-specific — what is “included” vs “add-on” varies by agreement. Confirm with your ServiceNow account team.
+
+---
+
+## AI Feature Types Breakdown
+
+ServiceNow AI is not one thing — it is four distinct feature types layered on top of the Now Platform. The table below shows how they differ, what problem each solves, and a concrete example.
+
+| Feature Type | What it does | Example | Typical Tier |
+|---|---|---|---|
+| **Generative AI — Now Assist** | Reads, writes, summarizes, drafts, and generates content using LLMs. Output is text, code, or structured suggestions. | Auto-summarize a 50-work-note incident thread into a 3-bullet executive summary; draft a resolution note; generate a KB article | Foundation, Advanced, Prime |
+| **Predictive Intelligence (ML)** | Trains on historical data to classify, route, predict, and find similar records. Output is a score, label, or ranked list. | Auto-route “Outlook not sending” → “Messaging Team” with 92% accuracy; find 3 similar past incidents; predict change effort hours | Foundation, Advanced, Prime |
+| **Virtual Agent (Conversational AI)** | Talks to users in natural language via chat/voice. Deflects tickets by resolving common requests without a human agent. | Employee says “I forgot my password” → bot verifies identity → resets password → confirms done, no ticket created | Foundation, Advanced, Prime |
+| **AI Agents / Agentic Workflows** | Reasons, plans, and acts autonomously (with guardrails). Uses tools, triggers, and multi-step reasoning to complete work. | Incident Triage Agent: reads a new P1 incident, finds similar incidents + KB + recent changes, drafts a triage summary, recommends assignment | Advanced, Prime |
+
+### Key distinctions
+
+| Distinction | Generative AI | Predictive Intelligence | Virtual Agent | AI Agents |
+|---|---|---|---|---|
+| **Input** | Text, records, documents | Historical structured data (fields, values) | User utterances (chat/voice) | Records, events, tool outputs, goals |
+| **Output** | Generated text / code / structured suggestion | Score, label, category, ranked list, prediction | Conversational response, ticket deflection | Action taken, recommendation, executed workflow |
+| **Human role** | Reviews and edits the draft | Reviews and applies the routing/prediction | Interacts via chat; escalates if stuck | Sets guardrails, approves high-stakes actions |
+| **Primary value** | Faster reading, drafting, documentation | Faster routing, fewer misroutes, proactive problem detection | Fewer tickets created, 24/7 self-service | End-to-end automation of multi-step processes |
+| **Best first use case** | Incident summarization | Auto-routing incidents to the right group | Password reset / password-related self-service | Incident triage package (context + recommendation) |
+
+### How they work together (a single incident lifecycle)
+
+| Stage | AI feature type | What happens |
+|---|---|---|
+| **1. Ticket arrives** | Virtual Agent | Employee chats “my VPN isn’t working” → bot attempts password reset / VPN troubleshooting → deflects the ticket or creates an incident with context |
+| **2. Ticket created** | Predictive Intelligence — Classification | Auto-routes the incident to “Network Team” based on `short_description` + historical patterns |
+| **3. Agent opens ticket** | Generative AI — Now Assist | Auto-summarizes the 20-work-note thread; suggests relevant KB articles via Similar Incidents; drafts a resolution note |
+| **4. Agent needs context** | AI Agent (Incident Triage Assistant) | Gathers related CIs, recent changes, similar incidents, KB articles → presents a triage package: “Likely cause: Change CHG004521. Runbook: KB009876.” |
+| **5. Resolution** | Generative AI + Flow Designer | Agent clicks “Execute remediation” → agent runs a pre-approved flow (e.g., restart interface) → ticket auto-closes on verification |
+
+**Rule of thumb:** Start with Generative AI (Now Assist summarization) for immediate productivity, then add Predictive Intelligence (classification/similarity) for routing, then Virtual Agent for deflection, then AI Agents for multi-step automation — in that order, because each layer depends on the data quality of the one before it.
 
 ---
 
