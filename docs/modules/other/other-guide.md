@@ -433,6 +433,12 @@ Not all ServiceNow development happens the same way. Depending on who is buildin
 - Final approval deploys the app to **production**, where it's available organization-wide.
 - AES is **not production-only** — you build and test in lower environments, then promote through the pipeline to prod.
 
+**test → staging → production are separate ServiceNow instances**, not just statuses in AEMC:
+- Each environment (dev, test, staging, prod) is its own ServiceNow instance with its own URL, database, credentials, and data.
+- You configure each one in AEMC under **Pipelines and Deployments > Environments** (instance type: Development, Testing, Staging, Production).
+- **AEMC / Pipelines and Deployments** is the management layer that orchestrates moving the app between those instances — it defines the pipeline order, tracks deployment requests, runs approvals, and records which version is installed where.
+- The **controller instance** is usually production — that's where deployment requests are created, approved, and tracked.
+
 ---
 
 ### Code deployment methods — comparison
@@ -564,33 +570,78 @@ So in lower environments you use **source control + Update Sets + App Repo publi
 </details>
 
 <details>
-<summary><strong>Lab C: Two developers edit the same widget — the conflict scenario</strong></summary>
+<summary><strong>Lab C: Two developers edit the same widget — no diff, last-write-wins</strong></summary>
 
-**Goal:** See exactly what happens when two people modify the same widget simultaneously via update sets.
+**Goal:** See exactly what happens when two people modify the same widget via update sets — including whether ServiceNow shows a conflict or diff.
 
-**Scenario:**
-- **Developer Alice** opens Widget "Client Portal Home" in her update set "US-ALICE". She changes the **header title** from "Welcome" to "Welcome to Client Portal".
-- **Developer Bob** opens the same Widget "Client Portal Home" in his update set "US-BOB". He adds a **footer** with copyright text.
-- Neither knows the other is editing the same widget.
+**Short answer up front:** ServiceNow does **not** show a conflict, diff, or merge warning. When two update sets contain the same table record (the same widget), the one committed last wins for **every field in that record**. There is no field-level merge.
 
-**What happens on test (step by step):**
+| Scenario | Who does what | What breaks | Does ServiceNow warn? |
+|---|---|---|---|
+| **Scenario 1** | Alice & Bob both commit update sets containing the same widget, different headers | Last commit wins; first change is lost | No |
+| **Scenario 2** | Alice edits prod directly; Bob commits an update set to prod | Direct edit overwritten by update set (or vice versa) | No |
+| **Scenario 3** | After both commit | No diff view — only the last-committed value remains | No |
 
-1. Alice retrieves US-ALICE on test and commits it. The widget now has the new header title ("Welcome to Client Portal") but **no footer**.
-2. Bob retrieves US-BOB on test and commits it. His update set contains the widget record **as it existed when he captured it on dev** — with the *original* header title ("Welcome") and his new footer.
-3. When Bob commits, his version of the widget record overwrites Alice's. The widget on test now has: original header ("Welcome") + Bob's footer. **Alice's header title change is lost.**
+---
 
-**What the conflict looks like:**
-- Alice's `sys_update_xml` record for the widget shows `title = "Welcome to Client Portal"`.
-- Bob's `sys_update_xml` record for the same widget shows `title = "Welcome"` (the older value) plus his footer HTML.
-- On test, after Bob commits, the widget's `title` field reverts to "Welcome" because Bob's update set was applied last.
+### Scenario 1: Both using update sets (dev → test)
 
-**The fixing process:**
-1. Alice notices her header title is missing. She checks the widget on test and sees "Welcome" instead of "Welcome to Client Portal".
-2. Alice creates a **new update set** "US-ALICE-FIX" on dev, sets it current, re-applies her header title change to the widget, completes it.
-3. Alice retrieves US-ALICE-FIX on test and commits it. The widget now has both the correct header title and Bob's footer.
-4. (Optional) Alice and Bob agree on who "owns" the widget going forward to avoid repeat conflicts.
+**The setup:**
+- Original widget header on dev: `<h1>Welcome</h1>`
+- **Developer Alice** opens Widget "Client Portal Home" in her update set "US-ALICE". She changes the header to `<h1>Our Page</h1>`.
+- **Developer Bob** opens the same widget in his update set "US-BOB". He changes the header to `<h1>ITAM Homepage</h1>`.
+- Both captured the widget from the same dev baseline. Neither knows the other touched it.
 
-**Lesson:** Update Sets do **not** merge field-level changes intelligently. If two update sets contain the same table record (e.g., the same widget), the one committed last wins for every field in that record. Coordinate who edits what, or use source control (Git) which handles merging better.
+**What happens on test:**
+
+| Step | Action | Widget header on test after step |
+|---|---|---|
+| 1 | Alice commits US-ALICE on test | `<h1>Our Page</h1>` |
+| 2 | Bob commits US-BOB on test | `<h1>ITAM Homepage</h1>` |
+
+**Result:** Alice's `<h1>Our Page</h1>` is **lost**. Bob's update set contained the widget record with `<h1>ITAM Homepage</h1>` (his captured version), and when it committed last, it overwrote Alice's version entirely — not just the header, every field in that widget record.
+
+**Does the system show a conflict?** No. No warning, no diff, no merge prompt. Bob's commit succeeded silently. You only discover the problem when you open the widget and see Alice's change is gone.
+
+---
+
+### Scenario 2: Alice edits directly in Prod, Bob commits an update set to Prod
+
+**The setup:**
+- Widget header on prod: `<h1>Welcome</h1>`
+- **Alice** directly edits the widget on **prod** (not via an update set — she just opens the widget form and saves), changing the header to `<h1>Our Page</h1>`.
+- **Bob** commits US-BOB to prod, which contains the widget record with header `<h1>ITAM Homepage</h1>` (captured from dev/test).
+
+**What happens:**
+- Bob's update set is committed to prod. It contains the widget record with `<h1>ITAM Homepage</h1>`.
+- This overwrites Alice's direct prod edit.
+- Widget header on prod after Bob commits: `<h1>ITAM Homepage</h1>`. **Alice's direct edit is lost.**
+
+**The reverse (Bob commits first, then Alice edits directly):**
+1. Bob commits US-BOB to prod: header = `<h1>ITAM Homepage</h1>`
+2. Alice directly edits the widget on prod: header = `<h1>Our Page</h1>`
+3. Widget header on prod: `<h1>Our Page</h1>` — Alice's direct edit is the last change, but it is **not captured in any update set**. If someone later commits another update set containing this widget, Alice's change could be overwritten again.
+
+---
+
+### Scenario 3: What the "conflict" actually looks like
+
+There is no diff view in ServiceNow. You only see the aftermath:
+
+- Alice's `sys_update_xml` record for the widget shows `title = "<h1>Our Page</h1>"`.
+- Bob's `sys_update_xml` record for the same widget shows `title = "<h1>ITAM Homepage</h1>"`.
+- After both commit on test/prod, the widget's actual `title` field holds whichever was committed last. The other value is gone — not merged, not conflict-flagged, just overwritten.
+
+---
+
+### The fixing process
+
+1. Alice notices her header `<h1>Our Page</h1>` is missing; the widget shows `<h1>ITAM Homepage</h1>` or `<h1>Welcome</h1>`.
+2. Alice creates a **new update set** "US-ALICE-FIX" on dev, sets it current, re-applies `<h1>Our Page</h1>` to the widget, completes it.
+3. Alice retrieves US-ALICE-FIX on test/prod and commits it.
+4. Widget now shows `<h1>Our Page</h1>` — but Bob's footer (if he added one) may also be gone if Bob's update set included it and Alice's fix doesn't. They need to re-coordinate.
+
+**Lesson:** Update Sets do **not** diff or merge field-level changes. Last committed record wins. Coordinate who edits what, use source control (Git) for real merging, or designate a single owner per widget/app to avoid these silent overwrites.
 
 </details>
 
