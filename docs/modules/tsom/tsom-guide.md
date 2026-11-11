@@ -42,6 +42,11 @@
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
 - [TSOM Implementer Curriculum Cross-Check](#tsom-implementer-curriculum-cross-check)
+  - [Event Management Fundamentals — TSOM's alarm engine](#event-management-fundamentals--tsoms-alarm-engine)
+  - [Event and Flow in Action](#event-and-flow-in-action)
+  - [Operational Intelligence Fundamentals — metrics, logs, and ML anomaly detection](#operational-intelligence-fundamentals--metrics-logs-and-ml-anomaly-detection)
+  - [Now Assist for ITOM — Implementer level](#now-assist-for-itom--implementer-level)
+  - [Service Graph Connector for OpenTelemetry — TSOM angle](#service-graph-connector-for-opentelemetry--tsom-angle)
 - [TSOM Implementer Skill Coverage — All 15 Course Skills](#tsom-implementer-skill-coverage--all-15-course-skills)
 - [🎓 Official Learning Resources](#-official-learning-resources)
 - [Related Guides](#related-guides)
@@ -909,7 +914,7 @@ The table below maps the official **Telecommunications Service Operations Manage
 | Now Assist for SGC Implementation | — | — | Course lab instance required; concepts in Discovery guide OTel section |
 | Event Management Fundamentals | ⬜ New section below | — | Alert ingestion, correlation, suppression — TSOM's alarm engine |
 | Event and Flow in Action | ⬜ New section below | — | Event → alert → incident flow; guided remediation |
-| Operational Intelligence Fundamentals | — | — | Metric Intelligence, Health Log Analytics — ITOM features TSOM consumes |
+| Operational Intelligence Fundamentals | ⬜ New section below | — | Metric Intelligence + Health Log Analytics — the ML anomaly layer over Event Management. See "Operational Intelligence Fundamentals" |
 | Predictive Intelligence Fundamentals | — | — | Anomaly detection, forecasting — ITOM AIOps layer |
 | Now Assist for ITOM Implementer | ⬜ New section below | — | Alert Investigation / Alert Analysis skills |
 | Now Assist for ITOM Implementation | ⬜ New section below | — | Agentic workflows on top of TSOM/TNI foundation |
@@ -952,6 +957,36 @@ This is the operational loop: an alert fires, a flow responds, and the NOC works
 | 6. Clear | Device reports recovery → alert clears → incident closes | Event Management |
 
 **Key breadcrumb:** All > Flow Designer > Flow Designer (build flows that react to `em_alert` / `incident` state changes)
+
+---
+
+### Operational Intelligence Fundamentals — metrics, logs, and ML anomaly detection
+
+**Operational Intelligence (OI)** is the ITOM layer that watches *performance*, not just *up/down*. Event Management tells you something broke; Operational Intelligence tells you something is **degrading before it breaks** — by learning what "normal" looks like for every metric and log stream, then flagging deviations from that baseline. It is historically an add-on to Event Management and is delivered today through two apps:
+
+| App | Watches | Detects | Answers |
+|---|---|---|---|
+| **Metric Intelligence** | Numeric performance metrics (CPU, latency, errors, throughput) collected from CIs | Threshold breaches **and** AI-based anomalies vs a learned baseline, with an anomaly score 0–10 | *How much / how fast* is it degrading? |
+| **Health Log Analytics (HLA)** | Raw infrastructure logs and log patterns | Anomalous log behaviour vs a learned baseline | *Why* is it degrading — what is the underlying cause? |
+
+**How OI differs from a plain threshold tool**
+
+| | Static threshold rule | Operational Intelligence |
+|---|---|---|
+| Who defines "abnormal" | A human writes "CPU > 90% for 5 min" | Learns each series' normal shape, including seasonality |
+| What fires | Exactly the configured condition | Deviation from the learned baseline, scored 0–10 |
+| Blind spot | Slow drift below the threshold; false positives on legitimately spiky series | Neither — catches subtle drift and tolerates normal spikes |
+
+**Where the anomalies go:** both apps **forward anomalies as events into Event Management**, where they are correlated with traps and metric alerts for the same CI, then follow the normal alert → incident path. OI does not open CMDB tasks itself; it feeds the same pipeline TSOM already consumes. Metric Intelligence anomalies can also be promoted to IT alerts and surface in Service Operations Workspace and service-health dashboards; its **Insights Explorer** charts metric statistics and the **Anomaly Map** plots correlated anomaly scores across CIs on a timeline.
+
+**Breadcrumbs:**
+- Metric Intelligence: **All > ITOM > Metric Intelligence** (docs cluster: IT Operations Management → Metric Intelligence)
+- Health Log Analytics: **All > ITOM > Health Log Analytics** (docs cluster: IT Operations Management → Health Log Analytics)
+- Where alerts land: **All > Event Management > Alerts** (the shared `em_alert` table)
+
+**How it fits TSOM:** TSOM's detect → analyze → communicate → act loop gets *density* from OI. Event Management supplies the "it's down" beep; Operational Intelligence supplies the "it's trending to down" early warning and the "here's why" log evidence, both keyed to the same telecom CIs (routers, ports, circuits) that Discovery/SGC populated. For a CSP that is the difference between reacting to a fibre cut and pre-empting a degrading uplink.
+
+**Implementer note:** OI needs a metrics/log source and a clean CI identity to key anomalies against — the same MID Server, SGC-for-OpenTelemetry, and Discovery investment TSOM already depends on. No CMDB data, no useful baseline.
 
 ---
 
