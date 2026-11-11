@@ -21,6 +21,7 @@
 - [Reconciliation Rules Deep Dive](#reconciliation-rules-deep-dive)
 - [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence--sccm--soroc-example)
 - [Data Refresh & Staleness Rules](#data-refresh--staleness-rules)
+- [Identification vs Reconciliation vs Data Source vs Data Refresh Rules](#identification-vs-reconciliation-vs-data-source-vs-data-refresh-rules)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -603,6 +604,20 @@ IRE is the engine that prevents duplicate CIs and keeps data accurate.
 - IMEI / MEID (mobile devices)
 - Device ID / serial (SD-WAN edges, vManage)
 
+**Identifier entry types — Regular vs Lookup vs Hybrid**
+
+Each identifier entry within an Identification Rule pulls its matching fields from one of three sources:
+
+| Entry type | What it uses | Example |
+|------------|--------------|---------|
+| **Regular** | Fields on the CI's own table | Server serial number + serial number type |
+| **Lookup** | Fields on a related table that references the CI | Network adapter MAC address (from `cmdb_ci_network_adapter`) |
+| **Hybrid** | Fields from both the CI table and a related table | Server name (CI table) + serial number (related table) |
+
+These are **not** separate rule categories — they are three types of *identifier entries* within a single Identification Rule. A single rule can contain multiple entries of mixed types, each evaluated in priority order.
+
+**Important:** Lookup entries can impact performance because they require a join to a related table. ServiceNow recommends preferring Regular entries (CI's own fields) where possible, and using Lookup entries only when the identifying attribute genuinely lives on a related table.
+
 **Important:** Identification operates on the `cmdb_ci` hierarchy. A rule on `cmdb_ci_computer` matches against `cmdb_ci_computer` records, which are also `cmdb_ci` records. Fields used in identification must exist on the target table (or be inherited from `cmdb_ci`). Fields that live only on a Model table (`cmdb_model`) cannot be used to identify a CI record — IRE identifies the CI, not the model.
 
 If a match is found, the existing CI is updated. If not, a new CI is created.
@@ -718,7 +733,168 @@ flowchart TD
 
 **Warning:** Staleness-aware rules can cause "ping-pong" if two sources refresh each other alternately. Use strict priority for critical identity fields (serial number, name) and staleness-aware only for non-identifying attributes.
 
-### The Cost of Poor IRE
+---
+
+### Identification vs Reconciliation vs Data Source vs Data Refresh Rules
+
+ServiceNow CMDB relies on four distinct mechanisms that work together in a specific order. Understanding the distinction — and the order in which they apply — is critical for IRE interviews and implementations.
+
+#### The four pillars compared
+
+| Feature | What it controls | Configuration level | Main purpose |
+|---------|-----------------|---------------------|--------------|
+| **Identification Rules** | Which attributes identify a CI (does it already exist?) | Class → identifier entry → attributes | Prevent duplicate CIs |
+| **Reconciliation Rules** | Which sources can update CI attributes | Class and attribute level | Prevent unauthorized overwrites |
+| **Data Source Rules** | Whether a source can insert new CIs | Class level | Block untrusted CI creation |
+| **Data Refresh Rules** | When data from a higher-priority source becomes stale | Class level, with refresh criteria | Allow lower-priority sources to update stale data |
+
+#### Class level vs attribute level
+
+| Feature | Class-level configuration | Attribute-level configuration |
+|---------|--------------------------|-------------------------------|
+| **Identification** | Rule applies to a CI class | Identifier entries select matching fields |
+| **Reconciliation** | Rules can authorize sources across a class | Specific attributes can have separate authorization |
+| **Data Source** | Blocks inserts for a specified CI class | No individual field selection |
+| **Data Refresh** | Refresh policy applies to a CI class | Refresh is evaluated against attribute freshness/history |
+
+**Important:** A class-level rule can still have attribute-level effects. For example, a reconciliation rule is associated with a class but can authorize only selected attributes.
+
+---
+
+#### Data Source Rules — class-level, not attribute-level
+
+**Purpose:** Prevent a particular source from inserting new CIs into a specified class.
+
+| Source | Can insert servers? |
+|--------|---------------------|
+| Discovery | Yes |
+| IntegrationHub | No |
+
+**Configuration:**
+* **CI class:** Server
+* **Discovery source:** IntegrationHub source
+* **Insert Not Allowed:** Enabled
+
+IntegrationHub can still update an existing server, subject to reconciliation rules. Data Source Rules have **no attribute selector**, no "Apply to all attributes" option, and no field-specific configuration — they are strictly about whether a source is allowed to create new CIs of a given class.
+
+---
+
+#### Order of Operations — Multiple Conflicting Rules
+
+When multiple rules apply to the same field or the same CI class, ServiceNow resolves conflicts in this order:
+
+**Step 1 — Identification happens first**
+Before anything else, IRE asks: *Does this CI already exist?* Identification rules run against the incoming data. If no rule matches, a new CI is created and **reconciliation is skipped entirely** — no source priority, no refresh rules, nothing else applies. Data Source Rules are checked at the insertion step.
+
+**Step 2 — Field-level reconciliation (source priority per field)**
+If the CI exists, IRE reconciles each field independently. For every field on the CI, IRE looks at all sources providing that field. The source with the **highest priority (lowest number)** wins — unless staleness rules allow override. Losing sources' values are discarded for that field.
+
+**Step 3 — Field-specific beats table-level ("Apply to all")**
+An attribute-specific rule takes precedence over an "Apply to all" rule, regardless of priority number.
+
+| Rule | Source | Attributes | Priority | Effect |
+|------|--------|------------|----------|--------|
+| Rule 1 | Discovery | Apply to all | 100 | Authorized for all attributes |
+| Rule 2 | IntegrationHub | RAM | 200 | Authorized for RAM |
+| Rule 3 | IntegrationHub | Cost centre | 100 | Authorized for Cost centre |
+
+**Result:** IntegrationHub's RAM rule (priority 200) takes precedence over Discovery's "Apply to all" (priority 100) for RAM. IntegrationHub's Cost centre rule (priority 100) beats Discovery (priority 100) for Cost centre. Discovery's broad rule still applies to every other attribute. **Priority number alone does not decide — scope (field-specific vs table-level) matters first.**
+
+**Step 4 — Staleness / Data Refresh override**
+If the highest-priority source's data is stale (hasn't updated within the configured threshold), a lower-priority authorized source may refresh the field — but only if Data Refresh Rules permit it and only for fields the lower-priority source is authorized to update.
+
+#### Step-by-step examples
+
+**Example A: Two sources update the same field — who wins?**
+
+CI: Server `WEB01`. Both Discovery and SCCM send `os_version`.
+- Discovery priority: 100
+- SCCM priority: 200
+
+**Discovery wins.** Its value is written to `cmdb_ci_server.os_version`. SCCM's value is discarded for this field.
+
+**Example B: Same field, attribute-specific beats broad**
+
+CI: Server `WEB01`. Both Discovery ("Apply to all", priority 100) and IntegrationHub ("RAM only", priority 200) send `ram`.
+
+**IntegrationHub wins for RAM** because its rule is field-specific (attribute-level), even though its priority number (200) is higher than Discovery's (100). For all other fields, Discovery's "Apply to all" still governs.
+
+**Example C: Stale primary source — lower-priority source refreshes**
+
+CI: Server `WEB01`, field `serial_number`.
+- SCCM priority 100, last updated RAM 40 days ago
+- Soroc priority 200, last updated RAM today
+- Data Refresh Rule: stale threshold 30 days, refreshable = true
+
+**Soroc updates RAM.** SCCM's data is older than the 30-day threshold, so the lower-priority source (Soroc) is allowed to refresh the field.
+
+**Example D: Same CI class, different fields — independent winners**
+
+CI: Server `WEB01`. SCCM sends `name` + `os_version`. Soroc sends `serial_number` + `cost_centre`.
+- SCCM priority 100, fields: `name`, `os_version`
+- Soroc priority 200, fields: `serial_number`, `cost_centre`
+
+**Result per field:**
+- `name`: SCCM wins (only SCCM provides it)
+- `os_version`: SCCM wins (only SCCM provides it)
+- `serial_number`: Soroc wins (only Soroc provides it)
+- `cost_centre`: Soroc wins (only Soroc provides it)
+
+Different sources can own different fields on the same CI record. A source that loses on one field may win on another.
+
+---
+
+#### Complete IRE processing flow
+
+Incoming CI payload
+
+Discovery / IntegrationHub / Service Graph
+
+```
+1. Identification Rules
+   Does this CI already exist?
+   ├─ Existing CI ────────→ Update path (go to step 2)
+   └─ New CI ─────────────→ Insert path (go to step 4)
+        │
+        ▼
+2. Reconciliation Rules (existing CIs only)
+   Is this source authorized to update these attributes?
+   Field-specific precedence applied
+   Staleness / refresh rules evaluated
+   │
+   ▼
+   Update existing CI — authorized changes committed
+   │
+   ▼
+4. Data Source Rules (new CIs only)
+   Is this source allowed to insert into this CI class?
+   ├─ Permitted ──→ Insert new CI into CMDB
+   └─ Blocked ─────→ Reject insert (no CI created)
+```
+
+**Step-by-step examples**
+
+| Scenario | Result |
+|----------|--------|
+| Discovery reports an existing server | Identification matches it; reconciliation controls which attributes Discovery can update |
+| IntegrationHub reports the same server | Matches existing CI; reconciliation controls updates |
+| Discovery reports a brand-new server | Data Source Rule permits insertion → new CI created |
+| IntegrationHub reports a brand-new server | Data Source Rule blocks insertion if IntegrationHub is prohibited from inserting into that class |
+
+**Remember the four responsibilities:**
+
+| Responsibility | Question it answers |
+|----------------|---------------------|
+| Identification | Does this CI already exist? |
+| Reconciliation | Who can update its attributes? |
+| Data Refresh | Has the higher-priority source's data become stale? |
+| Data Source | Can this source create a new CI? |
+
+**Technical qualification:** This is a conceptual decision flow, not a literal guarantee of the internal execution order of every IRE processing operation in the ServiceNow platform. It describes the logical outcome: identification determines exist vs. new, reconciliation gates attribute updates on existing CIs, and Data Source Rules gate new-CI creation.
+
+**One final nuance:** Reconciliation and Data Refresh Rules are relevant to updates of matched records. Reconciliation is not applied to a brand-new CI insert. Data Source Rules can stop that insert.
+
+---
 - Duplicate CIs → wrong impact analysis
 - Stale data → wrong change risk assessment
 - Missing relationships → incomplete service maps
