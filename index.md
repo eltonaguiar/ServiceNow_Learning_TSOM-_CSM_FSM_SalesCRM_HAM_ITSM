@@ -62,6 +62,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p>Application service discovery — pattern-based top-down mapping of CIs to business services, CMDB relationships, and service impact analysis.</p>
     <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
   </div>
+  <div class="card">
+    <h3>AI</h3>
+    <p>Now Assist, Predictive Intelligence, AI Agents, Virtual Agent, and AI Control Tower — generative and predictive AI across the Now Platform.</p>
+    <p class="meta"><a href="./docs/modules/ai/ai-guide/">Open the AI guide</a></p>
+  </div>
 </div>
 
 ## Salesforce Training
