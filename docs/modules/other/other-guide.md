@@ -444,22 +444,70 @@ ServiceNow is rarely an island. It needs to send data out (e.g., "create a ticke
 | Import Sets | System Import Sets → ... | Load flat-file/CSV data (often from legacy extracts) into staging tables |
 | Transform Maps | System Import Sets → Transform Maps | Map imported fields to target tables (e.g., CMDB) |
 
+### Inbound REST (Scripted REST API) vs Table API
+
+When should you use Inbound REST (Scripted REST API) vs the Table API?
+
+**Table API** is ServiceNow's native, low-level CRUD interface for tables. It's ideal for:
+- Direct table operations (create, read, update, delete records)
+- Simple, well-understood data transformations
+- When you need to work with tables that aren't exposed via REST
+- Internal ServiceNow applications where you already have table references
+
+**Inbound REST (Scripted REST API)** is a higher-level, RESTful endpoint that exposes ServiceNow data to external systems. Use it when you need to:
+- Let external applications (other SaaS, legacy systems, custom code) call ServiceNow data
+- Build webhooks or event-driven integrations
+- Provide a stable, versioned contract for third-party integrations
+- Decouple your ServiceNow instance from direct table access
+
+**Practical example:**
+A monitoring system needs to receive alerts when a server's CPU usage exceeds 90% and create a ServiceNow incident automatically.
+
+- **Table API approach:** The monitoring script queries the `incident` table directly (or uses a script include that does) and creates records. This couples the integration to a specific table and requires the external system to know the table structure.
+- **Inbound REST approach:** You create a Scripted REST API on the `incident` table (or a custom table) that accepts a POST request with alert data, validates it, and creates the incident. The external system calls this REST endpoint instead of knowing about ServiceNow tables.
+
+**Why choose one over the other:**
+| Aspect | Table API | Inbound REST (Scripted REST API) |
+|--------|-----------|----------------------------------|
+| Abstraction | Low-level, direct table access | High-level, RESTful endpoint |
+| Coupling | Tightly couples to specific tables | Loose coupling — external systems call your API |
+| Security | Requires careful table-level permissions | Can enforce API-level auth (OAuth2, API keys) |
+| Versioning | Table schema changes break consumers | API versioning is explicit in the REST contract |
+| Scalability | Can hit table limits with high volume | Stateless, can be scaled horizontally |
+| Use case | Internal ServiceNow app logic | External integrations, webhooks, third-party systems |
+
+**Comparison table**
+
+| Feature | Table API | Inbound REST (Scripted REST API) |
+|---------|-----------|----------------------------------|
+| Primary purpose | CRUD on ServiceNow tables | Expose data to external callers |
+| Authentication | Table/record-level permissions | API-level (OAuth2, API key, basic auth) |
+| Request format | Direct table queries | JSON/REST payloads |
+| Response format | Record objects | JSON with custom structure |
+| Scalability | Limited by table capacity | Horizontally scalable, stateless |
+| Coupling | Tight (depends on table schema) | Loose (external system defines its own payload) |
+| Ideal for | Internal ServiceNow integrations | Third-party systems, webhooks, external apps |
+
+**When to use each:**
+- **Use Table API** when building internal ServiceNow applications, performing bulk data operations, or when the integration only needs to read/write a few specific tables.
+- **Use Inbound REST** when you need to integrate with external systems (other SaaS, legacy mainframes, custom code) that should be able to call ServiceNow data without knowing the internal table structure.
+
 ### REST APIs — outbound vs inbound
 
-| Direction | Purpose | Key config |
-|-----------|---------|------------|
-| Outbound REST Message | ServiceNow calls an external API | `System Web Services → REST Messages` → New → set endpoint, method, auth |
-| Inbound Scripted REST API | External system calls ServiceNow | `System Web Services → Scripted REST APIs` → create API, define resources/HTTP methods, return JSON |
+Direction | Purpose | Key config
+----------|----------|------------|
+Outbound REST Message | ServiceNow calls an external API | `System Web Services → REST Messages` → New → set endpoint, method, auth |
+Inbound Scripted REST API | External system calls ServiceNow | `System Web Services → Scripted REST APIs` → create API, define resources/HTTP methods, return JSON |
 
 ### MID Server connectivity
 
-| Concept | What it is | Why it matters |
-|---------|-----------|----------------|
-| MID Server | Java agent installed inside your network | Lets the cloud ServiceNow instance reach on-prem systems behind firewalls |
-| ECC Queue | Queue of commands sent to / received from MID Servers | Where you see probe execution status (Running / Completed / Error) |
-| Probe | Definition of what the MID Server should do | E.g., JDBC query, SSH command, SNMP scan, directory lookup |
-| Sensor | Processes the MID Server's response back into ServiceNow | Turns raw probe output into CMDB records, events, etc. |
-| JDBC Probe | Queries a database (e.g., DB2 for i, SQL Server) via MID Server | Used for legacy middleware extraction (AS/400 inventory → CMDB) |
+Concept | What it is | Why it matters
+--------|------------|------------|
+MID Server | Java agent installed inside your network | Lets the cloud ServiceNow instance reach on-prem systems behind firewalls
+ECC Queue | Queue of commands sent to / received from MID Servers | Where you see probe execution status (Running / Completed / Error)
+Probe | Definition of what the MID Server should do | E.g., JDBC query, SSH command, SNMP scan, directory lookup
+Sensor | Processes the MID Server's response back into ServiceNow | Turns raw probe output into CMDB records, events, etc.
+JDBC Probe | Queries a database (e.g., DB2 for i, SQL Server) via MID Server | Used for legacy middleware extraction (AS/400 inventory → CMDB)
 
 ### Common mistakes
 
