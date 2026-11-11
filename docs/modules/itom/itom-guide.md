@@ -12,17 +12,24 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-Discovery & CIS-Event Management](#official-exam-alignment--cis-discovery--cis-event-management)
+- [Discovery PCIE Phase Diagram](#discovery-pcie-phase-diagram)
+- [Event Management → Incident Flow Diagram](#event-management--incident-flow-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
-- [Deep Dive: Event Management → Incident](#deep-dive-event-management-to-incident)
+- [Deep Dive: Event Management → Incident](#deep-dive-event-management--incident)
 - [Lab: Create an Event and Watch It Become an Incident](#lab-create-an-event-and-watch-it-become-an-incident)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
+- [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
 
 ---
 

@@ -12,7 +12,10 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
-- [Prerequisites & Setup](#prerequisites--setup)
+- [Official Exam Alignment — CIS-Hardware Asset Management](#official-exam-alignment--cis-hardware-asset-management)
+- [HAM Asset Lifecycle Diagram](#ham-asset-lifecycle-diagram)
+- [Asset vs CI Diagram](#asset-vs-ci-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -24,9 +27,11 @@
 - [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 

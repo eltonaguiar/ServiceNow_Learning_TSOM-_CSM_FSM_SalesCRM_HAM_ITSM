@@ -11,17 +11,25 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-CSM](#official-exam-alignment--cis-csm)
+- [CSM Business Model Diagram](#csm-business-model-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Lab: Create Your First Customer Case](#lab-create-your-first-customer-case)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 

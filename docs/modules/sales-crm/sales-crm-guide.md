@@ -14,6 +14,7 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -21,9 +22,14 @@
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
 - [Lab: Create Your First Sales Opportunity](#lab-create-your-first-sales-opportunity)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [🗺️ Conceptual Flow (Lead-to-Cash)](#-conceptual-flow-lead-to-cash)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 

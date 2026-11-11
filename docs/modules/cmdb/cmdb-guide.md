@@ -12,7 +12,10 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
-- [Prerequisites & Setup](#prerequisites--setup)
+- [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
+- [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
+- [IRE Process Diagram (Identification & Reconciliation)](#ire-process-diagram-identification--reconciliation)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -20,12 +23,6 @@
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
-- [Common Mistakes](#common-mistakes)
-- [Deep Dive: Identification & Reconciliation (IRE)](#deep-dive-identification--reconciliation-ire)
-- [Lab: Create a CI and a Relationship](#lab-create-a-ci-and-a-relationship)
-- [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
 
 ---
 

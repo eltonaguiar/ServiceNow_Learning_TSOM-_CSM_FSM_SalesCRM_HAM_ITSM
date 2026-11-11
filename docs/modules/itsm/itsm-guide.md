@@ -11,18 +11,26 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-ITSM](#official-exam-alignment--cis-itsm)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
+- [🔍 Process Deep Dives](#-process-deep-dives)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 

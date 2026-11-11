@@ -11,8 +11,9 @@
 ## Contents
 
 - [Purpose](#purpose)
-- [Where to Find It](#where-to-find-it)
 - [Prerequisites & Setup](#prerequisites--setup)
+- [Where to Find It](#where-to-find-it)
+- [Certification Alignment Note](#certification-alignment-note)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -20,8 +21,6 @@
 - [Employee Center](#employee-center)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
-- [⚠️ ServiceNow Learning Warnings](#-servicenow-learning-warnings)
-- [Quiz](#quiz)
 
 ---
 
