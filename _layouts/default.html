@@ -108,12 +108,16 @@
 <script>
   mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('pre > code.language-mermaid, pre > code.mermaid').forEach(function (codeEl) {
-      var preEl = codeEl.parentElement;
-      var mermaidDiv = document.createElement('div');
-      mermaidDiv.className = 'mermaid';
-      mermaidDiv.textContent = codeEl.textContent;
-      preEl.parentNode.replaceChild(mermaidDiv, preEl);
+    document.querySelectorAll('pre code, code').forEach(function (codeEl) {
+      var text = codeEl.textContent.trim();
+      if (/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|mindmap|requirementDiagram|block-beta|C4Context|stateDiagram-v2)/.test(text)) {
+        var preEl = codeEl.parentElement;
+        var container = preEl && preEl.tagName === 'PRE' ? preEl : codeEl;
+        var mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.textContent = text;
+        container.parentNode.replaceChild(mermaidDiv, container);
+      }
     });
     window.mermaid.init(undefined, undefined, document.querySelectorAll('.mermaid'));
   });
