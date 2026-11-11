@@ -7,7 +7,7 @@ title: TSOM — Getting Started
 
 **One line:** TSOM is the telecom operating layer on top of the CMDB — model the network, ingest its alarms and performance, and see which *customers and services* are affected before the NOC does.
 
-Back to the [guide index](./index.md) · [CSM](./csm.md) · [FSM](./fsm.md) · [ITSM](./itsm.md) · [Sales CRM](./sales-crm.md) · [HAM](./ham.md)
+Back to the [guide index](./index.md) · [CSM](./csm.md) · [FSM](./fsm.md) · [ITSM](./itsm.md) · [Sales CRM](./sales-crm.md) · [HAM](./ham.md) · [TSOM Diagrams Slideshow](./tsom-diagrams.md)
 
 ---
 

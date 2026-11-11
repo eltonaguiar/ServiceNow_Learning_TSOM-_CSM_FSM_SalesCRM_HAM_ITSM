@@ -69,6 +69,7 @@
       <a href="{{ '/getting-started/' | relative_url }}">Track overview</a>
       <a href="{{ '/getting-started/foundation/' | relative_url }}">Foundation</a>
       <a href="{{ '/getting-started/tsom/' | relative_url }}">TSOM start</a>
+      <a href="{{ '/getting-started/tsom-diagrams/' | relative_url }}">TSOM diagrams</a>
       <a href="{{ '/getting-started/csm/' | relative_url }}">CSM start</a>
       <a href="{{ '/getting-started/fsm/' | relative_url }}">FSM start</a>
       <a href="{{ '/getting-started/sales-crm/' | relative_url }}">Sales CRM start</a>
@@ -103,5 +104,9 @@
 
 <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/tts.js' | relative_url }}"></script>
+<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+</script>
 </body>
 </html>
