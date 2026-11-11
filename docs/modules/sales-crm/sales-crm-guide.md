@@ -653,10 +653,10 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 
 ## Related Guides
 
-- [CSM guide](./csm-guide.md)
-- [FSM guide](./fsm-guide.md)
-- [HAM guide](./ham-guide.md)
-- [CMDB guide](./cmdb-guide.md)
-- [Sales CRM getting-started](./../../getting-started/sales-crm.md)
+- [CSM guide](../csm/csm-guide.md)
+- [FSM guide](../fsm/fsm-guide.md)
+- [HAM guide](../ham/ham-guide.md)
+- [CMDB guide](../cmdb/cmdb-guide.md)
+- [Sales CRM getting-started](../../../getting-started/sales-crm.md)
 
 ---
