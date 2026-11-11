@@ -340,6 +340,53 @@ OTel metrics flow into **Metric Intelligence** and **Health Log Analytics** (ITO
 **Proof of concept:** A metric row in `sn_otel_metric` with a populated `cmdb_ci` reference means OTel telemetry is successfully attached to your discovered topology — the foundation for TSOM service impact analysis.
 
 ---
+
+### Using Now Assist to debug a Service Graph Connector issue
+
+ServiceNow's **Now Assist** can help diagnose Service Graph Connector problems directly from the chat interface. The Now Assist panel surfaces suggested prompts including **"Diagnose a Service Graph Connector"** — click it to start a guided troubleshooting session without leaving the page.
+
+#### What Now Assist can do for SGC debugging
+
+| Now Assist capability | How it helps with SGC |
+|---|---|
+| **Diagnose a Service Graph Connector** | Analyzes connector configuration, schedules, and recent run status to identify misconfigurations |
+| **Generate KB Article** | Creates a knowledge base article from the diagnosis for team reference |
+| **Ask free-form** | Ask about specific errors, schedule failures, or data-mapping issues in plain language |
+
+#### When to use Now Assist for SGC
+
+- Connector schedule is failing but you don't know why
+- Data is ingesting but not attaching to CIs (identification mapping issue)
+- You need a quick health check before digging into `sys_otel_metric` / `sn_otel_metric` tables manually
+- You want to document the fix as a KB article for the team
+
+#### Suggested Now Assist prompts for SGC debugging
+
+| Prompt | Best for |
+|---|---|
+| *"Diagnose a Service Graph Connector"* | General health check of all SGCs |
+| *"Why is my OpenTelemetry connector not ingesting data?"* | Specific connector failure |
+| *"Show me failed SGC schedules in the last 24 hours"* | Recent schedule failures |
+| *"Generate a KB article for this SGC diagnosis"* | Documenting the fix for your team |
+
+#### Suggested workflow
+
+1. **Open Now Assist** (the chat panel in the top-right of your ServiceNow instance)
+2. **Click "Diagnose a Service Graph Connector"** — or type your own question
+3. **Review the diagnosis** — Now Assist will surface connector status, schedule errors, and configuration issues
+4. **If needed, click "Generate KB Article"** to save the findings as knowledge for your team
+5. **Apply the fix** — correct the schedule, credentials, or identification mapping based on the diagnosis
+6. **Re-run the connector schedule** and confirm data flows into `sn_otel_metric` / `sn_otel_trace` / `sn_otel_log`
+
+#### Limitations
+
+- Now Assist suggestions are AI-generated — **review for accuracy** before acting on them
+- Now Assist can identify *what* is wrong but may not have permission to *change* connector configuration — you may need to apply the fix manually in the connector setup page
+- For complex SGC issues (custom ETL maps, MID Server connectivity), Now Assist is a starting point, not a replacement for hands-on debugging
+
+---
+
+---
 - [ServiceNow IntegrationHub Fundamentals](https://nowlearning.com/) — Search "IntegrationHub" on Now Learning Portal
 - [ServiceNow Product Documentation — IntegrationHub](https://docs.servicenow.com/) → Search "IntegrationHub", "e-bonding", "spokes"
 - [Flow Designer documentation](https://docs.servicenow.com/) → Search "Flow Designer"
