@@ -518,6 +518,128 @@ So in lower environments you use **source control + Update Sets + App Repo publi
 
 ---
 
+### Collapsible Mini Labs: Deployment Scenarios
+
+<details>
+<summary><strong>Lab A: Single developer — Update Sets on one widget</strong></summary>
+
+**Goal:** One developer builds a Service Portal widget and moves it dev → test using Update Sets.
+
+**When to use:** You're the only person touching this app/widget. Simple, linear changes, no merging needed.
+
+**Steps:**
+1. On dev, create Update Set "Widget v1" and set it as **current**.
+2. Navigate to **Service Portal → Widgets → New**, build your widget (add header title, fields, client script).
+3. All changes are captured in "Widget v1" automatically.
+4. Set State = **Complete** on the update set.
+5. On test: **System Update Sets > Retrieve Update Sets** → select dev as source → retrieve → review → **Commit**.
+6. Verify the widget appears on test with all your changes.
+
+**Pros:** Simple, no branching/merging, easy to understand.
+**Cons:** Only one person can safely work at a time; if two people each have their own update set touching the same widget, the second one committed can overwrite the first's changes (no automatic merge).
+
+**Proof of concept:** The widget on test shows your header title and fields exactly as built on dev.
+
+</details>
+
+<details>
+<summary><strong>Lab B: Multiple developers, different features — parallel update sets</strong></summary>
+
+**Goal:** Two developers build separate features on the same scoped app, each in their own update set, then both move to test.
+
+**When to use:** Small team, each developer owns a distinct feature (e.g., Developer A builds a table, Developer B builds a flow).
+
+**Steps:**
+1. Developer A creates Update Set "Feature A — New Table" (current), builds a custom table `x_myapp_table`, completes it.
+2. Developer B creates Update Set "Feature B — New Flow" (current), builds a Flow Designer flow, completes it.
+3. Both retrieve their update sets on test and commit them.
+
+**What happens:** If Feature A and Feature B touch different records (different tables, different flows), both commit cleanly. Test now has both features.
+
+**Pros:** Parallel work is possible when features don't overlap.
+**Cons:** No automatic conflict detection. If Developer A and Developer B both edit the *same* record (e.g., both modify the same widget), the second update set committed on test can silently overwrite the first's changes. ServiceNow does **not** merge update set contents intelligently — it's last-write-wins at the record level.
+
+**Proof of concept:** Check `sys_update_xml` on test — both update sets' customization records should be present if they didn't overlap.
+
+</details>
+
+<details>
+<summary><strong>Lab C: Two developers edit the same widget — the conflict scenario</strong></summary>
+
+**Goal:** See exactly what happens when two people modify the same widget simultaneously via update sets.
+
+**Scenario:**
+- **Developer Alice** opens Widget "Client Portal Home" in her update set "US-ALICE". She changes the **header title** from "Welcome" to "Welcome to Client Portal".
+- **Developer Bob** opens the same Widget "Client Portal Home" in his update set "US-BOB". He adds a **footer** with copyright text.
+- Neither knows the other is editing the same widget.
+
+**What happens on test (step by step):**
+
+1. Alice retrieves US-ALICE on test and commits it. The widget now has the new header title ("Welcome to Client Portal") but **no footer**.
+2. Bob retrieves US-BOB on test and commits it. His update set contains the widget record **as it existed when he captured it on dev** — with the *original* header title ("Welcome") and his new footer.
+3. When Bob commits, his version of the widget record overwrites Alice's. The widget on test now has: original header ("Welcome") + Bob's footer. **Alice's header title change is lost.**
+
+**What the conflict looks like:**
+- Alice's `sys_update_xml` record for the widget shows `title = "Welcome to Client Portal"`.
+- Bob's `sys_update_xml` record for the same widget shows `title = "Welcome"` (the older value) plus his footer HTML.
+- On test, after Bob commits, the widget's `title` field reverts to "Welcome" because Bob's update set was applied last.
+
+**The fixing process:**
+1. Alice notices her header title is missing. She checks the widget on test and sees "Welcome" instead of "Welcome to Client Portal".
+2. Alice creates a **new update set** "US-ALICE-FIX" on dev, sets it current, re-applies her header title change to the widget, completes it.
+3. Alice retrieves US-ALICE-FIX on test and commits it. The widget now has both the correct header title and Bob's footer.
+4. (Optional) Alice and Bob agree on who "owns" the widget going forward to avoid repeat conflicts.
+
+**Lesson:** Update Sets do **not** merge field-level changes intelligently. If two update sets contain the same table record (e.g., the same widget), the one committed last wins for every field in that record. Coordinate who edits what, or use source control (Git) which handles merging better.
+
+</details>
+
+<details>
+<summary><strong>Lab D: Two ways to deploy Update Sets — pros and cons</strong></summary>
+
+**Goal:** Compare the two methods for moving an update set from dev to test.
+
+**Method 1: Retrieve Update Sets (pull from source)**
+
+| Step | What you do |
+|---|---|
+| On dev | Complete the update set, leave it on the dev instance. |
+| On test | Go to **System Update Sets > Retrieve Update Sets**, select dev as source, choose the update set, retrieve it. |
+| On test | Open the retrieved update set, review `sys_update_xml` entries, click **Commit**. |
+
+**Pros:**
+- Test instance pulls what it needs; dev doesn't push anything.
+- You can review all changes on test before committing.
+- Natural for "test pulls from dev" workflows.
+
+**Cons:**
+- Requires test instance to have network/access to dev.
+- You must remember to retrieve *before* committing; forgetting means test is behind.
+
+**Method 2: Push via Update Set XML export/import (or via a middle/staging instance)**
+
+| Step | What you do |
+|---|---|
+| On dev | Open the completed update set, click **Export** (downloads an XML file). |
+| On test | Go to **System Update Sets > Import Update Set**, upload the XML file. |
+| On test | Review and **Commit** the imported update set. |
+
+**Pros:**
+- Works when test can't directly reach dev (e.g., air-gapped, different networks).
+- The XML file is a portable artifact you can store, email, or version.
+- Good for one-off moves or emergency fixes.
+
+**Cons:**
+- Manual file handling — easy to export the wrong version or forget to re-export after changes.
+- No automatic tracking of what's been moved; you manage versioning yourself.
+- More steps = more human error.
+
+**Recommendation:** Use **Retrieve Update Sets** for routine dev→test moves when instances can reach each other. Use **XML export/import** for cross-network or emergency situations. For production, prefer **Application Repository** (published version) over either update set method when possible.
+
+</details>
+
+---
+
 ### Official Learning Resources
 - [Deploy your app — ServiceNow Product Documentation](https://www.servicenow.com/docs/r/application-development/deploy-your-app.html) — Application Repository vs Update Sets
 - [Link an app to source control — ServiceNow Studio](https://www.servicenow.com/docs/r/zurich/application-development/servicenow-studio-classic/link-app-to-source-control.html) — Git linkage (non-prod only)
