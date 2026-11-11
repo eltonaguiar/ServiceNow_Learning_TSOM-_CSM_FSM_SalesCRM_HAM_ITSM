@@ -25,6 +25,7 @@
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
+- [REST Integration — RESTMessageV2 vs IntegrationHub Spoke](#rest-integration--restmessagev2-vs-integrationhub-spoke)
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
@@ -310,6 +311,111 @@ cmdb_ci (Base CI)
 | Service Graph Connectors | Inbound | Import CI data from external CMDBs/cloud | REST/API |
 | JDBC | Inbound | Read CI data from external databases | JDBC |
 | ITAM/HAM | Bidirectional | Asset and CI synchronization | Internal |
+
+---
+
+## REST Integration — RESTMessageV2 vs IntegrationHub Spoke
+
+When CMDB needs to send or receive CI data from an external system (e.g., push a new CI to Soroc, pull inventory from SCCM, or sync with an external CMDB), ServiceNow offers two main REST options:
+
+| | RESTMessageV2 | IntegrationHub REST Spoke |
+|---|--------------|---------------------------|
+| **What it is** | Server-side API (`sn_ws.RESTMessageV2`) for making REST calls from scripts | Low-code IntegrationHub spoke for REST-based integrations |
+| **Best for** | Custom logic, Business Rules, Script Includes, one-off callouts | Reusable integration flows, Flow Designer, non-developer maintenance |
+| **Where configured** | `sys_rest_message` table → REST Message record | IntegrationHub → Spokes → REST Message Spoke |
+| **Authentication** | Set on the REST Message record (Basic, Bearer, OAuth, API Key) | Set on the Spoke / connection configuration |
+| **Response handling** | Parsed in script (`response.getBody()`, `response.getStatusCode()`) | Mapped via output variables in Flow Designer |
+| **CMDB use case** | Custom Business Rule that pushes CI changes to an external system on update | Scheduled flow that pulls external inventory and creates/updates CIs via Transform Map |
+
+### Authentication — where it is set up and how
+
+Authentication is configured at the **REST Message** level (not per call). All calls using that message inherit the auth.
+
+**RESTMessageV2** — navigate to **System Web Services > REST Messages** (or `sys_rest_message` list), open the message, and set:
+
+| Auth type | Where | How |
+|-----------|-------|-----|
+| **Basic Auth** | REST Message record > Authentication type = `Basic` | Enter username/password; optionally select a credential record |
+| **Bearer Token** | REST Message record > Authentication type = `Bearer Token` | Paste the token; can reference a credential or secret store |
+| **OAuth 1.0 / 2.0** | REST Message record > Authentication type = `OAuth` | Configure consumer key/secret, token, signature method |
+| **API Key** | REST Message record > Authentication type = `None` + manual header | Add header `X-API-Key: <value>` via `message.setRequestHeader()` |
+
+**IntegrationHub REST Spoke** — navigate to **IntegrationHub > Spokes > REST Message Spoke**, configure the spoke, then set authentication on the **connection** or spoke input (Basic, Bearer, OAuth, or API Key header) before the flow can use it.
+
+> **Tip:** Store secrets in **System Definition > Secrets** (Credential record) rather than hard-coding tokens in the REST Message or script.
+
+---
+
+### End-to-end example — push a new CI to an external system via RESTMessageV2
+
+<details>
+<summary>Example: Business Rule on cmdb_ci_server insert that POSTs the CI to an external CMDB</summary>
+
+**Scenario:** When a new Server CI is inserted, push `name`, `serial_number`, and `ip_address` to an external REST endpoint that owns the authoritative asset record.
+
+**1. Create the REST Message**
+- Navigate to **System Web Services > REST Messages > New**
+- Name: `External CMDB - Create CI`
+- Endpoint: `https://api.external-cmdb.com/v1/cis`
+- HTTP method: `POST`
+- Authentication type: `Basic` (or Bearer Token)
+- Username / Password: service account for the external CMDB
+
+**2. Add a request header**
+- In the REST Message > Headers related list > New
+- Name: `Content-Type`, Value: `application/json`
+
+**3. Create a Business Rule on `cmdb_ci_server`**
+- Table: `cmdb_ci_server`
+- Run: `After`, `Insert`
+- Advanced: `true`
+
+```javascript
+(function rule(current, previous) {
+    // Only fire when this is a real CI with a serial number
+    if (!current.serial_number) return;
+
+    // Build the JSON payload
+    var payload = JSON.stringify({
+        name: current.name,
+        serial_number: current.serial_number,
+        ip_address: current.ip_address,
+        data_source: current.data_source,
+        source_sys_id: current.sys_id
+    });
+
+    // Create the REST message and set the body
+    var sm = new sn_ws.RESTMessageV2('External CMDB - Create CI');
+    sm.setRequestBody(payload);
+
+    try {
+        var response = sm.execute();
+        var httpStatus = response.getStatusCode();
+        var body = response.getBody();
+
+        if (httpStatus == 200 || httpStatus == 201) {
+            gs.log('CI pushed to external CMDB: ' + current.name + ' (HTTP ' + httpStatus + ')');
+        } else {
+            gs.logError('External CMDB reject: HTTP ' + httpStatus + ' — ' + body);
+        }
+    } catch (ex) {
+        gs.logError('REST call failed: ' + ex.getMessage());
+    }
+})(current, previous);
+```
+
+**4. Test**
+- Insert a new Server CI via CI List with Name, Serial Number, IP Address
+- Check **System Log > All** for `CI pushed to external CMDB`
+- Verify the external system received the CI
+
+</details>
+
+**Key differences to remember:**
+- Use **RESTMessageV2** when you need code-level control (Business Rules, Script Includes, custom error handling, dynamic endpoints).
+- Use **IntegrationHub REST Spoke** when you want a low-code, reusable flow that operations teams can maintain without writing JavaScript.
+- Authentication is set **once on the REST Message / spoke**, not per request — secure credentials via the Credential/Secret store.
+- For CMDB inbound (external → ServiceNow), prefer **Service Graph Connector** or **Import Set + Transform Map** rather than pushing via REST, so IRE and reconciliation run natively.
 
 ---
 
