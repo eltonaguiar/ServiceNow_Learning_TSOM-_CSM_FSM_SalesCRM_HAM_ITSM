@@ -455,9 +455,368 @@ When multiple data sources provide data for the same CI, reconciliation decides 
 - **CMDB Workspace**: `All > Configuration > CMDB`. Breadcrumb: `All > Configuration > CMDB`.
 - **CMDB Health Dashboard**: `All > CMDB Health > Dashboards`. Breadcrumb: `All > CMDB Health > Dashboards`.
 
+## Adding a New Field to the CMDB
+
+When you need a new attribute on a CI, the first decision is **where** to put it: on the `cmdb_ci` base table, or on a Model table (`cmdb_model` / `cmdb_hardware_product_model`).
+
+### Decision: cmdb_ci vs Model Table
+
+| Place on | Use When | Example Fields |
+|----------|----------|----------------|
+| `cmdb_ci` (base) | The attribute applies to **every** CI regardless of class (server, network, database, app). Needed for cross-class reporting, IRE matching, or CMDB Health completeness. | `name`, `serial_number`, `asset_tag`, `location`, `data_source`, `install_status` |
+| Model table (`cmdb_model` / `cmdb_hardware_product_model`) | The attribute describes a **hardware/software model**, not an individual CI instance. Vendor-specific or model-specific. | CPU type, RAM, form factor, vendor, model number, warranty term |
+
+### Rule of Thumb
+
+> If every CI (server, network device, database, application) needs the field → put it on `cmdb_ci` or extend the appropriate class.  
+> If only a specific model/class needs it → put it on the Model table or extend that class.
+
+### Why It Matters for IRE
+
+Fields used in identification rules (serial number, MAC, hostname + DNS) **must** be on `cmdb_ci` (or inherited by the CI class) so the IRE engine can match across all CI classes. A field that lives only on a Model table cannot be used as an identification criterion for a CI record — IRE identifies the CI, not the model.
+
+### Best Practices
+
+- Reuse an existing OOB field before creating a custom one (avoid dictionary bloat).
+- Don't put model-specific attributes on `cmdb_ci` — they clutter every CI form and break CMDB Health completeness expectations.
+- Add cross-class fields to `cmdb_ci` so all subclasses inherit them automatically.
+- Dictionary changes on `cmdb_ci` cascade to all extending classes — test in a sub-prod instance first.
+
+---
+
+## Adding a New CI Class / Table
+
+There are two supported ways to add a new CI table/class to the CMDB:
+
+### Option A: CI Class Manager (Recommended for CMDB classes)
+
+Navigate to **All > Configuration > CI Classes** and create a new CI class that extends `cmdb_ci` (or an existing subclass like `cmdb_ci_server`).
+
+- Creates a new table that extends `cmdb_ci` under the hood.
+- Automatically part of the CMDB class hierarchy.
+- Inherits all `cmdb_ci` fields and identification/reconciliation rules.
+- Shows up in CI List, CI Classes, and CMDB Health by default.
+- Best for: new types of CIs that are genuinely configuration items (e.g., `cmdb_ci_cisco_router`, `cmdb_ci_oracle_database`).
+
+### Option B: Table (sys_db_object) with Extends = cmdb_ci
+
+Navigate to **All > System Definition > Tables** and create a new table, setting **Extends table** to `cmdb_ci`.
+
+- Also creates a CI subclass that extends `cmdb_ci`.
+- Gives you full dictionary/table configuration control (same as any custom table).
+- Must manually ensure it's wired into CI Class Manager if you want it visible there.
+- Best for: when you need table-level configuration beyond what CI Class Manager exposes.
+
+### Both Observe IRE
+
+**Both paths observe IRE** as long as the new table extends `cmdb_ci`. IRE operates on the `cmdb_ci` hierarchy, so any subclass — whether created via CI Class Manager or via sys_db_object with `Extends = cmdb_ci` — participates in identification and reconciliation.
+
+The decision is not "which one observes IRE" — it's "which tool fits your governance model":
+- Use **CI Class Manager** when you want the class governed as part of the CMDB model (recommended).
+- Use **sys_db_object / Tables** when you need plain custom-table behavior while still being a CI.
+
+### Store App / Alternatives vs Building from Scratch
+
+Before creating a CI table manually, check whether a **ServiceNow Store app** or an existing content pack already models what you need:
+
+| Alternative | When to Consider |
+|-------------|------------------|
+| ServiceNow Store app / Content Pack | A vendor or ServiceNow already publishes a CI class model for your domain (e.g., cloud, network, mainframe). Install and extend rather than rebuild. |
+| Existing OOB class | Check if `cmdb_ci_server`, `cmdb_ci_network`, `cmdb_ci_database`, or a subclass already covers your need — extend it instead of creating a new base. |
+| Import Set + Transform Map | If the data is read-only/reference data, you may not need a CMDB class at all — use a custom table + import. |
+| Asset table (`alm_asset`) | If you're tracking financial/contractual lifecycle rather than configuration, HAM may be a better fit than a new CI class. |
+
+**Default position:** Extend an existing OOB CI class or use a Store app/content pack before creating a brand-new table from scratch. Only create a new `cmdb_ci` subclass when no existing model fits.
+
+---
+
+## CMDB Relationships — OOB, User-Defined, or Both
+
+CI-to-CI relationships live in `cmdb_rel_ci`. Each relationship has a `type` that comes from `cmdb_rel_rel_type`.
+
+### Out-of-Box Relationship Types
+
+ServiceNow ships with standard types, including:
+
+- `Runs on::Runs` — application runs on server
+- `Depends on::Used by` — one CI depends on / is used by another
+- `Connected to::Connects to` — network connectivity
+- `Member of::Member of` — group/cluster membership
+- `Realized by::Realizes` — service realized by a CI
+
+These are sufficient for most impact analysis and Service Mapping use cases.
+
+### User-Defined Relationship Types
+
+You can create new relationship types via **All > Configuration > CI Relationship Types** when OOB types don't describe your topology. Give each type a name and an inverse name (e.g., `Hosts::Hosted on`).
+
+### OOB, User-Defined, or Both?
+
+**Both.** OOB types handle the common patterns; user-defined types handle domain-specific relationships. They coexist in the same `cmdb_rel_ci` table and are queried the same way.
+
+### How Relationships Are Typically Populated
+
+| Source | How Populated | Notes |
+|--------|-------------|-------|
+| Discovery | Discovery patterns infer and insert `cmdb_rel_ci` records during identification/exploration | Automated; most common for server→OS, server→network |
+| Service Mapping | Application dependency mapping creates patterns and relationships | Patterns + probes discover process-to-CI links |
+| Import Sets / Transform Map | Bulk load parent/child pairs with a transform map | Good for initial seed data or external CMDB migration |
+| Manual | All > Configuration > CI Relationships > New | Low volume, human-curated |
+| Script / API | Business rules, Script Includes, or REST API writing to `cmdb_rel_ci` | Programmatic relationship creation |
+
+**Best practice:** Let Discovery and Service Mapping populate relationships where possible; use manual entry only for exceptions. Keep relationship types stable — changing a type name breaks existing maps and reports.
+
+---
+
+## Ensuring IRE Is Observed When Creating CI Tables
+
+When you create a new CI class/table, IRE must be able to run on it. Here's how to guarantee that:
+
+1. **The table must extend `cmdb_ci`.** Whether you use CI Class Manager or sys_db_object / Tables, set `Extends table = cmdb_ci`. IRE operates on the `cmdb_ci` hierarchy; tables that don't extend `cmdb_ci` are not CIs and IRE does not apply.
+2. **Register in CI Class Manager (recommended).** After creating via sys_db_object, open CI Class Manager and confirm the new class appears under `cmdb_ci`. This makes it visible in CI List, CI Classes, and CMDB Health.
+3. **Add identification rules for the new class.** If your new CI has unique identifiers (e.g., a serial number, asset tag, or hostname pattern), create identifier entries so Discovery/imports can match existing records instead of duplicating them.
+4. **Set data source precedence.** Confirm your new class's CIs get appropriate `data_source` values so reconciliation trusts Discovery over Manual/Import.
+
+**Which path observes IRE?** Both — CI Class Manager and the Tables route — **provided the table extends `cmdb_ci`**. IRE is table-hierarchy driven, not tool-driven.
+
+---
+
+## How a Child Class Overrides Parent IRE Rules
+
+CI classes inherit identification and reconciliation rules from their parent (ultimately `cmdb_ci`). A child class can override or refine them:
+
+### Overriding Identification Rules
+
+- **Inherit:** The child class automatically uses its parent's identifier entries (e.g., `cmdb_ci_server` inherits `cmdb_ci`'s serial-number + hostname rules).
+- **Add class-specific entries:** Add identifier entries scoped to the child class with their own priority. These are evaluated alongside (or instead of) inherited entries depending on rule configuration.
+- **Disable inherited entries:** Deactivate a parent identifier entry for the child class if it doesn't apply (e.g., a virtual server without a serial number).
+- **Priority order still applies:** Lowest priority number wins, first match wins — whether the entry comes from the parent or the child.
+
+### Overriding Reconciliation Rules
+
+- Reconciliation rules can be scoped to specific CI classes or data sources. A child class can have its own reconciliation rule that takes precedence over the parent's for conflicts on that class.
+- Source priority (Discovery > Import > Manual) still applies, but you can tune which fields are reconciled per class.
+
+### Practical Example
+
+`cmdb_ci` identifies servers by serial number. A new child class `cmdb_ci_virtual_server` has no serial number. You:
+1. Deactivate the serial-number identifier entry for `cmdb_ci_virtual_server`.
+2. Add a hostname + DNS domain identifier entry for `cmdb_ci_virtual_server`.
+3. Result: virtual servers are matched by hostname, physical servers by serial number — both under the same IRE engine.
+
+---
+
+## Invoking IRE from a CI Form (Manual Edits Bypass IRE)
+
+By default, **manually editing a CI record does not trigger IRE.** IRE runs when data arrives through Discovery, Import Sets, Service Graph Connectors, or other inbound integration sources. A human changing `serial_number` on a CI form just saves the value — no re-identification, no duplicate check, no reconciliation.
+
+### How to Force IRE from a Form
+
+| Approach | How It Works | When to Use |
+|----------|-------------|-------------|
+| **Identify UI Action / Related Link** | Click an "Identify" action on the CI form that runs the identification engine against the current record | One-off manual re-identification of a specific CI |
+| **Business Rule on update** | A business rule (async/after) on `cmdb_ci` (or subclass) calls the identification API when key fields change | Auto-re-identify whenever a human edits identifying fields |
+| **UI Policy / Client Script** | Client script calls a server-side script include to invoke IRE on form save | Immediate feedback in the UI |
+| **Scheduled Job** | Run identification/reconciliation on a schedule across all CIs | Bulk remediation, not per-form |
+
+### Example: Business Rule to Invoke IRE on Field Change
+
+```javascript
+(function rule(current, previous) {
+    // Only re-identify when an identifying field actually changed
+    if (current.serial_number.changes() || current.name.changes() || current.dns_domain.changes()) {
+        // Call ServiceNow's identification engine to re-evaluate this CI
+        var idEngine = new sn_cmdb.Identification(current);
+        idEngine.identify();
+    }
+})(current, previous);
+```
+
+> **Note:** `sn_cmdb.Identification` API availability varies by release. In some releases you trigger IRE via the `cmdb_identify` business rule or by invoking the Identify related action. Verify against your instance.
+
+### Why Manual Edits Need This
+
+Without an explicit IRE invocation, two CIs can end up representing the same real device because:
+- Discovery created CI A with serial `SN-12345`.
+- An admin manually created CI B with the same serial (or edited CI B to match).
+- IRE never ran on CI B's manual creation/edit, so no duplicate was detected.
+
+**Rule:** Any process that writes identifying fields outside of Discovery/Import must explicitly invoke IRE, or you will accumulate duplicates.
+
+---
+
+## Common CMDB Gotchas & Complex Issues
+
+| # | Gotcha / Issue | Symptom | Root Cause | Fix / Mitigation |
+|---|----------------|---------|------------|------------------|
+| 1 | Manual CI edits bypass IRE | Duplicate CIs for the same device; stale identifying data | IRE only runs on inbound discovery/import, not form saves | Explicitly invoke IRE from the form (business rule / Identify action) when identifying fields change |
+| 2 | Duplicate CIs after a Discovery run | Multiple `cmdb_ci` records with same serial number | Missing or mis-prioritized identification rules; source precedence not set | Configure identifier entries (lowest priority first), set Discovery > Import > Manual precedence, run de-duplication |
+| 3 | Orphaned / broken relationships | CI Relationships point to deleted or retired CIs | CIs deleted instead of retired; `cmdb_rel_ci` not cleaned up | Retire CIs (`install_status = retired`) rather than delete; run relationship cleanup |
+| 4 | Data source precedence conflicts | Wrong value wins on a CI updated by multiple sources | Reconciliation priority not configured (Discovery should outrank Manual/Import) | Set reconciliation rules with correct source priority per CI class |
+| 5 | Field placed on wrong table | Model-specific field on `cmdb_ci` bloats every CI form; or universal field stuck on a model table so IRE can't use it | Confusing instance attribute vs model attribute | Universal/IRE fields → `cmdb_ci`; model/vendor attributes → `cmdb_model` / `cmdb_hardware_product_model` |
+| 6 | New CI table not in CMDB | New table doesn't show in CI List / CI Class Manager / CMDB Health | Table doesn't extend `cmdb_ci` or isn't registered in CI Class Manager | Set `Extends table = cmdb_ci`; register in CI Class Manager |
+| 7 | Child class can't be identified | Virtual/server subclass creates duplicates because parent serial rule doesn't apply | Inherited identifier entry (serial number) irrelevant to child | Deactivate inherited entry for child; add class-specific identifier (e.g., hostname + DNS) |
+| 8 | Changing a relationship type breaks maps | Service Mapping / impact analysis loses paths after a type rename | `cmdb_rel_ci.type` references the type name; renaming severs links | Avoid renaming OOB types; deactivate and create new, or update all `cmdb_rel_ci` rows |
+| 9 | CMDB Health completeness low | Required fields show empty across classes | Custom fields added to `cmdb_ci` but not populated; completeness metrics count them | Only add truly universal fields to `cmdb_ci`; populate or exclude from Health completeness |
+| 10 | Import creates duplicates instead of updating | Transform Map inserts new CIs rather than matching existing | Coalesce fields not set on the transform map; no identification rule alignment | Set coalesce=true on key fields (serial_number, name) in the transform map; align with IRE identification rules |
+
+---
+
+## CMDB Decision Diagrams
+
+### Field Placement Decision Tree (cmdb_ci vs Model Table)
+
+```mermaid
+flowchart TD
+    A[Need a new CI field] --> B{Does every CI class need it?}
+    B -->|Yes| C[Put on cmdb_ci base table]
+    B -->|No| D{Does it describe a hardware/software model?}
+    D -->|Yes| E[Put on cmdb_model / cmdb_hardware_product_model]
+    D -->|No| F[Extend the specific CI class that needs it]
+    C --> G[Inherited by all subclasses; usable in IRE identification]
+    E --> H[Model-level attribute; not used for CI identification]
+    F --> I[Class-specific field; inherits from cmdb_ci]
+    style C fill:#4cc38a,color:#000
+    style E fill:#e5b567,color:#000
+    style F fill:#e5b567,color:#000
+```
+
+### New CI Class / Table Creation Flow
+
+```mermaid
+flowchart TD
+    A[Need a new CI class/table] --> B{Does it extend cmdb_ci?}
+    B -->|No| C[Not a CI — use a custom table, IRE does not apply]
+    B -->|Yes| D{Use CI Class Manager or sys_db_object Tables?}
+    D -->|CI Class Manager| E[All > Configuration > CI Classes > New; Extends = cmdb_ci]
+    D -->|sys_db_object Tables| F[All > System Definition > Tables; Extends table = cmdb_ci]
+    E --> G[Register in CI Class Manager]
+    F --> G
+    G --> H[Add identification rules for the new class]
+    H --> I[Set data source precedence / reconciliation]
+    I --> J[IRE observed — table is in cmdb_ci hierarchy]
+    style J fill:#4cc38a,color:#000
+    style C fill:#e58a8a,color:#fff
+```
+
+### IRE Invocation from a CI Form
+
+```mermaid
+flowchart TD
+    A[Admin edits CI form manually] --> B{Identifying field changed?}
+    B -->|No| C[Save normally — no IRE needed]
+    B -->|Yes| D{Invoke IRE explicitly?}
+    D -->|No| E[Duplicate risk — IRE never ran]
+    D -->|Yes| F[Identify action / Business Rule calls Identification API]
+    F --> G[Match found?]
+    G -->|Yes| H[Reconcile / update existing CI]
+    G -->|No| I[CI remains as-is / new CI]
+    style E fill:#e58a8a,color:#fff
+    style J fill:#4cc38a,color:#000
+```
+
+### Relationship Population Flow
+
+```mermaid
+flowchart TD
+    A[Relationship data available] --> B{Source}
+    B -->|Discovery| C[Patterns infer parent/child; write cmdb_rel_ci]
+    B -->|Service Mapping| D[ADM patterns discover process↔CI links]
+    B -->|Import Set| E[Transform Map with coalesce on parent/child]
+    B -->|Manual| F[CI Relationships module > New]
+    B -->|Script/API| G[Business Rule / REST writes cmdb_rel_ci]
+    C --> H[cmdb_rel_ci record]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    H --> I[CI-to-CI graph for impact analysis & Service Mapping]
+```
+
+---
+
+## FAQ
+
+**Q: Does editing a CI manually in the form trigger IRE?**  
+A: No. IRE runs on inbound data (Discovery, Import Sets, Service Graph Connectors). Manual form edits bypass IRE unless you explicitly invoke it (Identify action, business rule, or API call).
+
+**Q: Should I put a new field on `cmdb_ci` or on a Model table?**  
+A: If every CI class needs it (and especially if it's used for IRE matching or CMDB Health completeness), put it on `cmdb_ci`. If it describes a specific hardware/software model only, put it on `cmdb_model` / `cmdb_hardware_product_model`.
+
+**Q: Which path observes IRE — CI Class Manager or the Tables (sys_db_object) route?**  
+A: Both, as long as the new table extends `cmdb_ci`. IRE is driven by the `cmdb_ci` hierarchy, not by which tool you used to create the table.
+
+**Q: Can a child CI class override its parent's identification rules?**  
+A: Yes. A child inherits parent identifier entries but can add class-specific entries, deactivate inherited ones that don't apply, and set its own reconciliation rules — priority order (lowest first, first match wins) still governs.
+
+**Q: Are CMDB relationships out-of-the-box, user-defined, or both?**  
+A: Both. OOB types (Runs on::Runs, Depends on::Used by, etc.) cover common patterns; you can add user-defined types via CI Relationship Types. They coexist in `cmdb_rel_ci`.
+
+**Q: How are CI relationships typically populated?**  
+A: Discovery patterns, Service Mapping ADM patterns, Import Set/Transform Map, manual entry via CI Relationships, or script/API writing to `cmdb_rel_ci`. Prefer automated sources; use manual for exceptions.
+
+**Q: Should I create a new CI table from scratch or use a Store app?**  
+A: Check the ServiceNow Store and existing OOB classes first. Extend an existing `cmdb_ci` subclass or install a content pack before building a new table. Only create from scratch when no model fits.
+
+**Q: Should I delete a CI that's no longer in use?**  
+A: No. Set `install_status = retired`. Deleting breaks `cmdb_rel_ci` relationships and orphaned incident/problem references.
+
+---
+
+## Telecom Network Discrepancies (TSOM Context)
+
+In a telecom service provider environment, the CMDB must reconcile network inventory (ONTs, circuits, network elements, services) against what Discovery and OSS/BSS actually observe. Discrepancies between these sources break TSOM service activation, alarm correlation, and inventory reconciliation.
+
+### Discrepancy Type 1: Inventory-to-CMDB Mismatch
+
+**What it is:** Physical telecom inventory (ONTs, modems, SIMs, circuit records in `sn_tsom_inventory_item` / `sn_tsom_circuit`) does not match the corresponding CIs in `cmdb_ci` / `cmdb_ci_network` / `sn_tsom_network_element`.
+
+**Examples:**
+- A fiber ONT was provisioned and activated in the OSS, but no `cmdb_ci_network` CI exists for it — so TSOM service activation has no CI to relate the service to.
+- A circuit was decommissioned in the OSS but its `cmdb_ci` CI still shows `install_status = production`, causing false alarms and wrong impact analysis.
+- A customer's modem MAC address changed (swap), but the CMDB CI still holds the old MAC — Discovery can't re-identify it, creating a duplicate CI.
+
+**ServiceNow-endorsed solutions & prevention:**
+- **CMDB Health + Data Manager:** Run completeness/correctness dashboards per CI class (`sn_tsom_network_element`, `cmdb_ci_circuit`) to surface inventory records without matching CIs and vice versa. Use Data Manager to remediate in bulk.
+- **Identification & Reconciliation (IRE):** Configure identifier rules on `cmdb_ci_network` using serial number / MAC / circuit ID so Discovery re-identifies existing CIs instead of duplicating them. Set data source precedence so Discovery/OSS outranks manual entry.
+- **Reconciliation to `sn_tsom_inventory_item`:** Use a transform map / IntegrationHub flow to sync inventory lifecycle state (provisioned → active → retired) into `cmdb_ci.install_status`, keeping CI state aligned with OSS inventory.
+- **Prevention:** Make CI creation/retirement part of the provisioning and decommissioning workflow (Flow Designer) rather than a manual afterthought.
+
+### Discrepancy Type 2: Circuit Topology / Termination Mismatch
+
+**What it is:** The logical circuit relationships in `cmdb_rel_ci` (parent/child, A-end/B-end terminations) don't match the actual physical or logical network topology discovered from the OSS/BSS or network elements.
+
+**Examples:**
+- `sn_tsom_circuit` shows termination A at Node X and termination B at Node Y, but Discovery/Service Mapping sees the circuit traversing Node Z — the `cmdb_rel_ci` path is wrong, so Service Mapping impact analysis is incorrect.
+- An alarm fires on `sn_tsom_network_element` Node X, but the CMDB relationship doesn't link that node to the affected circuit/service — TSOM can't correlate the alarm to the service, so the wrong incident is raised or no incident at all.
+- A circuit was re-provisioned (new path) but `cmdb_rel_ci` still references the old path — change risk assessment uses stale topology.
+
+**ServiceNow-endorsed solutions & prevention:**
+- **Service Mapping / Discovery patterns:** Run network discovery patterns that infer Layer 2/Layer 3 connectivity and populate `cmdb_rel_ci` with actual `Connected to::Connects to` relationships rather than relying on static OSS data.
+- **CI Relationship Types:** Define telecom-specific relationship types (e.g., `Terminates at::Termination of`, `Carries::Carried by`) via All > Configuration > CI Relationship Types, and keep them stable — renaming breaks `cmdb_rel_ci` references and Service Maps.
+- **Periodic reconciliation:** Schedule a reconciliation job comparing `sn_tsom_circuit` termination data against `cmdb_rel_ci` paths; flag mismatches for Data Manager remediation.
+- **Prevention:** Capture circuit terminations as CMDB relationships at provisioning time (Flow Designer → create `cmdb_rel_ci` records), not as free text on the circuit record.
+
+### Discrepancy Type 3: Service-to-Resource Alignment (CSDM Gap)
+
+**What it is:** The logical service layer (`sn_tsom_service`, `cmdb_ci_service`) is not correctly mapped to the underlying resource layer (`sn_tsom_network_element`, `cmdb_ci_network`, `cmdb_ci_server`), violating the CSDM model and breaking TSOM service fulfillment/assurance.
+
+**Examples:**
+- A broadband service (`sn_tsom_service` = Active) has no `Realized by::Realizes` relationship to the ONT and OLT CIs that actually deliver it — alarm correlation can't tell which customers are affected by an OLT failure.
+- A service order activated a new VPN, but no `cmdb_ci_service` CI was created, so the service has no CMDB footprint and is invisible to impact analysis and change risk.
+- A customer moved from DSL to fiber; the old DSL `cmdb_ci_service` was never retired and the new fiber service isn't linked — duplicate/confusing service records.
+
+**ServiceNow-endorsed solutions & prevention:**
+- **CSDM (Common Service Data Model):** Apply the CSDM design pattern — business/technical services (`cmdb_ci_service`) realized by network resources (`cmdb_ci_network`, `sn_tsom_network_element`) via `Realized by::Realizes` relationships. Map TSOM services to the CSDM service domain.
+- **CMDB Health:** Use correctness and compliance dashboards to detect `cmdb_ci_service` records with no `Realized by` relationships (orphaned services) and network elements with no realizing service.
+- **Service Mapping ADM:** Use Application Dependency Mapping patterns to auto-discover service↔resource relationships where possible, supplemented by provisioning workflows that create `cmdb_rel_ci` links at activation.
+- **Prevention:** Make service→resource mapping a mandatory step in the service activation flow (Flow Designer) — no service is marked Active without a `Realized by` relationship to its delivery CIs.
+
+---
+
 ## Quiz
 
-1. What is the base table for all CIs?  
+1. What is the base table for all CIs?
    <details><summary>Answer</summary>`cmdb_ci`</details>
 
 2. What table stores CI-to-CI relationships?  
