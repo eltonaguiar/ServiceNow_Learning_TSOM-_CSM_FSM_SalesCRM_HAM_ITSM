@@ -767,6 +767,127 @@ Covered in depth in the Discovery guide ("Deep Dive: Service Graph Connector for
 
 ---
 
+## TSOM Implementer Skill Coverage — All 15 Course Skills
+
+The table below maps every skill listed in the official **TSOM Implementer** learning path to where it's covered across the ServiceNow Module Guides, plus what remains external (course lab instance required).
+
+| # | Skill | Covered in | Coverage | Notes |
+|---|---|---|---|---|
+| 1 | **AI Agents** | This guide | ✅ Covered below | Agentic workflows on top of TSOM/TNI; Now Assist for ITOM agentic layer |
+| 2 | **IT Operations Management** | This guide | ✅ Covered below | ITOM is the substrate TSOM consumes — EM, Metric Intelligence, HLA, SIA, Synthetic Monitoring |
+| 3 | **Now Assist** | Discovery guide + This guide | ✅ | Now Assist for ITOM (Alert Investigation / Analysis), Now Assist for SGC debugging |
+| 4 | **Event Management** | This guide | ✅ | Added section: ingestion, correlation, suppression, alert creation |
+| 5 | **ITOM Health** | This guide | ✅ Covered below | Health scoring, health rules, health dashboards — ITOM Health TSOM consumes |
+| 6 | **ITOM Visibility** | Discovery guide + This guide | ✅ Covered below | Infrastructure visibility vs Telecom Visibility — CMDB reconciliation |
+| 7 | **Asset Management** | HAM guide | ✅ | Full HAM guide: asset lifecycle, procurement, retirement, CMDB integration |
+| 8 | **Configuration Management Database (CMDB)** | All guides | ✅ | CMDB is the substrate — CIs, relationships, IRE, CMDB Health |
+| 9 | **Discovery** | Discovery guide | ✅ | Full deep dive: phases, schedules, patterns, FBD, Configuration Console, SGC |
+| 10 | **Flow Designer / Flows** | This guide | ✅ Covered below | Flow Designer builds flows that react to alerts/incidents; guided remediation |
+| 11 | **MID Server** | Discovery guide + TSOM guide | ✅ | MID Server placement for discovery and SGC connectivity |
+| 12 | **Now Assist Panel** | Discovery guide | ✅ | SGC debugging panel — "Diagnose a Service Graph Connector" |
+| 13 | **Telecommunications Discovery Patterns** | TSOM capabilities + TSOM guide | ✅ | SNMP/CLI patterns, predefined telecom patterns, TNI class hierarchy |
+| 14 | **Telecommunications Service Operations Management** | This guide | ✅ | Full TSOM guide: purpose, ELI5, data model, labs, quiz |
+
+---
+
+<details>
+<summary><strong>1. AI Agents — agentic workflows on TSOM/TNI</strong></summary>
+
+**What they are:** AI Agents are generative-AI-powered agents that can reason, plan, and act autonomously within guardrails. In the TSOM context, they sit on the "AI for Telecommunications" layer — the Now Assist / agentic workflows that operate on top of the TSOM/TNI foundation.
+
+| Aspect | Detail |
+|---|---|
+| **Where they live** | Now Assist for ITOM, AI for Telecommunications Implementation Bootcamp |
+| **What they do in TSOM** | Investigate alerts, suggest probable cause, recommend remediation, surface patterns across alerts |
+| **What they do NOT do** | Create CIs, run Discovery, change connector configuration — those remain human or platform actions |
+| **Entitlement** | Separate SKU required; not included in base TSOM |
+
+**Implementer relevance:** You configure the data pipeline (Discovery → CMDB → Event Management → alerts) first. AI Agents then operate on top of that data. If the pipeline is broken, the agent has nothing to reason about.
+
+**Breadcrumb:** Now Assist > Now Assist for ITOM (varies by release)
+
+</details>
+
+<details>
+<summary><strong>2. IT Operations Management — the substrate TSOM consumes</strong></summary>
+
+**ITOM** is not a TSOM feature — it's the platform layer that TSOM builds on. TSOM is telecom-specific assurance; ITOM is the general IT operations engine underneath.
+
+| ITOM feature | What it does | TSOM consumes it for |
+|---|---|---|
+| **Event Management** | Ingest, correlate, suppress, alert | Alarm ingestion from NMS/OSS |
+| **Metric Intelligence** | Statistical anomaly detection on CI metrics | Performance degradation detection |
+| **Health Log Analytics** | Log triage and root-cause identification | Log-based root cause for network issues |
+| **Service Impact Analysis** | Propagate impact from CI to service | Port down → circuit down → customer affected |
+| **Synthetic Monitoring** | Active probing of endpoints/services | Proactive service availability testing |
+| **AIOps LEAP** | Incident clustering, automation playbook generation | Identify automation opportunities from historical tickets |
+
+**Key point for implementers:** TSOM adds the telecom data model, discovery patterns, and TM Forum APIs on top of ITOM. The assurance *engine* is ITOM. You need both working.
+
+**Breadcrumbs:** All > IT Operations Management > (Event Management / Metric Intelligence / Health Log Analytics / Synthetic Monitoring / AIOps LEAP)
+
+</details>
+
+<details>
+<summary><strong>3. ITOM Health — health scoring for TSOM's CIs and services</strong></summary>
+
+**What it is:** ITOM Health computes health scores for CIs and services based on alerts, events, and metric anomalies. A CI with many critical alerts gets a poor health score, which propagates up through service impact.
+
+| Component | What it does | TSOM relevance |
+|---|---|---|
+| **Health rules** | Define what makes a CI "healthy" vs "unhealthy" | A router with critical alerts = unhealthy CI |
+| **Health score** | 0–100 score per CI/service | NOC dashboard shows service health at a glance |
+| **Health dashboards** | Visualize health across CIs and services | Which customer services are degraded |
+| **Health events** | State transitions (healthy → unhealthy) | Trigger incidents or notifications |
+
+**How it fits TSOM:** Discovery finds the CIs → Event Management creates alerts on them → ITOM Health scores the CIs → Service Impact Analysis propagates unhealthy CIs to customer services → NOC sees which services are unhealthy, not just which devices are down.
+
+**Breadcrumb:** All > IT Operations Management > ITOM Health (varies by release)
+
+</details>
+
+<details>
+<summary><strong>4. ITOM Visibility — infrastructure discovery vs Telecom Visibility</strong></summary>
+
+**ITOM Visibility** discovers general IT infrastructure (servers, VMs, network devices, cloud resources) and maintains the CMDB. **Telecom Visibility** extends this for telecom providers with real-time physical and logical network components.
+
+| Aspect | ITOM Visibility | Telecom Visibility (TSOM) |
+|---|---|---|
+| **Discovers** | Servers, VMs, cloud, network devices | Telecom network elements, circuits, services |
+| **Maintains** | CMDB | CMDB + TNI (Telecom Network Inventory) |
+| **Reconciles** | Discovered vs inventoried data | Discovered vs inventoried + service model |
+| **Key output** | Infrastructure health, CMDB accuracy | Service impact, customer-affecting outages |
+
+**Relationship:** ITOM Visibility provides the infrastructure foundation; Telecom Visibility extends it with telecom-specific models (circuits, equipment holders, cards, ports) and TSOM assurance.
+
+**Discovery patterns:** `sn_tsom_patterns` scope — predefined telecom patterns using SNMP/CLI to discover network elements directly.
+
+**Breadcrumbs:** All > IT Operations Management > Visibility > (dashboards, health, reconciliation) | All > Telecom Service Operations > Inventory / Network Inventory
+
+</details>
+
+<details>
+<summary><strong>5. Flow Designer / Flows — guided remediation in TSOM</strong></summary>
+
+**Flow Designer** is ServiceNow's low-code automation builder. In TSOM, flows react to alerts and incidents to execute guided remediation.
+
+| Flow element | Purpose | TSOM example |
+|---|---|---|
+| **Trigger** | Starts the flow | Alert state = Critical on a network element CI |
+| **Condition** | Branches the logic | If severity = Critical AND service = Fiber Broadband |
+| **Action** | A step in the flow | Create incident, send notification, run remediation |
+| **Subflow** | Reusable flow called from another flow | Standard "restart network element" subflow |
+
+**Typical TSOM flow:** Alert fires → correlate → create incident → notify NOC → run guided remediation (e.g., "reset interface") → verify alert cleared → close incident.
+
+**Key breadcrumb:** All > Flow Designer > Flow Designer (build flows) | All > Flow Designer > Flows (view and manage active flows)
+
+**Implementer note:** Flows are the "Act / Remediate" stage of TSOM's four-stage loop (Detect → Analyze → Communicate → Act). Without flows, TSOM detects and analyzes but doesn't automate remediation.
+
+</details>
+
+---
+
 ## 🎓 Official Learning Resources
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
