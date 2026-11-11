@@ -513,7 +513,7 @@ JDBC Probe | Queries a database (e.g., DB2 for i, SQL Server) via MID Server | U
 
 | Mistake | Symptom | Fix |
 |---------|---------|-----|
-| Hard-coding credentials in REST messages | Breaks when passwords rotate | Use basic auth with credential aliases or OAuth2 |
+| Hard-coding credentials in REST messages | Breaks when passwords or tokens rotate | Use **credential aliases** — one ServiceNow credential record referenced by many REST messages; rotate the password/token in one place, not every integration. OAuth2 is an alternative (scoped, time-limited access) but its tokens still expire, so you still want aliases for centralized management. |
 | No MID Server for on-prem targets | Connection refused / timeout | Install a MID Server inside the target network |
 | Ignoring ECC Queue errors | Integration silently fails | Monitor ECC Queue → State = Error, inspect output |
 | Calling inbound API without auth | 401 Unauthorized | Add basic auth, API key, or OAuth token to the request |
