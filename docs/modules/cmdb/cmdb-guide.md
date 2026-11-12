@@ -2398,7 +2398,232 @@ flowchart TD
 
 </details>
 
+## Application Service Dependency Views vs Schema Map — Upstream vs Downstream Dependencies
+
+One of the most common questions in CMDB administration and incident management is: *"If this CI goes down, what else is affected?"* ServiceNow provides two primary ways to visualize CI dependencies: **Application Service Dependency Views** and **Schema Map**. They serve different purposes, show different directions of dependency, and answer different questions.
+
 ---
+
+### Dependency Views vs Schema Map — Comparison
+
+| | **Application Service Dependency Views** | **Schema Map** |
+|---|---|---|
+| **Purpose** | Show CIs that support a business/application service and their relationships | Show the CI class hierarchy and how tables/fields relate to each other |
+| **Root** | A root CI (the node you start from) — highlighted with a pulsing border | The whole CMDB class hierarchy or a selected table |
+| **Direction** | Shows **both upstream and downstream** dependencies | Shows class inheritance (extends) and field relationships |
+| **Levels** | Configurable depth (default: 3 levels each direction) | Typically full hierarchy |
+| **Status indicators** | Shows incident/alert/problem/change/task counts per node | No operational status indicators |
+| **Best for** | Impact analysis — "if this CI fails, what breaks?" | Data modeling — "which CI class extends which?" |
+| **Access** | CI record → Dependency Views icon, or CMDB Workspace | System Definition → Tables → Schema Map, or CI form → Related Links |
+| **Roles required** | `itil` or `ecmdb_admin` | `admin` |
+
+**Key distinction:** Dependency Views is about **runtime impact** (which CIs depend on which for service delivery). Schema Map is about **data model structure** (which table extends which, what fields exist).
+
+---
+
+### Upstream vs Downstream Dependencies
+
+When you open a Dependency Views map centered on a root CI, relationships flow in both directions:
+
+| Direction | Meaning | Example (ATM scenario) |
+|---|---|---|
+| **Upstream** | CIs that this CI **depends on** — things this CI needs to function | ATM server depends on: network switch, database server, power supply, WAN router |
+| **Downstream** | CIs that **depend on this CI** — things that break if this CI fails | ATM server supports: ATM kiosks, mobile banking app, online banking portal, branch teller systems |
+
+**Rule of thumb:** Upstream = "what does this need?" Downstream = "what needs this?"
+
+```mermaid
+flowchart TB
+    subgraph Downstream["Downstream Dependencies (impacted if root fails)"]
+        ATM1[ATM Kiosk #101]
+        ATM2[ATM Kiosk #102]
+        MOBILE[Mobile Banking App]
+        ONLINE[Online Banking Portal]
+        TELLER[Branch Teller System]
+    end
+
+    ROOT[ATM Server<br/>cmdb_ci_server]:::root
+
+    subgraph Upstream["Upstream Dependencies (what root needs)"]
+        NET[Network Switch]
+        DB[Database Server]
+        PWR[Power Supply / UPS]
+        WAN[WAN Router]
+    end
+
+    ATM1 --> ROOT
+    ATM2 --> ROOT
+    MOBILE --> ROOT
+    ONLINE --> ROOT
+    TELLER --> ROOT
+
+    ROOT --> NET
+    ROOT --> DB
+    ROOT --> PWR
+    ROOT --> WAN
+
+    classDef root fill:#e58a8a,stroke:#fff,stroke-width:3px,color:#000
+    classDef down fill:#4cc38a,color:#000
+    classDef up fill:#e5b567,color:#000
+    class ATM1,ATM2,MOBILE,ONLINE,TELLER down
+    class NET,DB,PWR,WAN up
+```
+
+---
+
+### Practical Example: ATM Server Down
+
+**Scenario:** The `ATM-SERVER-01` CI goes down. You need to know how many ATMs and downstream services are affected.
+
+#### Step 1: Open the Dependency Views Map
+
+From the CI record (`cmdb_ci_server` = ATM-SERVER-01):
+
+1. Open the CI record: **All > Configuration > CI List → search "ATM-SERVER-01"**
+2. Click the **Dependency Views map icon** on the CI form (or from a related incident/task)
+3. The map opens with ATM-SERVER-01 as the **root CI** (pulsing border)
+4. By default, **3 levels upstream and 3 levels downstream** are shown
+
+#### Step 2: Count Downstream Impact
+
+Look at all nodes in the **downstream** direction (arrows pointing toward the root CI):
+
+```
+ATM-SERVER-01 (root, DOWN)
+├── ATM Kiosk #101 (cmdb_ci_network_atm) — DOWN
+├── ATM Kiosk #102 (cmdb_ci_network_atm) — DOWN
+├── ATM Kiosk #103 (cmdb_ci_network_atm) — DOWN
+├── Mobile Banking App (cmdb_ci_appl) — DEGRADED
+├── Online Banking Portal (cmdb_ci_appl) — DEGRADED
+└── Branch Teller System (cmdb_ci_appl) — IMPACTED
+```
+
+**Answer:** 3 ATM kiosks directly downstream, plus 3 business applications affected. If you expand further (more levels), you may find additional downstream CIs like ATM network interfaces, card readers, receipt printers, etc.
+
+#### Step 3: Check Upstream Cause
+
+Look at upstream nodes to find the root cause:
+
+```
+ATM-SERVER-01 ← Network Switch (down)
+ATM-SERVER-01 ← Database Server (up)
+ATM-SERVER-01 ← Power Supply (up)
+```
+
+If the network switch is also down, that's the upstream cause — fix the switch, the server comes back, and downstream ATMs recover.
+
+---
+
+### How to See Upstream vs Downstream in ServiceNow
+
+| Method | Where to Find It | What It Shows |
+|--------|-----------------|---------------|
+| **Dependency Views map** | CI form → map icon, or CMDB Workspace → Dependency Views | Graphical map with root CI, upstream + downstream nodes, status indicators, task/incident counts |
+| **CI Relations Formatter** | CI form → Related Links → "Show Relations in Split/Merge Layout" | Flat or tree list of related CIs grouped by relationship type; **Split** shows upstream and downstream separately |
+| **Unified Map** | CMDB Workspace / Service Graph Workspace | Combines Dependency Views + Service Mapping into one map; shows service health and related work items |
+| **cmdb_rel_ci table query** | System Definition → Tables → cmdb_rel_ci → list view | Raw relationship records: `parent` → `child` via `type`; filter to see all relationships involving a CI |
+| **Service Mapping ADM** | All > Service Mapping > Application Services | Application service topology showing CIs and their dependencies |
+
+#### Using Split View for Separate Upstream/Downstream Lists
+
+In the CI Relations Formatter:
+
+1. Open the CI record
+2. Click **Related Links → Show Relations in Split/Merge Layout**
+3. Click **Split** — this shows two separate lists:
+   - **Upstream:** CIs this CI depends on (this CI is the `child`)
+   - **Downstream:** CIs that depend on this CI (this CI is the `parent`)
+
+---
+
+### Mermaid Diagram: Full Dependency View
+
+```mermaid
+flowchart TB
+    subgraph Business Services
+        BS[ATM Banking Service<br/>cmdb_ci_service]
+    end
+
+    subgraph Application Tier
+        APP1[ATM Application Server]
+        APP2[Transaction Processing App]
+        DB[Core Banking Database]
+    end
+
+    subgraph Infrastructure Tier
+        SVR[ATM-SERVER-01<br/>cmdb_ci_server]
+        SW[Core Network Switch]
+        RTR[WAN Edge Router]
+        PWR[UPS / Power Feed]
+    end
+
+    subgraph Edge Devices (Downstream)
+        ATM1[ATM Kiosk #101]
+        ATM2[ATM Kiosk #102]
+        ATM3[ATM Kiosk #103]
+        MOB[Mobile Banking App]
+    end
+
+    BS -->|Realized by| APP1
+    APP1 -->|Runs on| SVR
+    APP2 -->|Runs on| SVR
+    APP1 -->|Depends on| DB
+    SVR -->|Connected to| SW
+    SW -->|Connected to| RTR
+    SVR -->|Powered by| PWR
+
+    ATM1 -->|Uses| APP1
+    ATM2 -->|Uses| APP1
+    ATM3 -->|Uses| APP1
+    MOB -->|Uses| APP2
+
+    style BS fill:#4cc38a,color:#000
+    style SVR fill:#e58a8a,stroke:#fff,stroke-width:3px,color:#000
+    style ATM1 fill:#e58a8a,color:#fff
+    style ATM2 fill:#e58a8a,color:#fff
+    style ATM3 fill:#e58a8a,color:#fff
+```
+
+---
+
+### Common Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| **No CI relationships defined** | Dependency Views map shows only the root CI — nothing upstream or downstream | Populate `cmdb_rel_ci` via Discovery, Service Mapping, Import Sets, or manual entry |
+| **Wrong relationship direction** | Downstream impact shows upstream CIs (or vice versa) | Check `cmdb_rel_ci.parent` and `cmdb_rel_ci.child` — parent depends on child, child supports parent |
+| **Only 3 levels shown** | Deep dependency chains not visible | Configure Dependency Views to show more levels (administrator setting) |
+| **Using Schema Map for impact analysis** | Schema Map shows class hierarchy, not runtime dependencies — can't see which services break | Use Dependency Views or Unified Map for impact analysis; Schema Map is for data modeling |
+| **Stale relationships** | Map shows CIs that no longer exist or misses new ones | Run Discovery/Service Mapping regularly; retire CIs instead of deleting; run CMDB Health de-duplication |
+| **CI not extended from cmdb_ci** | CI doesn't appear in Dependency Views | Only tables extending `cmdb_ci` appear in Dependency Views maps |
+
+---
+
+### When to Use Which
+
+| Question | Use | Why |
+|----------|-----|-----|
+| "If ATM-SERVER-01 goes down, which ATMs are affected?" | **Dependency Views** | Shows downstream CIs with status indicators |
+| "What does ATM-SERVER-01 depend on to stay up?" | **Dependency Views** (upstream) | Shows upstream CIs — network, database, power |
+| "Which business service does this CI support?" | **Dependency Views** | Shows the service at the top of the map |
+| "Does `cmdb_ci_atm` extend `cmdb_ci_network`?" | **Schema Map** | Shows class inheritance hierarchy |
+| "What fields exist on the ATM CI class?" | **Schema Map** | Shows table structure and fields |
+| "How many incidents are open on downstream ATMs?" | **Dependency Views** / **Unified Map** | Shows incident counts per node |
+| "What's the full topology of the ATM Banking service?" | **Unified Map** / **Service Mapping** | Combines dependency + service mapping data |
+
+---
+
+### Configuration for Administrators
+
+To tune Dependency Views:
+
+- **Number of levels:** Administrators can configure how many upstream and downstream levels display (default = 3 each)
+- **Cluster collapse:** Maps collapse/expand clusters for readability; right-click a collapsed node to expand
+- **Filters:** Filter the map by relationship type, CI class, or task type to focus on specific dependency patterns
+- **Refresh:** The map auto-refreshes from the CMDB — no manual refresh needed
+
+---
+
 
 ## Related Guides
 
