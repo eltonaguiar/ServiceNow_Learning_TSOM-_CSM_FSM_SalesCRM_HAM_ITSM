@@ -11,6 +11,7 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
@@ -18,10 +19,14 @@
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Lab: Create and Dispatch Your First Work Order](#lab-create-and-dispatch-your-first-work-order)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -31,11 +36,57 @@ Field Service Management (FSM) is ServiceNow's platform for managing field servi
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.field_service` — core FSM scoped application (tables: wm_order, wm_task, wm_territory, wm_agent, wm_crew, wm_schedule_plan; roles: wm_admin, wm_dispatcher, wm_agent, admin)
+- `com.snc.cmdb` — CMDB for asset linking and CI relationships on work orders
+- `com.snc.service_catalog` — Service Catalog for work order intake and record producer patterns
+- `com.snc.fsm_mobile` — Mobile app plugin for Now Mobile technician access
+- `com.snc.csm` — CSM integration for case→work order patterns
+
+**Guided Setup:**
+- Run **FSM Guided Setup** (All > Field Service Management > Administration > Guided Setup) to configure territories, skills, scheduling rules, and work order types. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `sn_fsm.enable_travel_time` — enable automatic travel time calculation
+- `sn_fsm.auto_dispatch` — auto-assign work orders based on territory/skills matrix
+- `sn_fsm.scheduling_enabled` — enable the dynamic scheduling engine
+- `glide.fsm.use_crews` — enable crew-based assignment
+- `sn_fsm.parts_tracking` — enable parts consumption and inventory tracking
+
+**Cross-module dependencies:**
+- CMDB (`cmdb_ci`) — asset linking, CI relationships, work order CI population
+- CSM (`com.snc.customerservice`) — case↔work order patterns, customer asset context
+- ITSM (`com.snc.itsm`) — incident↔work order integration patterns
+- Service Catalog (`sc_request`) — work order intake via record producers, order guides
+- Inventory/parts management — parts tracking, stockroom configuration
+- Time tracking — time entry and timesheet integration
+
+**ACLs related to core tables:**
+- **wm_order** (`wm`): read/write by `wm_dispatcher`, `wm_admin`; territory and assigned_agent fields have field-level ACLs
+- **wm_task** (`wm`): read/write by `wm_agent`, `wm_dispatcher`; assigned_agent and skill fields have ACLs
+- **wm_agent** (`wm`): read/write by `wm_agent`, `admin`; territory and skills M2M table (`sys_user_has_skill`) ACLs
+- **wm_territory** (`wm`): read by `wm_dispatcher`, write by `wm_admin`; territory hierarchy and nesting permissions
+- **wm_crew** (`wm`): read/write by `wm_admin`; crew membership management
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.field_service` is active (System Definition → Plugins)
+2. Configure CMDB assets and CI relationships
+3. Set up territories and skills (All > Field Service > Territories / Skills)
+4. Define work order types and templates (All > Field Service > Work Order Types / Templates)
+5. Configure scheduling rules and constraints (All > Field Service > Scheduling)
+6. Enable mobile app plugin and Now Mobile user profiles
+7. Enable Service Catalog integration if work order intake from catalog is needed
+8. Enable CSM integration if case→work order patterns are required
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > Field Service Management > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > Field Service Management > ... |
 | Work Orders | All > Field Service Management > Work Orders > All |
 | Tasks | All > Field Service Management > Tasks > All |
 | Dispatch Board | All > Field Service Management > Dispatch > Dispatch Board |
@@ -287,7 +338,83 @@ wm_territory
 | Not setting scheduled dates | Scheduling engine can't place work | Always set start/end dates |
 | Work order without territory | Order stays unassigned | Always assign territory |
 | Ignoring travel time | Technician arrives late | Enable travel time calculation |
-| Creating tasks without work order | Orphaned tasks | Always link task to work order |
+|| Creating tasks without work order | Orphaned tasks | Always link task to work order |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| First-Time Fix Rate | % of work orders resolved on first visit | 45% |
+| Mean Time to Dispatch | Time from work order creation to agent assignment | 1.5 hours |
+| Travel Time % | % of work day spent traveling | 20% |
+| Work Order Completion Rate | % of work orders completed on schedule | 88% |
+| SLA Compliance % | Work orders meeting scheduled dates/times | 93% |
+| Technician Utilization | % of available hours worked on billable WOs | 70% |
+| Parts Availability Rate | % of jobs with required parts on-hand | 85% |
+| Mean Time Between Work Orders | Average time between successive WOs for same territory | 14 days |
+
+---
+
+## Core Concept Diagrams
+
+### Work Order Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Scheduled : Schedule created
+    Scheduled --> Dispatched : Agent assigned
+    Dispatched --> In Progress : Technician en route / arrived
+    In Progress --> Completed : Task finished
+    Completed --> Closed : All tasks done, parts returned
+    Closed --> [*]
+    Draft --> Canceled : Cancelled before scheduling
+    Canceled --> [*]
+
+    note right of Draft: Territory and skills required
+    note right of Completed: Time entries captured
+    note right of Closed: SLA fulfilled / breach checked
+```
+
+### Dispatch → Technician → Task Flow
+```mermaid
+graph TD
+    subgraph "Dispatch Board"
+        DB[Dispatch Board]
+    end
+    subgraph "Technician"
+        TECH[Technician + Skills + Territory]
+    end
+    subgraph "Task"
+        TSK[Work Order Task]
+    end
+    DB -->|Auto-assign| TECH
+    TECH -->|Start work| TSK
+    TSK -->|Update state| DB
+    TSK -->|Consume parts| Inventory[Parts Inventory]
+    TSK -->|Log time| Time[Time Entries]
+```
+
+### Scheduling and Travel Time Flow
+```mermaid
+graph TD
+    subgraph "Constraints"
+        SK[Skills Required]
+        TR[Territory Boundary]
+        AV[Agent Availability]
+        TT[Travel Time Estimate]
+    end
+    subgraph "Optimization Engine"
+        OE[Dynamic Scheduling Engine]
+    end
+    SK --> OE
+    TR --> OE
+    AV --> OE
+    OE -->|Place work order| WO[Work Order]
+    WO --> TT[Travel Time Added to Schedule]
+    TT -->|Adjust start/end| AV
+```
 
 ---
 
@@ -338,6 +465,15 @@ Fallback link: [FSM Getting Started]()
 
 Fallback link: [FSM Getting Started]()
 ---
+
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: FSM uses the `task_sla` table for work order SLA tracking. SLA definitions are managed at **All > Service Level Management > SLA Definitions**. SLA compliance is checked against work order scheduled start/end times. Module-specific SLA metrics include on-time completion rate and time-to-dispatch, influenced by territory assignment, skill matching, and travel time calculations.
+
+**OOTB Dashboards**: FSM OOTB dashboards are accessible at **All > Field Service Management > Dashboards**. Key dashboards include the **Dispatch Board** (shows real-time agent-task mapping, territory coverage, and SLA breach indicators) and the Scheduling dashboard (displays travel time, resource utilization, and work order completion rates).
+
+**OOTB Workspaces**: 
+- **Field Service Management Workspace** - **All > Field Service Management > Dispatch > Dispatch Board**
 
 ## Quiz
 
@@ -390,3 +526,15 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Field Service Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](./csm-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [HAM guide](./ham-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [FSM getting-started](./../../getting-started/fsm.md)
+
+---

@@ -11,18 +11,26 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-ITSM](#official-exam-alignment--cis-itsm)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
+- [🔍 Process Deep Dives](#-process-deep-dives)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -32,11 +40,55 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.itsm` — core ITSM scoped application (tables: incident, problem, change_request, change_task, task, task_sla; roles: itil, sn_incident.read, sn_incident.write, sn_change.write, sn_problem.write, admin)
+- `com.snc.cmdb` — CMDB integration for affected CI relationships and CI lifecycle
+- `com.snc.discovery` — Discovery / MID Server for auto-discovering CIs and maintaining identifier reconciliation
+- `com.snc.service_catalog` — Service Catalog for request fulfillment, record producers, and order guides
+- `com.snc.km` — Knowledge Management for containment articles and KEDB publication
+
+**Guided Setup:**
+- Run **ITSM Guided Setup** (All > ITSM > Administration > Guided Setup) to configure incident categories, assignment groups, SLAs, priority matrices, and default change types. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `glide.incident.close_code_required` — enforce close codes on incident close
+- `glide.incident.close_notes_required` — enforce close notes on incident close
+- `glide.sla.enabled` — global SLA engine toggle
+- `sn_incident.use_assignment_groups` — route incidents by assignment group
+- `glide.cmdb.use_cmdb` — enable CMDB for CI relationships
+
+**Cross-module dependencies:**
+- CMDB (`cmdb_ci`) — affected CI lookups, CI lifecycle state, service-mapping relationships
+- Discovery — auto-discovery of CIs, identifier & reconciliation rules
+- Service Catalog (`sc_request`) — request fulfillment, record producers, order guides
+- Knowledge Management (`kb_knowledge`) — articles for containment, KEDB publication
+- Event Management (`em_event`) — create incidents from monitoring alerts
+- CSM (`com.snc.customerservice`) — case↔incident integration patterns
+
+**ACLs related to core tables:**
+- **incident** (`sn_incident`): read/write by `itil`, `sn_incident.read`, `sn_incident.write`; assignment_group and assignment_group_id require `itil` or equivalent; close_code/close_notes visibility controlled by UI policy/ACL
+- **problem** (`sn_problem`): read/write by `sn_problem.write`, visible under `itil`; root_cause and kedb_link fields require appropriate ACLs
+- **change_request** (`sn_change`): read/write by `sn_change.write`, CAB approvals require `change_admin` or `cab` roles; risk and implementation_plan fields have field-level ACLs
+- **sc_request** (`sc_request`): read by `sc_request.read`, write by `sc_request.write`; used by Service Catalog order flows; catalog item ACLs control who can submit
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.itsm` is active (System Definition → Plugins)
+2. Run ITSM Guided Setup to provision categories, groups, SLAs
+3. Ensure CMDB is populated (Discovery or manual CI import)
+4. Configure Service Catalog items and record producers
+5. Enable Knowledge Management if containment articles are needed
+6. Enable Event Management if alert→incident integration is required
+7. Enable CSM plugin if cross-module case↔incident patterns are needed
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > IT Service Management > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > IT Service Management > ... |
 | Incidents | All > Incident > All |
 | Problems | All > Problem > All |
 | Changes | All > Change > All |
@@ -47,6 +99,33 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 | Administration | All > ITSM > Administration > ... |
 
 **Tip:** If menus are missing, verify the `com.snc.itsm` plugin is active (System Definition → Plugins).
+
+---
+
+## Official Exam Alignment — CIS-ITSM
+
+This guide maps to the **Certified Implementation Specialist – IT Service Management (CIS-ITSM)** exam blueprint (ServiceNow University, KB0011560). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-ITSM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Incident Management** (deep dive + lab) | Domain 1: Incident Management — Architecture, Scoping & Requirements, Configuration: Incident lifecycle | 25% | Incident lifecycle, state model, priority (impact × urgency), assignment groups, SLAs, major incident management |
+| **Problem Management** (deep dive) | Domain 2: Problem Management — Architecture, Scoping & requirements, Problem Lifecycle Configuration | 15% | Problem vs incident, root cause analysis, KEDB, problem tasks, permanent fix vs workaround |
+| **Change Management** (deep dive) | Domain 3: Change Management — Architecture and configuration | 25% | Change types (standard/normal/emergency), CAB, state model, risk/impact, conflict detection, blackout windows |
+| **Service Catalog & Request Fulfillment** | Domain 5: Service Catalog and Request Management — Architecture, Scoping & Requirements, Configuration, Integrations | 25% | Catalog items, record producers, order guides, RITM, catalog tasks, approval workflows |
+| **Service Portfolio Management** | Domain 4: Service Portfolio Management | 5% | Business services, service offerings, access to Service Owner Workspace |
+| **CMDB integration** | Domain 6: Configuration Management Database | 5% | cmdb_ci, affected CI relationships, CI lifecycle |
+
+**Official preparation courses** (recommended by ServiceNow for this exam):
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- ServiceNow Administration Advanced
+- ServiceNow Get Started with Now Create
+- ServiceNow Platform Implementation
+- CMDB Fundamentals
+- ServiceNow ITSM Fundamentals
+- ServiceNow ITSM Implementation
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site. Study materials posted elsewhere online are not official.
 
 ---
 
@@ -190,14 +269,84 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ---
 
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined choice list values. Do not hardcode these in scripts — reference them by display value or sys_id, and verify against your instance (values can vary by release).
+
+### Incident — State
+| State | When to Use |
+|-------|-------------|
+| `New` | Incident created, not yet assigned |
+| `In Progress` | Work actively being performed |
+| `On Hold` | Waiting on a dependency (caller, change, problem, vendor) |
+| `Resolved` | Fix applied, awaiting closure |
+| `Closed` | Close code + close notes completed |
+| `Canceled` | Duplicate or invalid incident |
+
+### Incident — On Hold Reason
+| On Hold Reason | Notes |
+|----------------|-------|
+| `Awaiting Caller` | Waiting for the user to respond |
+| `Awaiting Change` | Waiting for a change to be implemented |
+| `Awaiting Problem` | Waiting for problem investigation (ServiceNow recommends removing this choice) |
+| `Awaiting Vendor` | Waiting on a third-party vendor |
+
+### Change — Type
+| Type | Description | Default Values |
+|------|-------------|----------------|
+| `Normal` | Requires CAB approval, risk assessed | State: `New`, Category: `Other`, Risk: `Moderate` |
+| `Standard` | Low risk, pre-approved (e.g., monthly patching) | — |
+| `Emergency` | Fixes critical outage; approved by ECAB | — |
+
+### Problem — State
+| State | When to Use |
+|-------|-------------|
+| `New` | Problem created |
+| `Assess` | Problem under investigation |
+| `Known Error` | Root cause identified, workaround documented in KEDB |
+| `Resolved` | Permanent fix applied |
+| `Closed` | Problem closed |
+
+**Exam focus (CIS-ITSM Domain 1, 25%):** Incident state transitions, On Hold reasons, Change types, default change values, priority calculation.
+
+---
+
 
 ## 🔍 Process Deep Dives
 
 ### 🚨 Incident Management
-- **Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
-- **Incident Tasks:** Breaking down a complex fix into smaller, assignable pieces.
-- **On-Call / Escalations:** Using `cmn_rota` to ensure the right person is paged when an SLA is about to breach.
-- **SLAs/OLAs:** Service Level Agreements (Customer) vs Operational Level Agreements (Internal Team).
+
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+    
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+**Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
+
+**Priority Matrix (Impact × Urgency):**
+
+| Impact \ Urgency | 1 - High | 2 - Medium | 3 - Low |
+|------------------|----------|------------|---------|
+| 1 - High | **P1** | **P1** | **P2** |
+| 2 - Medium | **P1** | **P2** | **P3** |
+| 3 - Low | **P2** | **P3** | **P4** |
+| 4 - Low | **P3** | **P4** | **P5** |
+
+**Exam focus (Domain 1, 25%):** Incident lifecycle, state transitions, priority calculation, assignment groups, SLAs, major incident management.
+
 
 🚀 **Interview Insight:** Focus on the **"Restore Service"** goal. Mention that Incident is about speed, while Problem is about the root cause.
 
@@ -230,18 +379,51 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
 ## Key Table Hierarchy
 
-### Core Tables
+### ITSM Core Table Relationship Diagram
 
-| Table | Purpose | Extends | Key Fields |
-|-------|---------|---------|------------|
-| `incident` | Broken things reported by users | `task` | `number`, `title`, `category`, `state`, `priority`, `assignment_group`, `assigned_to`, `caller_id`, `cmdb_ci` |
-| `problem` | Root causes of incidents | `task` | `number`, `short_description`, `state`, `priority`, `assignment_group`, `caused_by` |
-| `change_request` | Planned changes | `task` | `number`, `short_description`, `state`, `type`, `start_date`, `end_date`, `assignment_group` |
-| `change_task` | Tasks within a change | `task` | `number`, `change_request`, `state`, `assigned_to` |
-| `task` | Base task table | `task` | `number`, `short_description`, `state`, `priority`, `assignment_group` |
-| `task_sla` | SLA records | `task` | `task`, `sla`, `state`, `breach_time`, `pause_count` |
-| `cmdb_ci` | Configuration items | `task` | `name`, `serial_number`, `asset_tag`, `location`, `status` |
-| `kb_knowledge` | Knowledge articles | `task` | `short_description`, `text`, `workflow_state`, `kb_category` |
+```mermaid
+graph TD
+    subgraph "Task Base Table"
+        task[task]
+    end
+    
+    subgraph "ITSM Child Tables (extend task)"
+        incident[incident]
+        problem[problem]
+        change_request[change_request]
+        change_task[change_task]
+        task_sla[task_sla]
+    end
+    
+    subgraph "Configuration Management"
+        cmdb_ci[cmdb_ci]
+    end
+    
+    subgraph "Knowledge"
+        kb_knowledge[kb_knowledge]
+    end
+
+    task --> incident
+    task --> problem
+    task --> change_request
+    task --> change_task
+    task --> task_sla
+    
+    incident -.->|affected CI| cmdb_ci
+    problem -.->|root cause CI| cmdb_ci
+    change_request -.->|affected CIs| cmdb_ci
+    incident -.->|related problem| problem
+    problem -.->|related change| change_request
+    change_request -.->|tasks within| change_task
+    task_sla -.->|SLA on| task
+    kb_knowledge -.->|related CI| cmdb_ci
+
+    style task fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
+    style incident fill:#10141a,stroke:#4cc38a
+    style problem fill:#10141a,stroke:#4cc38a
+    style change_request fill:#10141a,stroke:#4cc38a
+    style cmdb_ci fill:#0a0d10,stroke:#e5b567
+```
 
 ### Table Relationships
 
@@ -337,8 +519,96 @@ cmdb_ci
 | Deleting demo users | Flows break that reference them | Never delete; deactivate |
 | Testing as admin only | ACLs bypassed; "it works" means nothing | Test as actual user |
 | Making assignment_group optional | Tickets orphaned | Always required |
-| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
-| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
+|| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
+|| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| First-time Resolution Rate | % of incidents resolved on first contact without reopening | 65% |
+| MTTR (Mean Time To Resolve) | Average time from incident creation to final resolution | 4 hours |
+| MTBF (Mean Time Between Failures) | Average time between recurring incidents for the same CI | 30 days |
+| SLA Compliance % | Incidents meeting SLA target within agreed time window | 95% |
+| Incident Volume | Total incidents created per 30-day period | 1,200/month |
+| Backlog Age | Average age of open incidents older than 30 days | 23 days |
+| Reopened Rate | % of closed incidents that reopen within 7 days | 8% |
+| Average Resolution Time | Average time to resolve across all severity levels | 6.5 hours |
+
+---
+
+## Core Concept Diagrams
+
+### Incident Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+### Incident → Problem → Change → Request Flow
+```mermaid
+graph TD
+    subgraph "Incident"
+        INC[Incident Created]
+        INC --> PR[Problem Identified]
+    end
+    subgraph "Problem"
+        PR --> CR[Related Change Requested]
+    end
+    subgraph "Change"
+        CR --> REQ[Service Request / Catalog Item]
+    end
+    subgraph "Request"
+        REQ --> FUL[Service Fulfillment]
+    end
+    FUL -->|Closed| INC
+```
+
+### SLA Lifecycle and Priority Matrix
+```mermaid
+graph TD
+    subgraph "SLA Stages"
+        dir[Draft]
+        act[Active]
+        bre[Breached]
+        clo[Closed]
+    end
+    dir -->|Define terms| act
+    act -->|Breach time reached| bre
+    bre -->|SLA resolution / escalation| clo
+    
+    subgraph "Priority Matrix (Impact × Urgency)"
+        direction LR
+        P1[P1 - Critical]
+        P2[P2 - High]
+        P3[P3 - Medium]
+        P4[P4 - Low]
+        P5[P5 - Optional]
+    end
+    P1 -->|Impact 1×| Urg1[Urgency 1 - High]
+    P1 -->|Impact 1×| Urg2[Urgency 2 - Medium]
+    P2 -->|Impact 2×| Urg1
+    P2 -->|Impact 2×| Urg2
+    P3 -->|Impact 3×| Urg1
+    P3 -->|Impact 3×| Urg2
+    P4 -->|Impact 4×| Urg2
+    P5 -->|Impact 4×| Urg3
+```
 
 ---
 
@@ -436,6 +706,17 @@ Fallback link: [ITSM Demo]()
 Fallback link: [ITSM Demo]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: The ITSM module uses the `task_sla` table for SLA tracking (confirmed in Prerequisites: tables include `task_sla` alongside `incident`, `problem`, `change_request`, `change_task`, `task`). SLA Definitions are managed at **All > Service Level Management > SLA Definitions**. Typical SLA metrics include **time to resolve**, **time to assign**, and **time to acknowledge**, driven by incident priority (Impact × Urgency matrix).
+
+**OOTB Dashboards**: ITSM OOTB dashboards are accessible at **All > ITSM > Dashboards**. Key dashboards include the **IT Agent Dashboard** (displays incident volumes, open/closed counts, SLA breach rates by priority) and the SLA compliance dashboard (shows SLA target vs actual performance across severity levels).
+
+**OOTB Workspaces**: 
+- **Service Operations Workspace** - **All > IT Service Management > Service Operations**
+- **Dispatcher Workspace** - **All > IT Service Management > Dispatch**
+- **IT Agent Workspace** - **All > IT Service Management > Agent Workspace**
+
 ## Quiz
 
 1. What fields determine incident priority, and where is that matrix defined?
@@ -486,3 +767,18 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "IT Service Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [Discovery guide](./discovery-guide.md)
+- [TSOM guide](./tsom-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [HRSD guide](./hrsd-guide.md)
+- [ITSM getting-started](./../../getting-started/itsm.md)
+
+---

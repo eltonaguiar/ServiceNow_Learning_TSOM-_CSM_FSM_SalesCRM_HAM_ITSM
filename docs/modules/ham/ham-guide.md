@@ -12,18 +12,26 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-Hardware Asset Management](#official-exam-alignment--cis-hardware-asset-management)
+- [HAM Asset Lifecycle Diagram](#ham-asset-lifecycle-diagram)
+- [Asset vs CI Diagram](#asset-vs-ci-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Common Mistakes](#common-mistakes)
 - [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -50,6 +58,135 @@ Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT 
 | Contracts | All > Asset Management > Contracts > All |
 
 **Tip:** If menus are missing, verify the `com.snc.iam` (IT Asset Management) plugin is active (System Definition → Plugins).
+
+---
+
+## Official Exam Alignment — CIS-Hardware Asset Management
+
+This guide maps to the **Certified Implementation Specialist – Hardware Asset Management (CIS-HAM)** exam blueprint (ServiceNow University, KB0011563). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-HAM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **Asset Lifecycle** | Domain 1: IT Asset Management Overview & Fundamentals — Hardware Asset Lifecycle | 20% | Asset lifecycle stages, asset models, HAM implementation best practices |
+| **Asset vs CI / Data Integrity** | Domain 2: Data Integrity – Attributes and Data Sources — Assets vs CIs, Hardware Discovery and Normalization | 27% | Assets vs CIs, hardware model normalization, Discovery, NDS, CI classes |
+| **Practical Management** | Domain 3: Practical Management of IT Assets — Consumables, Inventory, Audits, Retirement | 30% | Asset states, workflows, audits, contracts, change management |
+| **Operational Integration** | Domain 4: Operational Integration — Reports/Dashboards, Requests and Procurement, Extending AM | 18% | Dashboards, procurement, asset/CI extension, data certification |
+| **Financial Management** | Domain 5: Financial Management of IT Assets — Hardware Contract Financials, IT Cost Management | 5% | Contract rate cards, depreciation, TCO |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Get Started with Now Create
+- ServiceNow Platform Implementation
+- Hardware Asset Management (HAM) Fundamentals (or HAM Fundamentals - On Demand)
+
+**Additional recommended resources:**
+- Hardware Asset Simulator
+- Additional Recommended Courses for Hardware Asset Management (HAM) Implementers
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## HAM Asset Lifecycle Diagram
+
+```mermaid
+stateDiagram-v2
+    state "In Use" as InUse
+    state "In Maintenance" as InMaintenance
+    state "Lost / Stolen" as LostStolen
+
+    [*] --> Procurement : Asset ordered
+    Procurement --> Received : Asset received in warehouse
+    Received --> InUse : Asset assigned to employee
+    InUse --> InMaintenance : Repair needed
+    InMaintenance --> InUse : Repair complete
+    InUse --> Retired : End of life / replacement
+    InUse --> LostStolen : Asset missing
+    LostStolen --> [*]
+    Retired --> [*]
+    InMaintenance --> Retired : Beyond economical repair
+
+    note right of Procurement: Purchase order, receipt
+    note right of Received: Asset tag assigned, CI created
+    note right of InUse: Assigned to user, location tracked
+    note right of Retired: Disposal, data wipe, asset state = Retired
+
+    classDef proc fill:#e5b567,color:#000
+    classDef live fill:#4cc38a,color:#000
+    classDef gone fill:#e58a8a,color:#fff
+    class Procurement,Received proc
+    class InUse,InMaintenance live
+    class Retired,LostStolen gone
+```
+
+**Exam focus:** Hardware asset lifecycle, stages, components, asset states, retirement workflows (20% + 30% of CIS-HAM exam).
+
+---
+
+## Asset vs CI Diagram
+
+```mermaid
+graph TD
+    subgraph "Hardware Asset (alm_asset)"
+        asset[Asset Record]
+        asset -->|tracks| financial[Financial Data<br/>Cost, PO, Contract, Depreciation]
+        asset -->|tracks| assignment[Assignment<br/>User, Location, Department]
+    end
+    
+    subgraph "Configuration Item (cmdb_ci)"
+        ci[CI Record]
+        ci -->|tracks| technical[Technical Data<br/>OS, IP, Serial, CPU, RAM]
+        ci -->|tracks| relationships[Relationships<br/>Runs on, Depends on, Connected to]
+    end
+    
+    subgraph "The Link"
+        asset -->|normalized to| ci
+        ci -->|sourced from| asset
+    end
+
+    style asset fill:#e5b567,color:#000
+    style ci fill:#0a0d10,stroke:#e5b567
+    style financial fill:#10141a
+    style technical fill:#10141a
+
+```
+
+**Key distinction for exam:**
+- **Asset** (`alm_asset`): Financial and ownership view — cost, purchase date, contract, assigned user, depreciation
+- **CI** (`cmdb_ci`): Technical and relationship view — OS, IP address, serial number, what it runs on/depends on
+- **Normalization:** Discovery + NDS reconciles asset data to CI data, preventing duplicates
+
+**Exam focus:** Assets vs CIs, hardware model normalization, asset and CI data synchronization (27% of CIS-HAM exam).
+
+---
+
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined asset states and substates. Verify against your instance — values can vary by release (e.g., Rome release asset states are numeric 1–11).
+
+### Asset State & Substate (install_status / install_substatus)
+| State | Substates | When to Use |
+|-------|-----------|-------------|
+| `On Order` | — | Assets have only been ordered |
+| `In Stock` | Available, Reserved, Defective, Pending repair, Pending install, Pending disposal, Pending transfer, Pre-allocated, On hold, Legal hold, Quarantine, Pending fulfillment, Pending certificate, Pending return, Test, End of support, Pending Retirement, Pending resale, Pending evaluation | Assets in storage needing assessment or confirmed broken |
+| `In transit` | Available, Reserved, Defective, Pending install, Pending disposal, Pending donation, Pre-allocated, Pending resale | Assets on their way |
+| `In Use` | Pending fulfillment, End of support, Pending retirement | Devices actively assigned to users and operational |
+| `In maintenance` | — | Assets being repaired or scheduled for maintenance |
+| `Retired` | Disposed, Pending disposal, Sold, Donated, Vendor credit, Lease return, Obsolete, RMA, Buy out, Pending resale | Asset completed its lifecycle |
+| `Missing` | Lost, Stolen | Asset is lost or stolen |
+| `Build` | — | Asset being prepared (usually for bundled assets) |
+
+### Hardware Model Lifecycle Phase
+| Phase | Description |
+|-------|-------------|
+| `Availability` | Model is available for purchase |
+| `End of sale` | Model no longer sold by manufacturer |
+| `End of support` | Manufacturer stops support |
+| `End of extended support` | Extended support period ends |
+| `End of life` | Model fully end of life |
+
+**Exam focus (CIS-HAM Domain 2, 27%):** Asset states/substates, hardware model lifecycle phases, hardware model normalization.
 
 ---
 
@@ -298,9 +435,72 @@ ast_contract
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+HAM's business goals center on maintaining an accurate hardware asset inventory and controlling cost from procurement through retirement.
+
+|| Business Goal | Benefit | Example Key Metric | Example Value |
+|----------------|-------------|--------------------|----------------|
+|| Complete hardware inventory | Foundation for ITAM decisions | Inventory completeness | ≥ 98% of procured assets recorded |
+|| Cost control and TCO | Optimize purchasing and renewals | Asset utilization rate | ~72% in use; target ≥ 70% |
+|| TCO management | Reduce lifecycle cost | TCO and cost avoidance via reuse | ~15% reduction over 3 years |
+|| Retirement compliance | Reduce orphaned assets | Asset retirement compliance rate | ≥ 98% |
+|| Financial data accuracy | Accurate cost tracking | Depreciation and cost accuracy | ≥ 95% |
+|| License compliance | Prevent over and under purchasing | License compliance rate | ≥ 95% |
+
+**Example targets:** ~70% asset utilization, ~98% retirement compliance, and ~98% inventory completeness.
+
+---
+
+## Core Concept Diagrams
+
+### Asset Lifecycle Journey
+
+```mermaid
+flowchart TD
+    PO[Purchased] --> RC[Receiving Check In]
+    RC --> IS[In Stock]
+    IS --> AS[In Use Assigned]
+    AS --> IM[In Maintenance Repair]
+    IM --> AS2[In Use Repair Complete]
+    AS --> RT[Retired End Of Life]
+    RT --> DP[Disposal Data Wipe]
+    AS --> LOST[Lost Or Stolen]
+    LOST --> WR[Write Off]
+
+### Asset to CI Normalization Link
+
+```mermaid
+flowchart LR
+    subgraph ITAM["ITAM View Asset"]
+        A[Asset Record]
+        A --> FIN[Financial Data Cost PO Contract Depreciation]
+        A --> ASG[Assignment Data User Location]
+    end
+    subgraph CMDB["CMDB View CI"]
+        C[CI Record]
+        C --> TEC[Technical Data OS IP Serial]
+        C --> REL[Relationships Runs On Depends On]
+    end
+    A -->|Normalized via NDS| C
+    C -->|Sourced From Asset| A
+```
+
+### Asset Relationship Map
+
+```mermaid
+graph TD
+    AST[Asset Record] -->|under contract with| CON[Contract Record]
+    AST -->|stored in| STO[Stockroom Record]
+    AST -->|assigned to| USR[User Record]
+    AST -->|normalized to| CIH[Hardware CI]
+    AST -->|depreciates via| MOD[Asset Model]
+
+---
+
 ## Common Mistakes
 
-| Mistake | Symptom | Fix |
+|| Mistake | Symptom | Fix |
 |---------|---------|-----|
 | Creating assets without categories | Asset form missing fields | Define categories first |
 | Duplicate asset tags | Can't identify physical asset | Enforce unique asset tags |
@@ -474,6 +674,19 @@ Fallback link: [HAM Overview]()
 Fallback link: [HAM Overview]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+- **task_sla usage**: Hardware assets tracked via `alm_asset` leveraging Task SLA for maintenance and lifecycle milestones. SLAs are attached to asset lifecycle states (e.g., warranty expiration, retirement milestones) and contract end dates.
+- **Module-specific SLA tables**: `alm_asset` (primary), `ast_contract` (contract-linked SLAs). SLA policies are driven by contract terms and asset state transitions.
+- **Typical metrics**: Asset SLA attainment (warranty compliance), contract renewal timeliness, retirement adherence rate.
+
+### OOTB Dashboards
+- **Hardware Asset Management Dashboard**: Shows asset lifecycle distribution, warranty status, retirement compliance, and asset utilization by category.
+
+### OOTB Workspaces
+- **Hardware Asset Workspace**: `All > Asset Management > Hardware Asset Management`. Breadcrumb: `All > Asset Management > Hardware Asset Management`.
+
 ## Quiz
 
 1. What is the difference between `alm_asset` and `cmdb_ci`?
@@ -526,3 +739,16 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Hardware Asset Management"
+
+---
+
+## Related Guides
+
+- [CMDB guide](./cmdb-guide.md)
+- [Discovery guide](./discovery-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [CSM guide](./csm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [HAM getting-started](./../../getting-started/ham.md)
+
+---

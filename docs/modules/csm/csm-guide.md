@@ -11,17 +11,25 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
+- [Official Exam Alignment — CIS-CSM](#official-exam-alignment--cis-csm)
+- [CSM Business Model Diagram](#csm-business-model-diagram)
+- [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Lab: Create Your First Customer Case](#lab-create-your-first-customer-case)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -31,11 +39,56 @@ Customer Service Management (CSM) is ServiceNow's platform for managing customer
 
 ---
 
+## Prerequisites & Setup
+
+**Plugins / Scoped Apps that must be active:**
+- `com.snc.customerservice` — core CSM scoped application (tables: sn_customerservice_case, customer_account, sn_customerservice_consumer, sn_customerservice_entitlement; roles: sn_customerservice_agent, sn_customerservice_manager, sn_customerservice.customer)
+- `com.snc.knowledge` — Knowledge Management for customer portal articles and internal agent articles
+- `com.snc.service_catalog` — Service Catalog for customer self-service requests and order guides
+- `com.snc.csn` — Customer Service Network for case routing and entitlement checks
+- `com.snc.complaints` — Complaints plugin for complaint case types and workflows
+
+**Guided Setup:**
+- Run **CSM Guided Setup** (All > Customer Service > Administration > Guided Setup) to configure case types, entitlements, customer portal settings, and routing rules. This is the fastest path to a production-ready instance.
+
+**System properties to consider:**
+- `sn_customerservice.csm_case_entitlement_check` — validate entitlement before case creation
+- `sn_customerservice.csm_case_auto_assign` — enable automatic case assignment rules
+- `glide.csm.use_csm_portal` — enable customer portal functionality
+- `sn_csm.csat_enabled` — enable customer satisfaction surveys post-case closure
+- `glide.sla.enabled` — global SLA engine toggle (applies to CSM SLAs)
+
+**Cross-module dependencies:**
+- ITSM (`com.snc.itsm`) — case↔incident integration patterns, case-to-incident conversion
+- Service Catalog (`sc_request`) — customer order fulfillment, record producers, service items
+- Knowledge Management (`kb_knowledge`) — customer-facing articles and internal agent knowledge base
+- CMDB (`cmdb_ci`) — product/asset relationships for entitlement and case context
+- AWA (`advanced work assignment`) — Advanced Work Assignment queues and work-item definitions
+- CSDM (`core_cdmi`) — business model and product model definitions for customer data
+
+**ACLs related to core tables:**
+- **sn_customerservice_case** (`sn_customerservice`): read/write by `sn_customerservice_agent`, `sn_customerservice_manager`, `sn_customerservice.customer`; assignment_group and entitlement fields require appropriate ACLs
+- **customer_account** (`sn_customerservice`): read by `sn_customerservice_agent`, write by `sn_customerservice_manager`; account data validation and entitlement assignment
+- **sn_customerservice_entitlement** (`sn_customerservice`): read/write by `sn_customerservice_manager`; SLA enforcement and entitlement validation
+- **sn_customerservice_consumer** (`sys_user`): read/write by `sn_customerservice_agent`; customer profile and contact information
+- **sc_request** (`sc_request`): read by `sc_request.read`, write by `sc_request.write`; used by Service Catalog order flows
+
+**Breadcrumbs — enable in this order:**
+1. Verify `com.snc.customerservice` is active (System Definition → Plugins)
+2. Configure entitlements and customer accounts (Administration > Entitlements)
+3. Set up Service Catalog items and record producers
+4. Configure customer portal settings (All > Customer Service > Customer Service Portal)
+4. Enable Knowledge Management for customer articles
+5. Configure AWA queues and work-item definitions if needed
+6. Enable CSM plugin if complaint case types are required
+
+---
+
 ## Where to Find It
 
-| Breadcrumb | Path |
-|------------|------|
-| Module entry | All > Customer Service > ... |
+|| Breadcrumb | Path |
+||------------|------|
+|| Module entry | All > Customer Service > ... |
 | Cases | All > Customer Service > Cases > All |
 | Accounts | All > Customer Service > Accounts |
 | Consumers | All > Customer Service > Consumers |
@@ -45,6 +98,100 @@ Customer Service Management (CSM) is ServiceNow's platform for managing customer
 | Administration | All > Customer Service > Administration > ... |
 
 **Tip:** If menus are missing, verify the `com.snc.customerservice` plugin is active (System Definition → Plugins).
+
+---
+
+## Official Exam Alignment — CIS-CSM
+
+This guide maps to the **Certified Implementation Specialist – Customer Service Management (CIS-CSM)** exam blueprint (ServiceNow University, KB0011529). Exam weightings shown are the official domain percentages.
+
+| Guide Section | CIS-CSM Domain | Exam Weight | What's Covered |
+|---------------|-----------------|-------------|----------------|
+| **CSM Foundational Data Model** | Domain 1: CSM foundational data model — Business models, Product models, Install base management, Contracts and entitlements | 27% | B2B/B2C/B2B2C/B2B2E models, install base, entitlements, contracts, product models |
+| **CSM Configuration** | Domain 2: CSM configuration — CSM in ServiceNow, Routing and assignment, Case types, Channels | 38% | Case routing, assignment rules, case types, communication channels |
+| **Case Management** | Domain 3: Case management — Case state flows, Major issue management, Case digests and service definitions, CSM workspace, Case actions, tasks, and escalations | 17% | Case lifecycle, MIM, workspace, escalations, tasks |
+| **Workspace, Portals, Service Catalog, Analytics** | Domain 4: CSM Workspace, Portals, Service Catalog, Analytics, and Reporting | 8% | Customer portal, service catalog, SLAs, reporting |
+| **Best Practices & Knowledge Management** | Domain 5: CSM Best Practices and Knowledge Management | 10% | Architecture, end-to-end processes, project scope, knowledge management |
+
+**Official preparation courses:**
+- Welcome to ServiceNow
+- ServiceNow Administration Fundamentals
+- Get Started with Now Create
+- ServiceNow Platform Implementation
+- Customer Service Management Essentials
+- Customer Service Management Essentials Simulator
+- Knowledge Management for Customer Service Management Fundamentals
+- Customer Service Management Best Practices for Implementation
+
+**Exam guidance:** Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.
+
+---
+
+## CSM Business Model Diagram
+
+```mermaid
+graph TD
+    subgraph "B2B — Business to Business"
+        company[Customer Account] --> contact[Contact]
+        company --> entitlement[Entitlement]
+        company --> install_base[Install Base]
+    end
+    
+    subgraph "B2C — Business to Consumer"
+        consumer[Consumer] --> case[Case]
+    end
+    
+    subgraph "B2B2C — Business to Business to Consumer"
+        company2[Customer Account] --> consumer2[Consumer via Portal]
+        company2 --> product[Product Model]
+    end
+    
+    subgraph "B2B2E — Business to Business to Employee"
+        company3[Customer Account] --> employee[Employee User]
+        employee --> case2[Case]
+    end
+
+    style company fill:#0b0e11,stroke:#4cc38a
+    style consumer fill:#10141a,stroke:#4cc38a
+    style company2 fill:#0b0e11,stroke:#4cc38a
+    style company3 fill:#0b0e11,stroke:#4cc38a
+```
+
+**Exam focus (Domain 1, 27%):** Business models (B2B, B2C, B2B2C, B2B2E), product models, install base management, contracts and entitlements.
+
+---
+
+## Out-of-Box Values & Dropdowns
+
+ServiceNow ships with predefined case types and choice list values. Verify against your instance — values can vary by release and plugin activation.
+
+### Case Type Categories (OOB)
+| Category | Description |
+|----------|-------------|
+| `Onboarding` | Customer onboarding cases |
+| `Complaint` | Customer complaint cases |
+| `Orders` | Order-related cases |
+| `General` | General-purpose cases |
+
+**Note:** Additional case types become available through plugins, e.g. `Complaints` via the `sn_csm_complaint` plugin.
+
+### Case Type Selector Versions
+| Version | Behavior | Controlling Property |
+|---------|----------|---------------------|
+| `Multi-select` (default) | Agent selects a case type, optionally narrows by category/subtype | `sncsmcasetypes.casetypesinglefieldselect` |
+| `Single-select` | Agent selects one case type and creates the case with one click | `sncsmcasetypes.casetypesinglefieldselect` |
+| `Product Service Select` | Agent selects a product and/or service to create a case | `sncsmcasetypes.servicedefinitionselect` (takes precedence over single-select) |
+
+### Case State Flow
+| State | When to Use |
+|-------|-------------|
+| `New` | Case created, not yet assigned |
+| `In Progress` | Agent actively working |
+| `On Hold` | Waiting on dependency |
+| `Resolved` | Issue resolved |
+| `Closed` | Case closed |
+
+**Exam focus (CIS-CSM Domain 1, 27%):** Case type categories, case type selector versions, case state flows, business models.
 
 ---
 
@@ -267,7 +414,82 @@ sn_customerservice_entitlement
 | Testing portal as admin | Can't see customer experience | Test as actual customer user |
 | One case type for everything | Workflow can't differentiate | Create case types per request type |
 | Missing account on case | No entitlement/SLA resolution | Always populate account |
-| Not setting contact | No notification recipient | Always set contact/consumer |
+|| Not setting contact | No notification recipient | Always set contact/consumer |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Goal / Metric | Description | Example Value |
+|-------------|-------------|---------------|
+| CSAT Score | Customer satisfaction post-case close | 4.5/5.0 |
+| First Contact Resolution Rate | % of cases resolved without escalation | 58% |
+| Case Volume | Total cases created per period | 850/month |
+| Entitlement Compliance % | Cases within entitlement SLA terms | 92% |
+| Average Resolution Time | Average time to resolve across all severity levels | 12 hours |
+| Response Time | Time to first agent reply | 30 minutes |
+| Case Reopen Rate | % of closed cases reopened within 7 days | 6% |
+| Agent Utilization | % of agent time billable on cases | 75% |
+
+---
+
+## Core Concept Diagrams
+
+### Case Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on dependency
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
+
+    note right of New: Priority = Impact × Urgency
+    note right of Resolved: Requires Close Code + Close Notes
+    note right of Closed: SLA stops
+```
+
+### Account → Case → Entitlement Flow
+```mermaid
+graph TD
+    subgraph "Account"
+        AC[Customer Account]
+    end
+    subgraph "Case"
+        CASE[Customer Case]
+    end
+    subgraph "Entitlement"
+        ENT[Entitlement / SLA]
+    end
+    AC --> CASE
+    CASE --> ENT
+    ENT --> CASE
+```
+
+### CSM Business Model (B2B / B2C / B2B2C / B2B2E)
+```mermaid
+graph TD
+    subgraph sg_b2b["B2B"]
+        B2B[Business Service]
+    end
+    subgraph sg_b2c["B2C"]
+        B2C[Customer]
+    end
+    subgraph sg_b2b2c["B2B2C"]
+        B2B2C[Business to Consumer]
+    end
+    subgraph sg_b2b2e["B2B2E"]
+        B2B2E[Business to Employee]
+    end
+    B2B --> B2C
+    B2C --> B2B2C
+    B2B2C --> B2B2E
+```
 
 ---
 
@@ -301,6 +523,15 @@ sn_customerservice_entitlement
 
 Fallback link: [CSM Full Overview]()
 ---
+
+## SLAs, Dashboards & Workspaces
+
+**SLA Support**: CSM uses the `task_sla` table for entitlement-based SLA tracking. SLA coverage is determined by active entitlements attached to customer accounts. SLA Definitions are managed at **All > Service Level Management > SLA Definitions**. Module-specific SLAs are checked on case creation and updated during state transitions, with entitlement validation enabled via the `sn_customerservice.csm_case_entitlement_check` system property.
+
+**OOTB Dashboards**: CSM OOTB dashboards include the **CSM Workspace dashboard** and **CSAT dashboard**, accessible at **All > Customer Service > Dashboards**. These display case volumes by entitlement, response/resolution time trends, CSAT scores, and SLA compliance rates per case type and priority.
+
+**OOTB Workspaces**: 
+- **CRM Workspace** - **All > Customer Service > Agent Workspace**
 
 ## Quiz
 
@@ -353,3 +584,16 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Customer Service Management"
+
+---
+
+## Related Guides
+
+- [ITSM guide](./itsm-guide.md)
+- [FSM guide](./fsm-guide.md)
+- [Sales CRM guide](./sales-crm-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [HAM guide](./ham-guide.md)
+- [CSM getting-started](./../../getting-started/csm.md)
+
+---

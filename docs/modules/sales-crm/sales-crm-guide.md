@@ -14,6 +14,7 @@
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -21,9 +22,14 @@
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
 - [Lab: Create Your First Sales Opportunity](#lab-create-your-first-sales-opportunity)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [🗺️ Conceptual Flow (Lead-to-Cash)](#-conceptual-flow-lead-to-cash)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -49,6 +55,73 @@ ServiceNow Sales CRM is the platform's customer relationship management applicat
 | Administration | All > Sales > Administration > ... |
 
 **Tip:** If menus are missing, verify the `com.snc.sales` plugin is active (System Definition → Plugins).
+
+---
+
+## Prerequisites & Setup
+
+Before you can use Sales CRM, ensure the following are in place.
+
+### Required Plugins / Scoped Apps
+
+| Plugin / App | ID | Required? | Notes |
+|---|---|---|---|
+| **ServiceNow Sales** | `com.snc.sales` | ✅ Yes | Core Sales CRM application. Installs scoped app `sn_sales`. |
+| **ServiceNow Sales & Order Management** | `com.snc.som` | Conditional | Required for quote-to-order and product catalog features; includes `sn_sales` plus `sn_som` scope. |
+| **IntegrationHub** | `com.glide.integrationhub` | Recommended | For connecting to ERP, CRM, e-signature, payment gateways via spokes. |
+| **IntegrationHub Spokes (ERP, DocuSign, Stripe, etc.)** | Various | As needed | One per external system (SAP, Oracle, NetSuite, DocuSign, Stripe, etc.). |
+
+### Guided Setup
+
+Sales CRM does **not** ship a dedicated Guided Setup wizard. Configuration is done through the **Administration** module (All > Sales > Administration). Key setup steps:
+
+1. **Activate roles**: Assign `sn_sales.admin` to administrators, `sn_sales.user` to sales reps, `sn_sales.reader` to viewers.
+2. **Configure Price Lists**: Create price lists and pricing rules (Administration > Price Lists).
+3. **Set up Lead/Opportunity Stages**: Customize choice lists `sn_sales.lead_status` and `sn_sales.opportunity_stage` to match your sales process.
+4. **Define Products & Price Lists**: Create products (`sn_sales_product`) and associate with price lists.
+5. **Enable Email Integration**: Configure inbound/outbound email for lead creation and quote delivery (System Mailboxes + Email Accounts).
+6. **Configure Quote Templates**: Set up standard quote structures and terms (Administration > Quote Templates).
+
+### System Properties to Consider
+
+| Property | Default | Description |
+|---|---|---|
+| `sn_sales.auto_create_opportunity` | `true` | Auto-create opportunity when lead is qualified. |
+| `sn_sales.quote_validity_days` | `30` | Default validity period for new quotes. |
+| `sn_sales.opportunity_stage_default` | `prospecting` | Default stage for new opportunities. |
+| `sn_sales.enable_email_notifications` | `true` | Enables quote/order email notifications. |
+| `glide.ui.escape_text` | `true` | Security: escape HTML in sales fields; disable only if you trust all input. |
+
+### Cross-Module Dependencies
+
+| Dependent Module | Why It Matters | Integration Point |
+|---|---|---|
+| **ITSM** | Create incident from opportunity risk; link problems to accounts | `sn_sales_account` ↔ `account` (core) |
+| **CSM** | Won opportunity → create CSM case for onboarding/service | Business Rule: `sn_sales.rule.create_csm_case` |
+| **FSM** | Order fulfillment → create Work Order for field delivery | Business Rule: `sn_sales.rule.create_work_order` |
+| **HAM** | Track assets sold through quotes/orders | `sn_sales_order` → `alm_asset` via decomposition |
+| **CMDB** | Products extend `cmdb_ci`; account CI relationships | `sn_sales_product` extends `cmdb_ci` |
+
+### ACLs Related to Core Tables
+
+| Table | Key ACLs | Typical Roles |
+|---|---|---|
+| `sn_sales_account` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write own), `sn_sales.reader` (read) |
+| `sn_sales_contact` | `create`, `read`, `write`, `delete` | Same as account |
+| `sn_sales_lead` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (create/read/write own) |
+| `sn_sales_opportunity` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write assigned) |
+| `sn_sales_quote` | `create`, `read`, `write`, `delete` | `sn_sales.admin`, `sn_sales.user` (read/write on own opportunities) |
+| `sn_sales_order` | `create`, `read`, `write`, `delete` | `sn_sales.admin` (orders typically created from accepted quote) |
+
+**Tip:** ACLs are scoped under `sn_sales`. Admins can override via `security_admin` but prefer role-based assignment.
+
+### Breadcrumbs — Enable First
+
+1. **Activate Plugin**: System Definition > Plugins > Search `com.snc.sales` > Activate (requires `admin` role, instance restart may be needed).
+2. **Assign Roles**: User Administration > Users > [sales users] > Edit > Add `sn_sales.user` (and `sn_sales.admin` for leads).
+3. **Verify Module Visibility**: Impersonate a sales user > All > Sales > verify Accounts, Contacts, Leads, Opportunities, Quotes, Orders appear.
+4. **Configure Email** (if using lead-from-email): System Mailboxes > New > configure inbound for lead creation.
+5. **Set Up Price Lists**: All > Sales > Administration > Price Lists > create at least one active price list.
 
 ---
 
@@ -339,6 +412,164 @@ sn_sales_product
 
 ---
 
+## Goals, Benefits & Key Metrics
+
+Sales CRM is measured on pipeline health, deal velocity, and revenue predictability. Below are the typical business goals, the benefits Sales CRM delivers toward them, and the KPIs used to track progress — with example values drawn from mature Sales & Order Management deployments.
+
+| Business Goal | Benefit Sales CRM Provides | Key Metric | Example Target Value |
+|---------------|---------------------------|------------|----------------------|
+| Win more deals | Single system of record from lead to order; full history at every stage | **Win Rate** (closed_won ÷ total closed opportunities) | 35–45% |
+| Grow pipeline value | All open opportunities visible in one forecast; no orphaned deals | **Pipeline Value** (sum of open opportunity amounts) | $12M (target), tracked monthly |
+| Close faster | Stage progression tracked end-to-end; no deals stuck in limbo | **Sales Cycle Length** (create date → close date, days) | 45 days (down from 70) |
+| Convert more leads | Automated qualification + auto-create opportunity from qualified leads | **Lead Conversion Rate** (qualified leads ÷ total leads) | 25–35% |
+| Hit revenue quota | Real-time quota attainment per rep visible on the Sales Dashboard | **Quota Attainment** (closed_won YTD ÷ quota YTD) | 95%+ team attainment |
+| Larger deals | Cross-sell/upsell via quote lines and product offerings | **Average Deal Size** (closed_won amount ÷ closed_won count) | $42K |
+| Accurate forecasting | Stage-weighted forecast; expected close dates enforced | **Forecast Accuracy** (actual close vs forecast within ±10%) | 80%+ |
+| Efficient quoting | Quote templates + pricing rules; no manual price entry | **Quote Acceptance Rate** (accepted quotes ÷ sent quotes) | 60%+ |
+| Rep productivity | Fewer manual tasks; one system, not five | **Opportunities per Rep / Month** | 8–12 |
+| Quote-to-cash integrity | Accepted quote auto-creates an order; no orphaned revenue | **Quote→Order Conversion** (orders ÷ accepted quotes) | 95%+ |
+
+**How to measure in ServiceNow:** Build a Sales Dashboard on `sn_sales_opportunity` grouped by stage, with a forecast panel using `expected_close_date` quarter buckets. Track win rate via a Report on `stage = closed_won` vs `stage = closed_lost`. Enable the OOTB Sales Dashboard (All > Sales > Dashboards) as the starting point.
+
+---
+
+## Core Concept Diagrams
+
+### Diagram 1: Lead → Opportunity → Quote → Order (State Machine)
+
+```mermaid
+stateDiagram-v2
+    [*] --> New : lead created
+    New --> Contacted : outreach
+    Contacted --> Qualified : qualifies
+    Qualified --> Unqualified : not a fit
+    Qualified --> Prospecting : opportunity auto-created
+    Unqualified --> [*]
+
+    Prospecting --> Qualification : deal qualified
+    Qualification --> Proposal : proposal sent
+    Proposal --> Negotiation : terms discussed
+    Negotiation --> Closed_Won : deal signed
+    Negotiation --> Closed_Lost : deal lost
+    Closed_Won --> Order : accepted quote
+    Closed_Lost --> [*]
+
+    Draft --> Sent : quote submitted
+    Sent --> Accepted : customer accepts
+    Sent --> Rejected : customer rejects
+    Sent --> Expired : valid_until passed
+    Accepted --> Order : order created
+    Order --> Confirmed : confirmed
+    Confirmed --> Fulfilled : fulfilled
+    Confirmed --> Cancelled : cancelled
+```
+
+### Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)
+
+```mermaid
+graph TD
+    A[sn_sales_account<br/>Customer / B2B account] --> C[sn_sales_contact<br/>Individual at account]
+    A --> O[sn_sales_opportunity<br/>Deal at account]
+    C --> O
+
+    L[sn_sales_lead<br/>Prospect] --> O2[sn_sales_opportunity<br/>from qualified lead]
+    O --> Q[sn_sales_quote<br/>Quotes on opportunity]
+    Q --> OR[sn_sales_order<br/>Order from accepted quote]
+    Q --> QL[sn_sales_quote_line<br/>Line items / products]
+
+    P[sn_sales_product<br/>Catalog item] --> QL
+    P --> OR2[sn_sales_order_line<br/>Ordered product lines]
+
+    style A fill:#e3f2fd,color:#000
+    style O fill:#fff3e0,color:#000
+    style Q fill:#f3e5f5,color:#000
+    style OR fill:#ffebee,color:#000
+```
+
+### Diagram 3: Sales Pipeline Stages (Weighted Forecast)
+
+```mermaid
+graph LR
+    P1[Prospecting<br/>$1.2M] --> P2[Qualification<br/>$2.4M]
+    P2 --> P3[Proposal<br/>$1.8M]
+    P3 --> P4[Negotiation<br/>$0.9M]
+    P4 --> W[Closed Won<br/>$0.6M]
+    P4 --> L2[Closed Lost<br/>$0.3M]
+
+    style P1 fill:#c8e6c9,color:#000
+    style P2 fill:#fff9c4,color:#000
+    style P3 fill:#ffecb3,color:#000
+    style P4 fill:#ffccbc,color:#000
+    style W fill:#a5d6a7,color:#000
+    style L2 fill:#ef9a9a,color:#000
+```
+
+### Diagram 4: Quote → Order → Service (Quote-to-Cash-to-Service Loop)
+
+```mermaid
+graph LR
+    Opp[Opportunity] --> Quote[Quote/CPQ]
+    Quote -->|Accepted| Order[Sales Order]
+    Order -->|Fulfillment| Fulfill[Order Tasks]
+    Fulfill -->|Delivered| Service[CSM/FSM Case]
+    Service -->|Renewal| Opp
+
+    subgraph External Systems
+        ERP[ERP: SAP/NetSuite]
+        Acct[Accounting: Invoices]
+    end
+
+    Order -->|Push| ERP
+    Order -->|Push| Acct
+
+    style Quote fill:#e1f5e1,color:#000
+    style Order fill:#fce4ec,color:#000
+```
+
+---
+
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `task`), enabling time-bound commitments on the sales lifecycle.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| Opportunity response | Time from creation to first stage change | < 24 hours |
+| Quote turnaround | Time from quote creation to `Sent` | < 2 business days |
+| Quote validity | Days until `valid_until` expires | 30 days (configurable) |
+| Order fulfillment | Time from `Confirmed` to `Fulfilled` | Per fulfillment SLA (ties to FSM) |
+
+**How to use `task_sla`:**
+- Attach SLA definitions to `sn_sales_opportunity` (e.g., stage-based: Prospecting → Qualification within 7 days)
+- Track breach risk via `stage`, `has_breached`, and `business_duration` fields
+- Escalate when an opportunity stalls past its threshold using SLA business rules
+- Quote SLAs can trigger reminders as `valid_until` approaches
+
+**Note:** SLAs are inherited from the core `task` table — opportunities, quotes, and orders all support them because they extend `task`. Configure in **SLAs > Definitions** (All > SLAs > Definitions).
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| **Sales Dashboard** | Pipeline health: open opportunities by stage, quota attainment, win rate, average deal size | All > Sales > Dashboards > Sales Dashboard |
+| **Pipeline Dashboard** | Stage-weighted forecast, deal flow, and sales cycle length trends | All > Sales > Dashboards > Pipeline |
+| **Forecast Dashboard** | Quarterly/monthly forecast accuracy vs. actual close | All > Sales > Dashboards > Forecast |
+| **Quota Attainment Dashboard** | Per-rep quota achievement YTD, team attainment rate | All > Sales > Dashboards > Quota Attainment |
+
+**Key metrics surfaced OOTB:** pipeline value by stage, win rate, lead conversion rate, quote acceptance rate, average deal size, sales cycle length, quota attainment, forecast accuracy.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| **Sales Workspace** | Central hub for sales reps: leads, opportunities, quotes, and orders in one console | All > Sales > Sales Workspace |
+
+**Breadcrumb path:** `All > Sales > Sales Workspace`. The Sales Workspace surfaces relevant lists (My Opportunities, My Leads, My Quotes), forecast summaries, and quick-create actions for accounts, contacts, leads, and opportunities.
+
+---
+
 ## Quiz
 
 1. What field determines which sales workflow fires?
@@ -417,3 +648,15 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Sales CRM / Order Management"
+
+---
+
+## Related Guides
+
+- [CSM guide](../csm/csm-guide.md)
+- [FSM guide](../fsm/fsm-guide.md)
+- [HAM guide](../ham/ham-guide.md)
+- [CMDB guide](../cmdb/cmdb-guide.md)
+- [Sales CRM getting-started](../../../getting-started/sales-crm.md)
+
+---

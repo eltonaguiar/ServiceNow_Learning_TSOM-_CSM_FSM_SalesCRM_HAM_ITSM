@@ -21,6 +21,7 @@ This repository contains beginner-friendly getting-started guides for seven Serv
 | **HAM** | `docs/modules/ham/ham-guide.md` | Hardware Asset Management |
 | **ITSM** | `docs/modules/itsm/itsm-guide.md` | IT Service Management |
 | **Discovery** | `docs/modules/discovery/discovery-guide.md` | ITOM Discovery — MID Servers, Configuration Console, File-Based Discovery |
+| **Service Mapping** | `docs/modules/servicemapping/servicemapping-guide.md` | ServiceNow Service Mapping — application service discovery and CMDB service maps |
 
 Each guide covers:
 
@@ -79,7 +80,8 @@ ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 │   │   ├── fsm/fsm-guide.md           # Field Service Management
 │   │   ├── sales-crm/sales-crm-guide.md # Sales CRM
 │   │   ├── ham/ham-guide.md           # Hardware Asset Management
-│   │   └── itsm/itsm-guide.md         # IT Service Management
+│   │   ├── itsm/itsm-guide.md         # IT Service Management
+│   │   └── servicemapping/servicemapping-guide.md  # Service Mapping
 │   ├── methodology/rapid-learning-methodology.md
 │   ├── concepts/servicenow-concepts-eli5.md
 │   ├── fields/mandatory-vs-critical-fields.md
@@ -87,6 +89,12 @@ ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 │   ├── common-mistakes/mistakes-to-avoid.md
 │   ├── out-of-box/out-of-box-workflows-integrations.md
 │   └── success-packs/success-pack-prerequisites.md
+│   ├── interviews/
+│   │   ├── integrations.md                  # REST/SOAP/MID Server/IntegrationHub deep dive
+│   │   ├── code-deployment.md               # Cloning, update sets, source control, Git
+│   │   ├── custom-application-development.md # Scoped apps, GlideRecord, GlideAjax, ACLs
+│   │   ├── data-management-migration.md     # Import Sets, Transform Maps, IRE, data cleansing
+│   │   └── prioritized-prep-list.md         # Interview-by-interview prep roadmap (5 interviews)
 ├── labs/
 │   ├── rest-message-integration/
 │   └── remote-table/
@@ -181,6 +189,7 @@ The `.github/workflows/pages.yml` workflow:
 | **Sales CRM** | `sn_sales_opportunity` | `sn_sales_account`, `sn_sales_contact`, `sn_sales_lead`, `sn_sales_quote`, `sn_sales_order` | `sn_sales.admin`, `sn_sales.user` |
 | **HAM** | `alm_asset` | `alm_hardware`, `ast_contract`, `alm_asset_model` | `asset`, `itil`, `sn_hamp_admin` |
 | **ITSM** | `incident` | `problem`, `change_request`, `change_task`, `task_sla`, `cmdb_ci` | `itil`, `sn_incident.write`, `admin` |
+| **Service Mapping** | `cmdb_ci_service_discovered` | `cmdb_rel_ci`, `cmdb_ci_appl`, `cmdb_ci_server`, `cmdb_ci` | `itil`, `admin`, `sm_admin` |
 
 ---
 

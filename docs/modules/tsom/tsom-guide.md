@@ -13,25 +13,43 @@
 - [Capabilities — assurance, AIOps, AI, inventory](tsom-capabilities.md) — *companion page: Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Synthetic Monitoring, AIOps LEAP, Now Assist, discovery protocols, TNI class hierarchy, discrepancy remediation, plus the doc breadcrumb for each*
 - [Purpose](#purpose)
 - [ELI5 — the whole module in plain English](#eli5--the-whole-module-in-plain-english)
+  - [What each word actually means](#what-each-word-actually-means)
+  - [The one-sentence version](#the-one-sentence-version)
 - [Where to Find It](#where-to-find-it)
-- [Prerequisites and availability](#prerequisites-and-availability)
+- [Prerequisites & Setup](#prerequisites--setup)
+  - [Does a PDI support telecom out of the box?](#does-a-pdi-support-telecom-out-of-the-box)
+  - [What is out of the box vs what you install](#what-is-out-of-the-box-vs-what-you-install)
+  - [Plugin and application dependencies](#plugin-and-application-dependencies)
+  - [Do you need CSM for TSOM to work?](#do-you-need-csm-for-tsom-to-work)
 - [Exploring TSOM — the official picture (Australia docs)](#exploring-tsom--the-official-picture-australia-docs)
-- [System properties and workflows you must configure](#system-properties-and-workflows-you-must-configure)
-- [Using TSOM — the day-2 operational tasks (Australia docs)](#using-tsom--the-day-2-operational-tasks-australia-docs)
-- [Metrics: what is out of the box, and what you build](#metrics-what-is-out-of-the-box-and-what-you-build)
-- [Workspaces you get, and how to learn this](#workspaces-you-get-and-how-to-learn-this)
-- [The TMT Recommended Implementation Sequence (Now Create)](#the-tmt-recommended-implementation-sequence-now-create)
+  - [The Telecom data model](#the-telecom-data-model)
+  - [Telecom Visibility — and how it differs from ITOM Visibility](#telecom-visibility--and-how-it-differs-from-itom-visibility)
+  - [Success measures, by phase](#success-measures-by-phase)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
+  - [Alarm → Event → Alert → Incident Flow](#alarm--event--alert--incident-flow)
+  - [Telecom CI Hierarchy](#telecom-ci-hierarchy)
+  - [Service → Customer Impact Map (Blast Radius)](#service--customer-impact-map-blast-radius)
 - [Implementer Labs — What Actually Exists (Researched 2026-11-05)](#implementer-labs--what-actually-exists-researched-2026-11-05)
 - [Lab: Create Your First Telecom Service](#lab-create-your-first-telecom-service)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [TSOM Implementer Curriculum Cross-Check](#tsom-implementer-curriculum-cross-check)
+  - [Event Management Fundamentals — TSOM's alarm engine](#event-management-fundamentals--tsoms-alarm-engine)
+  - [Event and Flow in Action](#event-and-flow-in-action)
+  - [Operational Intelligence Fundamentals — metrics, logs, and ML anomaly detection](#operational-intelligence-fundamentals--metrics-logs-and-ml-anomaly-detection)
+  - [Now Assist for ITOM — Implementer level](#now-assist-for-itom--implementer-level)
+  - [Service Graph Connector for OpenTelemetry — TSOM angle](#service-graph-connector-for-opentelemetry--tsom-angle)
+- [TSOM Implementer Skill Coverage — All 15 Course Skills](#tsom-implementer-skill-coverage--all-15-course-skills)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -122,11 +140,70 @@ for the full map before you go hunting in Telecom Service Operations.
 
 ---
 
-## Prerequisites and availability
+## Prerequisites & Setup
 
 > **Read this before you plan a lab.** Everything else in this guide assumes the TSOM
 > applications are installed. They usually are not — including on a Personal Developer
 > Instance.
+
+### Plugins and Scoped Apps
+- **TSOM Core**: `sn_tsom_core` / `com.sn_tsom_core` — the core app; installs the telecom data model, ETL framework and properties
+- **TNI Advanced**: `sn_ni_adv` → installs `sn_ni_core` — **Separate app**, separate entitlement; install TNI Advanced, then load TNI Core demo data manually if you want it
+- **CMDB CI Class Models**: `sn_cmdb_ci_class` — **Version 1.69.0+**; auto-upgraded by the TSOM apps
+- **Expanded Model and Asset Classes**: `sn_ent` — Store app
+- **Visibility Content**: `sn_pattern_design` — Store app
+- **Integration Commons for CMDB**: `sn_cmdb_int_util` — Store app
+- **IntegrationHub Starter Pack Installer**: `com.glide.hub.integration` — Family plugin
+- **Discovery Core**: `com.snc.discovery.core` — Installed by Discovery
+- **ITOM Discovery License**: `com.snc.itom.discovery.license` — Must be activated
+- **ITOM Licensing**: `com.snc.itom.license` — Required for Discovery patterns
+- **IntegrationHub ETL**: `sn_int_studio` — Development instances only
+- **Telecom Discovery Patterns**: `sn_tsom_patterns` — for direct SNMP/CLI discovery
+- **Telecom Alarm Management Open API**: `sn_ind_tmf642` — for alarm ingestion and incident detail views
+- **Customer Service Problem Management**: `sn_sprb_mgmt` — for incident/alert detail views inside TNI
+
+### Guided Setup Requirements
+1. **Install TSOM apps** — Work with your ServiceNow account team to activate the TSOM subscription and install `sn_tsom_core`
+2. **Install TNI separately** — Install `sn_ni_adv` (TNI Advanced), then load TNI Core demo data manually if you want it
+3. **Install and configure MID Server** — Place a MID Server in each network zone; assign capabilities (SNMP, SSH, WMI) as needed
+4. **Configure Discovery** — Set up Discovery schedules with telecom patterns; ensure horizontal discovery is operational
+5. **Configure Service Graph Connectors** — Set up per-vendor connectors (Nokia Altiplano, Cisco Meraki SD-WAN, etc.) with API access and MID Server
+6. **Configure Event Management** — Create event rules, alert correlation rules, and maintenance windows (All > Event Management > Event Rules)
+7. **Set up Alarm API Topic & Subscriptions** — Create the Telecommunications API notification topic and endpoint subscriptions for southbound alarm sources
+8. **Define Service Model Templates (CSDM)** — Define services and service-offering structures in the CMDB for impact analysis
+
+### System Properties to Consider
+- `sn_tsom_patterns.itom_pattern_enabled` — gates whether telecom discovery patterns are active
+- `sn_tsom_core.audit.*` properties — control discrepancy audit logging, relationship types, and discovery sources
+- `sn_tsom_core.em.*` properties — control event management integration behavior
+- `sn_tsom_core.discovery.*` properties — control telecom discovery framework behavior
+
+### Cross-Module Dependencies
+- **Discovery / ITOM Visibility**: Must produce CIs in the CMDB; telecom discovery patterns (`sn_tsom_patterns`) extend Discovery for network elements
+- **TNI**: Stores the telecom inventory; TSOM reconciles discovered data against TNI entities
+- **Event Management**: TSOM consumes EM for alarm ingestion, correlation, suppression, and alert creation
+- **CMDB**: Stores CIs and relationships; IRE identification rules prevent duplicate CIs
+- **ITSM / CSM**: Required for the subscriber-facing story (entitlements, install base, cases); not required for TSOM Core/Visibility/TNI
+- **Flow Designer / Orchestration**: For guided remediation workflows reacting to alerts and incidents
+- **Now Assist for ITOM**: For AI-assisted alert investigation (separate SKU/entitlement)
+
+### ACLs Related to Core Tables
+- `admin` role for installation and configuration
+- `sn_tsom.admin`, `sn_tsom.user`, `sn_tsom.reader` roles for TSOM access
+- TNI inventory roles: `sn_ni_core.inventory_admin`, `sn_ni_core.inventory_agent`, `sn_ni_core.inventory_template_manager`, `sn_ni_core.telco_inventory_catalog_manager`
+- `mid_server` role on instance side for MID Server service account
+- `sam_admin` role for file signature normalization (when SAM is active)
+- ACLs on `cmdb_ci_telco_equipment`, `cmdb_ci_network_packet_broker`, `em_event`, `em_alert`, `cmdb_ci_service`, `cmdb_rel_ci`
+
+### Breadcrumbs — What Needs to Be Enabled First
+1. **TSOM Subscription & Installation** — Request `sn_tsom_core` from your ServiceNow account team
+2. **TNI Installation** — Install `sn_ni_adv` separately (separate entitlement)
+3. **MID Server** — Install, validate, and confirm "Up" status (All > MID Server > Servers)
+4. **Discovery** — Configure telecom discovery patterns and schedules (All > Discovery > Discovery Definition > Patterns)
+5. **Service Graph Connectors** — Set up per-vendor connectors (All > Service Graph Connectors)
+6. **Event Management** — Configure event rules, alert correlation, and maintenance windows (All > Event Management)
+7. **Alarm API Topic** — Create the Telecommunications API notification topic and subscriptions (IntegrationHub / Event Management)
+8. **Service Model (CSDM)** — Define services and service-offering structures (All > Configuration)
 
 ### Does a PDI support telecom out of the box?
 
@@ -517,7 +594,99 @@ arrows is missing, the demo looks fine and production does not work.*
 | Ignoring territory/region constraints | Orders fail to assign | Set territory on service order |
 | Creating duplicate circuits | Same circuit appears twice | Use circuit ID as identification rule |
 | Forgetting activation date | SLA calculations wrong | Set `activation_date` on provision |
-| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
+|| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Business Goal | Benefit | Key Metric (KPI) | Example Value | Where to measure |
+|---------------|---------|------------------|---------------|------------------|
+| Detect network faults before customers call | NOC works the issue, not complaint tickets | MTTD — Mean Time to Detect | <5 minutes | Trap → `em_event` → `em_alert` elapsed time |
+| Restore service fast and protect SLAs | Fewer SLA breaches, credits, and churn | MTTR — Mean Time to Repair/Resolve | <2 hours | Incident open → alert cleared → service restored |
+| Turn alarm storms into one actionable alert | NOC isn't drowned by duplicate traps | Alarm correlation rate | ≥85% of alarms collapsed — e.g. 400 port-down → 1 circuit-down alert | `em_alert` correlation rules |
+| Keep customer services available | SLA compliance and fewer refunds | Service availability % | ≥99.9% | Service Impact Analysis on `cmdb_ci_service` |
+| Stop false alarms waking the NOC | Trust in the alerting platform | False positive rate | <5% of alerts closed as noise/duplicate | Alert disposition |
+| Silence alarms during planned work | No pages for scheduled maintenance | Suppression coverage | 100% of planned changes carry a maintenance window | Event Management suppression rules |
+| Trust the inventory behind every impact call | Wrong CMDB = wrong blast radius | Discrepancy resolution rate | ≥90% of found-vs-inventory gaps fixed per audit cycle | TSOM discrepancy / CMDB Health audits |
+
+> Indicative starting KPIs — baseline your instance, then set targets.
+
+---
+
+## Core Concept Diagrams
+
+### Alarm → Event → Alert → Incident Flow
+
+```mermaid
+flowchart TD
+    NMS["NMS / EMS / OSS<br/>Nokia · Ericsson · Cisco · ..."]
+    Event["em_event<br/>raw observation - something happened"]
+    Rules["Event Rules<br/>filter, map severity, assign CI"]
+    Alert["em_alert<br/>scored, de-duplicated, attached to a CI"]
+    Corr["Alert Correlation<br/>400 port-down -> 1 circuit-down"]
+    Incident["incident<br/>one ticket the NOC works"]
+    Clear["Clear<br/>device reports recovery -> alert closes"]
+
+    NMS -->|trap / syslog / API| Event
+    Event --> Rules
+    Rules --> Alert
+    Alert --> Corr
+    Corr --> Incident
+    Incident -->|resolved| Clear
+    Clear --> Alert
+
+    style NMS fill:#e58a8a,color:#000
+    style Event fill:#e5b567,color:#000
+    style Alert fill:#4cc38a,color:#000
+    style Corr fill:#0a0d10,stroke:#e5b567
+    style Incident fill:#10141a
+
+```
+
+### Telecom CI Hierarchy
+
+```mermaid
+graph TD
+    svc["Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service"]
+    circuit["Circuit<br/>fibre / MPLS / leased line"]
+    ne["Network Element<br/>router / switch / OLT<br/>(Optical Line Terminal)"]
+    card["Card / Slot"]
+    port["Port / Interface"]
+
+    svc -->|runs over| circuit
+    circuit -->|terminates at| ne
+    ne -->|contains| card
+    card -->|has| port
+
+    style svc fill:#4cc38a,color:#000
+    style circuit fill:#e5b567,color:#000
+    style ne fill:#0a0d10,stroke:#e5b567
+
+```
+
+### Service → Customer Impact Map (Blast Radius)
+
+```mermaid
+flowchart TD
+    Port["Router port fails"]
+    Circuit["Circuit down"]
+    Service["Customer service degraded - fiber broadband"]
+    Subscribers["40 subscribers affected"]
+    Incident["One incident raised - not 40"]
+
+    Port --> Circuit
+    Circuit --> Service
+    Service --> Subscribers
+    Subscribers --> Incident
+
+    style Port fill:#e58a8a,color:#fff
+    style Circuit fill:#e5b567,color:#000
+    style Service fill:#4cc38a,color:#000
+    style Subscribers fill:#0a0d10,stroke:#e5b567
+    style Incident fill:#10141a
+
+```
 
 ---
 
@@ -658,6 +827,56 @@ Fallback link: [TSM Showcase]()
 Fallback link: [TSM Showcase]()
 ---
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+TSOM's SLA layer sits on top of the telecom service lifecycle — from order capture through activation, assurance, and billing. SLA definitions are attached to `task_sla` records against task-based tables (`sn_tsom_service`, `sn_tsom_service_order`, `incident`, `em_alert`), and they drive MTTD/MTTR, escalation, and breach tracking across the NOC workflow.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| MTTD (Mean Time to Detect) | Time from trap/event in `em_event` until an alert exists in `em_alert` | < 5 minutes |
+| MTTR (Mean Time to Resolve) | Time from alert/incident creation until the service is restored | < 2 hours for P1/P2, < 4 hours for P3/P4 |
+| Service availability | % of customer services available over a period | ≥ 99.9% |
+| Alarm correlation rate | % of alarms collapsed into a single actionable alert | ≥ 85% (e.g. 400 port-down → 1 circuit-down) |
+| False positive rate | % of alerts closed as noise/duplicate | < 5% |
+| Discrepancy resolution | % of discovered-vs-inventory gaps fixed per audit cycle | ≥ 90% |
+| SLA breach protection | % of planned changes carrying a maintenance window (suppression coverage) | 100% |
+
+**MTTD (Mean Time to Detect)** — measured from the triggering event in `em_event` until an alert exists in `em_alert`. Typical target: under 5 minutes. This is the first half of the TSOM value story — catching a fault before the customer calls.
+
+**MTTR (Mean Time to Resolve)** — measured from alert creation until the related incident reaches `Resolved`. Typical target: under 2 hours for service-impacting (P1/P2) incidents, under 4 hours for P3/P4. This is the second half — restoring service fast enough to protect SLAs and avoid credits and churn.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents created from critical alerts (`severity = 1`) on telecom CIs
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold — e.g. a circuit-down alert nearing breach on a high-revenue service
+
+> **Note:** SLA definitions are created centrally (All > Service Level Management > SLA Definitions) and attached to the incident/task types that TSOM operations generate. The TSOM guide's [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics) section lists the underlying KPIs (MTTD < 5 min, MTTR < 2h, correlation rate ≥ 85%, availability ≥ 99.9%) that these SLAs are built to protect. For the subscriber-facing entitlement story (is this customer entitled to a fix?), see the CSM guide's entitlement/SLA model.
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| TSOM Service Health Dashboard | Service availability, SLA attainment, and degraded services at a glance | All > Telecom Service Operations > Home |
+| TSOM Alarms Dashboard | Alarm volume by severity, correlation health, top offending network elements | All > Telecom Service Operations > Alarms > All |
+| TSOM Inventory Dashboard | Discrepancy rate, discovered-vs-inventory gaps, reconciliation status | All > Telecom Service Operations > Inventory > ... |
+| Event Management Dashboard | Alert volume, severity distribution, top nodes, correlation health | All > Event Management > Dashboards > Event Management |
+| ITOM Health Dashboard | CI and service health scores (0–100), health events, health rule violations | All > IT Operations Management > ITOM Health |
+
+**Key metrics surfaced OOTB:** MTTD, MTTR, service availability %, alarm correlation rate, false positive rate, discrepancy resolution rate, suppression coverage, top offending CIs, customer impact count (subscribers affected per incident).
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| TSOM Workspace | Central entry point for telecom operations: service orders, alarms, inventory, and administration | All > Telecom Service Operations > TSOM Workspace |
+| Network Inventory Workspace | Model and manage the telecom network: sites, equipment, cards, interfaces, connections, circuits | All > Telecom Service Operations > Network Inventory Workspace |
+
+**Workflow tip:** Start in the TSOM Workspace to triage alarms and service orders, then switch to the Network Inventory Workspace to inspect the topology behind a fault — and to the Event Management Dashboard (see the TSOM guide's [Event Management Fundamentals](#event-management-fundamentals--tsoms-alarm-engine)) when correlating a storm of traps into one actionable alert.
+
+---
+
 ## Quiz
 
 1. What is the primary table for telecom services in TSOM?
@@ -680,6 +899,241 @@ Fallback link: [TSM Showcase]()
 ---
 
 ---
+
+---
+
+## TSOM Implementer Curriculum Cross-Check
+
+The table below maps the official **Telecommunications Service Operations Management (TSOM) Implementer** learning path (ServiceNow University) to where each topic is covered in this guide, the Discovery guide, or what remains external (course lab instance required).
+
+| TSOM Implementer path course | Covered in this guide? | Covered in Discovery guide? | Notes |
+|---|---|---|---|
+| Discovery Fundamentals | — | ✅ Full deep dive | Discovery guide: phases, schedules, patterns, FBD, Configuration Console |
+| Discovery Extras | — | ✅ Partial | Discovery guide: FBD deep dive, pattern customization; SGC for OTel added |
+| Integrate SGC for OpenTelemetry | — | ✅ New section | Discovery guide: "Deep Dive: Service Graph Connector for OpenTelemetry" |
+| Now Assist for SGC Implementation | — | — | Course lab instance required; concepts in Discovery guide OTel section |
+| Event Management Fundamentals | ⬜ New section below | — | Alert ingestion, correlation, suppression — TSOM's alarm engine |
+| Event and Flow in Action | ⬜ New section below | — | Event → alert → incident flow; guided remediation |
+| Operational Intelligence Fundamentals | ⬜ New section below | — | Metric Intelligence + Health Log Analytics — the ML anomaly layer over Event Management. See "Operational Intelligence Fundamentals" |
+| Predictive Intelligence Fundamentals | — | — | Anomaly detection, forecasting — ITOM AIOps layer |
+| Now Assist for ITOM Implementer | ⬜ New section below | — | Alert Investigation / Alert Analysis skills |
+| Now Assist for ITOM Implementation | ⬜ New section below | — | Agentic workflows on top of TSOM/TNI foundation |
+| TSOM Essentials (March 2026 Store Release) | ✅ Purpose, ELI5, data model | — | This guide's Purpose, ELI5, tables, labs |
+| Exam: TSOM Delivery Accreditation | — | — | No CIS-TSOM exam; routes through CIS-EM (Event Management) |
+
+---
+
+### Event Management Fundamentals — TSOM's alarm engine
+
+TSOM does not invent its own alarm machinery. It consumes **Event Management** (an ITOM feature) for event ingestion, correlation, suppression, and alert creation. This is the "beep → alert" half of TSOM.
+
+| Concept | What it is | TSOM relevance |
+|---|---|---|
+| **Event** | A raw observation (`em_event`) — a device said something | The smoke detector's raw signal |
+| **Alert** | A cleaned, scored, de-duplicated event (`em_alert`) | The fire panel showing one light for 40 detectors |
+| **Correlation** | Grouping related alerts into one | 400 port-down alarms → 1 circuit-down alert |
+| **Suppression** | Muting alarms during planned maintenance | Don't wake the NOC for scheduled work |
+| **Severity** | Critical → Major → Minor → Warning | Drives who gets paged |
+| **Clear** | The device reports the problem is over | Unclosed alerts make dashboards lie |
+
+**Breadcrumbs:** All > Event Management > Event Rules / Alert Correlation / Maintenance Windows
+
+**How it fits TSOM:**
+- OSS/EMS (Nokia, Ericsson, Cisco) pushes alarms → Event Management ingests → correlation rules group them → alerts attach to CIs discovered by Discovery/SGC → Service Impact Analysis propagates impact to customer services → NOC sees one prioritized incident instead of 400 alarms.
+
+---
+
+### Event and Flow in Action
+
+This is the operational loop: an alert fires, a flow responds, and the NOC works the incident.
+
+| Step | What happens | Where |
+|---|---|---|
+| 1. Alert fires | Metric breach or trap received → `em_alert` created | Event Management |
+| 2. Correlation | Related alerts grouped → one alert represents the root cause | Alert Correlation rules |
+| 3. Incident created | Alert → incident (auto or manual) | Incident table (`incident`) |
+| 4. Flow responds | Flow Designer triggers on incident state change | Flow Designer |
+| 5. Remediation | Runbook / playbook executes (restart service, open change) | Orchestration / Playbooks |
+| 6. Clear | Device reports recovery → alert clears → incident closes | Event Management |
+
+**Key breadcrumb:** All > Flow Designer > Flow Designer (build flows that react to `em_alert` / `incident` state changes)
+
+---
+
+### Operational Intelligence Fundamentals — metrics, logs, and ML anomaly detection
+
+**Operational Intelligence (OI)** is the ITOM layer that watches *performance*, not just *up/down*. Event Management tells you something broke; Operational Intelligence tells you something is **degrading before it breaks** — by learning what "normal" looks like for every metric and log stream, then flagging deviations from that baseline. It is historically an add-on to Event Management and is delivered today through two apps:
+
+| App | Watches | Detects | Answers |
+|---|---|---|---|
+| **Metric Intelligence** | Numeric performance metrics (CPU, latency, errors, throughput) collected from CIs | Threshold breaches **and** AI-based anomalies vs a learned baseline, with an anomaly score 0–10 | *How much / how fast* is it degrading? |
+| **Health Log Analytics (HLA)** | Raw infrastructure logs and log patterns | Anomalous log behaviour vs a learned baseline | *Why* is it degrading — what is the underlying cause? |
+
+**How OI differs from a plain threshold tool**
+
+| | Static threshold rule | Operational Intelligence |
+|---|---|---|
+| Who defines "abnormal" | A human writes "CPU > 90% for 5 min" | Learns each series' normal shape, including seasonality |
+| What fires | Exactly the configured condition | Deviation from the learned baseline, scored 0–10 |
+| Blind spot | Slow drift below the threshold; false positives on legitimately spiky series | Neither — catches subtle drift and tolerates normal spikes |
+
+**Where the anomalies go:** both apps **forward anomalies as events into Event Management**, where they are correlated with traps and metric alerts for the same CI, then follow the normal alert → incident path. OI does not open CMDB tasks itself; it feeds the same pipeline TSOM already consumes. Metric Intelligence anomalies can also be promoted to IT alerts and surface in Service Operations Workspace and service-health dashboards; its **Insights Explorer** charts metric statistics and the **Anomaly Map** plots correlated anomaly scores across CIs on a timeline.
+
+**Breadcrumbs:**
+- Metric Intelligence: **All > ITOM > Metric Intelligence** (docs cluster: IT Operations Management → Metric Intelligence)
+- Health Log Analytics: **All > ITOM > Health Log Analytics** (docs cluster: IT Operations Management → Health Log Analytics)
+- Where alerts land: **All > Event Management > Alerts** (the shared `em_alert` table)
+
+**How it fits TSOM:** TSOM's detect → analyze → communicate → act loop gets *density* from OI. Event Management supplies the "it's down" beep; Operational Intelligence supplies the "it's trending to down" early warning and the "here's why" log evidence, both keyed to the same telecom CIs (routers, ports, circuits) that Discovery/SGC populated. For a CSP that is the difference between reacting to a fibre cut and pre-empting a degrading uplink.
+
+**Implementer note:** OI needs a metrics/log source and a clean CI identity to key anomalies against — the same MID Server, SGC-for-OpenTelemetry, and Discovery investment TSOM already depends on. No CMDB data, no useful baseline.
+
+---
+
+### Now Assist for ITOM — Implementer level
+
+Now Assist for ITOM adds generative AI to the alert investigation workflow. It is part of the "AI for Telecommunications" layer that sits on top of the TSOM/TNI foundation.
+
+| Capability | What it does | Implementer relevance |
+|---|---|---|
+| **Alert Investigation** | Summarizes an alert, suggests probable cause, recommends next steps | NOC agent opens an alert → Now Assist writes the summary |
+| **Alert Analysis** | Groups similar alerts, identifies patterns across time | Reduces noise; surfaces recurring root causes |
+| **Guided remediation** | Suggests or executes a remediation flow | From "what's wrong" to "here's the fix" in one click |
+
+**Breadcrumb:** Now Assist for ITOM skills are configured under **Now Assist > Now Assist for ITOM** (or via the Now Assist admin console, depending on release).
+
+**Implementer note:** Now Assist for ITOM requires a separate SKU/entitlement. It does not create CIs or run Discovery — it operates on top of the alert and event data that Discovery + Event Management already produce.
+
+---
+
+### Service Graph Connector for OpenTelemetry — TSOM angle
+
+Covered in depth in the Discovery guide ("Deep Dive: Service Graph Connector for OpenTelemetry"). For TSOM implementers, the key takeaway:
+
+- **Discovery** builds the topology (routers, circuits, services → CMDB)
+- **SGC for OpenTelemetry** feeds the metrics (CPU, latency, errors → `sn_otel_metric`)
+- **Together** they give TSOM both *what exists* and *whether it's healthy* — the two inputs Service Impact Analysis needs to turn a port failure into a customer-impacting incident
+
+---
+
+## TSOM Implementer Skill Coverage — All 15 Course Skills
+
+The table below maps every skill listed in the official **TSOM Implementer** learning path to where it's covered across the ServiceNow Module Guides, plus what remains external (course lab instance required).
+
+| # | Skill | Covered in | Coverage | Notes |
+|---|---|---|---|---|
+| 1 | **AI Agents** | This guide | ✅ Covered below | Agentic workflows on top of TSOM/TNI; Now Assist for ITOM agentic layer |
+| 2 | **IT Operations Management** | This guide | ✅ Covered below | ITOM is the substrate TSOM consumes — EM, Metric Intelligence, HLA, SIA, Synthetic Monitoring |
+| 3 | **Now Assist** | Discovery guide + This guide | ✅ | Now Assist for ITOM (Alert Investigation / Analysis), Now Assist for SGC debugging |
+| 4 | **Event Management** | This guide | ✅ | Added section: ingestion, correlation, suppression, alert creation |
+| 5 | **ITOM Health** | This guide | ✅ Covered below | Health scoring, health rules, health dashboards — ITOM Health TSOM consumes |
+| 6 | **ITOM Visibility** | Discovery guide + This guide | ✅ Covered below | Infrastructure visibility vs Telecom Visibility — CMDB reconciliation |
+| 7 | **Asset Management** | HAM guide | ✅ | Full HAM guide: asset lifecycle, procurement, retirement, CMDB integration |
+| 8 | **Configuration Management Database (CMDB)** | All guides | ✅ | CMDB is the substrate — CIs, relationships, IRE, CMDB Health |
+| 9 | **Discovery** | Discovery guide | ✅ | Full deep dive: phases, schedules, patterns, FBD, Configuration Console, SGC |
+| 10 | **Flow Designer / Flows** | This guide | ✅ Covered below | Flow Designer builds flows that react to alerts/incidents; guided remediation |
+| 11 | **MID Server** | Discovery guide + TSOM guide | ✅ | MID Server placement for discovery and SGC connectivity |
+| 12 | **Now Assist Panel** | Discovery guide | ✅ | SGC debugging panel — "Diagnose a Service Graph Connector" |
+| 13 | **Telecommunications Discovery Patterns** | TSOM capabilities + TSOM guide | ✅ | SNMP/CLI patterns, predefined telecom patterns, TNI class hierarchy |
+| 14 | **Telecommunications Service Operations Management** | This guide | ✅ | Full TSOM guide: purpose, ELI5, data model, labs, quiz |
+
+---
+
+<details>
+<summary><strong>1. AI Agents — agentic workflows on TSOM/TNI</strong></summary>
+
+**What they are:** AI Agents are generative-AI-powered agents that can reason, plan, and act autonomously within guardrails. In the TSOM context, they sit on the "AI for Telecommunications" layer — the Now Assist / agentic workflows that operate on top of the TSOM/TNI foundation.
+
+| Aspect | Detail |
+|---|---|
+| **Where they live** | Now Assist for ITOM, AI for Telecommunications Implementation Bootcamp |
+| **What they do in TSOM** | Investigate alerts, suggest probable cause, recommend remediation, surface patterns across alerts |
+| **What they do NOT do** | Create CIs, run Discovery, change connector configuration — those remain human or platform actions |
+| **Entitlement** | Separate SKU required; not included in base TSOM |
+
+**Implementer relevance:** You configure the data pipeline (Discovery → CMDB → Event Management → alerts) first. AI Agents then operate on top of that data. If the pipeline is broken, the agent has nothing to reason about.
+
+**Breadcrumb:** Now Assist > Now Assist for ITOM (varies by release)
+
+</details>
+
+<details>
+<summary><strong>2. IT Operations Management — the substrate TSOM consumes</strong></summary>
+
+**ITOM** is not a TSOM feature — it's the platform layer that TSOM builds on. TSOM is telecom-specific assurance; ITOM is the general IT operations engine underneath.
+
+| ITOM feature | What it does | TSOM consumes it for |
+|---|---|---|
+| **Event Management** | Ingest, correlate, suppress, alert | Alarm ingestion from NMS/OSS |
+| **Metric Intelligence** | Statistical anomaly detection on CI metrics | Performance degradation detection |
+| **Health Log Analytics** | Log triage and root-cause identification | Log-based root cause for network issues |
+| **Service Impact Analysis** | Propagate impact from CI to service | Port down → circuit down → customer affected |
+| **Synthetic Monitoring** | Active probing of endpoints/services | Proactive service availability testing |
+| **AIOps LEAP** | Incident clustering, automation playbook generation | Identify automation opportunities from historical tickets |
+
+**Key point for implementers:** TSOM adds the telecom data model, discovery patterns, and TM Forum APIs on top of ITOM. The assurance *engine* is ITOM. You need both working.
+
+**Breadcrumbs:** All > IT Operations Management > (Event Management / Metric Intelligence / Health Log Analytics / Synthetic Monitoring / AIOps LEAP)
+
+</details>
+
+<details>
+<summary><strong>3. ITOM Health — health scoring for TSOM's CIs and services</strong></summary>
+
+**What it is:** ITOM Health computes health scores for CIs and services based on alerts, events, and metric anomalies. A CI with many critical alerts gets a poor health score, which propagates up through service impact.
+
+| Component | What it does | TSOM relevance |
+|---|---|---|
+| **Health rules** | Define what makes a CI "healthy" vs "unhealthy" | A router with critical alerts = unhealthy CI |
+| **Health score** | 0–100 score per CI/service | NOC dashboard shows service health at a glance |
+| **Health dashboards** | Visualize health across CIs and services | Which customer services are degraded |
+| **Health events** | State transitions (healthy → unhealthy) | Trigger incidents or notifications |
+
+**How it fits TSOM:** Discovery finds the CIs → Event Management creates alerts on them → ITOM Health scores the CIs → Service Impact Analysis propagates unhealthy CIs to customer services → NOC sees which services are unhealthy, not just which devices are down.
+
+**Breadcrumb:** All > IT Operations Management > ITOM Health (varies by release)
+
+</details>
+
+<details>
+<summary><strong>4. ITOM Visibility — infrastructure discovery vs Telecom Visibility</strong></summary>
+
+**ITOM Visibility** discovers general IT infrastructure (servers, VMs, network devices, cloud resources) and maintains the CMDB. **Telecom Visibility** extends this for telecom providers with real-time physical and logical network components.
+
+| Aspect | ITOM Visibility | Telecom Visibility (TSOM) |
+|---|---|---|
+| **Discovers** | Servers, VMs, cloud, network devices | Telecom network elements, circuits, services |
+| **Maintains** | CMDB | CMDB + TNI (Telecom Network Inventory) |
+| **Reconciles** | Discovered vs inventoried data | Discovered vs inventoried + service model |
+| **Key output** | Infrastructure health, CMDB accuracy | Service impact, customer-affecting outages |
+
+**Relationship:** ITOM Visibility provides the infrastructure foundation; Telecom Visibility extends it with telecom-specific models (circuits, equipment holders, cards, ports) and TSOM assurance.
+
+**Discovery patterns:** `sn_tsom_patterns` scope — predefined telecom patterns using SNMP/CLI to discover network elements directly.
+
+**Breadcrumbs:** All > IT Operations Management > Visibility > (dashboards, health, reconciliation) | All > Telecom Service Operations > Inventory / Network Inventory
+
+</details>
+
+<details>
+<summary><strong>5. Flow Designer / Flows — guided remediation in TSOM</strong></summary>
+
+**Flow Designer** is ServiceNow's low-code automation builder. In TSOM, flows react to alerts and incidents to execute guided remediation.
+
+| Flow element | Purpose | TSOM example |
+|---|---|---|
+| **Trigger** | Starts the flow | Alert state = Critical on a network element CI |
+| **Condition** | Branches the logic | If severity = Critical AND service = Fiber Broadband |
+| **Action** | A step in the flow | Create incident, send notification, run remediation |
+| **Subflow** | Reusable flow called from another flow | Standard "restart network element" subflow |
+
+**Typical TSOM flow:** Alert fires → correlate → create incident → notify NOC → run guided remediation (e.g., "reset interface") → verify alert cleared → close incident.
+
+**Key breadcrumb:** All > Flow Designer > Flow Designer (build flows) | All > Flow Designer > Flows (view and manage active flows)
+
+**Implementer note:** Flows are the "Act / Remediate" stage of TSOM's four-stage loop (Detect → Analyze → Communicate → Act). Without flows, TSOM detects and analyzes but doesn't automate remediation.
+
+</details>
 
 ---
 
@@ -710,3 +1164,18 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations Management"
+
+---
+
+## Related Guides
+
+- [Discovery guide](./discovery-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [CMDB guide](./cmdb-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [TSOM getting-started](./../../getting-started/tsom.md)
+- [TSOM capabilities](./tsom-capabilities.md)
+- [TSOM Assurance](./tsom-assurance.md) — Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Service Observability, Synthetic Monitoring, AIOps LEAP, Now Assist
+
+---

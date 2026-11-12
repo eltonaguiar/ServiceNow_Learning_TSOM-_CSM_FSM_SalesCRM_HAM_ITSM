@@ -8,22 +8,29 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [Prerequisites & Setup](#prerequisites--setup)
 - [How Discovery Works](#how-discovery-works)
+- [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
+- [Core Concept Diagrams](#core-concept-diagrams)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Appendix: IntegrationHub & e-Bonding — connecting discovered data out](#appendix-integrationhub--e-bonding--connecting-discovered-data-out)
+- [Deep Dive: Service Graph Connector for OpenTelemetry](#deep-dive-service-graph-connector-for-opentelemetry)
 - [Deep Dive: Customizing an Out-of-Box Pattern — and Making Your Own](#deep-dive-customizing-an-out-of-box-pattern--and-making-your-own)
 - [Deep Dive: The Discovery Configuration Console](#deep-dive-the-discovery-configuration-console)
 - [Deep Dive: File-Based Discovery](#deep-dive-file-based-discovery)
 - [Deep Dive: Running File-Based Discovery](#deep-dive-running-file-based-discovery)
 - [Deep Dive: From Files to Licenses — File Signature Normalization](#deep-dive-from-files-to-licenses--file-signature-normalization)
 - [Lab: Run Your First Discovery and File-Based Scan](#lab-run-your-first-discovery-and-file-based-scan)
+- [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [Official Learning Resources](#official-learning-resources)
-- [Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+- [Related Guides](#related-guides)
 
 ---
 
@@ -52,6 +59,47 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 
 Roles that matter: **discovery_admin** (configure and run Discovery), **admin**, the MID Server's service account user (with the `mid_server` role) on the instance side, and local/domain credentials on the target side.
 
+## Prerequisites & Setup
+
+### Plugins and Scoped Apps
+- **Discovery Core**: `com.snc.discovery.core` — required for all Discovery functionality
+- **MID Server**: `com.snc.mid_server` — the agent that executes Discovery probes in your network
+- **File-Based Discovery**: `com.snc.discovery.file_based_discovery` — included with Discovery subscription, activation must be requested
+- **SAM File Signature Normalization**: `com.snc.file_signature_normalization` — activated automatically with File-Based Discovery
+- **Cloud Discovery** (optional): `com.snc.discovery.cloud_discovery` — for AWS, Azure, GCP discovery
+
+### Guided Setup Requirements
+1. **MID Server Installation**: Install and validate MID Server(s) in your private network (All > Discovery > MID Servers). Ensure status is "Validated" and "Up"
+2. **Credentials Configuration**: Configure credentials for target hosts (All > Discovery > Credentials) and test connectivity
+3. **Discovery Schedule**: Create a discovery schedule with IP ranges (All > Discovery > Discovery Definition > Schedules)
+4. **File-Based Discovery Activation**: Enable in Configuration Console (All > Discovery > Discovery Definition > Configuration Console)
+5. **CDS Synchronization**: Ensure initial Content Data Service sync has completed (~24 hours) before enabling File-Based Discovery
+
+### System Properties to Consider
+- `glide.discovery.file_discovery.wildcard.windows` — additive extensions for FBD on Windows
+- `glide.discovery.file_discovery.blacklist.windows` — hard filter extensions on Windows
+- `discovery_private_properties.list` — internal Discovery settings (filter in navigator)
+- Timeout properties: `glide.discovery.timeout`, `glide.discovery.scan_timeout`
+
+### Cross-Module Dependencies
+- **CMDB**: Discovery populates `cmdb_ci` and subclasses (e.g., `cmdb_ci_server`, `cmdb_ci_appl`); IRE identification rules prevent duplicates
+- **ITSM**: Discovery CIs feed impact analysis and incident management
+- **SAM/HAM**: File-Based Discovery installations flow into `cmdb_sam_sw_install` records
+- **TSOM**: Reconciles discovered network state against inventory; requires CMDB accuracy
+
+### ACLs Related to Core Tables
+- `discovery_admin` role required for configuration and run permissions
+- `mid_server` role required on instance side for MID Server service account
+- `admin` role for Configuration Console access
+- ACLs on `cmdb_ci`, `discovery_status`, `ecc_queue`, `discovery_credentials`, `sa_pattern`, etc.
+
+### Breadcrumbs — What Needs to Be Enabled First
+1. **MID Server** — Must be installed, validated, and "Up" status (All > Discovery > MID Servers)
+2. **Credentials** — Configure host credentials with appropriate OS permissions (All > Discovery > Credentials)
+3. **Discovery Schedule** — Define IP ranges and schedule frequency (All > Discovery > Discovery Definition > Schedules)
+4. **Run Discovery** — Populates CMDB with CIs (All > Discovery > Status)
+5. **File-Based Discovery** — Enable in Configuration Console after prerequisite steps (All > Discovery > Discovery Definition > Configuration Console)
+
 ## How Discovery Works
 
 A Discovery run moves through four phases, all coordinated through the **ECC Queue** (`ecc_queue`) between the instance and a **MID Server** sitting inside the network:
@@ -62,6 +110,96 @@ A Discovery run moves through four phases, all coordinated through the **ECC Que
 4. **Exploration** — probes and patterns gather the detail: OS, CPU, memory, running processes, installed software — and this is the phase where **File-Based Discovery runs**.
 
 Work is sent to the MID Server as ECC Queue **output** records; results come back as **input** records, where sensors/pattern steps process them into the CMDB.
+
+---
+
+## Goals, Benefits & Key Metrics
+
+| Business Goal | Benefit | Key Metric (KPI) | Example Value | Where to measure |
+|---------------|---------|------------------|---------------|------------------|
+| Build an accurate, current CMDB | ITSM impact, SAM licenses, HAM assets, and TSOM inventory all trust the same device data | CMDB discovery coverage — % of expected in-scope devices with a CI | ≥95% | `discovery_range` vs `cmdb_ci` |
+| Surface new devices before they cause incidents | New hardware is visible to change and impact processes immediately | Mean Time to Discover (new CIs) | <24h from first scan to CI created | `discovery_status` → `cmdb_ci.last_discovered` |
+| Keep CI data fresh enough to act on | Stale CIs break impact maps and license counts | CI freshness — % of CIs discovered in the last 30 days | ≥90% | `cmdb_ci.last_discovered` |
+| Prevent duplicate CIs | Clean relationships; correct blast-radius math | Duplicate CI rate | <1% | `cmdb_identifier` (IRE) match results |
+| Run schedules reliably | Predictable dashboards and maintenance windows | Discovery schedule success rate | ≥98% of scheduled runs complete | `discovery_status.state` |
+| Identify installed software from disk | SAM can count licenses for software that never registered itself | File-Based Discovery match rate | ≥80% of scanned files matched to a known product | `cmdb_file_information` → `cmdb_sam_sw_install` |
+| Debug failed runs fast | Less MTTR on Discovery itself | ECC Queue error rate | <2% of `ecc_queue` rows in error state | `ecc_queue.state = error` |
+
+> Indicative starting KPIs — baseline your own instance, then set targets.
+
+---
+
+## Core Concept Diagrams
+
+### Discovery Phases — Scan → Classify → Identify → Explore
+
+```mermaid
+flowchart TD
+    Start[Discovery Schedule fires] --> Scan[1. Scanning<br/>Shazzam port probes find live IPs]
+    Scan --> Classify[2. Classification<br/>Classifiers decide device type — Windows, Linux, switch, …]
+    Classify --> Identify[3. Identification<br/>IRE matches an existing CI or creates a new one]
+    Identify --> Explore[4. Exploration<br/>Patterns/probes gather OS, CPU, software<br/>File-Based Discovery runs here]
+    Explore --> CI[CI created or updated in CMDB<br/>cmdb_ci · cmdb_ci_server · cmdb_file_information]
+    CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
+
+    style Start fill:#e58a8a,color:#fff
+    style Classify fill:#e5b567,color:#000
+    style Identify fill:#0a0d10,stroke:#e5b567
+    style Explore fill:#4cc38a,color:#000
+    style CI fill:#10141a
+
+```
+
+### MID Server → ECC Queue → CI Flow
+
+```mermaid
+flowchart LR
+    Instance[ServiceNow Instance] <==>|output records<br/>work sent to MID| ECC[ECC Queue<br/>ecc_queue]
+    ECC <==>|input records<br/>results returned| MID[MID Server<br/>inside your network]
+    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device<br/>server, switch, appliance]
+    Target -->|returns data| MID
+    MID -->|parsed by Sensors / pattern steps| CI[(CMDB<br/>cmdb_ci + subclasses)]
+
+    subgraph InstanceSide [Instance side]
+        Instance
+        ECC
+        CI
+    end
+    subgraph NetworkSide [Network side]
+        MID
+        Target
+    end
+
+    style Instance fill:#e58a8a,color:#fff
+    style ECC fill:#e5b567,color:#000
+    style MID fill:#4cc38a,color:#000
+    style CI fill:#10141a
+
+```
+
+### Pattern → Probe → Sensor Flow
+
+```mermaid
+flowchart TD
+    Pattern[Discovery Pattern<br/>sa_pattern<br/>steps and operations]
+    Probe[Probe<br/>discovery_probe<br/>runs on the MID Server]
+    Sensor[Sensor<br/>instance-side parser]
+    CI[(CMDB CI<br/>cmdb_ci_*)]
+
+    Pattern -->|calls| Probe
+    Probe -->|collects from| Target[Target device<br/>files · registry · WMI · SNMP]
+    Target -->|raw output| Probe
+    Probe -->|returns payload| Sensor
+    Sensor -->|maps onto CI fields| CI
+
+    style Pattern fill:#e5b567,color:#000
+    style Probe fill:#4cc38a,color:#000
+    style Sensor fill:#0a0d10,stroke:#e5b567
+    style CI fill:#10141a
+
+```
+
+---
 
 ## Re-usable Code / Metadata
 
@@ -178,6 +316,218 @@ The pattern to notice: **schedules are the *when and where*, everything above is
 - **Enabling FBD before CDS sync finishes** — File-Based Discovery does not trigger until the initial Content Data Service synchronization completes (~24h).
 - **Scanning a whole drive by accident** — setting Folders To Scan to `C:/` scans *everything*; combined with a high Maximum Files cap it can hammer the target.
 - **Debugging in the CMDB** — when a run looks wrong, read the ECC Queue and Discovery Log first; the CI is the *result*, not the evidence.
+
+---
+
+## Appendix: IntegrationHub & e-Bonding — connecting discovered data out
+
+Discovery populates the CMDB. IntegrationHub and e-bonding are how that data (and incidents, changes, CIs) flows *out* to external systems and *back in* — without building custom REST code for every connection.
+
+### What is IntegrationHub?
+
+IntegrationHub is ServiceNow's low-code integration layer: **spokes** (prebuilt adapters), **Flow Designer** actions, and **Connection & Credential Aliases** for secure auth. Instead of writing a REST Message from scratch for Salesforce, Teams, Jira, or SAP, you drag a spoke onto a flow canvas and map fields.
+
+| Concept | What it is | Example |
+|---|---|---|
+| **Spoke** | Prebuilt adapter wrapping an external API | ServiceNow, Salesforce, Microsoft Teams, Jira, ServiceNow (instance-to-instance) |
+| **Flow** | Low-code automation built in Flow Designer | "When a CI changes in Discovery, post to Teams" |
+| **Action** | One step in a flow | Create a Jira issue, send a Teams message, query a CMDB CI |
+| **Connection & Credential Alias** | Stored auth (OAuth2, basic, API key) | One alias reused across flows; rotate the password in one place |
+
+### What is e-bonding?
+
+E-bonding is **bidirectional synchronization** between ServiceNow and an external ITSM/monitoring tool. Both sides create and update records, and a correlation ID prevents infinite loops (ServiceNow → external → ServiceNow → external …).
+
+Common e-bonding pairs:
+- ServiceNow ↔ ServiceNow (MSP ↔ customer instances)
+- ServiceNow ↔ SolarWinds Service Desk
+- ServiceNow ↔ BMC Helix / Remedy
+- ServiceNow ← third-party monitoring (PagerDuty, Datadog alerts → incidents)
+
+### How Discovery + e-bonding fit together
+
+Discovery finds CIs and writes them to the CMDB. E-bonding then syncs those CIs (and the incidents/problems built on them) to an external tool — and pulls the external tool's status back onto the CI. Without Discovery's CMDB data, e-bonding has nothing reliable to correlate.
+
+```
+Discovery run → CI created/updated in CMDB
+                    │
+                    ▼
+          E-bonding sync (IntegrationHub flow or REST Message)
+                    │
+                    ▼
+        External tool (SolarWinds, BMC, second SN instance)
+                    │
+                    ▼
+          Status comes back → updated on the CI / incident
+```
+
+### Integration patterns compared
+
+| Pattern | Best for | Discovery relevance |
+|---|---|---|
+| **IntegrationHub spoke + Flow Designer** | Low-code, no custom code, prebuilt adapters | Sync discovered CIs to Teams/Jira/ServiceNow |
+| **Outbound REST Message** | Custom APIs, full control | Push CI changes to a home-grown CMDB consumer |
+| **Inbound Scripted REST API** | External systems write into ServiceNow | External tool creates incidents on discovered CIs |
+| **MID Server** | On-prem targets the cloud can't reach | Discovery itself uses this; so does JDBC-based e-bonding |
+| **Import Sets** | Bulk one-time loads | Initial CMDB population before live e-bonding starts |
+
+### Mini lab: Conceptual e-bond — Discovery CI change → Teams
+
+1. **Flow Designer → New flow**, Table: `cmdb_ci`, Trigger: **Field updated** on `install_status` or `discovery_source`
+2. **Condition:** only run when `discovery_source` = `ServiceNow Discovery` (avoid sync loops)
+3. **Action:** Microsoft Teams → Post message (via the Teams spoke, or a REST Message to a Teams webhook)
+4. **Message body:** `CI ${name} (${
+sys_class_name}) was discovered/updated by ${discovery_source} at ${discovered}`
+5. **Activate.** Run Discovery against a target; confirm the Teams message arrives.
+
+**Why this isn't a loop:** the condition checks `discovery_source`, so only Discovery-originated changes post to Teams — manual CMDB edits don't retrigger the flow.
+
+### Common e-bonding mistakes
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| **No correlation ID** | Each side creates a new record every sync — endless duplicates | Store the external system's record ID on the CI (custom field `u_external_ci_id`) and match on it |
+| **No loop guard** | ServiceNow update triggers external update which triggers ServiceNow update … | Check `discovery_source` / `u_external_updated` before writing; skip if already synced |
+| **Hard-coded credentials** | Password rotation breaks the e-bond | Use Connection & Credential Aliases; never embed passwords in flow actions |
+| **Syncing every field** | Massive payloads, slow syncs, field conflicts | Sync only the fields that matter (CI name, status, discovery source, last_discovered) |
+|| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
+
+---
+
+## Deep Dive: Service Graph Connector for OpenTelemetry
+
+Service Graph Connector (SGC) for OpenTelemetry is how ServiceNow ingests **metrics, traces, and logs** from OpenTelemetry collectors — the CNCF open-source observability standard. This is **not** Discovery. Discovery scans and polls infrastructure to fill the CMDB with CIs. OpenTelemetry pushes **telemetry data** (metrics, traces, logs) from applications and infrastructure that is already instrumented.
+
+### What OpenTelemetry is
+
+OpenTelemetry (OTel) is a vendor-neutral framework for instrumenting applications to generate and export telemetry data:
+- **Metrics** — numerical measurements over time (CPU %, memory %, response time)
+- **Traces** — distributed request traces across microservices (span ID, trace ID, latency)
+- **Logs** — structured log records with severity, timestamp, attributes
+
+OTel collectors receive this data, process it, and export it to backends — including ServiceNow via the SGC for OpenTelemetry.
+
+### SGC for OpenTelemetry vs Discovery
+
+| Aspect | ITOM Discovery | SGC for OpenTelemetry |
+|---|---|---|
+| Direction | Instance **pulls** (scans/polls targets) | External **pushes** telemetry to ServiceNow |
+| What it creates | CIs in the CMDB (`cmdb_ci_*`) | Metric data, trace data, log entries |
+| Typical targets | Servers, network devices, cloud accounts | Instrumented apps, Kubernetes clusters, microservices |
+| Timing | Scheduled (daily, weekly, monthly) | Continuous / near real-time |
+| Primary consumer | CMDB, ITOM Visibility, TSOM inventory | Metric Intelligence, Health Log Analytics, TSOM assurance |
+| TSOM role | Builds the topology (what connects to what) | Feeds performance metrics and alerts for service impact |
+
+In TSOM, you need **both**: Discovery builds the network topology (routers, circuits, services), and OpenTelemetry feeds the metrics that tell you *whether* that topology is healthy.
+
+### Breadcrumbs
+
+| Destination | Breadcrumb |
+|---|---|
+| SGC central | All > Service Graph Connectors > Service Graph Connectors |
+| OpenTelemetry connector setup | All > Service Graph Connectors > OpenTelemetry > Setup |
+| Data sources | All > Service Graph Connectors > OpenTelemetry > Data Sources |
+| Credentials | All > Service Graph Connectors > OpenTelemetry > Credentials |
+| Schedules | All > Service Graph Connectors > OpenTelemetry > Schedules |
+| Ingested data | `sn_otel_metric`, `sn_otel_trace`, `sn_otel_log` tables |
+
+### Configuration steps
+
+1. **Install the connector** — Store app `sn_otel_sgc` (Service Graph Connector for OpenTelemetry)
+2. **Create a data source** — Define the OTel endpoint (OTLP HTTP/gRPC URL) the collector will export to
+3. **Configure credentials** — API token or basic auth for the OTel export endpoint
+4. **Create a schedule** — How often ServiceNow polls the OTel endpoint (or set up webhook push)
+5. **Map telemetry to CIs** — Configure identification rules so OTel metrics attach to existing CIs discovered by ITOM Discovery or SGC
+6. **Activate** — Turn on the connector; verify data appears in `sn_otel_metric`, `sn_otel_trace`, `sn_otel_log`
+
+### How OpenTelemetry feeds TSOM assurance
+
+OTel metrics flow into **Metric Intelligence** and **Health Log Analytics** (ITOM features TSOM consumes), which then feed:
+- **Event Management** — metric threshold breaches become events → alerts
+- **Service Impact Analysis** — alerts on a network element CI propagate impact to the customer service CI
+- **Now Assist for ITOM** — AI-assisted alert investigation using the metric context
+
+### Common OpenTelemetry SGC mistakes
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| **No CI identification mapping** | Metrics ingest but don't attach to any CI | Configure identification rules so OTel resource attributes match `cmdb_ci` fields (name, serial_number, etc.) |
+| **Wrong export protocol** | Collector can't reach ServiceNow | OTLP HTTP is the standard; confirm the endpoint URL and port (4318 for HTTP, 4317 for gRPC) |
+| **Missing MID Server** | OTel collector is on-prem, ServiceNow is cloud | Install a MID Server between the collector and the instance, or use OTel collector's built-in ServiceNow exporter |
+| **No schedule or wrong frequency** | Data is stale or missing | Set a schedule that matches the OTel export interval (typically 30s–5m for metrics) |
+| **Confusing OTel with Discovery** | Expecting OTel to create CIs | OTel creates metric/trace/log records, not CIs. Run Discovery first to build the CI topology |
+
+### Mini lab: Verify OpenTelemetry SGC data flow
+
+**Goal:** Confirm OTel metrics are ingested and attached to a CI.
+
+**Prerequisites:**
+- ServiceNow instance with ITOM Discovery and SGC for OpenTelemetry installed
+- An OTel collector running and exporting to the ServiceNow OTLP endpoint
+- A discovered CI (e.g., a server) whose name matches an OTel resource attribute
+
+**Steps:**
+1. **All > Service Graph Connectors > OpenTelemetry > Setup** — confirm the connector is active
+2. **All > Service Graph Connectors > OpenTelemetry > Data Sources** — verify your OTel endpoint is listed and active
+3. **All > Service Graph Connectors > OpenTelemetry > Schedules** — confirm a schedule exists and is enabled
+4. Run the schedule manually; open the **Schedule Status** record and confirm it completed without errors
+5. Query `sn_otel_metric` — confirm rows exist with recent `sys_created_on` timestamps
+6. Open a metric record and check the **CI reference** field — if identification mapping is correct, it should point to a discovered `cmdb_ci` (e.g., your server)
+7. Open that CI in the CMDB and confirm related metric data appears (if your instance has Metric Intelligence configured)
+
+**Proof of concept:** A metric row in `sn_otel_metric` with a populated `cmdb_ci` reference means OTel telemetry is successfully attached to your discovered topology — the foundation for TSOM service impact analysis.
+
+---
+
+### Using Now Assist to debug a Service Graph Connector issue
+
+ServiceNow's **Now Assist** can help diagnose Service Graph Connector problems directly from the chat interface. The Now Assist panel surfaces suggested prompts including **"Diagnose a Service Graph Connector"** — click it to start a guided troubleshooting session without leaving the page.
+
+#### What Now Assist can do for SGC debugging
+
+| Now Assist capability | How it helps with SGC |
+|---|---|
+| **Diagnose a Service Graph Connector** | Analyzes connector configuration, schedules, and recent run status to identify misconfigurations |
+| **Generate KB Article** | Creates a knowledge base article from the diagnosis for team reference |
+| **Ask free-form** | Ask about specific errors, schedule failures, or data-mapping issues in plain language |
+
+#### When to use Now Assist for SGC
+
+- Connector schedule is failing but you don't know why
+- Data is ingesting but not attaching to CIs (identification mapping issue)
+- You need a quick health check before digging into `sys_otel_metric` / `sn_otel_metric` tables manually
+- You want to document the fix as a KB article for the team
+
+#### Suggested Now Assist prompts for SGC debugging
+
+| Prompt | Best for |
+|---|---|
+| *"Diagnose a Service Graph Connector"* | General health check of all SGCs |
+| *"Why is my OpenTelemetry connector not ingesting data?"* | Specific connector failure |
+| *"Show me failed SGC schedules in the last 24 hours"* | Recent schedule failures |
+| *"Generate a KB article for this SGC diagnosis"* | Documenting the fix for your team |
+
+#### Suggested workflow
+
+1. **Open Now Assist** (the chat panel in the top-right of your ServiceNow instance)
+2. **Click "Diagnose a Service Graph Connector"** — or type your own question
+3. **Review the diagnosis** — Now Assist will surface connector status, schedule errors, and configuration issues
+4. **If needed, click "Generate KB Article"** to save the findings as knowledge for your team
+5. **Apply the fix** — correct the schedule, credentials, or identification mapping based on the diagnosis
+6. **Re-run the connector schedule** and confirm data flows into `sn_otel_metric` / `sn_otel_trace` / `sn_otel_log`
+
+#### Limitations
+
+- Now Assist suggestions are AI-generated — **review for accuracy** before acting on them
+- Now Assist can identify *what* is wrong but may not have permission to *change* connector configuration — you may need to apply the fix manually in the connector setup page
+- For complex SGC issues (custom ETL maps, MID Server connectivity), Now Assist is a starting point, not a replacement for hands-on debugging
+
+---
+
+---
+- [ServiceNow IntegrationHub Fundamentals](https://nowlearning.com/) — Search "IntegrationHub" on Now Learning Portal
+- [ServiceNow Product Documentation — IntegrationHub](https://docs.servicenow.com/) → Search "IntegrationHub", "e-bonding", "spokes"
+- [Flow Designer documentation](https://docs.servicenow.com/) → Search "Flow Designer"
 
 ---
 
@@ -380,6 +730,50 @@ The full treatment — plugin (`com.snc.file_signature_normalization`), tables (
 7. **Verify on the target:** Check `C:\Windows\Temp` for the `snc_tmp_*.tmp` scan file timestamped with your run.
 8. **Write down** which layer of the filtering model explains every file you saw collected — and every one you didn't.
 
+## SLAs, Dashboards & Workspaces
+
+### SLA Support
+
+Discovery itself does not own SLA definitions — it feeds the CMDB, and SLAs are attached to the *tasks and incidents that consume CMDB data* (incidents, service requests, work orders) via `task_sla`. The SLA records that matter for Discovery are the ones triggered when a CI is stale, a Discovery run fails, or a SAM/HAM/TSOM downstream process cannot reconcile.
+
+| SLA Area | What It Tracks | Typical Target |
+|----------|---------------|----------------|
+| CI freshness | Time since `cmdb_ci.last_discovered` exceeds the freshness window | Alert when a CI is > 30 days stale |
+| Discovery run success | Time since the last successful scheduled run per range | Escalate when a schedule fails > 2 consecutive runs |
+| ECC Queue error rate | Time `ecc_queue` rows remain in `error` state | Escalate when > 2% of rows are stuck in error |
+| SAM normalization lag | Time from File-Based Discovery collection to `cmdb_sam_sw_install` creation | < 24 hours after FBD run completes |
+
+**MTTD (Mean Time to Detect)** — measured from a CI going stale or a Discovery run failing until the discrepancy is surfaced. Typical target: under 24 hours for stale CIs, under 1 hour for failed runs.
+
+**MTTR (Mean Time to Resolve)** — measured from the alert/incident creation until the CI is re-discovered or the run is re-established. Typical target: under 48 hours for CI re-discovery, under 8 hours for a failed schedule.
+
+Use `task_sla` to:
+- Attach SLA definitions to incidents raised when a Discovery schedule fails (`discovery_status.state = error`)
+- Track breach risk with `stage`, `has_breached`, and `business_duration` fields
+- Escalate tasks when an SLA stage approaches its threshold, e.g. a CI freshness SLA nearing breach
+
+> **Note:** Discovery does not create its own SLA definitions. SLAs are defined centrally (All > Service Level Management > SLA Definitions) and attached to the incident/task types that Discovery operations generate. The Discovery guide's [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics) section lists the underlying KPIs (CMDB coverage ≥ 95%, schedule success ≥ 98%, duplicate CI rate < 1%) that these SLAs are built to protect.
+
+### Out-of-Box Dashboards
+
+| Dashboard | Purpose | Where to Find It |
+|-----------|---------|------------------|
+| Discovery Dashboard / Home | Overall Discovery health: run success rates, ECC Queue status, MID Server status, CI count over time | All > Discovery > Dashboard |
+| CMDB Health Dashboard | CMDB completeness, correctness, and compliance — including Discovery coverage and CI freshness | All > CMDB Health > Dashboards |
+| Discovery Status Report | Per-run outcomes: devices found, state, timing, errors per schedule | All > Discovery > Status (list view) |
+
+**Key metrics surfaced OOTB:** Discovery schedule success rate, CI freshness (% discovered in last 30 days), ECC Queue error rate, MID Server status, duplicate CI rate, File-Based Discovery match rate, CMDB coverage vs expected ranges.
+
+### Out-of-Box Workspaces
+
+| Workspace | Purpose | Path |
+|-----------|---------|------|
+| Discovery Admin Workspace | Configure Discovery: schedules, ranges, patterns, classifiers, credentials, MID Servers, and the Configuration Console — plus run status and logs | All > Discovery > Discovery Admin Workspace |
+
+**Workflow tip:** Start in the Discovery Admin Workspace to configure and run Discovery, monitor the ECC Queue and Discovery Log, then switch to the CMDB Health Dashboard to verify CI freshness and coverage — and to the TSOM Workspace (see the TSOM guide) when reconciling discovered network state against inventory.
+
+---
+
 ## Quiz
 
 1. What are the four phases of a Discovery run, and in which phase does File-Based Discovery execute?
@@ -545,3 +939,15 @@ Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "ITOM Discovery"
+
+---
+
+## Related Guides
+
+- [CMDB guide](./cmdb-guide.md)
+- [Service Mapping guide](./servicemapping-guide.md)
+- [ITOM guide](./itom-guide.md)
+- [ITSM guide](./itsm-guide.md)
+- [Discovery getting-started](./../../getting-started/discovery.md)
+
+---
