@@ -47,7 +47,7 @@ Integrations are how ServiceNow talks to the rest of the enterprise.
 | **REST Message** | Real-time outbound calls | Endpoint, HTTP Method, Auth, JSON Parsing |
 | **Scripted REST API** | Allow external systems to call SN | Custom endpoints, Request/Response handling |
 | **IntegrationHub** | Low-code integrations | Spokes, Actions, Connection & Credential Aliases |
-| **MID Server** | Accessing internal network data | Java agent, ECC Queue, Probe/Sensor |
+| **MID Server** | Accessing internal network data | Java agent behind firewall, probes/sensors for on-prem connectivity |
 
 🚀 **Interview Insight:** If asked about "Integration Patterns," discuss the difference between **Asynchronous** (Import Sets/Queues) and **Synchronous** (REST API) calls. Mention that **MID Servers** are essential for any on-prem data source.
 
