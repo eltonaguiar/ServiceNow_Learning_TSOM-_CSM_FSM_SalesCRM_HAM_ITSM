@@ -5,9 +5,7 @@ title: ServiceNow Module Guides
 
 # ServiceNow Module Guides
 
-Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for eight ServiceNow modules plus AI Features:
-
-## Available Guides
+Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for nine ServiceNow modules plus AI Features:
 
 ## Available Guides
 
@@ -26,6 +24,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>FSM</h3>
     <p>Field Service Management — work orders, territories, scheduling constraints, and mobile work.</p>
     <p class="meta"><a href="./docs/modules/fsm/fsm-guide/">Open the FSM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>CMDB</h3>
+    <p>Configuration Management Database — CI classes, Identification & Reconciliation (IRE), CMDB Health, relationships, and integrations.</p>
+    <p class="meta"><a href="./docs/modules/cmdb/cmdb-guide/">Open the CMDB guide</a></p>
   </div>
   <div class="card">
     <h3>Sales CRM</h3>
