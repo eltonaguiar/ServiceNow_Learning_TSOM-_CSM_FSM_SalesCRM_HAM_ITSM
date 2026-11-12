@@ -532,17 +532,17 @@ graph LR
 
     ```mermaid
     flowchart LR
-        A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
-        B --> C[sn_sales_quote<br/>Quote/CPQ]
-        C --> D[sn_sales_order<br/>Sales Order]
-        D --> E[sn_sales_order_line<br/>Order Lines]
+        A[sn_sales_account<br/>Customer Account] &#45;&#45;&#62; B[sn_sales_opportunity<br/>Sales Opportunity]
+        B &#45;&#45;&#62; C[sn_sales_quote<br/>Quote/CPQ]
+        C &#45;&#45;&#62; D[sn_sales_order<br/>Sales Order]
+        D &#45;&#45;&#62; E[sn_sales_order_line<br/>Order Lines]
     
-        A -->|has primary contact| L[sn_sales_contact<br/>Contact]
-        L -->|influences| B
+        A &#45;&#45;&#62;|has primary contact| L[sn_sales_contact<br/>Contact]
+        L &#45;&#45;&#62;|influences| B
     
-        B -->|generates| C
-        C -->|converts to| D
-        D -->|contains| E
+        B &#45;&#45;&#62;|generates| C
+        C &#45;&#45;&#62;|converts to| D
+        D &#45;&#45;&#62;|contains| E
     
         style A fill:#e3f2fd,color:#000
         style B fill:#fff3e0,color:#000
@@ -558,16 +558,16 @@ graph LR
 
     ```mermaid
     stateDiagram-v2
-        [*] --> New : case created
-        New --> Assigned : assigned to agent
-        Assigned --> In Progress : work started
-        In Progress --> Waiting on Customer : awaiting response
-        Waiting on Customer --> In Progress : customer responds
-        In Progress --> Resolved : issue fixed
-        Resolved --> Closed : confirmed by customer
-        Resolved --> Reopened : issue recurs
-        Reopened --> In Progress : work resumed
-        Closed --> [*] : case closed
+        [*] &#45;&#45;&#62; New : case created
+        New &#45;&#45;&#62; Assigned : assigned to agent
+        Assigned &#45;&#45;&#62; In Progress : work started
+        In Progress &#45;&#45;&#62; Waiting on Customer : awaiting response
+        Waiting on Customer &#45;&#45;&#62; In Progress : customer responds
+        In Progress &#45;&#45;&#62; Resolved : issue fixed
+        Resolved &#45;&#45;&#62; Closed : confirmed by customer
+        Resolved &#45;&#45;&#62; Reopened : issue recurs
+        Reopened &#45;&#45;&#62; In Progress : work resumed
+        Closed &#45;&#45;&#62; [*] : case closed
     
         style New fill:#e3f2fd,color:#000
         style Assigned fill:#fff3e0,color:#000

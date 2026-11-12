@@ -628,15 +628,15 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Development : CI created
-    Development --> Testing : moved to test env
-    Testing --> Production : deployed to prod
-    Production --> In Maintenance : under maintenance
-    In Maintenance --> Production : back in service
-    Production --> Retired : decommissioned
-    Development --> Retired : cancelled
-    Testing --> Retired : cancelled
-    Retired --> [*] : archived
+    [*] &#45;&#45;&#62; Development : CI created
+    Development &#45;&#45;&#62; Testing : moved to test env
+    Testing &#45;&#45;&#62; Production : deployed to prod
+    Production &#45;&#45;&#62; In Maintenance : under maintenance
+    In Maintenance &#45;&#45;&#62; Production : back in service
+    Production &#45;&#45;&#62; Retired : decommissioned
+    Development &#45;&#45;&#62; Retired : cancelled
+    Testing &#45;&#45;&#62; Retired : cancelled
+    Retired &#45;&#45;&#62; [*] : archived
 ```
 
 ---
@@ -645,13 +645,13 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    A[Discovery] -->|Priority 1| B[CMDB CI]
-    C[Import Set] -->|Priority 2| B
-    D[Manual Entry] -->|Priority 3| B
-    E[Integration Hub] -->|Priority 4| B
+    A[Discovery] &#45;&#45;&#62;|Priority 1| B[CMDB CI]
+    C[Import Set] &#45;&#45;&#62;|Priority 2| B
+    D[Manual Entry] &#45;&#45;&#62;|Priority 3| B
+    E[Integration Hub] &#45;&#45;&#62;|Priority 4| B
     
-    B --> F[Reconciliation Rules]
-    F --> G[Trusted Source Wins]
+    B &#45;&#45;&#62; F[Reconciliation Rules]
+    F &#45;&#45;&#62; G[Trusted Source Wins]
     
     style A fill:#e1f5e1,color:#000
     style B fill:#fff3e0,color:#000
@@ -665,15 +665,15 @@ graph TD
 
 ```mermaid
 flowchart LR
-    A[External System] -->|REST/Webhook| B[Integration Hub Spoke]
-    B --> C[Transform Map]
-    C --> D[Staging Table]
-    D --> E[Coalesce Match]
-    E -->|Match Found| F[Update Existing CI]
-    E -->|No Match| G[Create New CI]
-    F --> H[Reconciliation Rules]
-    G --> H
-    H --> I[CMDB CI Updated]
+    A[External System] &#45;&#45;&#62;|REST/Webhook| B[Integration Hub Spoke]
+    B &#45;&#45;&#62; C[Transform Map]
+    C &#45;&#45;&#62; D[Staging Table]
+    D &#45;&#45;&#62; E[Coalesce Match]
+    E &#45;&#45;&#62;|Match Found| F[Update Existing CI]
+    E &#45;&#45;&#62;|No Match| G[Create New CI]
+    F &#45;&#45;&#62; H[Reconciliation Rules]
+    G &#45;&#45;&#62; H
+    H &#45;&#45;&#62; I[CMDB CI Updated]
     
     style A fill:#fce4ec,color:#000
     style B fill:#e3f2fd,color:#000
