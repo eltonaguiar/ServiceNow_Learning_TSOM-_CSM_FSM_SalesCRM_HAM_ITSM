@@ -439,46 +439,46 @@ Sales CRM is measured on pipeline health, deal velocity, and revenue predictabil
 
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; New : lead created
-    New &#45;&#45;&#62; Contacted : outreach
-    Contacted &#45;&#45;&#62; Qualified : qualifies
-    Qualified &#45;&#45;&#62; Unqualified : not a fit
-    Qualified &#45;&#45;&#62; Prospecting : opportunity auto-created
-    Unqualified &#45;&#45;&#62; [*]
+    [*] --> New : lead created
+    New --> Contacted : outreach
+    Contacted --> Qualified : qualifies
+    Qualified --> Unqualified : not a fit
+    Qualified --> Prospecting : opportunity auto-created
+    Unqualified --> [*]
 
-    Prospecting &#45;&#45;&#62; Qualification : deal qualified
-    Qualification &#45;&#45;&#62; Proposal : proposal sent
-    Proposal &#45;&#45;&#62; Negotiation : terms discussed
-    Negotiation &#45;&#45;&#62; Closed_Won : deal signed
-    Negotiation &#45;&#45;&#62; Closed_Lost : deal lost
-    Closed_Won &#45;&#45;&#62; Order : accepted quote
-    Closed_Lost &#45;&#45;&#62; [*]
+    Prospecting --> Qualification : deal qualified
+    Qualification --> Proposal : proposal sent
+    Proposal --> Negotiation : terms discussed
+    Negotiation --> Closed_Won : deal signed
+    Negotiation --> Closed_Lost : deal lost
+    Closed_Won --> Order : accepted quote
+    Closed_Lost --> [*]
 
-    Draft &#45;&#45;&#62; Sent : quote submitted
-    Sent &#45;&#45;&#62; Accepted : customer accepts
-    Sent &#45;&#45;&#62; Rejected : customer rejects
-    Sent &#45;&#45;&#62; Expired : valid_until passed
-    Accepted &#45;&#45;&#62; Order : order created
-    Order &#45;&#45;&#62; Confirmed : confirmed
-    Confirmed &#45;&#45;&#62; Fulfilled : fulfilled
-    Confirmed &#45;&#45;&#62; Cancelled : cancelled
+    Draft --> Sent : quote submitted
+    Sent --> Accepted : customer accepts
+    Sent --> Rejected : customer rejects
+    Sent --> Expired : valid_until passed
+    Accepted --> Order : order created
+    Order --> Confirmed : confirmed
+    Confirmed --> Fulfilled : fulfilled
+    Confirmed --> Cancelled : cancelled
 ```
 
 ### Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)
 
 ```mermaid
 graph TD
-    A[sn_sales_account Customer / B2B account] &#45;&#45;&#62; C[sn_sales_contact Individual at account]
-    A &#45;&#45;&#62; O[sn_sales_opportunity Deal at account]
-    C &#45;&#45;&#62; O
+    A[sn_sales_account Customer / B2B account] --> C[sn_sales_contact Individual at account]
+    A --> O[sn_sales_opportunity Deal at account]
+    C --> O
 
-    L[sn_sales_lead Prospect] &#45;&#45;&#62; O2[sn_sales_opportunity from qualified lead]
-    O &#45;&#45;&#62; Q[sn_sales_quote Quotes on opportunity]
-    Q &#45;&#45;&#62; OR[sn_sales_order Order from accepted quote]
-    Q &#45;&#45;&#62; QL[sn_sales_quote_line Line items / products]
+    L[sn_sales_lead Prospect] --> O2[sn_sales_opportunity from qualified lead]
+    O --> Q[sn_sales_quote Quotes on opportunity]
+    Q --> OR[sn_sales_order Order from accepted quote]
+    Q --> QL[sn_sales_quote_line Line items / products]
 
-    P[sn_sales_product Catalog item] &#45;&#45;&#62; QL
-    P &#45;&#45;&#62; OR2[sn_sales_order_line Ordered product lines]
+    P[sn_sales_product Catalog item] --> QL
+    P --> OR2[sn_sales_order_line Ordered product lines]
 
     style A fill:#e3f2fd,color:#000
     style O fill:#fff3e0,color:#000
@@ -490,11 +490,11 @@ graph TD
 
 ```mermaid
 graph LR
-    P1[Prospecting $1.2M] &#45;&#45;&#62; P2[Qualification $2.4M]
-    P2 &#45;&#45;&#62; P3[Proposal $1.8M]
-    P3 &#45;&#45;&#62; P4[Negotiation $0.9M]
-    P4 &#45;&#45;&#62; W[Closed Won $0.6M]
-    P4 &#45;&#45;&#62; L2[Closed Lost $0.3M]
+    P1[Prospecting $1.2M] --> P2[Qualification $2.4M]
+    P2 --> P3[Proposal $1.8M]
+    P3 --> P4[Negotiation $0.9M]
+    P4 --> W[Closed Won $0.6M]
+    P4 --> L2[Closed Lost $0.3M]
 
     style P1 fill:#c8e6c9,color:#000
     style P2 fill:#fff9c4,color:#000
@@ -508,19 +508,19 @@ graph LR
 
 ```mermaid
 graph LR
-    Opp[Opportunity] &#45;&#45;&#62; Quote[Quote/CPQ]
-    Quote &#45;&#45;&#62;|Accepted| Order[Sales Order]
-    Order &#45;&#45;&#62;|Fulfillment| Fulfill[Order Tasks]
-    Fulfill &#45;&#45;&#62;|Delivered| Service[CSM/FSM Case]
-    Service &#45;&#45;&#62;|Renewal| Opp
+    Opp[Opportunity] --> Quote[Quote/CPQ]
+    Quote -->|Accepted| Order[Sales Order]
+    Order -->|Fulfillment| Fulfill[Order Tasks]
+    Fulfill -->|Delivered| Service[CSM/FSM Case]
+    Service -->|Renewal| Opp
 
     subgraph External Systems
         ERP[ERP: SAP/NetSuite]
         Acct[Accounting: Invoices]
     end
 
-    Order &#45;&#45;&#62;|Push| ERP
-    Order &#45;&#45;&#62;|Push| Acct
+    Order -->|Push| ERP
+    Order -->|Push| Acct
 
     style Quote fill:#e1f5e1,color:#000
         style Order fill:#fce4ec,color:#000
@@ -532,17 +532,17 @@ graph LR
 
     ```mermaid
     flowchart LR
-        A[sn_sales_account<br/>Customer Account] &#45;&#45;&#62; B[sn_sales_opportunity<br/>Sales Opportunity]
-        B &#45;&#45;&#62; C[sn_sales_quote<br/>Quote/CPQ]
-        C &#45;&#45;&#62; D[sn_sales_order<br/>Sales Order]
-        D &#45;&#45;&#62; E[sn_sales_order_line<br/>Order Lines]
+        A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
+        B --> C[sn_sales_quote<br/>Quote/CPQ]
+        C --> D[sn_sales_order<br/>Sales Order]
+        D --> E[sn_sales_order_line<br/>Order Lines]
     
-        A &#45;&#45;&#62;|has primary contact| L[sn_sales_contact<br/>Contact]
-        L &#45;&#45;&#62;|influences| B
+        A -->|has primary contact| L[sn_sales_contact<br/>Contact]
+        L -->|influences| B
     
-        B &#45;&#45;&#62;|generates| C
-        C &#45;&#45;&#62;|converts to| D
-        D &#45;&#45;&#62;|contains| E
+        B -->|generates| C
+        C -->|converts to| D
+        D -->|contains| E
     
         style A fill:#e3f2fd,color:#000
         style B fill:#fff3e0,color:#000
@@ -558,16 +558,16 @@ graph LR
 
     ```mermaid
     stateDiagram-v2
-        [*] &#45;&#45;&#62; New : case created
-        New &#45;&#45;&#62; Assigned : assigned to agent
-        Assigned &#45;&#45;&#62; In Progress : work started
-        In Progress &#45;&#45;&#62; Waiting on Customer : awaiting response
-        Waiting on Customer &#45;&#45;&#62; In Progress : customer responds
-        In Progress &#45;&#45;&#62; Resolved : issue fixed
-        Resolved &#45;&#45;&#62; Closed : confirmed by customer
-        Resolved &#45;&#45;&#62; Reopened : issue recurs
-        Reopened &#45;&#45;&#62; In Progress : work resumed
-        Closed &#45;&#45;&#62; [*] : case closed
+        [*] --> New : case created
+        New --> Assigned : assigned to agent
+        Assigned --> In Progress : work started
+        In Progress --> Waiting on Customer : awaiting response
+        Waiting on Customer --> In Progress : customer responds
+        In Progress --> Resolved : issue fixed
+        Resolved --> Closed : confirmed by customer
+        Resolved --> Reopened : issue recurs
+        Reopened --> In Progress : work resumed
+        Closed --> [*] : case closed
     
         style New fill:#e3f2fd,color:#000
         style Assigned fill:#fff3e0,color:#000
@@ -655,11 +655,11 @@ Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `
 
 ```mermaid
 graph LR
-    Lead[Lead] &#45;&#45;&#62;|Qualified| Opp[Opportunity]
-    Opp &#45;&#45;&#62;|Proposal| Quote[Quote/CPQ]
-    Quote &#45;&#45;&#62;|Accepted| Order[Order]
-    Order &#45;&#45;&#62;|Fulfillment| Service[CSM/FSM Service]
-    Service &#45;&#45;&#62;|Renewal| Lead
+    Lead[Lead] -->|Qualified| Opp[Opportunity]
+    Opp -->|Proposal| Quote[Quote/CPQ]
+    Quote -->|Accepted| Order[Order]
+    Order -->|Fulfillment| Service[CSM/FSM Service]
+    Service -->|Renewal| Lead
     style Lead fill:#dfd
     style Order fill:#fdd
 ```

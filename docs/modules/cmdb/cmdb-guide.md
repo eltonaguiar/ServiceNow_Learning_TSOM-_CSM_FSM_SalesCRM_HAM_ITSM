@@ -163,19 +163,19 @@ graph TD
         sgc[Service Graph Connectors]
     end
 
-    cmdb_ci &#45;&#45;&#62; cmdb_ci_server
-    cmdb_ci &#45;&#45;&#62; cmdb_ci_appl
-    cmdb_ci &#45;&#45;&#62; cmdb_ci_database
-    cmdb_ci &#45;&#45;&#62; cmdb_ci_service
-    cmdb_ci &#45;&#45;&#62; cmdb_ci_network
+    cmdb_ci --> cmdb_ci_server
+    cmdb_ci --> cmdb_ci_appl
+    cmdb_ci --> cmdb_ci_database
+    cmdb_ci --> cmdb_ci_service
+    cmdb_ci --> cmdb_ci_network
     
     cmdb_rel_ci -.->|parent| cmdb_ci
     cmdb_rel_ci -.->|child| cmdb_ci
     
-    discovery &#45;&#45;&#62; cmdb_ci
-    import_set &#45;&#45;&#62; cmdb_ci
-    manual &#45;&#45;&#62; cmdb_ci
-    sgc &#45;&#45;&#62; cmdb_ci
+    discovery --> cmdb_ci
+    import_set --> cmdb_ci
+    manual --> cmdb_ci
+    sgc --> cmdb_ci
 
     style cmdb_ci fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
     style cmdb_rel_ci fill:#0a0d10,stroke:#e5b567
@@ -227,15 +227,15 @@ ServiceNow ships with predefined CI classes, status values, and identifier rules
 
 ```mermaid
 flowchart TD
-    A[Incoming CI Data] &#45;&#45;&#62; B{Identification Rule}
-    B &#45;&#45;&#62;|Match Found| C[CI Already Exists]
-    B &#45;&#45;&#62;|No Match| D[Create New CI]
-    C &#45;&#45;&#62; E{Reconciliation Rule}
-    E &#45;&#45;&#62;|Source Priority| F[Update CI Attributes]
-    E &#45;&#45;&#62;|No Conflict| G[No Change Needed]
-    D &#45;&#45;&#62; H[New CI in CMDB]
-    F &#45;&#45;&#62; I[CI Updated in CMDB]
-    G &#45;&#45;&#62; J[CI Unchanged]
+    A[Incoming CI Data] --> B{Identification Rule}
+    B -->|Match Found| C[CI Already Exists]
+    B -->|No Match| D[Create New CI]
+    C --> E{Reconciliation Rule}
+    E -->|Source Priority| F[Update CI Attributes]
+    E -->|No Conflict| G[No Change Needed]
+    D --> H[New CI in CMDB]
+    F --> I[CI Updated in CMDB]
+    G --> J[CI Unchanged]
     
     style B fill:#e58a8a,color:#fff
     style E fill:#e5b567,color:#000
@@ -580,23 +580,23 @@ The CMDB's business goal is to act as the single source of truth for all configu
 
 ```mermaid
 graph TD
-    SVC[Service CI] &#45;&#45;&#62;|Depends On Used By| APP[Application CI]
-    APP &#45;&#45;&#62;|Runs On Runs| WEB[Server CI]
-    APP &#45;&#45;&#62;|Depends On Used By| DB[Database CI]
+    SVC[Service CI] -->|Depends On Used By| APP[Application CI]
+    APP -->|Runs On Runs| WEB[Server CI]
+    APP -->|Depends On Used By| DB[Database CI]
 ```
 
 ### Discovery to CMDB Population Flow
 
 ```mermaid
 flowchart TD
-    DISC[Discovery Run] &#45;&#45;&#62; COL[Collection]
-    COL &#45;&#45;&#62; ID{Identified}
-    ID &#45;&#45;&#62;|No| NEW[Create CI]
-    ID &#45;&#45;&#62;|Yes| EXIST[Reconcile CI]
-    EXIST &#45;&#45;&#62; REC{Reconcile}
-    REC &#45;&#45;&#62;|Conflict| PR[Apply Source Priority]
-    REC &#45;&#45;&#62;|No Conflict| SKIP[No Change]
-    NEW &#45;&#45;&#62; REL[Create Relationships]
+    DISC[Discovery Run] --> COL[Collection]
+    COL --> ID{Identified}
+    ID -->|No| NEW[Create CI]
+    ID -->|Yes| EXIST[Reconcile CI]
+    EXIST --> REC{Reconcile}
+    REC -->|Conflict| PR[Apply Source Priority]
+    REC -->|No Conflict| SKIP[No Change]
+    NEW --> REL[Create Relationships]
 
 ### IRE Identification and Reconciliation Flow
 
@@ -628,15 +628,15 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; Development : CI created
-    Development &#45;&#45;&#62; Testing : moved to test env
-    Testing &#45;&#45;&#62; Production : deployed to prod
-    Production &#45;&#45;&#62; In Maintenance : under maintenance
-    In Maintenance &#45;&#45;&#62; Production : back in service
-    Production &#45;&#45;&#62; Retired : decommissioned
-    Development &#45;&#45;&#62; Retired : cancelled
-    Testing &#45;&#45;&#62; Retired : cancelled
-    Retired &#45;&#45;&#62; [*] : archived
+    [*] --> Development : CI created
+    Development --> Testing : moved to test env
+    Testing --> Production : deployed to prod
+    Production --> In Maintenance : under maintenance
+    In Maintenance --> Production : back in service
+    Production --> Retired : decommissioned
+    Development --> Retired : cancelled
+    Testing --> Retired : cancelled
+    Retired --> [*] : archived
 ```
 
 ---
@@ -645,13 +645,13 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    A[Discovery] &#45;&#45;&#62;|Priority 1| B[CMDB CI]
-    C[Import Set] &#45;&#45;&#62;|Priority 2| B
-    D[Manual Entry] &#45;&#45;&#62;|Priority 3| B
-    E[Integration Hub] &#45;&#45;&#62;|Priority 4| B
+    A[Discovery] -->|Priority 1| B[CMDB CI]
+    C[Import Set] -->|Priority 2| B
+    D[Manual Entry] -->|Priority 3| B
+    E[Integration Hub] -->|Priority 4| B
     
-    B &#45;&#45;&#62; F[Reconciliation Rules]
-    F &#45;&#45;&#62; G[Trusted Source Wins]
+    B --> F[Reconciliation Rules]
+    F --> G[Trusted Source Wins]
     
     style A fill:#e1f5e1,color:#000
     style B fill:#fff3e0,color:#000
@@ -665,15 +665,15 @@ graph TD
 
 ```mermaid
 flowchart LR
-    A[External System] &#45;&#45;&#62;|REST/Webhook| B[Integration Hub Spoke]
-    B &#45;&#45;&#62; C[Transform Map]
-    C &#45;&#45;&#62; D[Staging Table]
-    D &#45;&#45;&#62; E[Coalesce Match]
-    E &#45;&#45;&#62;|Match Found| F[Update Existing CI]
-    E &#45;&#45;&#62;|No Match| G[Create New CI]
-    F &#45;&#45;&#62; H[Reconciliation Rules]
-    G &#45;&#45;&#62; H
-    H &#45;&#45;&#62; I[CMDB CI Updated]
+    A[External System] -->|REST/Webhook| B[Integration Hub Spoke]
+    B --> C[Transform Map]
+    C --> D[Staging Table]
+    D --> E[Coalesce Match]
+    E -->|Match Found| F[Update Existing CI]
+    E -->|No Match| G[Create New CI]
+    F --> H[Reconciliation Rules]
+    G --> H
+    H --> I[CMDB CI Updated]
     
     style A fill:#fce4ec,color:#000
     style B fill:#e3f2fd,color:#000
@@ -793,20 +793,20 @@ This is **field-specific precedence**, not table-wide. You do NOT pick one sourc
 
 ```mermaid
 flowchart TD
-    CI[cmdb_ci_computer record] &#45;&#45;&#62; RECON{Reconciliation}
+    CI[cmdb_ci_computer record] --> RECON{Reconciliation}
 
     subgraph "Field: name"
-        SCCM[SCCM: name = WEB01] &#45;&#45;&#62; P1[Priority 100 — WINNER]
-        Soroc[Soroc: name = WEB01-ALT] &#45;&#45;&#62; P2[Priority 200 — overridden]
+        SCCM[SCCM: name = WEB01] --> P1[Priority 100 — WINNER]
+        Soroc[Soroc: name = WEB01-ALT] --> P2[Priority 200 — overridden]
     end
 
     subgraph "Field: serial_number"
-        SCCM2[SCCM: serial = SN-111] &#45;&#45;&#62; P3[Priority 100 — overridden]
-        Soroc2[Soroc: serial = SN-999] &#45;&#45;&#62; P4[Priority 200 — WINNER]
+        SCCM2[SCCM: serial = SN-111] --> P3[Priority 100 — overridden]
+        Soroc2[Soroc: serial = SN-999] --> P4[Priority 200 — WINNER]
     end
 
-    P1 &#45;&#45;&#62; FINAL[CI name = WEB01]
-    P4 &#45;&#45;&#62; FINAL2[CI serial_number = SN-999]
+    P1 --> FINAL[CI name = WEB01]
+    P4 --> FINAL2[CI serial_number = SN-999]
 
     style P1 fill:#4cc38a,color:#000
     style P4 fill:#4cc38a,color:#000
@@ -978,16 +978,16 @@ Discovery / IntegrationHub / Service Graph
 
 ```mermaid
 flowchart TD
-    IN[Incoming CI payload] &#45;&#45;&#62; IDR{1. Identification Does this CI exist?}
-    IDR &#45;&#45;&#62;|MATCH FOUND| REC[2. Reconciliation Rules Existing CIs only]
-    IDR &#45;&#45;&#62;|NO MATCH| DS[4. IRE Data Source Rules New CIs only]
-    REC &#45;&#45;&#62; RECON_EVAL{Evaluate per field: Source priority Field-specific vs Apply to all Staleness / refresh}
-    RECON_EVAL &#45;&#45;&#62; AUTHORIZED{Source authorized to update this field?}
-    AUTHORIZED &#45;&#45;&#62;|YES| UPDATE[CI updated — authorized changes committed]
-    AUTHORIZED &#45;&#45;&#62;|NO| NOCHANGE[No change — CI unchanged]
-    DS &#45;&#45;&#62; DS_CHECK{Source allowed to insert into this CI class?}
-    DS_CHECK &#45;&#45;&#62;|PERMITTED| NEWCI[New CI inserted into CMDB]
-    DS_CHECK &#45;&#45;&#62;|BLOCKED| REJECT[Insert rejected — no CI created]
+    IN[Incoming CI payload] --> IDR{1. Identification Does this CI exist?}
+    IDR -->|MATCH FOUND| REC[2. Reconciliation Rules Existing CIs only]
+    IDR -->|NO MATCH| DS[4. IRE Data Source Rules New CIs only]
+    REC --> RECON_EVAL{Evaluate per field: Source priority Field-specific vs Apply to all Staleness / refresh}
+    RECON_EVAL --> AUTHORIZED{Source authorized to update this field?}
+    AUTHORIZED -->|YES| UPDATE[CI updated — authorized changes committed]
+    AUTHORIZED -->|NO| NOCHANGE[No change — CI unchanged]
+    DS --> DS_CHECK{Source allowed to insert into this CI class?}
+    DS_CHECK -->|PERMITTED| NEWCI[New CI inserted into CMDB]
+    DS_CHECK -->|BLOCKED| REJECT[Insert rejected — no CI created]
     style IDR fill:#e58a8a,color:#fff
     style REC fill:#e5b567,color:#000
     style DS fill:#4cc38a,color:#000
@@ -1471,14 +1471,14 @@ If you have a business rule that calls IRE on every `cmdb_ci` save, it fires eve
 
 ```mermaid
 flowchart TD
-    A[Need a new CI field] &#45;&#45;&#62; B{Does every CI class need it?}
-    B &#45;&#45;&#62;|Yes| C[Put on cmdb_ci base table]
-    B &#45;&#45;&#62;|No| D{Does it describe a hardware/software model?}
-    D &#45;&#45;&#62;|Yes| E[Put on cmdb_model / cmdb_hardware_product_model]
-    D &#45;&#45;&#62;|No| F[Extend the specific CI class that needs it]
-    C &#45;&#45;&#62; G[Inherited by all subclasses; usable in IRE identification]
-    E &#45;&#45;&#62; H[Model-level attribute; not used for CI identification]
-    F &#45;&#45;&#62; I[Class-specific field; inherits from cmdb_ci]
+    A[Need a new CI field] --> B{Does every CI class need it?}
+    B -->|Yes| C[Put on cmdb_ci base table]
+    B -->|No| D{Does it describe a hardware/software model?}
+    D -->|Yes| E[Put on cmdb_model / cmdb_hardware_product_model]
+    D -->|No| F[Extend the specific CI class that needs it]
+    C --> G[Inherited by all subclasses; usable in IRE identification]
+    E --> H[Model-level attribute; not used for CI identification]
+    F --> I[Class-specific field; inherits from cmdb_ci]
     style C fill:#4cc38a,color:#000
     style E fill:#e5b567,color:#000
     style F fill:#e5b567,color:#000
@@ -1488,16 +1488,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Need a new CI class/table] &#45;&#45;&#62; B{Does it extend cmdb_ci?}
-    B &#45;&#45;&#62;|No| C[Not a CI — use a custom table, IRE does not apply]
-    B &#45;&#45;&#62;|Yes| D{Use CI Class Manager or sys_db_object Tables?}
-    D &#45;&#45;&#62;|CI Class Manager| E[All > Configuration > CI Classes > New; Extends = cmdb_ci]
-    D &#45;&#45;&#62;|sys_db_object Tables| F[All > System Definition > Tables; Extends table = cmdb_ci]
-    E &#45;&#45;&#62; G[Register in CI Class Manager]
-    F &#45;&#45;&#62; G
-    G &#45;&#45;&#62; H[Add identification rules for the new class]
-    H &#45;&#45;&#62; I[Set data source precedence / reconciliation]
-    I &#45;&#45;&#62; J[IRE observed — table is in cmdb_ci hierarchy]
+    A[Need a new CI class/table] --> B{Does it extend cmdb_ci?}
+    B -->|No| C[Not a CI — use a custom table, IRE does not apply]
+    B -->|Yes| D{Use CI Class Manager or sys_db_object Tables?}
+    D -->|CI Class Manager| E[All > Configuration > CI Classes > New; Extends = cmdb_ci]
+    D -->|sys_db_object Tables| F[All > System Definition > Tables; Extends table = cmdb_ci]
+    E --> G[Register in CI Class Manager]
+    F --> G
+    G --> H[Add identification rules for the new class]
+    H --> I[Set data source precedence / reconciliation]
+    I --> J[IRE observed — table is in cmdb_ci hierarchy]
     style J fill:#4cc38a,color:#000
     style C fill:#e58a8a,color:#fff
 ```
@@ -1506,14 +1506,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Admin edits CI form manually] &#45;&#45;&#62; B{Identifying field changed?}
-    B &#45;&#45;&#62;|No| C[Save normally — no IRE needed]
-    B &#45;&#45;&#62;|Yes| D{Invoke IRE explicitly?}
-    D &#45;&#45;&#62;|No| E[Duplicate risk — IRE never ran]
-    D &#45;&#45;&#62;|Yes| F[Identify action / Business Rule calls Identification API]
-    F &#45;&#45;&#62; G[Match found?]
-    G &#45;&#45;&#62;|Yes| H[Reconcile / update existing CI]
-    G &#45;&#45;&#62;|No| I[CI remains as-is / new CI]
+    A[Admin edits CI form manually] --> B{Identifying field changed?}
+    B -->|No| C[Save normally — no IRE needed]
+    B -->|Yes| D{Invoke IRE explicitly?}
+    D -->|No| E[Duplicate risk — IRE never ran]
+    D -->|Yes| F[Identify action / Business Rule calls Identification API]
+    F --> G[Match found?]
+    G -->|Yes| H[Reconcile / update existing CI]
+    G -->|No| I[CI remains as-is / new CI]
     style E fill:#e58a8a,color:#fff
 ```
 
@@ -1521,18 +1521,18 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Relationship data available] &#45;&#45;&#62; B{Source}
-    B &#45;&#45;&#62;|Discovery| C[Patterns infer parent/child; write cmdb_rel_ci]
-    B &#45;&#45;&#62;|Service Mapping| D[ADM patterns discover process↔CI links]
-    B &#45;&#45;&#62;|Import Set| E[Transform Map with coalesce on parent/child]
-    B &#45;&#45;&#62;|Manual| F[CI Relationships module > New]
-    B &#45;&#45;&#62;|Script/API| G[Business Rule / REST writes cmdb_rel_ci]
-    C &#45;&#45;&#62; H[cmdb_rel_ci record]
-    D &#45;&#45;&#62; H
-    E &#45;&#45;&#62; H
-    F &#45;&#45;&#62; H
-    G &#45;&#45;&#62; H
-    H &#45;&#45;&#62; I[CI-to-CI graph for impact analysis & Service Mapping]
+    A[Relationship data available] --> B{Source}
+    B -->|Discovery| C[Patterns infer parent/child; write cmdb_rel_ci]
+    B -->|Service Mapping| D[ADM patterns discover process↔CI links]
+    B -->|Import Set| E[Transform Map with coalesce on parent/child]
+    B -->|Manual| F[CI Relationships module > New]
+    B -->|Script/API| G[Business Rule / REST writes cmdb_rel_ci]
+    C --> H[cmdb_rel_ci record]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    H --> I[CI-to-CI graph for impact analysis & Service Mapping]
 ```
 
 ---

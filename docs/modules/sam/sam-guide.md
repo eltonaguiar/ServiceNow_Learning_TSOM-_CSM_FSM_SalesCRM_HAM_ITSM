@@ -130,15 +130,15 @@ stateDiagram-v2
     state "Remediate and Optimize" as Optimize
     state "Renew or Retire" as Renew
 
-    [*] &#45;&#45;&#62; Procure : Business needs software
-    Procure &#45;&#45;&#62; Entitle : PO and contract signed
-    Entitle &#45;&#45;&#62; Discover : Entitlement record created
-    Discover &#45;&#45;&#62; Reconcile : Installs and usage collected
-    Reconcile &#45;&#45;&#62; Optimize : Compliance position calculated
-    Optimize &#45;&#45;&#62; Reconcile : Reclaim or true-up applied
-    Optimize &#45;&#45;&#62; Renew : Renewal date approaching
-    Renew &#45;&#45;&#62; Procure : Contract renewed or retired
-    Renew &#45;&#45;&#62; [*] : Software retired
+    [*] --> Procure : Business needs software
+    Procure --> Entitle : PO and contract signed
+    Entitle --> Discover : Entitlement record created
+    Discover --> Reconcile : Installs and usage collected
+    Reconcile --> Optimize : Compliance position calculated
+    Optimize --> Reconcile : Reclaim or true-up applied
+    Optimize --> Renew : Renewal date approaching
+    Renew --> Procure : Contract renewed or retired
+    Renew --> [*] : Software retired
 
     note right of Entitle : License metric, quantity, contract, PO
     note right of Discover : SCCM, Intune, BigFix, SaaS connectors
@@ -157,20 +157,20 @@ This is the single most common source of confusion for new SAM administrators, a
 ```mermaid
 graph TD
     subgraph Owned
-        ENT[Entitlement] &#45;&#45;&#62; MET[Metric: per user, per core, per device]
-        ENT &#45;&#45;&#62; CON[Contract and purchase order]
+        ENT[Entitlement] --> MET[Metric: per user, per core, per device]
+        ENT --> CON[Contract and purchase order]
     end
     subgraph Observed
-        DISC[Discovery Model] &#45;&#45;&#62; NORM[Software Model]
-        INST[Installation] &#45;&#45;&#62; NORM
-        USE[Usage] &#45;&#45;&#62; INST
+        DISC[Discovery Model] --> NORM[Software Model]
+        INST[Installation] --> NORM
+        USE[Usage] --> INST
     end
     subgraph Computed
-        RECON[Reconciliation Result] &#45;&#45;&#62; POS[Compliance Position]
+        RECON[Reconciliation Result] --> POS[Compliance Position]
     end
-    ENT &#45;&#45;&#62; RECON
-    NORM &#45;&#45;&#62; RECON
-    USE &#45;&#45;&#62; RECON
+    ENT --> RECON
+    NORM --> RECON
+    USE --> RECON
     style ENT fill:#e5b567,color:#000
     style NORM fill:#4cc38a,color:#000
     style POS fill:#e58a8a,color:#fff
@@ -277,28 +277,28 @@ Compliance position = f(entitlement quantity, normalized installs, usage evidenc
 ```mermaid
 flowchart LR
     subgraph "Owned Licenses"
-        ENT[Entitlement Record] &#45;&#45;&#62;|license_metric, quantity| CONTRACT[Contract]
+        ENT[Entitlement Record] -->|license_metric, quantity| CONTRACT[Contract]
     end
     
     subgraph "Discovered Installs"
-        DISC[Discovery Model] &#45;&#45;&#62;|normalizes to| SWMODEL[Software Model]
-        INST[Installation] &#45;&#45;&#62; SWMODEL
-        USE[Usage Data] &#45;&#45;&#62; INST
+        DISC[Discovery Model] -->|normalizes to| SWMODEL[Software Model]
+        INST[Installation] --> SWMODEL
+        USE[Usage Data] --> INST
     end
     
     subgraph "Reconciliation Engine"
-        RECON[Reconciliation Job] &#45;&#45;&#62; CALC[Calculate Compliance Position]
+        RECON[Reconciliation Job] --> CALC[Calculate Compliance Position]
     end
     
-    ENT &#45;&#45;&#62; RECON
-    SWMODEL &#45;&#45;&#62; RECON
-    INST &#45;&#45;&#62; RECON
-    USE &#45;&#45;&#62; RECON
+    ENT --> RECON
+    SWMODEL --> RECON
+    INST --> RECON
+    USE --> RECON
     
-    CALC &#45;&#45;&#62;|under-licensed| UNDER[Under-Licensed Buy more or reclaim]
-    CALC &#45;&#45;&#62;|over-licensed| OVER[Over-Licensed Money wasted]
-    CALC &#45;&#45;&#62;|compliant| COMP[Compliant No action needed]
-    CALC &#45;&#45;&#62;|unlicensed| UNL[Unlicensed No entitlement found]
+    CALC -->|under-licensed| UNDER[Under-Licensed Buy more or reclaim]
+    CALC -->|over-licensed| OVER[Over-Licensed Money wasted]
+    CALC -->|compliant| COMP[Compliant No action needed]
+    CALC -->|unlicensed| UNL[Unlicensed No entitlement found]
     
     style UNDER fill:#ff6b6b,color:#fff
     style OVER fill:#ffd93d,color:#000
@@ -310,13 +310,13 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; Unlicensed: No entitlement exists
-    Unlicensed &#45;&#45;&#62; UnderLicensed: Entitlement created (partial)
-    UnderLicensed &#45;&#45;&#62; Compliant: Quantity >= demand
-    Compliant &#45;&#45;&#62; OverLicensed: Excess quantity added
-    OverLicensed &#45;&#45;&#62; Compliant: Reclamation applied
-    Compliant &#45;&#45;&#62; UnderLicensed: Demand increased, no new entitlement
-    UnderLicensed &#45;&#45;&#62; Unlicensed: All entitlements expired
+    [*] --> Unlicensed: No entitlement exists
+    Unlicensed --> UnderLicensed: Entitlement created (partial)
+    UnderLicensed --> Compliant: Quantity >= demand
+    Compliant --> OverLicensed: Excess quantity added
+    OverLicensed --> Compliant: Reclamation applied
+    Compliant --> UnderLicensed: Demand increased, no new entitlement
+    UnderLicensed --> Unlicensed: All entitlements expired
     
     note right of Unlicensed
         Zero entitlements for this model
@@ -345,35 +345,35 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    START[Reconciliation Result] &#45;&#45;&#62; CHECK{Publisher-specific rules apply?}
+    START[Reconciliation Result] --> CHECK{Publisher-specific rules apply?}
     
-    CHECK &#45;&#45;&#62;|Microsoft| MS[Microsoft Rules]
-    CHECK &#45;&#45;&#62;|Oracle| ORA[Oracle Rules]
-    CHECK &#45;&#45;&#62;|Adobe| ADO[Adobe Rules]
-    CHECK &#45;&#45;&#62;|IBM| IBM[IBM Rules]
-    CHECK &#45;&#45;&#62;|No rules| NORMAL[Normalized calculation]
+    CHECK -->|Microsoft| MS[Microsoft Rules]
+    CHECK -->|Oracle| ORA[Oracle Rules]
+    CHECK -->|Adobe| ADO[Adobe Rules]
+    CHECK -->|IBM| IBM[IBM Rules]
+    CHECK -->|No rules| NORMAL[Normalized calculation]
     
-    MS &#45;&#45;&#62; MS_RULES{Metric type?}
-    MS_RULES &#45;&#45;&#62;|Per User| MS_USER[Count named users]
-    MS_RULES &#45;&#45;&#62;|Per Device| MS_DEV[Count devices]
-    MS_RULES &#45;&#45;&#62;|Per Core| MS_CORE[Count cores × factor]
+    MS --> MS_RULES{Metric type?}
+    MS_RULES -->|Per User| MS_USER[Count named users]
+    MS_RULES -->|Per Device| MS_DEV[Count devices]
+    MS_RULES -->|Per Core| MS_CORE[Count cores × factor]
     
-    ORA &#45;&#45;&#62; ORA_RULES{Deployment type?}
-    ORA_RULES &#45;&#45;&#62;|Virtualized| ORA_VIRT[10% rule applies]
-    ORA_RULES &#45;&#45;&#62;|Physical| ORA_PHYS[Full core count]
+    ORA --> ORA_RULES{Deployment type?}
+    ORA_RULES -->|Virtualized| ORA_VIRT[10% rule applies]
+    ORA_RULES -->|Physical| ORA_PHYS[Full core count]
     
-    ADO &#45;&#45;&#62; ADO_RULES{Product line?}
-    ADO_RULES &#45;&#45;&#62;|Creative Cloud| ADO_CC[Per-seat subscription]
-    ADO_RULES &#45;&#45;&#62;|Document Cloud| ADO_DC[Per-document pricing]
+    ADO --> ADO_RULES{Product line?}
+    ADO_RULES -->|Creative Cloud| ADO_CC[Per-seat subscription]
+    ADO_RULES -->|Document Cloud| ADO_DC[Per-document pricing]
     
-    MS_USER &#45;&#45;&#62; FINAL[Compliance Position]
-    MS_DEV &#45;&#45;&#62; FINAL
-    MS_CORE &#45;&#45;&#62; FINAL
-    ORA_VIRT &#45;&#45;&#62; FINAL
-    ORA_PHYS &#45;&#45;&#62; FINAL
-    ADO_CC &#45;&#45;&#62; FINAL
-    ADO_DC &#45;&#45;&#62; FINAL
-    NORMAL &#45;&#45;&#62; FINAL
+    MS_USER --> FINAL[Compliance Position]
+    MS_DEV --> FINAL
+    MS_CORE --> FINAL
+    ORA_VIRT --> FINAL
+    ORA_PHYS --> FINAL
+    ADO_CC --> FINAL
+    ADO_DC --> FINAL
+    NORMAL --> FINAL
     
     style MS fill:#e5b567
     style ORA fill:#e5b567
@@ -388,21 +388,21 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph "SaaS Connectors"
-        M365[Microsoft 365] &#45;&#45;&#62; USAGE[Usage Data]
-        SFDC[Salesforce] &#45;&#45;&#62; USAGE
-        ADOBE[Adobe CC] &#45;&#45;&#62; USAGE
-        ZOOM[Zoom] &#45;&#45;&#62; USAGE
+        M365[Microsoft 365] --> USAGE[Usage Data]
+        SFDC[Salesforce] --> USAGE
+        ADOBE[Adobe CC] --> USAGE
+        ZOOM[Zoom] --> USAGE
     end
     
-    USAGE &#45;&#45;&#62;|seat utilization, active users| RECON[SaaS Reconciliation]
+    USAGE -->|seat utilization, active users| RECON[SaaS Reconciliation]
     
-    RECON &#45;&#45;&#62;|under-licensed| TRUEUP[True-up seats]
-    RECON &#45;&#45;&#62;|over-licensed| RECLAIM[Reclaim unused seats]
-    RECON &#45;&#45;&#62;|compliant| OPTIMIZE[Optimize allocation]
+    RECON -->|under-licensed| TRUEUP[True-up seats]
+    RECON -->|over-licensed| RECLAIM[Reclaim unused seats]
+    RECON -->|compliant| OPTIMIZE[Optimize allocation]
     
-    TRUEUP &#45;&#45;&#62; FINAL[Updated Entitlement]
-    RECLAIM &#45;&#45;&#62; FINAL
-    OPTIMIZE &#45;&#45;&#62; FINAL
+    TRUEUP --> FINAL[Updated Entitlement]
+    RECLAIM --> FINAL
+    OPTIMIZE --> FINAL
     
     style M365 fill:#0078d4,color:#fff
     style SFDC fill:#00a1e0,color:#fff

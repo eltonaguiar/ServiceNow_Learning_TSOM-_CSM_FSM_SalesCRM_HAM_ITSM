@@ -148,11 +148,11 @@ Each guide covers:
 
 ```mermaid
 graph TD
-    A[Start: Orient] &#45;&#45;&#62;|Read Glossary| B[Configure]
-    B &#45;&#45;&#62;|Set Roles/Test Record| C[Build]
-    C &#45;&#45;&#62;|Run Flow/Integration| D[Verify]
-    D &#45;&#45;&#62;|Confirm Artifact| E[Teach Back]
-    E &#45;&#45;&#62;|Write Summary| A
+    A[Start: Orient] -->|Read Glossary| B[Configure]
+    B -->|Set Roles/Test Record| C[Build]
+    C -->|Run Flow/Integration| D[Verify]
+    D -->|Confirm Artifact| E[Teach Back]
+    E -->|Write Summary| A
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style E fill:#bbf,stroke:#333,stroke-width:2px
 ```

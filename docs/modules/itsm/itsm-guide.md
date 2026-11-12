@@ -319,16 +319,16 @@ ServiceNow ships with predefined choice list values. Do not hardcode these in sc
 
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; New
-    New &#45;&#45;&#62; In Progress : Assign / Start work
-    In Progress &#45;&#45;&#62; On Hold : Waiting on third party
-    On Hold &#45;&#45;&#62; In Progress : Third party responds
-    In Progress &#45;&#45;&#62; Resolved : Fix applied
-    Resolved &#45;&#45;&#62; Closed : Close code + notes filled
-    Resolved &#45;&#45;&#62; Reopened : Issue recurs
-    Closed &#45;&#45;&#62; [*]
-    New &#45;&#45;&#62; Canceled : Duplicate / invalid
-    Canceled &#45;&#45;&#62; [*]
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
     
     note right of New: Priority = Impact × Urgency
     note right of Resolved: Requires Close Code + Close Notes
@@ -408,27 +408,27 @@ A major incident is **not** just a P1. Priority is a form value; a major inciden
 ```mermaid
 flowchart TD
     subgraph "Normal Incident"
-        N1[Incident Created] &#45;&#45;&#62; N2[Triage & Assign]
-        N2 &#45;&#45;&#62; N3[Investigate & Resolve]
-        N3 &#45;&#45;&#62; N4[Resolve & Close]
-        N4 &#45;&#45;&#62; N5[Post-incident review optional]
+        N1[Incident Created] --> N2[Triage & Assign]
+        N2 --> N3[Investigate & Resolve]
+        N3 --> N4[Resolve & Close]
+        N4 --> N5[Post-incident review optional]
     end
     
     subgraph "Major Incident"
-        M1[Incident Created] &#45;&#45;&#62; M2{Business impact = major?}
-        M2 &#45;&#45;&#62;|Yes| M3[Declare Major Incident]
-        M3 &#45;&#45;&#62; M4[MIM Workbench Opens]
-        M4 &#45;&#45;&#62; M5[Bridge Call Scheduled]
-        M5 &#45;&#45;&#62; M6[Comms Plan Executed]
-        M6 &#45;&#45;&#62; M7[Stakeholder Tasks Created]
-        M7 &#45;&#45;&#62; M8[War Room Coordination]
-        M8 &#45;&#45;&#62; M9[Resolution Applied]
-        M9 &#45;&#45;&#62; M10[Post-Incident Review Scheduled]
-        M10 &#45;&#45;&#62; M11[Lessons Learned Documented]
+        M1[Incident Created] --> M2{Business impact = major?}
+        M2 -->|Yes| M3[Declare Major Incident]
+        M3 --> M4[MIM Workbench Opens]
+        M4 --> M5[Bridge Call Scheduled]
+        M5 --> M6[Comms Plan Executed]
+        M6 --> M7[Stakeholder Tasks Created]
+        M7 --> M8[War Room Coordination]
+        M8 --> M9[Resolution Applied]
+        M9 --> M10[Post-Incident Review Scheduled]
+        M10 --> M11[Lessons Learned Documented]
     end
     
-    N2 &#45;&#45;&#62;|Low impact| N5
-    M2 &#45;&#45;&#62;|No| N1
+    N2 -->|Low impact| N5
+    M2 -->|No| N1
     
     style M3 fill:#ff6b6b,color:#fff
     style M4 fill:#ff6b6b,color:#fff
@@ -455,29 +455,29 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START[Change Request Created] &#45;&#45;&#62; TYPE{Change type?}
+    START[Change Request Created] --> TYPE{Change type?}
     
-    TYPE &#45;&#45;&#62;|Standard| STD[Pre-approved, templated]
-    TYPE &#45;&#45;&#62;|Normal| NORM[Requires assessment]
-    TYPE &#45;&#45;&#62;|Emergency| EMRG[Expedited path]
+    TYPE -->|Standard| STD[Pre-approved, templated]
+    TYPE -->|Normal| NORM[Requires assessment]
+    TYPE -->|Emergency| EMRG[Expedited path]
     
-    STD &#45;&#45;&#62; STD_APPROVE{Template exists? Low risk?}
-    STD_APPROVE &#45;&#45;&#62;|Yes| STD_EXEC[Auto-approve → Implement]
-    STD_APPROVE &#45;&#45;&#62;|No| NORM
+    STD --> STD_APPROVE{Template exists? Low risk?}
+    STD_APPROVE -->|Yes| STD_EXEC[Auto-approve → Implement]
+    STD_APPROVE -->|No| NORM
     
-    NORM &#45;&#45;&#62; CAB[CAB Review]
-    CAB &#45;&#45;&#62; CAB_DECISION{Approved?}
-    CAB_DECISION &#45;&#45;&#62;|Yes| NORM_EXEC[Implement with approval]
-    CAB_DECISION &#45;&#45;&#62;|No| REJECT[Rejected / Return for revision]
+    NORM --> CAB[CAB Review]
+    CAB --> CAB_DECISION{Approved?}
+    CAB_DECISION -->|Yes| NORM_EXEC[Implement with approval]
+    CAB_DECISION -->|No| REJECT[Rejected / Return for revision]
     
-    EMRG &#45;&#45;&#62; ECAB[ECAB (on-call subset)]
-    ECAB &#45;&#45;&#62; EMRG_DECISION{Expedited approval?}
-    EMRG_DECISION &#45;&#45;&#62;|Yes| EMRG_EXEC[Implement immediately → Retro review]
-    EMRG_DECISION &#45;&#45;&#62;|No| REJECT
+    EMRG --> ECAB[ECAB (on-call subset)]
+    ECAB --> EMRG_DECISION{Expedited approval?}
+    EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately → Retro review]
+    EMRG_DECISION -->|No| REJECT
     
-    STD_EXEC &#45;&#45;&#62; POST[Post-implementation review optional]
-    NORM_EXEC &#45;&#45;&#62; POST
-    EMRG_EXEC &#45;&#45;&#62; RETRO[Retro CAB review required within 7 days]
+    STD_EXEC --> POST[Post-implementation review optional]
+    NORM_EXEC --> POST
+    EMRG_EXEC --> RETRO[Retro CAB review required within 7 days]
     
     style STD fill:#6bcb77,color:#fff
     style STD_EXEC fill:#6bcb77,color:#fff
@@ -523,16 +523,16 @@ flowchart TD
         CHECK3[Dependency chain blocked? Upstream change not complete]
     end
     
-    CHECK1 &#45;&#45;&#62;|Yes → BLOCKED| BLOCK[Block implementation]
-    CHECK1 &#45;&#45;&#62;|No → OK| CHECK2
-    CHECK2 &#45;&#45;&#62;|Yes → BLOCKED| BLOCK
-    CHECK2 &#45;&#45;&#62;|No → OK| CHECK3
-    CHECK3 &#45;&#45;&#62;|Yes → BLOCKED| BLOCK
-    CHECK3 &#45;&#45;&#62;|No → OK| ALLOW[Allow implementation]
+    CHECK1 -->|Yes → BLOCKED| BLOCK[Block implementation]
+    CHECK1 -->|No → OK| CHECK2
+    CHECK2 -->|Yes → BLOCKED| BLOCK
+    CHECK2 -->|No → OK| CHECK3
+    CHECK3 -->|Yes → BLOCKED| BLOCK
+    CHECK3 -->|No → OK| ALLOW[Allow implementation]
     
-    BLOCK &#45;&#45;&#62; NOTIF[Notify requester: "Change blocked due to blackout/collision/dependency"]
-    NOTIF &#45;&#45;&#62; RESOLVE[Adjust schedule or wait for resolution]
-    RESOLVE &#45;&#45;&#62; CHECK1
+    BLOCK --> NOTIF[Notify requester: "Change blocked due to blackout/collision/dependency"]
+    NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
+    RESOLVE --> CHECK1
     
     style BLOCK fill:#ff6b6b,color:#fff
     style ALLOW fill:#6bcb77,color:#fff
@@ -591,11 +591,11 @@ graph TD
         kb_knowledge[kb_knowledge]
     end
 
-    task &#45;&#45;&#62; incident
-    task &#45;&#45;&#62; problem
-    task &#45;&#45;&#62; change_request
-    task &#45;&#45;&#62; change_task
-    task &#45;&#45;&#62; task_sla
+    task --> incident
+    task --> problem
+    task --> change_request
+    task --> change_task
+    task --> task_sla
     
     incident -.->|affected CI| cmdb_ci
     problem -.->|root cause CI| cmdb_ci
@@ -732,16 +732,16 @@ cmdb_ci
 ### Incident Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; New
-    New &#45;&#45;&#62; In Progress : Assign / Start work
-    In Progress &#45;&#45;&#62; On Hold : Waiting on third party
-    On Hold &#45;&#45;&#62; In Progress : Third party responds
-    In Progress &#45;&#45;&#62; Resolved : Fix applied
-    Resolved &#45;&#45;&#62; Closed : Close code + notes filled
-    Resolved &#45;&#45;&#62; Reopened : Issue recurs
-    Closed &#45;&#45;&#62; [*]
-    New &#45;&#45;&#62; Canceled : Duplicate / invalid
-    Canceled &#45;&#45;&#62; [*]
+    [*] --> New
+    New --> In Progress : Assign / Start work
+    In Progress --> On Hold : Waiting on third party
+    On Hold --> In Progress : Third party responds
+    In Progress --> Resolved : Fix applied
+    Resolved --> Closed : Close code + notes filled
+    Resolved --> Reopened : Issue recurs
+    Closed --> [*]
+    New --> Canceled : Duplicate / invalid
+    Canceled --> [*]
 
     note right of New: Priority = Impact × Urgency
     note right of Resolved: Requires Close Code + Close Notes
@@ -753,18 +753,18 @@ stateDiagram-v2
 graph TD
     subgraph "Incident"
         INC[Incident Created]
-        INC &#45;&#45;&#62; PR[Problem Identified]
+        INC --> PR[Problem Identified]
     end
     subgraph "Problem"
-        PR &#45;&#45;&#62; CR[Related Change Requested]
+        PR --> CR[Related Change Requested]
     end
     subgraph "Change"
-        CR &#45;&#45;&#62; REQ[Service Request / Catalog Item]
+        CR --> REQ[Service Request / Catalog Item]
     end
     subgraph "Request"
-        REQ &#45;&#45;&#62; FUL[Service Fulfillment]
+        REQ --> FUL[Service Fulfillment]
     end
-    FUL &#45;&#45;&#62;|Closed| INC
+    FUL -->|Closed| INC
 ```
 
 ### SLA Lifecycle and Priority Matrix
@@ -776,9 +776,9 @@ graph TD
         bre[Breached]
         clo[Closed]
     end
-    dir &#45;&#45;&#62;|Define terms| act
-    act &#45;&#45;&#62;|Breach time reached| bre
-    bre &#45;&#45;&#62;|SLA resolution / escalation| clo
+    dir -->|Define terms| act
+    act -->|Breach time reached| bre
+    bre -->|SLA resolution / escalation| clo
     
     subgraph "Priority Matrix (Impact × Urgency)"
         direction LR
@@ -788,14 +788,14 @@ graph TD
         P4[P4 - Low]
         P5[P5 - Optional]
     end
-    P1 &#45;&#45;&#62;|Impact 1×| Urg1[Urgency 1 - High]
-    P1 &#45;&#45;&#62;|Impact 1×| Urg2[Urgency 2 - Medium]
-    P2 &#45;&#45;&#62;|Impact 2×| Urg1
-    P2 &#45;&#45;&#62;|Impact 2×| Urg2
-    P3 &#45;&#45;&#62;|Impact 3×| Urg1
-    P3 &#45;&#45;&#62;|Impact 3×| Urg2
-    P4 &#45;&#45;&#62;|Impact 4×| Urg2
-    P5 &#45;&#45;&#62;|Impact 4×| Urg3
+    P1 -->|Impact 1×| Urg1[Urgency 1 - High]
+    P1 -->|Impact 1×| Urg2[Urgency 2 - Medium]
+    P2 -->|Impact 2×| Urg1
+    P2 -->|Impact 2×| Urg2
+    P3 -->|Impact 3×| Urg1
+    P3 -->|Impact 3×| Urg2
+    P4 -->|Impact 4×| Urg2
+    P5 -->|Impact 4×| Urg3
 ```
 
 ---

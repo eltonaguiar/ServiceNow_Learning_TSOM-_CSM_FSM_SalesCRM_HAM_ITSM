@@ -96,17 +96,17 @@ This guide maps to two official exam blueprints:
 
 ```mermaid
 flowchart LR
-    A[Probe] &#45;&#45;&#62; B[Classifier]
-    B &#45;&#45;&#62; C[Identifier]
-    C &#45;&#45;&#62; D[Explorer]
-    D &#45;&#45;&#62; E[Processor/Sensor]
-    E &#45;&#45;&#62; F[CMDB Updated]
+    A[Probe] --> B[Classifier]
+    B --> C[Identifier]
+    C --> D[Explorer]
+    D --> E[Processor/Sensor]
+    E --> F[CMDB Updated]
     
-    A &#45;&#45;&#62;|IP Address| A
-    B &#45;&#45;&#62;|OS Type| B
-    C &#45;&#45;&#62;|Serial Number| C
-    D &#45;&#45;&#62;|Details| D
-    E &#45;&#45;&#62;|CI Data| E
+    A -->|IP Address| A
+    B -->|OS Type| B
+    C -->|Serial Number| C
+    D -->|Details| D
+    E -->|CI Data| E
     
     style A fill:#e58a8a,color:#fff
     style B fill:#e5b567,color:#000
@@ -133,15 +133,15 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A[Monitoring Tool] &#45;&#45;&#62;|Event| B[em_event Table]
-    B &#45;&#45;&#62; C[Event Rule]
-    C &#45;&#45;&#62;|Match| D[em_alert Table]
-    C &#45;&#45;&#62;|No Match| E[Discard]
-    D &#45;&#45;&#62; F[Alert Correlation Rule]
-    F &#45;&#45;&#62;|Grouped| G[Single Alert]
-    G &#45;&#45;&#62; H[Alert Management Rule]
-    H &#45;&#45;&#62;|Create Incident| I[incident Table]
-    H &#45;&#45;&#62;|Update Existing| J[Link to Existing Incident]
+    A[Monitoring Tool] -->|Event| B[em_event Table]
+    B --> C[Event Rule]
+    C -->|Match| D[em_alert Table]
+    C -->|No Match| E[Discard]
+    D --> F[Alert Correlation Rule]
+    F -->|Grouped| G[Single Alert]
+    G --> H[Alert Management Rule]
+    H -->|Create Incident| I[incident Table]
+    H -->|Update Existing| J[Link to Existing Incident]
     
     style B fill:#e58a8a,color:#fff
     style D fill:#e5b567,color:#000
@@ -428,14 +428,14 @@ graph TD
         I[Incidents]
     end
 
-    A &#45;&#45;&#62; E
-    B &#45;&#45;&#62; E
-    C &#45;&#45;&#62; E
-    D &#45;&#45;&#62; E
-    E &#45;&#45;&#62; F
-    F &#45;&#45;&#62; G
-    G &#45;&#45;&#62; H
-    H &#45;&#45;&#62; I
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
 
     style A fill:#e1f5e1,color:#000
     style B fill:#e1f5e1,color:#000
@@ -452,14 +452,14 @@ graph TD
 
 ```mermaid
 stateDiagram-v2
-    [*] &#45;&#45;&#62; New
-    New &#45;&#45;&#62; InProgress: Acknowledged
-    InProgress &#45;&#45;&#62; Resolved: Fixed
-    Resolved &#45;&#45;&#62; Closed: Verified
-    InProgress &#45;&#45;&#62; Escalated: SLA breach
-    Escalated &#45;&#45;&#62; InProgress: Re-assigned
-    Resolved &#45;&#45;&#62; Reopened: Issue returns
-    Reopened &#45;&#45;&#62; InProgress: Work resumes
+    [*] --> New
+    New --> InProgress: Acknowledged
+    InProgress --> Resolved: Fixed
+    Resolved --> Closed: Verified
+    InProgress --> Escalated: SLA breach
+    Escalated --> InProgress: Re-assigned
+    Resolved --> Reopened: Issue returns
+    Reopened --> InProgress: Work resumes
 ```
 
 **Event/alert lifecycle states** — tracking an event from detection through resolution and closure.

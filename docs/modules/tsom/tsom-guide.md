@@ -628,13 +628,13 @@ flowchart TD
     Incident["incident one ticket the NOC works"]
     Clear["Clear device reports recovery -> alert closes"]
 
-    NMS &#45;&#45;&#62;|trap / syslog / API| Event
-    Event &#45;&#45;&#62; Rules
-    Rules &#45;&#45;&#62; Alert
-    Alert &#45;&#45;&#62; Corr
-    Corr &#45;&#45;&#62; Incident
-    Incident &#45;&#45;&#62;|resolved| Clear
-    Clear &#45;&#45;&#62; Alert
+    NMS -->|trap / syslog / API| Event
+    Event --> Rules
+    Rules --> Alert
+    Alert --> Corr
+    Corr --> Incident
+    Incident -->|resolved| Clear
+    Clear --> Alert
 
     style NMS fill:#e58a8a,color:#000
     style Event fill:#e5b567,color:#000
@@ -654,10 +654,10 @@ graph TD
     card["Card / Slot"]
     port["Port / Interface"]
 
-    svc &#45;&#45;&#62;|runs over| circuit
-    circuit &#45;&#45;&#62;|terminates at| ne
-    ne &#45;&#45;&#62;|contains| card
-    card &#45;&#45;&#62;|has| port
+    svc -->|runs over| circuit
+    circuit -->|terminates at| ne
+    ne -->|contains| card
+    card -->|has| port
 
     style svc fill:#4cc38a,color:#000
     style circuit fill:#e5b567,color:#000
@@ -675,10 +675,10 @@ flowchart TD
     Subscribers["40 subscribers affected"]
     Incident["One incident raised - not 40"]
 
-    Port &#45;&#45;&#62; Circuit
-    Circuit &#45;&#45;&#62; Service
-    Service &#45;&#45;&#62; Subscribers
-    Subscribers &#45;&#45;&#62; Incident
+    Port --> Circuit
+    Circuit --> Service
+    Service --> Subscribers
+    Subscribers --> Incident
 
     style Port fill:#e58a8a,color:#fff
     style Circuit fill:#e5b567,color:#000
