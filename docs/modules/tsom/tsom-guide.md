@@ -817,15 +817,6 @@ Fallback link: [TSM Showcase]()
 ---
 
 
-## 📺 Visual & Video Guides
-
-### TSM Showcase
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="TSM Showcase" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-
-Fallback link: [TSM Showcase]()
----
 
 ## SLAs, Dashboards & Workspaces
 
