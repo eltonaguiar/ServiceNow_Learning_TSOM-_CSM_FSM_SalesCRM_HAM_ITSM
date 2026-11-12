@@ -66,9 +66,19 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
   </div>
   <div class="card">
+    <h3>SAM</h3>
+    <p>Software Asset Management — software models and SUMN normalization, entitlements, the reconciliation engine, compliance positions, SaaS seat management, optimization/reclamation, publisher audit traps, and a full entitlement→reconciliation→compliance lab.</p>
+    <p class="meta"><a href="./docs/modules/sam/sam-guide/">Open the SAM guide</a></p>
+  </div>
+  <div class="card">
     <h3>AI</h3>
-    <p>AI-native tiers (Foundation/Advanced/Prime), Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, Now Assist Skill Kit, governance, cost management, guardrails — plus a JavaScript/Glide API reference.</p>
-    <p class="meta"><a href="./docs/modules/ai/ai-guide/">Open the AI guide</a> · <a href="./docs/modules/ai/ai-guide/#javascript-reference--glide-apis--scripting-patterns">JavaScript reference</a></p>
+    <p>AI-native tiers (Foundation/Advanced/Prime), Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, Now Assist Skill Kit, governance, cost management, and guardrails.</p>
+    <p class="meta"><a href="./docs/modules/ai/ai-guide/">Open the AI guide</a></p>
+  </div>
+  <div class="card">
+    <h3>JavaScript Reference</h3>
+    <p>Platform scripting reference — GlideRecord, GlideSystem, GlideAjax, GlideForm, GlideAggregate, GlideDateTime, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns.</p>
+    <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
   </div>
 </div>
 
@@ -138,7 +148,8 @@ Every module guide follows the same repeatable process:
 ## Additional Resources
 
 - **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, and Admin essentials
-- **[AI Platform & JavaScript Reference](./docs/modules/ai/ai-guide/)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management, and JavaScript/Glide API patterns
+- **[AI Platform Guide](./docs/modules/ai/ai-guide/)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management, and guardrails
+- **[JavaScript Reference — Glide APIs & Scripting Patterns](./docs/modules/ai/javascript-reference/)** — GlideRecord, GlideSystem, GlideAjax, GlideForm, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns
 
 - **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
 - **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos
