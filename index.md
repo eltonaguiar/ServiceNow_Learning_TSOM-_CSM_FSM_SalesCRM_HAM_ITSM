@@ -147,7 +147,7 @@ Every module guide follows the same repeatable process:
 
 ## Additional Resources
 
-- **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, and Admin essentials
+- **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
 - **[AI Platform Guide](./docs/modules/ai/ai-guide/)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management, and guardrails
 - **[JavaScript Reference — Glide APIs & Scripting Patterns](./docs/modules/ai/javascript-reference/)** — GlideRecord, GlideSystem, GlideAjax, GlideForm, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns
 

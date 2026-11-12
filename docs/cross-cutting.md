@@ -23,6 +23,14 @@
 - [CMDB Data Manager](#cmdb-data-manager)
 - [Capacity and Performance Monitoring](#capacity-and-performance-monitoring)
 - [Platform Administration](#platform-administration)
+- [Jelly — Legacy UI Pages](#jelly---legacy-ui-pages)
+- [Update Sets vs Source Control](#update-sets-vs-source-control)
+- [App Engine & Scoped Applications](#app-engine--scoped-applications)
+- [CMDB De-duplication & Health](#cmdb-de-duplication--health)
+- [Major Incident Management](#major-incident-management)
+- [Change Advisory Board (CAB) & Change Types](#change-advisory-board-cab--change-types)
+- [JDBC / ODBC via MID Server](#jdbc--odbc-via-mid-server)
+- [Platform Governance & Lead Layer](#platform-governance--lead-layer)
 - [Quiz](#quiz)
 
 ---
@@ -259,6 +267,125 @@ The "Guardrails" of the instance.
 - **ACLs (Access Control Lists):** The security layer. `Role` $	o$ `Operation` $	o$ `Table`.
 - **Cloning:** Copying Prod data back to Dev to refresh test data.
 - **System Properties:** Global variables used to control behavior without changing code.
+
+---
+
+---
+
+## Jelly — Legacy UI Pages
+
+Jelly is the older templating language behind classic UI Pages and UI Macros. It is legacy — modern UI is Service Portal / UI Builder — but it still surfaces in older UI pages and macros, so reading it matters more than writing it from scratch.
+
+| Tag family | Namespace | Purpose |
+|------------|-----------|---------|
+| **`g:` tags** | Server-side | `<g:evaluate>` runs server JavaScript; `<g:set>` sets variables |
+| **`j:` tags** | Control flow | `<j:if>`, `<j:while>` handle conditionals and loops |
+
+**Example:**
+
+```xml
+<g:evaluate var="jvar_count" expression="var gr = new GlideRecord('incident'); gr.addQuery('active', true); gr.query(); gr.getRowCount();" />
+<j:if test="${jvar_count > 100}">
+    <p>Active incidents: ${jvar_count}</p>
+</j:if>
+```
+
+**Interview framing:** Know that Jelly exists and how to read it; don't volunteer to build new UI pages in Jelly — build in Service Portal / UI Builder instead.
+
+---
+
+## Update Sets vs Source Control
+
+Two different vehicles that complement each other:
+
+| | **Update Set** | **Source Control (Git)** |
+|---|---|---|
+| **What it moves** | Configuration changes (records in `sys_update_xml`) | Scoped application metadata |
+| **Direction** | Dev → Test → Prod (instance to instance) | Branch → commit → merge (repo to repo) |
+| **Hygiene rule** | One update set per story/feature; never mix data with config | Branch per story; PR review before merge |
+| **Upgrade risk** | Skipped records during upgrades are reviewed in Upgrade History | N/A |
+
+**Key distinction:** Update sets *move changes between instances*; source control *versions the application*. They are complements, not substitutes.
+
+**Skipped records:** During an upgrade, customizations that conflict with the new release are skipped and reviewed in the Upgrade History / skipped-disposition workflow — this is the upgrade question Equitable and CAAT both circle.
+
+---
+
+## App Engine & Scoped Applications
+
+**App Engine Studio** is where a scoped application is built — its tables, forms, flows, and access are packaged under one application scope (e.g., `x_court_services`).
+
+| Concept | Meaning |
+|---------|---------|
+| **Application scope** | Protects the app: other scopes can't alter its artifacts unless access is granted |
+| **Cross-scope access** | Explicit grant allowing another scope to call a Script Include or read a table |
+| **Callee authorizes** | The *target* side (table's application access settings, or the Script Include being `Client Callable`) decides whether another scope may use it |
+| **Scoped APIs** | Restricted versions of some global APIs; not every server API is available inside a scope |
+
+**Example (City test shape):** The Toronto Court Services app lives in its own scope. When it needs to create an incident in the global ITSM scope, it either calls a cross-scope-approved Script Include or opens a record via a table configured "Accessible from: All application scopes" with create access. The **callee** authorizes the access.
+
+---
+
+## CMDB De-duplication & Health
+
+**CMDB Data Manager** retires, archives, or certifies CIs when they go stale — separate from IRE, which prevents duplicates *on ingest*.
+
+| Feature | Purpose |
+|---------|---------|
+| **Retirement Policy** | Mark CI retired after X days without Discovery update |
+| **Certification Policy** | Require owner to certify CI is still valid periodically |
+| **Archive Policy** | Move old CIs to archive table to reduce CMDB size |
+
+**De-duplication:** When IRE creates two CIs for one real asset, a **de-duplication task** is raised. The remediation merges duplicates — one CI survives (richest data / correct class), its relationships and references are repointed, the other is retired. Duplicate audits and CMDB Health surface these.
+
+**CMDB Health** — three metric families:
+- **Completeness:** required fields filled, CIs discovered
+- **Correctness:** no duplicates, no stale CIs, identification rules passing
+- **Compliance:** CIs matching certification/audit policies
+
+---
+
+## Major Incident Management
+
+A separate workbench and cadence distinct from a P1 priority:
+
+- A **Major Incident Manager** coordinates a bridge; stakeholders get proactive comms (comms plans/tasks).
+- The incident record carries a dedicated major-incident lifecycle with a post-incident review.
+- Declared based on **business impact**, not just priority fields.
+
+---
+
+## Change Advisory Board (CAB) & Change Types
+
+| Change type | Approval path | Risk |
+|-------------|---------------|------|
+| **Standard** | Pre-approved, templated | Low |
+| **Normal** | Assessed, CAB-reviewed | High |
+| **Emergency** | ECAB, expedited | High |
+
+**Lead-level point:** Most change volume should be pushed toward standard changes so CAB time is spent only on genuinely risky changes.
+
+---
+
+## JDBC / ODBC via MID Server
+
+A data source can pull from an external database over JDBC through a MID Server inside the network. The MID issues the query and returns rows into an import set for transform.
+
+**Example:** Nightly pull of court scheduling rows from an on-premise database → import set → transform map (coalesce on the case number) → the scoped app's table.
+
+---
+
+## Platform Governance & Lead Layer
+
+**Governance** = the guardrails that let many teams build on one instance without collisions: coding standards, scoped-app review, ACL review, and a platform backlog triaged like product work.
+
+**Platform roadmap:** sequenced adoption — stabilize (health, upgrades) → automate (Flow Designer, IntegrationHub) → expand (new modules/AI) — each tied to a business outcome, not a feature list.
+
+**Technical debt register:** skipped upgrade records left unreviewed, business rules doing synchronous GlideRecord calls in loops, update sets promoted without ATF coverage — named, owned, and burned down deliberately.
+
+**Upgrades:** twice-yearly family releases; the lead's job is the clone-down → skipped-record review → ATF regression → remediation cycle.
+
+**Mentoring:** code review as the teaching surface, pairing on design before build, and a definition of done the team shares (reviewed, tested, documented, deployable).
 
 ---
 

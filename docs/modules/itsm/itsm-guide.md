@@ -18,6 +18,7 @@
 - [Out-of-Box Features](#out-of-box-features)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [🔍 Process Deep Dives](#-process-deep-dives)
+  - [Incident Management](#-incident-management) · [Major Incident Management](#-major-incident-management-mim) · [Problem](#-problem-management) · [Change](#-change-management) · [Request](#-request-fulfillment) · [Knowledge](#-knowledge-management)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
@@ -26,7 +27,7 @@
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
-- [📺 Visual & Video Guides](#-visual--video-guides)
+- [Integrations for Legacy / Public-Sector Environments](#integrations-for-legacy--public-sector-environments)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#-official-learning-resources)
@@ -350,6 +351,28 @@ stateDiagram-v2
 
 🚀 **Interview Insight:** Focus on the **"Restore Service"** goal. Mention that Incident is about speed, while Problem is about the root cause.
 
+### 🚨 Major Incident Management (MIM)
+
+A major incident is **not** just a P1. Priority is a form value; a major incident is a *declared business event* with its own process, cadence, and communication obligations.
+
+| Aspect | Normal incident | Major incident |
+|--------|-----------------|----------------|
+| Who drives it | Assignment group (tier 1 → tier 2) | **Major Incident Manager** on a bridge |
+| Cadence | As tickets arrive | Fixed update cadence (e.g. every 30 min) until resolution |
+| Comms | Caller gets notifications | **Communication Plan / comms tasks** to stakeholders, execs, business owners |
+| Coordination | Within one group | Multi-team swarm; separate "candidate" tasks tracked on a child record |
+| Exit | Resolve + close | Resolve → **post-incident review** → Problem record for root cause |
+
+**Mechanics on the platform:**
+
+- A separate **Major Incident** state or field (`major_incident_state` on newer releases) tracks the declaration lifecycle.
+- **`incident.major_incident`** flag / candidate records group related P1s under one parent.
+- **Comms plans** generate stakeholder notification tasks so updates are auditable rather than ad-hoc.
+- A **bridge** (conference) is usually recorded on the record; the Manager owns the timeline.
+- Closure requires a **post-incident review** — the deliverable is "what we will change", which feeds Change or Problem.
+
+**Interview framing:** "I distinguish severity from declaration. A P1 in a single department may not be a major incident; an outage affecting a public-facing service is declared major regardless of ticket count. The Major Incident Manager owns communication cadence and the bridge, and the review output becomes a Problem record with a linked Change."
+
 ### 🧩 Problem Management
 - **Root Cause Analysis (RCA):** The process of finding the *why*.
 - **KEDB (Known Error Database):** Publishing workarounds so Incident agents can resolve tickets faster without escalating.
@@ -357,12 +380,26 @@ stateDiagram-v2
 - **Permanent Fix vs Workaround:** A workaround restores service; a permanent fix prevents recurrence.
 
 ### ⚙️ Change Management
-- **Change Types:**
-  - **Standard:** Low risk, pre-approved (e.g., monthly patching).
-  - **Normal:** Needs CAB approval, risk assessed.
-  - **Emergency:** Fixes a critical outage; approved by ECAB.
-- **CAB (Change Advisory Board):** The group that reviews and approves Normal changes.
-- **Blackout windows:** Dates where no changes are allowed (e.g., Black Friday for retail).
+
+**Change Types:**
+
+| Change type | Approval path | Risk | Typical use |
+|-------------|---------------|------|-------------|
+| **Standard** | Pre-approved, templated | Low | Monthly patching, routine config changes |
+| **Normal** | Assessed, **CAB-reviewed** | High | New deployments, infrastructure changes |
+| **Emergency** | **ECAB**, expedited | High | Fixes a critical outage in production |
+
+**CAB (Change Advisory Board):** The group that reviews and approves Normal changes. CAB membership spans IT, security, business owners, and vendors.
+
+**ECAB (Emergency CAB):** A smaller, on-call subset that can convene within minutes for Emergency changes.
+
+**Blackout windows:** Dates where no changes are allowed (e.g., Black Friday for retail, month-end for finance).
+
+**Lead-level point:** Most change volume should be pushed toward **standard changes** so CAB time is spent only on genuinely risky changes. Standard changes are pre-approved templates — if you find yourself taking the same Normal change to CAB repeatedly, promote it to Standard.
+
+**Change collision detection:** The platform checks for overlapping CIs and blackout windows when a Normal/Emergency change is submitted — this is the "conflict check" the City test asks about.
+
+**Change tasks:** Work assigned to fulfillment groups; completion of all tasks is required before the change can move to Implement.
 
 ### 📦 Request Fulfillment
 - **Catalog Item:** The "Product" the user sees.
@@ -684,26 +721,20 @@ The map establishes relationships between these layers so that if SCCM reports a
 ---
 
 
-## 📺 Visual & Video Guides
+## Integrations for Legacy / Public-Sector Environments
 
-### ITSM Demo
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+The City-of-Toronto-style test leans on **legacy integration** more than modern spokes. The full treatment lives in [Cross-Cutting Platform Skills](../../cross-cutting.md); the short version:
 
-Fallback link: [ITSM Demo]()
+| Pattern | How it works | Where it's configured |
+|---------|--------------|----------------------|
+| **JDBC / ODBC data source** | ServiceNow pulls rows from an external SQL/Oracle DB over JDBC, executed by a **MID Server** inside the network → lands in an **import set** → transform map coalesces into the target table | All > System Import Sets > **Data Sources** |
+| **SOAP web service** | ServiceNow consumes a legacy SOAP endpoint with basic auth / WS-Security; MID Server for on-prem endpoints | All > System Web Services > **Outbound SOAP** |
+| **Flat-file transfer** | Nightly file drop picked up by a MID Server probe, parsed into an import set | All > System Import Sets > **Load Data** (file) |
+| **REST Message** | Modern outbound; OAuth 2.0 preferred, basic auth still common in legacy vendors | All > Outbound > **REST Message** |
+| **Flow Designer vs Workflow** | Flow Designer is the current no-code/low-code engine (flows, subflows, actions, spokes). Workflow Studio is the legacy graphical engine — you maintain it, you don't start new work in it | All > Process Automation > **Flow Designer** |
 
----
+**Data migration shape:** import set (staging) → transform map (field maps, transform scripts, **coalesce** on the legacy key) → target table. Coalesce is the duplicate-prevention mechanism: matching record = update, no match = insert.
 
-
-## 📺 Visual & Video Guides
-
-### ITSM Demo
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="ITSM Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-
-Fallback link: [ITSM Demo]()
 ---
 
 ## SLAs, Dashboards & Workspaces
