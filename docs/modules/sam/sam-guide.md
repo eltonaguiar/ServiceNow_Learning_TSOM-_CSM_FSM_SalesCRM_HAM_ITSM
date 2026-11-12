@@ -750,17 +750,19 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 ### Official videos
 
-- [ServiceNow Community — YouTube channel](https://www.youtube.com/@ServiceNowCommunity) — official ServiceNow Community channel with SAM/ITAM playlists and videos
+**Official ServiceNow channels** (browse for SAM/ITAM content):
+
 - [ServiceNow — YouTube channel](https://www.youtube.com/@ServiceNow/videos) — official ServiceNow product videos and how-to guides
-- [ServiceNow Community — video library](https://community.servicenow.com/community) — ServiceNow Community video section
+- [ServiceNow Community — YouTube channel](https://www.youtube.com/@ServiceNowCommunity) — official Community channel with SAM/ITAM playlists and how-to clinics
 
-### Official ServiceNow SAM Videos & Playlists
+**ServiceNow-official playlists:**
 
-These are the official ServiceNow-curated video playlists for SAM:
+- [Ask a Ranger: Software Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4zdMtBnktGnnoH_higJEN0) — ServiceNow Community 10-part Ask a Ranger series covering SAM fundamentals, reconciliation, entitlements, and compliance positions
+- [ITAM Talks](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7FAV6w-4SlOtEStyHylK5b) — ServiceNow Community ITAM Talks series with SAM-focused sessions
 
-- [ServiceNow Community — Ask a Ranger: Software Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4zdMtBnktGnnoH_higJEN0) — 10-part Ask a Ranger series covering SAM fundamentals, reconciliation, entitlements, and compliance positions
-- [ServiceNow Community — ITAM Talks](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7FAV6w-4SlOtEStyHylK5b) — ITAM Talks series with SAM-focused sessions
-- [Software Asset Management (CIS-SAM) — playlist](https://www.youtube.com/playlist?list=PL4_OpwAooZqR1vH_XCzuu88BkJCVvnTmO) — CIS-SAM exam prep and key concept reviews *(third-party channel, not ServiceNow-official)*
+**Third-party playlist (not ServiceNow-official — useful for CIS-SAM exam prep):**
+
+- [Software Asset Management (CIS-SAM)](https://www.youtube.com/playlist?list=PL4_OpwAooZqR1vH_XCzuu88BkJCVvnTmO) — exam prep and key concept reviews
 
 Individual official videos, in suggested watch order:
 
