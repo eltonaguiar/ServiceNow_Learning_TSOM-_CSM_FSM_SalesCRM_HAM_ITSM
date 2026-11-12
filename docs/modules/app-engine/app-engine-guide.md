@@ -186,13 +186,13 @@ App Engine / Creator is measured on development speed, quality, and reuse — th
 
 ```mermaid
 graph TD
-    D[Data Experience<br/>Tables, columns, relationships] --> P[Process Experience<br/>Flows, subflows, approvals]
-    P --> E[Experience Experience<br/>Portals, Workspaces, Mobile]
-    E --> S[Security Experience<br/>Roles, ACLs, policies]
+    D[Data Experience Tables, columns, relationships] --> P[Process Experience Flows, subflows, approvals]
+    P --> E[Experience Experience Portals, Workspaces, Mobile]
+    E --> S[Security Experience Roles, ACLs, policies]
     S --> D
 
     subgraph Output
-        O[Scoped App<br/>x_ namespace, App Repo package]
+        O[Scoped App x_ namespace, App Repo package]
     end
 
     D --> O
@@ -210,11 +210,11 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Trig[Trigger<br/>Record Created / Scheduled / API] --> Cond{Condition?}
-    Cond -->|Yes| Act1[Action 1<br/>Update record]
-    Act1 --> Act2[Action 2<br/>Send email]
-    Act2 --> Sub[Subflow<br/>Reusable chunk]
-    Sub --> Act3[Action 3<br/>IntegrationHub spoke]
+    Trig[Trigger Record Created / Scheduled / API] --> Cond{Condition?}
+    Cond -->|Yes| Act1[Action 1 Update record]
+    Act1 --> Act2[Action 2 Send email]
+    Act2 --> Sub[Subflow Reusable chunk]
+    Sub --> Act3[Action 3 IntegrationHub spoke]
     Act3 --> Done[Record updated]
     Cond -->|No| Skip[Skip branch]
 
@@ -227,10 +227,10 @@ flowchart TD
 
 ```mermaid
 graph LR
-    Dev[Dev instance<br/>AES build] --> Repo[Application Repository<br/>Publish version]
-    Repo --> Test[Test instance<br/>Install + verify]
-    Test --> Staging[Staging instance<br/>UAT]
-    Staging --> Prod[Production instance<br/>Install from App Repo]
+    Dev[Dev instance AES build] --> Repo[Application Repository Publish version]
+    Repo --> Test[Test instance Install + verify]
+    Test --> Staging[Staging instance UAT]
+    Staging --> Prod[Production instance Install from App Repo]
 
     style Prod fill:#ffebee,color:#000
     style Repo fill:#e3f2fd,color:#000
@@ -240,7 +240,7 @@ graph LR
 
 ```mermaid
 graph TD
-    Page[Workspace Page<br/>JSON config] --> Panel1[Panel: List]
+    Page[Workspace Page JSON config] --> Panel1[Panel: List]
     Page --> Panel2[Panel: Form]
     Page --> Panel3[Panel: Detail]
 
@@ -260,10 +260,10 @@ graph TD
 
 ```mermaid
 graph LR
-    AES[App Engine Studio<br/>Workbench] --> IDE[IDE: VS Code / IntelliJ]
-    DM[Data Model<br/>Tables & columns] --> SQL[SQL / Schema]
-    FD[Flow Designer<br/>Logic & process] --> JS[JavaScript / Python]
-    UB[UI Builder<br/>Screens & portals] --> HTML[HTML / CSS / React]
+    AES[App Engine Studio Workbench] --> IDE[IDE: VS Code / IntelliJ]
+    DM[Data Model Tables & columns] --> SQL[SQL / Schema]
+    FD[Flow Designer Logic & process] --> JS[JavaScript / Python]
+    UB[UI Builder Screens & portals] --> HTML[HTML / CSS / React]
 
     style AES fill:#e3f2fd,color:#000
     style FD fill:#fff3e0,color:#000

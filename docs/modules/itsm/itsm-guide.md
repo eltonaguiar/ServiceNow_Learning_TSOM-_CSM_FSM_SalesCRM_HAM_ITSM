@@ -415,7 +415,7 @@ flowchart TD
     end
     
     subgraph "Major Incident"
-        M1[Incident Created] --> M2{Business impact<br/>= major?}
+        M1[Incident Created] --> M2{Business impact = major?}
         M2 -->|Yes| M3[Declare Major Incident]
         M3 --> M4[MIM Workbench Opens]
         M4 --> M5[Bridge Call Scheduled]
@@ -461,7 +461,7 @@ flowchart TD
     TYPE -->|Normal| NORM[Requires assessment]
     TYPE -->|Emergency| EMRG[Expedited path]
     
-    STD --> STD_APPROVE{Template exists?<br/>Low risk?}
+    STD --> STD_APPROVE{Template exists? Low risk?}
     STD_APPROVE -->|Yes| STD_EXEC[Auto-approve → Implement]
     STD_APPROVE -->|No| NORM
     
@@ -518,9 +518,9 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph "Pre-Implementation Checks"
-        CHECK1[Change start time within<br/>blackout window?]
-        CHECK2[CI collision detected?<br/>Same CI, overlapping windows]
-        CHECK3[Dependency chain blocked?<br/>Upstream change not complete]
+        CHECK1[Change start time within blackout window?]
+        CHECK2[CI collision detected? Same CI, overlapping windows]
+        CHECK3[Dependency chain blocked? Upstream change not complete]
     end
     
     CHECK1 -->|Yes → BLOCKED| BLOCK[Block implementation]
@@ -530,7 +530,7 @@ flowchart TD
     CHECK3 -->|Yes → BLOCKED| BLOCK
     CHECK3 -->|No → OK| ALLOW[Allow implementation]
     
-    BLOCK --> NOTIF[Notify requester:<br/>"Change blocked due to<br/>blackout/collision/dependency"]
+    BLOCK --> NOTIF[Notify requester: "Change blocked due to blackout/collision/dependency"]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
     RESOLVE --> CHECK1
     

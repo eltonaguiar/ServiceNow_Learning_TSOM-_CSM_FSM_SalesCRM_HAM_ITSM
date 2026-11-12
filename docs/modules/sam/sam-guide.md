@@ -295,10 +295,10 @@ flowchart LR
     INST --> RECON
     USE --> RECON
     
-    CALC -->|under-licensed| UNDER[Under-Licensed<br/>Buy more or reclaim]
-    CALC -->|over-licensed| OVER[Over-Licensed<br/>Money wasted]
-    CALC -->|compliant| COMP[Compliant<br/>No action needed]
-    CALC -->|unlicensed| UNL[Unlicensed<br/>No entitlement found]
+    CALC -->|under-licensed| UNDER[Under-Licensed Buy more or reclaim]
+    CALC -->|over-licensed| OVER[Over-Licensed Money wasted]
+    CALC -->|compliant| COMP[Compliant No action needed]
+    CALC -->|unlicensed| UNL[Unlicensed No entitlement found]
     
     style UNDER fill:#ff6b6b,color:#fff
     style OVER fill:#ffd93d,color:#000
@@ -345,7 +345,7 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    START[Reconciliation Result] --> CHECK{Publisher-specific<br/>rules apply?}
+    START[Reconciliation Result] --> CHECK{Publisher-specific rules apply?}
     
     CHECK -->|Microsoft| MS[Microsoft Rules]
     CHECK -->|Oracle| ORA[Oracle Rules]

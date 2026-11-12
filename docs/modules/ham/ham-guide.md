@@ -130,14 +130,14 @@ stateDiagram-v2
 graph TD
     subgraph "Hardware Asset (alm_asset)"
         asset[Asset Record]
-        asset -->|tracks| financial[Financial Data<br/>Cost, PO, Contract, Depreciation]
-        asset -->|tracks| assignment[Assignment<br/>User, Location, Department]
+        asset -->|tracks| financial[Financial Data Cost, PO, Contract, Depreciation]
+        asset -->|tracks| assignment[Assignment User, Location, Department]
     end
     
     subgraph "Configuration Item (cmdb_ci)"
         ci[CI Record]
-        ci -->|tracks| technical[Technical Data<br/>OS, IP, Serial, CPU, RAM]
-        ci -->|tracks| relationships[Relationships<br/>Runs on, Depends on, Connected to]
+        ci -->|tracks| technical[Technical Data OS, IP, Serial, CPU, RAM]
+        ci -->|tracks| relationships[Relationships Runs on, Depends on, Connected to]
     end
     
     subgraph "The Link"
@@ -507,8 +507,8 @@ graph TD
 flowchart TD
     subgraph "HAM — Hardware Asset Management"
         HAM[Asset Record] -->|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
-        HAM --> FIN[Financial Data<br/>Cost, PO, Contract, Depreciation]
-        HAM --> ASG[Assignment Data<br/>User, Location, Department]
+        HAM --> FIN[Financial Data Cost, PO, Contract, Depreciation]
+        HAM --> ASG[Assignment Data User, Location, Department]
     end
     
     subgraph "ITAM — IT Asset Management (umbrella)"
@@ -518,9 +518,9 @@ flowchart TD
     end
     
     subgraph "CMDB — Configuration Management Database"
-        CMDB --> TEC[Technical Data<br/>OS, IP Address, Serial Number]
-        CMDB --> REL[Relationships<br/>Runs On, Depends On, Connected To]
-        CMDB --> SERVICES[Business Services<br/>Mapped via CSDM]
+        CMDB --> TEC[Technical Data OS, IP Address, Serial Number]
+        CMDB --> REL[Relationships Runs On, Depends On, Connected To]
+        CMDB --> SERVICES[Business Services Mapped via CSDM]
     end
     
     HAM -.->|Financial view| ITAM

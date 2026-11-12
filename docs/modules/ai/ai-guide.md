@@ -129,19 +129,19 @@ ServiceNow AI is built as a layered stack. Each layer depends on the quality of 
 ```mermaid
 graph TD
     subgraph "Layer 4: Agentic AI (Prime/Advanced)"
-        A[AI Agents<br/>Incident Triage,<br>Resolution Agent]
+        A[AI Agents Incident Triage, Resolution Agent]
     end
     subgraph "Layer 3: Virtual Agent (All tiers)"
-        B[Conversational AI<br/>Deflection,<br>Self-service]
+        B[Conversational AI Deflection, Self-service]
     end
     subgraph "Layer 2: Generative AI — Now Assist (All tiers)"
-        C[Summarization,<br>Drafting,<br>Resolution Notes,<br>KB Generation]
+        C[Summarization, Drafting, Resolution Notes, KB Generation]
     end
     subgraph "Layer 1: Predictive Intelligence (All tiers)"
-        D[Classification,<br>Similarity,<br>Regression,<br>Clustering]
+        D[Classification, Similarity, Regression, Clustering]
     end
     subgraph "Foundation: Data & Platform"
-        E[CMDB,<br>Clean Data,<br>Workflow Data Fabric,<br>RaptorDB]
+        E[CMDB, Clean Data, Workflow Data Fabric, RaptorDB]
     end
 
     E --> D
@@ -856,10 +856,10 @@ ServiceNow AI is measured on adoption, quality, cost control, and business outco
 
 ```mermaid
 graph TD
-    F["Foundation Layer<br/>Clean Data, CMDB, Workflow Data Fabric, RaptorDB"] --> P["Predictive Intelligence<br/>Classification, Similarity, Regression, Clustering"]
-    P --> G["Generative AI — Now Assist<br/>Summarization, Drafting, KB Generation, Code"]
-    G --> V["Virtual Agent<br/>Conversational AI, Deflection, NLU"]
-    V --> A["Agentic AI<br/>AI Agents, Multi-step Execution, Orchestrator"]
+    F["Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB"] --> P["Predictive Intelligence Classification, Similarity, Regression, Clustering"]
+    P --> G["Generative AI — Now Assist Summarization, Drafting, KB Generation, Code"]
+    G --> V["Virtual Agent Conversational AI, Deflection, NLU"]
+    V --> A["Agentic AI AI Agents, Multi-step Execution, Orchestrator"]
 
     style F fill:#e1f5e1,color:#000
     style P fill:#fff3e0,color:#000
@@ -872,12 +872,12 @@ graph TD
 
 ```mermaid
 flowchart LR
-    Rec[Record: Incident] --> Skill[Now Assist Skill<br/>e.g., Summarize]
-    Skill -->|Grounded prompt + tools| LLM[LLM Provider<br/>Now LLM / Azure OpenAI / etc.]
+    Rec[Record: Incident] --> Skill[Now Assist Skill e.g., Summarize]
+    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc.]
     LLM -->|Generated output| Out[Draft: Summary / Note / Reply]
     Out --> Agent[Human Agent reviews]
     Agent -->|Edits & saves| Rec2[Record updated]
-    Out -->|Rejected / unsafe| Guardian[AI Guardian<br/>Offensiveness / Prompt Injection]
+    Out -->|Rejected / unsafe| Guardian[AI Guardian Offensiveness / Prompt Injection]
     Guardian -->|block + log| Alert[Control Tower Audit]
 
     style LLM fill:#e3f2fd,color:#000
@@ -888,8 +888,8 @@ flowchart LR
 
 ```mermaid
 graph TD
-    Hist["Historical Records<br/>30K–300K clean rows"] --> Train[Model Training Service]
-    Train --> Model[Predictive Model<br/>Classification / Similarity]
+    Hist["Historical Records 30K–300K clean rows"] --> Train[Model Training Service]
+    Train --> Model[Predictive Model Classification / Similarity]
     Model --> Deploy[Activate model]
     Deploy --> New[New Incident / Case]
     New --> Predict{Predictive call}
@@ -898,7 +898,7 @@ graph TD
     Sim --> Agent[Agent reviews matches]
     Assign --> Agent
     Agent --> Close[Close / update record]
-    Close --> Feed[(Feedback loop<br/>improves model)]
+    Close --> Feed[(Feedback loop improves model)]
 
     style Model fill:#fff3e0,color:#000
     style Feed fill:#e1f5e1,color:#000
@@ -908,16 +908,16 @@ graph TD
 
 ```mermaid
 graph TD
-    Orch[AI Agent Orchestrator<br/>ReAct + Route scheduling] --> A1[Agent A<br/>Read incident]
-    Orch --> A2[Agent B<br/>Find similar incidents]
-    Orch --> A3[Agent C<br/>Search KB]
-    Orch --> A4[Agent D<br/>Check recent changes]
+    Orch[AI Agent Orchestrator ReAct + Route scheduling] --> A1[Agent A Read incident]
+    Orch --> A2[Agent B Find similar incidents]
+    Orch --> A3[Agent C Search KB]
+    Orch --> A4[Agent D Check recent changes]
 
     A1 --> Merge[Context package]
     A2 --> Merge
     A3 --> Merge
     A4 --> Merge
-    Merge --> Panel[Now Assist Panel<br/>Triage summary + recommendation]
+    Merge --> Panel[Now Assist Panel Triage summary + recommendation]
     Panel --> Human{Human approves?}
     Human -->|Yes| Exec[Execute flow / runbook]
     Human -->|No| Draft[Keep as draft]
@@ -935,13 +935,13 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Invoke[Skill/Agent invoked] --> Meter[Assist Metering<br/>+1 Assist]
+    Invoke[Skill/Agent invoked] --> Meter[Assist Metering +1 Assist]
     Meter --> Quota[(Monthly quota)]
     Quota --> Check{Threshold?}
     Check -->|50%| Alert1[Email/Slack alert]
     Check -->|80%| Alert2[Escalate to CoE]
     Check -->|95%| Alert3[Auto-top-up or throttle]
-    Check -->|Exhausted| Block[Skills stop working<br/>Predictions fail]
+    Check -->|Exhausted| Block[Skills stop working Predictions fail]
     Check -->|OK| Continue[Continue normally]
 
     style Block fill:#ffebee,color:#000

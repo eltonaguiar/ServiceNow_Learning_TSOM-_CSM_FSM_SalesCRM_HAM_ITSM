@@ -102,28 +102,28 @@ When people say "Import Sets / Queues" in integration pattern discussions, they 
 flowchart TD
     A[Integration Requirement] --> B{Need immediate response?}
     
-    B -->|Yes| C{External system fast<br/>and reliable?}
+    B -->|Yes| C{External system fast and reliable?}
     B -->|No| D[Use Asynchronous Pattern]
     
-    C -->|Yes| E[Synchronous REST<br/>RESTMessageV2.execute()]
+    C -->|Yes| E[Synchronous REST RESTMessageV2.execute()]
     C -->|No| D
     
-    D --> F{Data source on-prem<br/>behind firewall?}
+    D --> F{Data source on-prem behind firewall?}
     
-    F -->|Yes| G[MID Server + ECC Queue<br/>Asynchronous]
+    F -->|Yes| G[MID Server + ECC Queue Asynchronous]
     F -->|No| H{Bulk data load?}
     
-    H -->|Yes| I[Import Sets<br/>Staging → Transform Map → Target]
-    H -->|No| J{Cloud-to-cloud<br/>SaaS integration?}
+    H -->|Yes| I[Import Sets Staging → Transform Map → Target]
+    H -->|No| J{Cloud-to-cloud SaaS integration?}
     
-    J -->|Yes| K[REST Message executeAsync()<br/>or Integration Hub Flow]
-    J -->|No| L[Scripted REST API<br/>or Integration Hub]
+    J -->|Yes| K[REST Message executeAsync() or Integration Hub Flow]
+    J -->|No| L[Scripted REST API or Integration Hub]
     
-    E --> M[Set appropriate timeout<br/>Handle errors gracefully]
-    G --> N[MID Server polls ECC Queue<br/>Results returned asynchronously]
-    I --> O[Transform Map with coalesce<br/>Run transform asynchronously]
-    K --> P[Flow returns immediately<br/>Processing in background]
-    L --> Q[Custom endpoint<br/>Request/Response handling]
+    E --> M[Set appropriate timeout Handle errors gracefully]
+    G --> N[MID Server polls ECC Queue Results returned asynchronously]
+    I --> O[Transform Map with coalesce Run transform asynchronously]
+    K --> P[Flow returns immediately Processing in background]
+    L --> Q[Custom endpoint Request/Response handling]
     
     style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     style E fill:#fff3e0,stroke:#e65100,stroke-width:2px

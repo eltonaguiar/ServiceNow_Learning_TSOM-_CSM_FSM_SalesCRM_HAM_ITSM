@@ -170,23 +170,23 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Application Service"
-        svc[Online Banking Service<br/>cmdb_ci_service_discovered]
+        svc[Online Banking Service cmdb_ci_service_discovered]
     end
     
     subgraph "Web Tier"
         f5[F5 Load Balancer]
-        web[WEB01 - IIS<br/>cmdb_ci_appl]
-        web_server[WEB01 Host<br/>cmdb_ci_server]
+        web[WEB01 - IIS cmdb_ci_appl]
+        web_server[WEB01 Host cmdb_ci_server]
     end
     
     subgraph "Application Tier"
-        app[APP01 - Tomcat<br/>cmdb_ci_appl]
-        app_server[APP01 Host<br/>cmdb_ci_server]
+        app[APP01 - Tomcat cmdb_ci_appl]
+        app_server[APP01 Host cmdb_ci_server]
     end
     
     subgraph "Database Tier"
-        db[DB01 - SQL Server<br/>cmdb_ci_appl]
-        db_server[DB01 Host<br/>cmdb_ci_server]
+        db[DB01 - SQL Server cmdb_ci_appl]
+        db_server[DB01 Host cmdb_ci_server]
     end
 
     svc --> f5
@@ -337,13 +337,13 @@ ServiceNow ships with predefined discovery methods and service states. Verify ag
 
 ```mermaid
 flowchart TD
-    Entry["Entry Point<br/>URL / hostname / IP<br/>e.g. online.mybank.com"]
-    Service["Application Service<br/>cmdb_ci_service_discovered<br/>state = Published"]
-    MID["MID Server<br/>discovers the host behind the entry point"]
-    Pattern["Pattern-Based Discovery<br/>identifies IIS, Tomcat, SQL Server..."]
-    Dep["Follow Outbound Dependencies<br/>10.10.2.30:8080 -> 10.10.3.40:1433"]
-    Rel["cmdb_rel_ci Relationships<br/>Runs on · Depends on · Connects to"]
-    Map["Service Map<br/>graphical dependency view"]
+    Entry["Entry Point URL / hostname / IP e.g. online.mybank.com"]
+    Service["Application Service cmdb_ci_service_discovered state = Published"]
+    MID["MID Server discovers the host behind the entry point"]
+    Pattern["Pattern-Based Discovery identifies IIS, Tomcat, SQL Server..."]
+    Dep["Follow Outbound Dependencies 10.10.2.30:8080 -> 10.10.3.40:1433"]
+    Rel["cmdb_rel_ci Relationships Runs on · Depends on · Connects to"]
+    Map["Service Map graphical dependency view"]
 
     Entry --> Service
     Service --> MID
@@ -364,14 +364,14 @@ flowchart TD
 
 ```mermaid
 graph TD
-    svc[Online Banking Service<br/>cmdb_ci_service_discovered]
+    svc[Online Banking Service cmdb_ci_service_discovered]
     f5[F5 Load Balancer]
-    web["WEB01 - IIS<br/>cmdb_ci_appl"]
-    webhost[WEB01 Host<br/>cmdb_ci_server]
-    app["APP01 - Tomcat<br/>cmdb_ci_appl"]
-    apphost[APP01 Host<br/>cmdb_ci_server]
-    db["DB01 - SQL Server<br/>cmdb_ci_appl"]
-    dbhost[DB01 Host<br/>cmdb_ci_server]
+    web["WEB01 - IIS cmdb_ci_appl"]
+    webhost[WEB01 Host cmdb_ci_server]
+    app["APP01 - Tomcat cmdb_ci_appl"]
+    apphost[APP01 Host cmdb_ci_server]
+    db["DB01 - SQL Server cmdb_ci_appl"]
+    dbhost[DB01 Host cmdb_ci_server]
 
     svc --> f5
     f5 --> web

@@ -468,17 +468,17 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    A[sn_sales_account<br/>Customer / B2B account] --> C[sn_sales_contact<br/>Individual at account]
-    A --> O[sn_sales_opportunity<br/>Deal at account]
+    A[sn_sales_account Customer / B2B account] --> C[sn_sales_contact Individual at account]
+    A --> O[sn_sales_opportunity Deal at account]
     C --> O
 
-    L[sn_sales_lead<br/>Prospect] --> O2[sn_sales_opportunity<br/>from qualified lead]
-    O --> Q[sn_sales_quote<br/>Quotes on opportunity]
-    Q --> OR[sn_sales_order<br/>Order from accepted quote]
-    Q --> QL[sn_sales_quote_line<br/>Line items / products]
+    L[sn_sales_lead Prospect] --> O2[sn_sales_opportunity from qualified lead]
+    O --> Q[sn_sales_quote Quotes on opportunity]
+    Q --> OR[sn_sales_order Order from accepted quote]
+    Q --> QL[sn_sales_quote_line Line items / products]
 
-    P[sn_sales_product<br/>Catalog item] --> QL
-    P --> OR2[sn_sales_order_line<br/>Ordered product lines]
+    P[sn_sales_product Catalog item] --> QL
+    P --> OR2[sn_sales_order_line Ordered product lines]
 
     style A fill:#e3f2fd,color:#000
     style O fill:#fff3e0,color:#000
@@ -490,11 +490,11 @@ graph TD
 
 ```mermaid
 graph LR
-    P1[Prospecting<br/>$1.2M] --> P2[Qualification<br/>$2.4M]
-    P2 --> P3[Proposal<br/>$1.8M]
-    P3 --> P4[Negotiation<br/>$0.9M]
-    P4 --> W[Closed Won<br/>$0.6M]
-    P4 --> L2[Closed Lost<br/>$0.3M]
+    P1[Prospecting $1.2M] --> P2[Qualification $2.4M]
+    P2 --> P3[Proposal $1.8M]
+    P3 --> P4[Negotiation $0.9M]
+    P4 --> W[Closed Won $0.6M]
+    P4 --> L2[Closed Lost $0.3M]
 
     style P1 fill:#c8e6c9,color:#000
     style P2 fill:#fff9c4,color:#000

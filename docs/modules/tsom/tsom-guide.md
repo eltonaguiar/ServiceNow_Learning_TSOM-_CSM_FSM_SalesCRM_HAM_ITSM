@@ -620,13 +620,13 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS["NMS / EMS / OSS<br/>Nokia · Ericsson · Cisco · ..."]
-    Event["em_event<br/>raw observation - something happened"]
-    Rules["Event Rules<br/>filter, map severity, assign CI"]
-    Alert["em_alert<br/>scored, de-duplicated, attached to a CI"]
-    Corr["Alert Correlation<br/>400 port-down -> 1 circuit-down"]
-    Incident["incident<br/>one ticket the NOC works"]
-    Clear["Clear<br/>device reports recovery -> alert closes"]
+    NMS["NMS / EMS / OSS Nokia · Ericsson · Cisco · ..."]
+    Event["em_event raw observation - something happened"]
+    Rules["Event Rules filter, map severity, assign CI"]
+    Alert["em_alert scored, de-duplicated, attached to a CI"]
+    Corr["Alert Correlation 400 port-down -> 1 circuit-down"]
+    Incident["incident one ticket the NOC works"]
+    Clear["Clear device reports recovery -> alert closes"]
 
     NMS -->|trap / syslog / API| Event
     Event --> Rules
@@ -648,9 +648,9 @@ flowchart TD
 
 ```mermaid
 graph TD
-    svc["Customer Service<br/>Voice / Data / VPN<br/>cmdb_ci_service"]
-    circuit["Circuit<br/>fibre / MPLS / leased line"]
-    ne["Network Element<br/>router / switch / OLT<br/>(Optical Line Terminal)"]
+    svc["Customer Service Voice / Data / VPN cmdb_ci_service"]
+    circuit["Circuit fibre / MPLS / leased line"]
+    ne["Network Element router / switch / OLT (Optical Line Terminal)"]
     card["Card / Slot"]
     port["Port / Interface"]
 

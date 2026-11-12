@@ -954,7 +954,7 @@ The "Other" systems (Boomi, UKG, legacy AS/400, ITIL, Agile) are measured on int
 ```mermaid
 graph LR
     SN[ServiceNow] -->|REST Message / Outbound| Boomi[Boomi AtomSphere]
-    Boomi -->|ServiceNow Connector| SN2[ServiceNow<br/>Inbound REST API]
+    Boomi -->|ServiceNow Connector| SN2[ServiceNow Inbound REST API]
     Boomi -->|Process + Map| Salesforce[Salesforce]
     Boomi -->|Process + Map| SAP[SAP]
     Boomi -->|Process + Map| NetSuite[NetSuite]
@@ -972,11 +972,11 @@ graph LR
 
 ```mermaid
 flowchart TD
-    UKG[UKG Dimensions<br/>timecard approved] -->|Webhook| API[ServiceNow Inbound REST API]
-    API --> BR[Business Rule<br/>map UKG fields]
+    UKG[UKG Dimensions timecard approved] -->|Webhook| API[ServiceNow Inbound REST API]
+    API --> BR[Business Rule map UKG fields]
     BR --> Case[Create/update hr_case / u_timecard]
     Case --> Assign{Total hours > 40?}
-    Assign -->|Yes| OT[Auto-assign to Payroll<br/>+ overtime flag]
+    Assign -->|Yes| OT[Auto-assign to Payroll + overtime flag]
     Assign -->|No| Normal[Auto-assign to standard group]
     OT --> Notify[Notify payroll team]
     Normal --> Done[Record saved]
@@ -989,10 +989,10 @@ flowchart TD
 
 ```mermaid
 graph TD
-    AS400[AS/400 / DB2 for i<br/>ITEMMAST table] -->|JDBC query| MID[MID Server<br/>JDBC probe]
+    AS400[AS/400 / DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
     MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
-    staging --> TM[Transform Map<br/>ITEMNUMBER → cmdb_ci.name]
-    TM --> CMDB[cmdb_ci / alm_asset<br/>in ServiceNow CMDB]
+    staging --> TM[Transform Map ITEMNUMBER → cmdb_ci.name]
+    TM --> CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
     CMDB --> Disc[Discovery reconciliation]
 
     subgraph Error handling

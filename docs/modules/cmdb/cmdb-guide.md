@@ -868,16 +868,16 @@ Discovery / IntegrationHub / Service Graph
 
 ```mermaid
 flowchart TD
-    IN[Incoming CI payload] --> IDR{1. Identification<br/>Does this CI exist?}
-    IDR -->|MATCH FOUND| REC[2. Reconciliation Rules<br/>Existing CIs only]
-    IDR -->|NO MATCH| DS[4. IRE Data Source Rules<br/>New CIs only]
-    REC --> RECON_EVAL{Evaluate per field:<br/>Source priority<br/>Field-specific vs Apply to all<br/>Staleness / refresh}
-    RECON_EVAL --> AUTHORIZED{Source authorized<br/>to update this field?}
-    AUTHORIZED -->|YES| UPDATE[CI updated —<br/>authorized changes committed]
-    AUTHORIZED -->|NO| NOCHANGE[No change —<br/>CI unchanged]
-    DS --> DS_CHECK{Source allowed<br/>to insert into<br/>this CI class?}
-    DS_CHECK -->|PERMITTED| NEWCI[New CI inserted<br/>into CMDB]
-    DS_CHECK -->|BLOCKED| REJECT[Insert rejected —<br/>no CI created]
+    IN[Incoming CI payload] --> IDR{1. Identification Does this CI exist?}
+    IDR -->|MATCH FOUND| REC[2. Reconciliation Rules Existing CIs only]
+    IDR -->|NO MATCH| DS[4. IRE Data Source Rules New CIs only]
+    REC --> RECON_EVAL{Evaluate per field: Source priority Field-specific vs Apply to all Staleness / refresh}
+    RECON_EVAL --> AUTHORIZED{Source authorized to update this field?}
+    AUTHORIZED -->|YES| UPDATE[CI updated — authorized changes committed]
+    AUTHORIZED -->|NO| NOCHANGE[No change — CI unchanged]
+    DS --> DS_CHECK{Source allowed to insert into this CI class?}
+    DS_CHECK -->|PERMITTED| NEWCI[New CI inserted into CMDB]
+    DS_CHECK -->|BLOCKED| REJECT[Insert rejected — no CI created]
     style IDR fill:#e58a8a,color:#fff
     style REC fill:#e5b567,color:#000
     style DS fill:#4cc38a,color:#000

@@ -135,11 +135,11 @@ Work is sent to the MID Server as ECC Queue **output** records; results come bac
 
 ```mermaid
 flowchart TD
-    Start[Discovery Schedule fires] --> Scan[1. Scanning<br/>Shazzam port probes find live IPs]
-    Scan --> Classify[2. Classification<br/>Classifiers decide device type — Windows, Linux, switch, …]
-    Classify --> Identify[3. Identification<br/>IRE matches an existing CI or creates a new one]
-    Identify --> Explore[4. Exploration<br/>Patterns/probes gather OS, CPU, software<br/>File-Based Discovery runs here]
-    Explore --> CI[CI created or updated in CMDB<br/>cmdb_ci · cmdb_ci_server · cmdb_file_information]
+    Start[Discovery Schedule fires] --> Scan[1. Scanning Shazzam port probes find live IPs]
+    Scan --> Classify[2. Classification Classifiers decide device type — Windows, Linux, switch, …]
+    Classify --> Identify[3. Identification IRE matches an existing CI or creates a new one]
+    Identify --> Explore[4. Exploration Patterns/probes gather OS, CPU, software File-Based Discovery runs here]
+    Explore --> CI[CI created or updated in CMDB cmdb_ci · cmdb_ci_server · cmdb_file_information]
     CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
 
     style Start fill:#e58a8a,color:#fff
@@ -154,11 +154,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Instance[ServiceNow Instance] <==>|output records<br/>work sent to MID| ECC[ECC Queue<br/>ecc_queue]
-    ECC <==>|input records<br/>results returned| MID[MID Server<br/>inside your network]
-    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device<br/>server, switch, appliance]
+    Instance[ServiceNow Instance] <==>|output records work sent to MID| ECC[ECC Queue ecc_queue]
+    ECC <==>|input records results returned| MID[MID Server inside your network]
+    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device server, switch, appliance]
     Target -->|returns data| MID
-    MID -->|parsed by Sensors / pattern steps| CI[(CMDB<br/>cmdb_ci + subclasses)]
+    MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
 
     subgraph InstanceSide [Instance side]
         Instance
@@ -181,13 +181,13 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Pattern[Discovery Pattern<br/>sa_pattern<br/>steps and operations]
-    Probe[Probe<br/>discovery_probe<br/>runs on the MID Server]
-    Sensor[Sensor<br/>instance-side parser]
-    CI[(CMDB CI<br/>cmdb_ci_*)]
+    Pattern[Discovery Pattern sa_pattern steps and operations]
+    Probe[Probe discovery_probe runs on the MID Server]
+    Sensor[Sensor instance-side parser]
+    CI[(CMDB CI cmdb_ci_*)]
 
     Pattern -->|calls| Probe
-    Probe -->|collects from| Target[Target device<br/>files · registry · WMI · SNMP]
+    Probe -->|collects from| Target[Target device files · registry · WMI · SNMP]
     Target -->|raw output| Probe
     Probe -->|returns payload| Sensor
     Sensor -->|maps onto CI fields| CI
