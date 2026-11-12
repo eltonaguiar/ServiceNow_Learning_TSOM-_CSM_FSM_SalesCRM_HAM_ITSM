@@ -1156,6 +1156,113 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Telecom Service Operations Management"
 
+## 💡 Memory Aids & Mnemonics
+
+<details>
+<summary>💡 Click to reveal mnemonics & memory aids</summary>
+
+### Business Rule Types — BAA
+| Mnemonic | Type | When It Runs | Use Case |
+|----------|------|--------------|----------|
+| **B**efore | before | Before DB write | Validate/modify data, cancel save (`abort = true`) |
+| **A**fter | after | After DB write | Create related records, send notifications |
+| **A**sync | async | After commit (separate thread) | Long-running tasks — emails, REST calls, integrations |
+
+**Remember:** **BAA** = Before, After, Async — and they run in that order.
+
+---
+
+### Client Script Types — LOCS
+| Mnemonic | Type | When It Runs | Use Case |
+|----------|------|--------------|----------|
+| **L**oad | onLoad | Form opens | Set defaults, show/hide fields, UI initialization |
+| **O**nChange | onChange | Field value changes | Dynamic field behavior, cross-field validation |
+| **C**lick | onSubmit | User clicks Save | Final validation before form submits |
+| **S**ave | onCellEdit | List cell edits | Inline list editing validation |
+
+**Remember:** **LOCS** = Load, OnChange, Click (Submit), CellEdit (Save).
+
+---
+
+### UI Policy vs Data Policy vs Client Script
+| Mnemonic | What | Where It Runs | Scope |
+|----------|------|---------------|-------|
+| **U**I | UI Policy | Browser (form load/change) | UI behavior only — mandatory, read-only, visible |
+| **D**ata | Data Policy | Server (every save path) | Data integrity — form, API, import, all writes |
+| **C**lient | Client Script | Browser only | UX feedback — can be bypassed by API/import saves |
+
+**Remember:** **U**→UI (looks), **D**→Data (truth), **C**→Client (feel). Never rely on Client Script for security.
+
+---
+
+### IRE — Identification Before Reconciliation
+**Mnemonic:** **I before R**
+
+1. **I**dentification = "Does this CI already exist?" → match existing CI or create new
+2. **R**econciliation = "Whose data wins for each field?" → update attributes on matched CI
+
+**Remember:** You can't reconcile what you haven't identified first. Identification runs first; reconciliation only runs on matched CIs.
+
+---
+
+### Update Set Conflicts — ARM
+| Mnemonic | Option | What It Does | When to Use |
+|----------|--------|--------------|-------------|
+| **A**ccept | Accept Remote | Update Set version overwrites target | Update Set version is newer/correct |
+| **S**kip | Skip remote update | Keep target instance's version | Target has a fix that must be preserved |
+| **M**erge | Merge | Review both versions, combine manually | Both versions have valid changes |
+
+**Remember:** **ARM** = Accept Remote, Skip remote, Merge. For script conflicts (Business Rules, Script Includes), always choose **Merge**.
+
+---
+
+### CMDB — Retire Before Delete
+**Mnemonic:** **R before D**
+
+- **R**etire: Set `install_status = retired` — keeps `cmdb_rel_ci` relationships intact for historical impact analysis
+- **D**elete: Hard delete — breaks `cmdb_rel_ci` parent/child references, orphaned incidents
+
+**Remember:** Always retire, never delete.
+
+---
+
+### Order vs Priority — Lower = First
+| Feature | Ordering Field | Lower Number = |
+|---------|---------------|----------------|
+| Business Rule | `Order` | Runs first |
+| UI Policy | `Order` | Runs first |
+| Decision Table | `Order` | Runs first |
+| Scheduled Job | `Priority` | Runs first |
+| Identification Rule entry | `Priority` | Runs first |
+| Reconciliation Rule | `Priority` | Runs first |
+
+**Remember:** **Lower number = runs first**, regardless of whether the field is called `Order` or `Priority`.
+
+---
+
+### Transform Script — Coalesce = Match
+| Mnemonic | Setting | Result |
+|----------|---------|--------|
+| **C**oalesce | `coalesce = true` | Update existing CI (match on key fields) |
+| **N**o coalesce | `coalesce = false` | Insert new CI (create duplicate) |
+
+**Remember:** **Coalesce** = "come together" = match existing records instead of duplicating.
+
+---
+
+### Debugging — Log First, Then Debug
+| Context | Primary Tool | Command |
+|---------|-------------|---------|
+| **S**erver | System Log (`sys_log`) | `gs.print()`, `gs.error()`, `gs.info()` |
+| **C**lient | Browser Console (F12) | `console.log()`, `debugger;` |
+| **B**oth | Script Debugger | Breakpoints, step-through, variable inspection |
+
+**Remember:** **Log first** — `gs.print()` for server, `console.log()` for client. `console.log()` does NOT work in server-side business rules.
+
+---
+
+</details>
+
 ---
 
 ## Related Guides
