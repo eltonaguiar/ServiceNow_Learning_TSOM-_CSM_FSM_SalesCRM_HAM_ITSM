@@ -10,23 +10,49 @@
 
 ## Contents
 
+
 - [Purpose](#purpose)
 - [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
-- [Re-usable Code / Metadata](#re-usable-code--metadata)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+  - [Scoped Application](#scoped-application)
+  - [Meta Data Patterns](#meta-data-patterns)
+  - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
+  - [Re-usable Code Snippets](#re-usable-code-snippets)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
+  - [Core Tables](#core-tables)
+  - [Table Relationships](#table-relationships)
+  - [CMDB Integration](#cmdb-integration)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
+  - [Work Order Lifecycle State Diagram](#work-order-lifecycle-state-diagram)
+  - [Dispatch → Technician → Task Flow](#dispatch--technician--task-flow)
+  - [Scheduling and Travel Time Flow](#scheduling-and-travel-time-flow)
 - [Lab: Create and Dispatch Your First Work Order](#lab-create-and-dispatch-your-first-work-order)
-- [📺 Visual & Video Guides](#-visual--video-guides)
+- [📺 Visual & Video Guides](#visual--video-guides)
+  - [FSM Getting Started](#fsm-getting-started)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#-official-learning-resources)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+  - [🚀 Quick Start Guide](#quick-start-guide)
+  - [🚀 The Authoritative Path](#the-authoritative-path)
+- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+  - [Business Rule Types — BAA](#business-rule-types--baa)
+  - [Client Script Types — LOCS](#client-script-types--locs)
+  - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
+  - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
+  - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
+  - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
+
 
 ---
 
@@ -456,15 +482,6 @@ Fallback link: [FSM Getting Started]()
 ---
 
 
-## 📺 Visual & Video Guides
-
-### FSM Getting Started
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="FSM Getting Started" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-
-Fallback link: [FSM Getting Started]()
----
 
 ## SLAs, Dashboards & Workspaces
 

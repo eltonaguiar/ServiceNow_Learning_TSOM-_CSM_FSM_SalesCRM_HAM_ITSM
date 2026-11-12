@@ -10,28 +10,68 @@
 
 ## Contents
 
+
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
 - [Official Exam Alignment — CIS-Hardware Asset Management](#official-exam-alignment--cis-hardware-asset-management)
 - [HAM Asset Lifecycle Diagram](#ham-asset-lifecycle-diagram)
 - [Asset vs CI Diagram](#asset-vs-ci-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
-- [Re-usable Code / Metadata](#re-usable-code--metadata)
+  - [Asset State & Substate (install_status / install_substatus)](#asset-state--substate-install_status-install_substatus)
+  - [Hardware Model Lifecycle Phase](#hardware-model-lifecycle-phase)
+- [Re-usable Code / Metadata](#re-usable-code-metadata)
+  - [Application Scope](#application-scope)
+  - [Meta Data Patterns](#meta-data-patterns)
+  - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
+  - [Re-usable Code Snippets](#re-usable-code-snippets)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
+  - [Core Tables](#core-tables)
+  - [Table Relationships](#table-relationships)
+  - [CMDB Integration](#cmdb-integration)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
+  - [Asset Lifecycle Journey](#asset-lifecycle-journey)
+  - [Asset to CI Normalization Link](#asset-to-ci-normalization-link)
+  - [Asset Relationship Map](#asset-relationship-map)
+  - [📊 HAM vs ITAM vs CMDB Comparison](#ham-vs-itam-vs-cmdb-comparison)
+  - [📊 Asset Lifecycle with Discovery Integration](#asset-lifecycle-with-discovery-integration)
+  - [📊 Asset State Machine](#asset-state-machine)
 - [Common Mistakes](#common-mistakes)
 - [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
+  - [Breadcrumbs — Getting There and Everything Related](#breadcrumbs--getting-there-and-everything-related)
+  - [Configuring It in the Console](#configuring-it-in-the-console)
+  - [How the Filtering Actually Works (a common misconception)](#how-the-filtering-actually-works-a-common-misconception)
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
+  - [How It Works](#how-it-works)
+  - [Tables It Introduces](#tables-it-introduces)
+  - [Worked Example: `superman.exe` → DC Comics Software](#worked-example-`supermanexe`--dc-comics-software)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
-- [📺 Visual & Video Guides](#-visual--video-guides)
+- [📺 Visual & Video Guides](#visual--video-guides)
+  - [HAM Overview](#ham-overview)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
+  - [SLA Support](#sla-support)
+  - [OOTB Dashboards](#ootb-dashboards)
+  - [OOTB Workspaces](#ootb-workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#-official-learning-resources)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+  - [🚀 Quick Start Guide](#quick-start-guide)
+  - [🚀 The Authoritative Path](#the-authoritative-path)
+- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+  - [Business Rule Types — BAA](#business-rule-types--baa)
+  - [Client Script Types — LOCS](#client-script-types--locs)
+  - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
+  - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
+  - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
+  - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
+
 
 ---
 
@@ -812,15 +852,6 @@ Fallback link: [HAM Overview]()
 ---
 
 
-## 📺 Visual & Video Guides
-
-### HAM Overview
-<div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
-
-Fallback link: [HAM Overview]()
----
 
 ## SLAs, Dashboards & Workspaces
 
