@@ -28,6 +28,7 @@
 - [Deep Dive: Service Mapping — Automated or Manual?](#deep-dive-service-mapping--automated-or-manual)
 - [Lab: Create Your First Mapped Application Service](#lab-create-your-first-mapped-application-service)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
+- [Service Mapping — Terminology, Methods & Patterns](#service-mapping--terminology-methods--patterns)
 - [Quiz](#quiz)
 - [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
@@ -866,6 +867,258 @@ Use `task_sla` to:
 
 ---
 
+
+---
+
+## Service Mapping — Terminology, Methods & Patterns
+
+### The Four Service Architecture Layers
+
+ServiceNow's architecture distinguishes four layers that are often confused in interviews. Service Mapping primarily operates at the **technical layer**, discovering CIs and their dependencies. It does not automatically create all four types of records.
+
+| Layer | Term | What It Is | Example |
+|-------|------|-----------|---------|
+| **Business Architecture** | Business Capability | What the organization must be able to do | Payment Processing |
+| | Business Application | Application supporting a business process | Online Banking Application |
+| **Service Architecture** | Business Service | What is delivered to business users/consumers | Online Banking Service |
+| | Technical Service | IT service providing technical capabilities | Database Hosting / Application Hosting |
+| **Service Mapping / CMDB** | Technical CIs + Dependencies | Discovered infrastructure and relationships | Web servers → App servers → Database → Network |
+
+> **Key interview distinction:** Business Capability, Business Service, Business Application, and Technical Service are **not all Service Mapping objects**. Service Mapping discovers and maps **technical CIs and their dependencies** — it doesn't automatically create business capability or business service records. Those are typically defined in the CMDB or Application Portfolio Management.
+
+```mermaid
+flowchart TD
+    subgraph BusinessArchitecture["Business Architecture"]
+        BC[Business Capability<br/>Payment Processing]
+        BA[Business Application<br/>Online Banking App]
+    end
+
+    subgraph ServiceArchitecture["Service Architecture"]
+        BS[Business Service<br/>Online Banking Service]
+        TS[Technical Service<br/>Database Hosting]
+    end
+
+    subgraph CMDB["Service Mapping / CMDB (Technical Layer)"]
+        WS[Web Server CI]
+        AS[App Server CI]
+        DB[Database CI]
+        NW[Network CI]
+    end
+
+    BC --> BA
+    BA --> BS
+    BS --> TS
+    TS --> WS
+    WS --> AS
+    AS --> DB
+    DB --> NW
+
+    style BC fill:#e5b567,color:#000
+    style BA fill:#e5b567,color:#000
+    style BS fill:#4cc38a,color:#000
+    style TS fill:#4cc38a,color:#000
+    style WS fill:#e58a8a,color:#000
+    style AS fill:#e58a8a,color:#000
+    style DB fill:#e58a8a,color:#000
+    style NW fill:#e58a8a,color:#000
+```
+
+---
+
+### Four Service Mapping Methods
+
+| Method | How It Works | Main Purpose |
+|--------|-------------|--------------|
+| **Pattern-based (top-down)** | Executes patterns against applications and infrastructure starting from an entry point | Identifies CIs and their dependencies — the primary method |
+| **Traffic-based** | Analyzes network connections (`netstat`, `ss`, `lsof`, NetFlow, VPC flow logs) | Finds additional dependencies patterns may miss |
+| **Tag-based** | Groups CIs using existing cloud/resource tags (e.g., AWS tags) | Quickly associates cloud resources with services |
+| **Predictive Intelligence / ML** | Analyzes fingerprints, processes, and connection data to suggest relationships | Automates connection discovery at scale |
+
+---
+
+#### A. Pattern-Based Discovery (Top-Down) — The Primary Method
+
+This is the main traditional Service Mapping approach and the one most interview questions focus on.
+
+**How it works:**
+
+1. You define an **entry point** — a URL, hostname, or IP (e.g., `onlinebanking.company.com`)
+2. Service Mapping identifies the host associated with that entry point
+3. If the host isn't already discovered, it triggers horizontal Discovery
+4. It identifies applications running on that host
+5. It executes relevant patterns against those applications
+6. Patterns identify outbound connections from applications
+7. Service Mapping follows those connections to discover additional components
+8. It builds the application service map in the CMDB
+
+**Example flow:**
+
+```
+Entry Point: onlinebanking.company.com
+    ↓
+Web Server: Apache / IIS
+    ↓
+Application Server: Java / Tomcat / WebSphere
+    ↓
+Database Server: Oracle / SQL Server
+```
+
+**What patterns contain:** Sequences of operations that can:
+- Run commands on a host
+- Inspect running processes
+- Identify application versions and properties
+- Inspect listening ports
+- Identify outbound connections
+- Extract information from application configuration
+
+> **Example:** A pattern identifies a Tomcat process, determines it's listening on port 8080, and identifies a connection to an Oracle database. This is how Service Mapping establishes **relationships**, not just records that a server exists.
+
+---
+
+#### B. Tag-Based Mapping
+
+Particularly useful in cloud environments where resources already have tags.
+
+**Example:** AWS resources with `Application = Online Banking` tags:
+
+| Resource | Tag |
+|----------|-----|
+| EC2 Web Server 1 | Application = Online Banking |
+| EC2 Web Server 2 | Application = Online Banking |
+| RDS Database | Application = Online Banking |
+| EC2 Server 3 | Application = Payroll |
+
+ServiceNow discovers the tags and associates resources with the relevant application service.
+
+**Important distinction:** Tag-based mapping identifies which resources **belong to** a service. It does not necessarily provide the detailed **dependency relationships** that pattern-based mapping provides.
+
+---
+
+#### C. Traffic-Based Mapping
+
+ServiceNow collects network connection information from sources like `netstat`, `ss`, `lsof`, NetFlow, and VPC flow logs.
+
+**Example discoveries:**
+- Web Server A communicates with Application Server B
+- Application Server B communicates with Database Server C
+
+Traffic-based mapping is useful when patterns haven't identified every dependency.
+
+**Disadvantage:** It can discover connections that aren't actually important to the application service, creating unnecessary CIs and relationships.
+
+---
+
+#### D. Predictive Intelligence / ML-Based Mapping
+
+The more automated approach. ServiceNow analyzes:
+- Application fingerprints
+- Running processes
+- CI information
+- Network connections
+
+It uses ML to identify likely service dependencies and generate **connection suggestions**. You use connection rules to control which suggested connections are added.
+
+Unlike pattern-based mapping, this approach can identify relationships without explicitly defining every connection through a pattern. It requires sufficient discovery data and repeated runs for training and refinement.
+
+---
+
+### Do You Need to Create Patterns Yourself?
+
+**No — not usually.**
+
+ServiceNow provides out-of-the-box (OOB) patterns for commonly used technologies. You generally configure and reuse existing patterns rather than building from scratch.
+
+| Technology | What an OOB pattern can discover |
+|------------|----------------------------------|
+| Apache | Web server processes, configuration, connections |
+| IIS | Web applications, listening ports |
+| Tomcat | Java applications, connections |
+| WebSphere | Application server, deployed applications |
+| Oracle | Database instances, connections |
+| SQL Server | Database instances, properties |
+| Windows Server | Host information, running processes |
+| Linux | Processes, services, connections |
+
+Exact available patterns depend on your ServiceNow release and installed content packs.
+
+---
+
+### When to Create a Custom Pattern
+
+Create or extend a pattern when dealing with **unsupported or proprietary applications**.
+
+**Example: Custom `BankCore` pattern**
+
+Your organization has a proprietary banking application called `BankCore` running on Linux, connecting to a DB2 database. Normal Discovery finds the Linux server but doesn't understand the application architecture.
+
+| Step | Action |
+|------|--------|
+| 1 | Identify the application — find the BankCore process running on Linux |
+| 2 | Extract application information — read installation directory, configuration, version |
+| 3 | Identify connections — inspect application config and running connections to find the DB2 database |
+| 4 | Identify the database CI — match the discovered DB2 instance to a CMDB CI |
+| 5 | Create relationships — establish dependency between BankCore and DB2 |
+
+**Result:** ServiceNow can now represent BankCore's dependencies in its application service map.
+
+You typically develop this using the **Service Mapping Pattern Designer**. You need appropriate credentials and MID Server connectivity to interrogate the environment.
+
+**Interview distinction:**
+| Scenario | Approach |
+|----------|----------|
+| OOB technology supported | Use the existing pattern |
+| Custom/unsupported application | Create or extend a pattern |
+| Resources already tagged consistently | Use tag-based mapping |
+| Dependencies not captured by patterns | Use traffic-based discovery or predictive suggestions |
+
+---
+
+### How Discovery, MID Servers, and Service Mapping Fit Together
+
+| Component | Responsibility |
+|-----------|---------------|
+| **Discovery** | Identifies infrastructure CIs (horizontal discovery) |
+| **MID Server** | Communicates with infrastructure and executes discovery operations |
+| **Service Mapping** | Identifies application-specific dependencies (top-down discovery) |
+| **Patterns** | Provide instructions for identifying applications and their connections |
+| **CMDB** | Stores CIs and their relationships |
+| **IRE** | Identifies existing CIs, prevents duplicates, applies reconciliation rules |
+
+**The basic flow:**
+
+```
+Service Mapping (entry point / application service)
+    ↓
+Discovery + Patterns (identify hosts, applications, dependencies)
+    ↓
+MID Server (executes commands, communicates with targets)
+    ↓
+IRE → CMDB (identify, reconcile, store CIs and relationships)
+```
+
+**Important nuance:** Horizontal Discovery and top-down Service Mapping are not necessarily two separate sequential jobs. Service Mapping can trigger horizontal Discovery when it needs to identify an undiscovered host.
+
+---
+
+### Interview Cheat Sheet
+
+| Question | Answer |
+|----------|--------|
+| What is the primary Service Mapping method? | Pattern-based, top-down discovery |
+| Does Service Mapping only use network traffic? | No — it also uses patterns, tags, and predictive intelligence |
+| Do you create all patterns yourself? | No — ServiceNow provides OOB patterns for common technologies |
+| When do you create custom patterns? | For unsupported or proprietary applications |
+| What is an entry point? | The starting point used to identify an application service (hostname, URL, or IP) |
+| What is horizontal discovery? | Identifying infrastructure and individual CIs |
+| What is top-down discovery? | Tracing application-specific components and their dependencies |
+| What does the MID Server do? | Provides secure communication and executes discovery operations within the environment |
+| What does IRE do? | Identifies existing CIs and manages identification/reconciliation when updating the CMDB |
+| What does tag-based mapping do? | Uses existing resource tags to associate CIs with application services |
+| What layer does Service Mapping primarily operate on? | The technical layer — discovering CIs and their dependencies |
+
+> **Interview tip:** Make sure you understand the difference between **horizontal Discovery** (tells you what infrastructure exists) and **top-down Service Mapping** (tells you how components work together to deliver an application service). That distinction is fundamental.
+
+---
 
 ## 💡 Memory Aids & Mnemonics
 
