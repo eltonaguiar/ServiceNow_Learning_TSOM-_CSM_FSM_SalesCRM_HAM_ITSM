@@ -42,7 +42,58 @@ The CMDB (Configuration Management Database) is ServiceNow's single source of tr
 
 The CMDB is the foundation that ITSM, ITOM, Service Mapping, HAM, and other modules all depend on. If the CMDB is inaccurate, incident impact analysis, change risk assessment, and service mapping all produce wrong answers.
 
+## CMDB CI Class Hierarchy
+
+```mermaid
+classDiagram
+    class cmdb_ci {
+        <<abstract>>
+        + name
+        + serial_number
+        + asset_tag
+        + install_status
+        + data_source
+        + location
+    }
+    class cmdb_ci_server {
+        + ip_address
+        + hostname
+        + os
+        + os_version
+        + cpu_count
+        + memory
+    }
+    class cmdb_ci_appl {
+        + version
+        + vendor
+        + install_status
+    }
+    class cmdb_ci_database {
+        + db_type
+        + version
+        + port
+    }
+    class cmdb_ci_network {
+        + mac_address
+        + ip_address
+        + dns_domain
+    }
+    class cmdb_ci_service {
+        + service_name
+        + service_type
+    }
+
+    cmdb_ci <|-- cmdb_ci_server
+    cmdb_ci <|-- cmdb_ci_appl
+    cmdb_ci <|-- cmdb_ci_database
+    cmdb_ci <|-- cmdb_ci_network
+    cmdb_ci <|-- cmdb_ci_service
+
+    note "All CIs extend cmdb_ci and inherit its fields"
+```
+
 ---
+
 
 ## Where to Find It
 
@@ -569,7 +620,66 @@ flowchart TD
 | Deleting CIs instead of retiring | Broken relationships, orphaned incidents | Use status=Retired, not delete |
 | No relationship types defined | Service Mapping can't build maps | Define CI relationship types before mapping |
 | CMDB not tied to incidents | No impact analysis | Populate `cmdb_ci` on incident records |
-| Ignoring CMDB Health dashboards | Data quality degrades over time | Review completeness/correctness dashboards monthly |
+|| Ignoring CMDB Health dashboards | Data quality degrades over time | Review completeness/correctness dashboards monthly |
+
+---
+
+## CI Lifecycle Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Development : CI created
+    Development --> Testing : moved to test env
+    Testing --> Production : deployed to prod
+    Production --> In Maintenance : under maintenance
+    In Maintenance --> Production : back in service
+    Production --> Retired : decommissioned
+    Development --> Retired : cancelled
+    Testing --> Retired : cancelled
+    Retired --> [*] : archived
+```
+
+---
+
+## IRE Data Source Precedence Diagram
+
+```mermaid
+graph TD
+    A[Discovery] -->|Priority 1| B[CMDB CI]
+    C[Import Set] -->|Priority 2| B
+    D[Manual Entry] -->|Priority 3| B
+    E[Integration Hub] -->|Priority 4| B
+    
+    B --> F[Reconciliation Rules]
+    F --> G[Trusted Source Wins]
+    
+    style A fill:#e1f5e1,color:#000
+    style B fill:#fff3e0,color:#000
+    style F fill:#ffebee,color:#000
+    style G fill:#e8f5e9,color:#000
+```
+
+---
+
+## Integration Hub → CMDB Integration Flow
+
+```mermaid
+flowchart LR
+    A[External System] -->|REST/Webhook| B[Integration Hub Spoke]
+    B --> C[Transform Map]
+    C --> D[Staging Table]
+    D --> E[Coalesce Match]
+    E -->|Match Found| F[Update Existing CI]
+    E -->|No Match| G[Create New CI]
+    F --> H[Reconciliation Rules]
+    G --> H
+    H --> I[CMDB CI Updated]
+    
+    style A fill:#fce4ec,color:#000
+    style B fill:#e3f2fd,color:#000
+    style H fill:#ffebee,color:#000
+    style I fill:#e8f5e9,color:#000
+```
 
 ---
 

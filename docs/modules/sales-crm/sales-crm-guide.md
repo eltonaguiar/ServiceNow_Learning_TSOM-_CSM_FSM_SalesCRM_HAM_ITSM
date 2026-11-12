@@ -523,10 +523,61 @@ graph LR
     Order &#45;&#45;&#62;|Push| Acct
 
     style Quote fill:#e1f5e1,color:#000
-    style Order fill:#fce4ec,color:#000
-```
+        style Order fill:#fce4ec,color:#000
+    ```
 
----
+    ---
+
+    ### Diagram 5: Account → Opportunity → Quote → Order (Account-to-Order Flow)
+
+    ```mermaid
+    flowchart LR
+        A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
+        B --> C[sn_sales_quote<br/>Quote/CPQ]
+        C --> D[sn_sales_order<br/>Sales Order]
+        D --> E[sn_sales_order_line<br/>Order Lines]
+    
+        A -->|has primary contact| L[sn_sales_contact<br/>Contact]
+        L -->|influences| B
+    
+        B -->|generates| C
+        C -->|converts to| D
+        D -->|contains| E
+    
+        style A fill:#e3f2fd,color:#000
+        style B fill:#fff3e0,color:#000
+        style C fill:#f3e5f5,color:#000
+        style D fill:#ffebee,color:#000
+        style E fill:#e8f5e9,color:#000
+        style L fill:#f1f8e9,color:#000
+    ```
+
+    ---
+
+    ### Diagram 6: Case Management Lifecycle
+
+    ```mermaid
+    stateDiagram-v2
+        [*] --> New : case created
+        New --> Assigned : assigned to agent
+        Assigned --> In Progress : work started
+        In Progress --> Waiting on Customer : awaiting response
+        Waiting on Customer --> In Progress : customer responds
+        In Progress --> Resolved : issue fixed
+        Resolved --> Closed : confirmed by customer
+        Resolved --> Reopened : issue recurs
+        Reopened --> In Progress : work resumed
+        Closed --> [*] : case closed
+    
+        style New fill:#e3f2fd,color:#000
+        style Assigned fill:#fff3e0,color:#000
+        style In Progress fill:#f3e5f5,color:#000
+        style Waiting on Customer fill:#ffecb3,color:#000
+        style Resolved fill:#a5d6a7,color:#000
+        style Closed fill:#ef9a9a,color:#000
+    ```
+
+    ---
 
 ## SLAs, Dashboards & Workspaces
 
