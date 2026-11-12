@@ -26,6 +26,10 @@
 - [Performance Tweaks & Debugging for CMDB](#performance-tweaks--debugging-for-cmdb)
 - [Best Practices: When to Use What](#best-practices-when-to-use-what)
 - [Coding JavaScript — Platform Script Types & Order of Operations](#coding-javascript--platform-script-types--order-of-operations)
+- [Resolving Update Set Conflicts](#resolving-update-set-conflicts)
+- [Debugging Across Contexts — Client Script, Business Rule, UI Builder, Workspace, Portal](#debugging-across-contexts--client-script-business-rule-ui-builder-workspace-portal)
+- [Common Mistakes to Watch Out For](#common-mistakes-to-watch-out-for)
+- [UI Builder — Key Items, Reusable Components, and Page Variants](#ui-builder--key-items-reusable-components-and-page-variants)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -2043,6 +2047,249 @@ ServiceNow's backend features (Discovery, IRE, Import Sets, Transform Maps) run 
 - **API/REST save** → Business Rule — before → DB write → Business Rule — after → Business Rule — async (no client scripts)
 
 **Rule of thumb:** If you need to affect *what gets saved*, use a **before business rule**. If you need to affect *what happens after save*, use **after** or **async**. If you need *immediate UI feedback*, use a **client script**. Never rely on client scripts for security or data integrity — they can be bypassed by API calls.
+
+---
+
+## Resolving Update Set Conflicts
+
+Update Sets move configuration changes between ServiceNow instances (dev → test → prod). They were designed for recording and moving changes, **not** for concurrent collaboration across large teams. When two Update Sets contain changes to the same record, ServiceNow cannot perform an automatic three-way merge like Git can — it's last-write-wins at the record level, and you must resolve conflicts manually.
+
+### How Update Set Conflicts Happen
+
+| Scenario | What happens | Why it conflicts |
+|----------|-------------|------------------|
+| Two developers edit the same record | Developer A commits Update Set 1 changing a Business Rule; Developer B commits Update Set 2 changing the same Business Rule | Both Update Sets contain a snapshot of the same `sys_script` record; the last one committed wins, overwriting the first |
+| Production modified directly | An admin fixes a bug directly on prod; a developer's Update Set (built on a stale dev clone) is then committed to prod | The Update Set overwrites the prod fix because it contains an older snapshot of the record |
+| Previous Update Set not applied | Update Set 1 committed to prod but never pulled back to dev; developer builds Update Set 2 on top of stale dev | Dev is missing changes from Update Set 1, so Update Set 2 can reintroduce old bugs |
+
+### Conflict Resolution Options
+
+When you preview or commit an Update Set on a target instance that has a different version of the same record, ServiceNow shows the incoming version (from the Update Set) and the current version (on the target) side by side. You choose:
+
+| Option | What it does | When to use |
+|--------|-------------|-------------|
+| **Accept Remote** | Use the Update Set version (overwrites the target instance's version) | The Update Set version is newer and correct; the target change was stale or wrong |
+| **Skip remote update** (Accept Local) | Keep the target instance's version; ignore the Update Set change for this record | Someone made an important fix directly on the target that must be preserved |
+| **Merge** | Review both versions by hand and combine them into one | Both versions have valid changes; you need to combine them manually (no auto-merge) |
+
+> **For script conflicts (Business Rules, Script Includes, UI Scripts), always choose Merge and carefully review both versions.** Automatically accepting remote can silently overwrite production fixes that were applied directly.
+
+### Step-by-Step Conflict Resolution
+
+1. **Preview before committing.** On the target instance, go to **System Update Sets → Retrieved Update Sets**, open the retrieved Update Set, and click **Preview**. ServiceNow lists all conflicts.
+2. **Review each conflict.** For each conflicting record, view the incoming vs. current version side by side.
+3. **Choose per-record:** Accept Remote, Skip remote update, or Merge.
+4. **Commit.** After resolving all conflicts, click **Commit** to apply the Update Set.
+5. **Fix-forward if needed.** If you realize a resolution was wrong, create a new Update Set with the corrected version and commit it — there is no "undo" for a committed Update Set.
+
+### Best Practices to Avoid Conflicts
+
+| Practice | Why |
+|----------|-----|
+| **One Update Set per feature or bug fix** | Smaller Update Sets = fewer overlapping records = fewer conflicts |
+| **Never edit production directly** | Prod changes bypass the Update Set process and create drift |
+| **Retrieve before building** | Always pull the latest Update Sets from prod/test into dev before starting new work |
+| **Don't share one Update Set across developers** | Last-write-wins means the last developer committed overwrites everyone else's changes to the same records |
+| **Use source control (Git) for code** | Git provides true line-by-line merging; Update Sets do not. Use Git for Script Includes, Business Rules, Client Scripts; use Update Sets for table/configuration changes |
+| **Complete update sets before retrieving** | An incomplete Update Set being modified while another is retrieved can cause snapshot inconsistencies |
+
+---
+
+## Debugging Across Contexts — Client Script, Business Rule, UI Builder, Workspace, Portal
+
+Debugging technique depends entirely on *where* the code runs. A client script runs in the browser; a business rule runs on the server; UI Builder pages and Workspaces are Next Experience (Vue.js) apps; Service Portal is AngularJS-based.
+
+### Debugging Decision Diagram
+
+```mermaid
+flowchart TD
+    A[Something isn't working] --> B{Where does the code run?}
+    B -->|Browser (form, list, portal)| C[Client-side debugging]
+    B -->|Server (business rule, script include, transform)| D[Server-side debugging]
+    B -->|UI Builder / Workspace page| E[Next Experience debugging]
+    B -->|Service Portal widget| F[AngularJS widget debugging]
+
+    C --> C1[Browser DevTools F12<br/>Console.log, debugger statement, Sources tab]
+    C --> C2[Field Watcher<br/>Settings > Developer > Field Watcher]
+    C --> C3[GlideAjax calls<br/>Network tab → xmlhttp.do requests]
+
+    D --> D1[System Log (sys_log)<br/>gs.print(), gs.error(), gs.info()]
+    D --> D2[Script Debugger<br/>breakpoints, step-through, variable inspection]
+    D --> D3[Debug Business Rule<br/>System Diagnostics > Session Debug]
+    D --> D4[ECC Queue<br/>MID Server probe/sensor results]
+
+    E --> E1[Browser DevTools<br/>Vue.js devtools, component inspection]
+    E --> E2[Session Log<br/>Agent Workspace logs, GraphQL traces]
+    E --> E3[glide.debugger.log.ui<br/>enable Session Log tab]
+
+    F --> F1[CTRL+right-click widget<br/>scope data to console]
+    F --> F2[$sp.log()<br/>Log [syslog] table entries]
+    F --> F3[angular.element($0).scope()<br/>widget scope inspection]
+    F --> F4[Browser Network tab<br/>widget server calls, slow HTTP]
+
+    style C fill:#4cc38a,color:#000
+    style D fill:#e3f2fd,color:#000
+    style E fill:#fff3e0,color:#000
+    style F fill:#e5b567,color:#000
+```
+
+### Debugging by Context
+
+| Context | Primary Tools | Key Techniques | What to Watch For |
+|---------|--------------|----------------|-------------------|
+| **Client Script** (onLoad, onChange, onSubmit, onCellEdit) | Browser DevTools (F12), Console, Sources tab, Field Watcher | `console.log()`, `debugger;` statement, `g_form.getControl('field').value`, GlideAjax Network tab | `getXMLWait()` freezes browser — **not supported on Portal or Workspace**; use async GlideAjax with `getXMLAnswer()` and callback |
+| **Business Rule** (before/after/async) | System Log, Script Debugger, Debug Business Rule (Session Debug) | `gs.print()`, `gs.error()`, `gs.addInfoMessage()`, breakpoints, logpoints | Rules run as admin — ACLs don't apply unless you explicitly check `gs.hasRole()`; async rules run after commit and don't block the user |
+| **Script Include** | Script Debugger, System Log, Studio syntax editor | Breakpoints, step-through, `gs.print()` | Test in isolation before calling from business rules; verify `Accessible from` scope settings |
+| **UI Builder page / Workspace** | Browser DevTools, Vue.js devtools, Session Log, `glide.debugger.log.ui` | Component inspection, event handler tracing, data resource binding checks | Variants with audiences — make sure your user matches the variant's audience criteria or you'll see the base page, not the variant |
+| **Service Portal widget** | CTRL+right-click widget, `$sp.log()`, `angular.element($0).scope()`, Network tab | Widget scope inspection, `$sp.log()` to Log [syslog] table, server.update() call tracking | Too many widgets on one page, auto-refreshing widgets, scripted menu items loading large data — all cause portal-wide slowness |
+| **Transform Script** | System Log, Import Set History, Transform Map logs | `gs.print()` inside transform script, check `sys_import_set_row` | Transform scripts run per-row — heavy logic here slows bulk imports dramatically |
+
+### Common Cross-Context Gotchas
+
+| Issue | Symptom | Root Cause | Fix |
+|-------|---------|------------|-----|
+| `gs.print()` not visible in UI | Server-side debug output missing | `gs.print()` writes to System Log, not the browser console | Use System Logs > System Log, or `gs.addInfoMessage()` to show on the form |
+| `console.log()` not seen in business rule | Client-side debug in server code | `console.log()` is browser-only; doesn't work in server-side scripts | Use `gs.print()` / `gs.error()` for server-side; `console.log()` for client-side |
+| Client script runs on form but not API save | Field validation bypassed via REST | Client scripts only run in the browser; API/REST saves skip them | Move critical validation to a before business rule |
+| Business rule changes not reflected immediately | After editing a BR, form still behaves old | BR changes are immediate on save, but cached client-side state may persist | Refresh the form; check the BR is Active and applies to the right table |
+| UI Builder variant not showing | User sees base page instead of variant | User doesn't match the variant's audience/user criteria | Verify audience conditions; check user's roles/groups match the variant audience |
+| Portal slow on all pages | Every portal page loads slowly | Scripted menu items loading large data, heavy theme, auto-refreshing widgets | Isolate: check if all pages are slow → check header menu scripts and theme assets |
+| Portal slow on one page | Specific page loads slowly | Too many widgets, unfiltered queries, auto-refresh on that page | Use browser console to find slow widgets; isolate data-heavy widgets to their own pages |
+
+---
+
+## Common Mistakes to Watch Out For
+
+### Client Script Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| `getXMLWait()` in client script | Browser freezes during GlideAjax call | Use async `getXMLAnswer(callback)` — `getXMLWait()` is not supported on Portal or Workspace |
+| Heavy logic in `onLoad` | Form takes long to render | Defer non-critical work; only load what's needed immediately |
+| No null check on `g_form.getValue()` | "Cannot read property of undefined" | Always check `if (value)` before using field values |
+| Client script for security | Validation bypassed via API/import | Move security-critical logic to a before business rule or ACL |
+| `onChange` firing on every keystroke | UI lag during typing | Check if the value meaningfully changed before acting |
+
+### Business Rule Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| `before` rule doing heavy API calls | Form save feels slow | Move long-running work to an `async` business rule |
+| Rule fires on every field change | Unnecessary DB writes, recursion risk | Use `current.field.changes()` to only act when relevant fields change |
+| `after` rule calling external API | Save waits for API response | Use `async` type — the API call won't block the user |
+| Multiple rules, unpredictable order | Wrong field value wins | Set `Order` field; lower numbers run first |
+| Relying on client script for data integrity | Records with invalid data saved via API | Enforce integrity in server-side business rules or ACLs |
+
+### Transform Script Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Heavy logic in transform script | Bulk imports take very long | Transform runs per-row; keep logic lightweight |
+| No coalesce on key fields | Duplicate inserts instead of updates | Set `coalesce = true` on `serial_number`, `name`, `asset_tag` |
+| No `setLimit()` on existence checks | Full table scans | Always `setLimit(1)` when checking if a record exists |
+
+### Portal / Widget Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Too many widgets on one page | Page loads slowly, many HTTP requests | Split heavy widgets onto separate pages |
+| Scripted menu item loading large data | Every page in the portal loads slowly | Add filters/limits; cache results; move to a widget |
+| Auto-refreshing widgets (`server.update()` loop) | Constant server load, slow portal | Use scripted REST APIs with script includes; refresh on specific events only |
+| Large files/attachments in widget | Slow page loads, timeouts | Store media externally; don't serve HD images from `sys_attachment` |
+| Unfiltered record watchers | Too many records returned, slow rendering | Apply filters and limits; only query what the user needs |
+
+---
+
+## UI Builder — Key Items, Reusable Components, and Page Variants
+
+### What UI Builder Is
+
+UI Builder is ServiceNow's Next Experience page builder. It's used to create and customize pages for **Agent Workspace**, **App Engine Studio workspaces**, **portals**, and **custom web experiences** using a component-based layout system.
+
+### Key Items in UI Builder
+
+| Item | What It Is | Purpose |
+|------|-----------|---------|
+| **Page** | A collection of components making up a workspace or portal UI | The top-level container users navigate to |
+| **Component** | A UI building block (button, label, list, form, chart, etc.) | Individual elements placed on a page |
+| **Data Resource** | Bindings that expose data from tables, records, or elements | Connects components to ServiceNow data; enables reuse |
+| **Variant** | A variation of a page at the same URL, targeted to an audience | Role-based or group-based page personalization |
+| **Audience** | User criteria (roles, groups, conditions) that determine who sees a variant/page | Controls which users see which page variant |
+| **Custom Component** | A reusable component built in Component Builder | Encapsulates a heading, list, form, or button set for reuse across pages |
+| **Page Collection** | A reusable full page layout | Replicate an entire page design across multiple pages or experiences |
+| **Preset** | Predefined configuration values and event mappings | Apply standard configuration to compatible components |
+| **Theme** | Styling (colors, fonts, branding) applied to pages/experiences | Visual consistency across the experience |
+| **Event Handler / Event Mapping** | Actions triggered when events fire on components | Component-to-component communication on a page |
+
+### Reusable Components (Beyond Widget Instances)
+
+In Service Portal, the reusable unit is a **widget instance**. In UI Builder, the equivalents are:
+
+| Reusable Unit | Description | Scope of Reuse |
+|--------------|-------------|----------------|
+| **Custom Component** | Built in Component Builder; can include lists, forms, visualizations, buttons | All pages in the same instance; edits propagate to every page using it |
+| **Page Collection** | Full page layout and configuration | Multiple pages or entire experiences |
+| **Data Resource** | Data binding definition reused across components | Any component on any page that binds to the same data |
+| **Preset** | Preconfigured component properties + event mappings | Compatible components across pages |
+| **Theme** | Styling applied globally | All pages in an experience |
+
+> **Custom components are especially valuable when designing pages for different user types.** For example, build one component with a list + data visualization, then tailor its content based on the user group — consistent layout, role-specific information. Editing a custom component automatically updates it on every page where it's used.
+
+### Page Variants — Customized Pages for Different Users
+
+The customized version of a page for different users at the same URL is called a **page variant**.
+
+| Concept | Description |
+|---------|-------------|
+| **Page Variant** | A variation of a page that exists at the **same URL path** but targets different audiences using user criteria |
+| **Audience** | Roles, groups, or encoded query conditions that determine who sees the variant |
+| **Same URL** | Agents and managers visit `.../it_workspace` but see different content based on their variant |
+
+**Example:** Create a travel request page. Create a variant for managers (audience = `manager` role) that shows approval queues. Employees see the base page with the travel request form. Managers see the variant at the same URL.
+
+**How to create a variant:**
+1. Navigate to **All → Now Experience Framework → UI Builder**
+2. Open the experience containing the page
+3. In **Pages and variants**, click **+ → Add a variant to a page**
+4. Name the variant, select an audience (role/group), set conditions
+5. Build the variant's content (components, data resources, layout)
+6. Users matching the audience see the variant; everyone else sees the base page
+
+### UI Builder Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Experience ["UI Builder Experience (Workspace / Portal)"]
+        P[Page] --> P1[Component]
+        P --> P2[Component]
+        P --> P3[Data Resource]
+        
+        subgraph Variant ["Page Variant (same URL, different audience)"]
+            V[Variant Page] --> V1[Component]
+            V --> V2[Component]
+        end
+        
+        subgraph CustomComponent ["Custom Component (reusable)"]
+            CC[Component Builder] --> CC1[Used on multiple pages]
+        end
+        
+        subgraph Collection ["Page Collection (reusable layout)"]
+            PC[Page template] --> PC1[Applied across pages]
+        end
+        
+        Theme[Theme] -.-> P
+        Theme -.-> V
+        Audience[Audience / User Criteria] -.-> V
+    end
+    
+    P --> |same URL| V
+    P1 -.-> CC
+    V1 -.-> CC
+    
+    style Experience fill:#e3f2fd,color:#000
+    style Variant fill:#fff3e0,color:#000
+    style CustomComponent fill:#4cc38a,color:#000
+```
 
 ---
 
