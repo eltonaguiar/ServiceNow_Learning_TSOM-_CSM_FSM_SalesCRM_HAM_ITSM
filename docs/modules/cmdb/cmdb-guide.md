@@ -22,6 +22,10 @@
 - [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence-sccm-soroc-example)
 - [Data Refresh & Staleness Rules](#data-refresh--staleness-rules)
 - [Identification vs Reconciliation vs Data Source vs Data Refresh Rules](#identification-vs-reconciliation-vs-data-source-vs-data-refresh-rules)
+- [Security & ACLs for CMDB](#security--acls-for-cmdb)
+- [Performance Tweaks & Debugging for CMDB](#performance-tweaks--debugging-for-cmdb)
+- [Best Practices: When to Use What](#best-practices-when-to-use-what)
+- [Coding JavaScript — Platform Script Types & Order of Operations](#coding-javascript--platform-script-types--order-of-operations)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -1774,6 +1778,271 @@ Rules of thumb:
 3. Only add truly universal fields to `cmdb_ci`; exclude model-specific attributes from Health completeness expectations.
 4. Automate IRE invocation on manual edits (see Priority 1).
 5. Enforce `install_status = retired` over deletion (see Priority 3) and run `cmdb_rel_ci` cleanup to keep the relationship graph intact.
+
+---
+
+## Security & ACLs for CMDB
+
+ServiceNow uses **Access Control (ACL)** rules to determine who can read, write, create, delete, or execute operations on tables and fields. ACLs are evaluated on every server-side request — GlideRecord queries, business rules, REST API calls, form saves, and UI actions all pass through the ACL engine.
+
+### What ACLs Control
+
+| Operation | What it gates | Typical CMDB use |
+|-----------|--------------|------------------|
+| `read` | Can a user/query see this table or field? | Hiding sensitive CI fields (e.g., `u_asset_tag` on `cmdb_ci_server`) |
+| `write` | Can a user modify this table or field? | Restricting `serial_number` edits to CMDB admins only |
+| `create` | Can a user insert new records? | Blocking manual CI creation; forcing Discovery/Import only |
+| `delete` | Can a user delete records? | Blocking CI deletion — force `install_status = retired` instead |
+| `list` | Can a user see this table in list views? | Hiding internal CMDB tables from non-admin users |
+
+### How ACL Evaluation Works
+
+1. **Most specific match wins.** An ACL on `cmdb_ci.serial_number` beats one on `cmdb_ci.*` which beats one on `*.*`.
+2. **First matching grant with a true condition wins.** If a matching ACL has a condition script that returns `true`, access is granted and evaluation stops.
+3. **If no ACL matches or all matching ACLs deny**, access is denied.
+4. **`admin` role bypasses ACLs.** Users with `admin` are not subject to ACL evaluation.
+
+### CMDB-Specific ACL Patterns
+
+| Target | Condition Example | Purpose |
+|--------|------------------|---------|
+| `cmdb_ci.read` | `gs.hasRole('cmdb_admin')` | Only CMDB admins can read base CI table |
+| `cmdb_ci.write` | `gs.hasRole('cmdb_admin') || gs.hasRole('sn_importer')` | CMDB admins and importers can write CIs |
+| `cmdb_ci.create` | `false` | Block manual CI creation entirely — force IRE-driven creation |
+| `cmdb_ci.delete` | `false` | Block CI deletion; force retirement (`install_status = retired`) |
+| `cmdb_ci.serial_number.write` | `gs.hasRole('cmdb_admin')` | Only admins can change serial numbers (prevents accidental duplicates) |
+| `cmdb_ci.data_source.write` | `false` | Only system/integration sources can change data source |
+| `cmdb_rel_ci.write` | `gs.hasRole('cmdb_admin')` | Restrict relationship edits to CMDB admins |
+
+### Where to Configure ACLs
+
+Navigate to **System Security → Access Control (ACL)** → **New**. Key fields:
+
+| Field | What to set |
+|-------|-------------|
+| **Type** | `record` (table-level) or `field` (column-level) |
+| **Name / Operation** | `read`, `write`, `create`, `delete`, `list` |
+| **Table** | `cmdb_ci`, `cmdb_ci_server`, `cmdb_rel_ci`, etc. |
+| **Element** | Field name (for field-level ACLs), leave blank for table-level |
+| **Condition** | Script that returns `true` to grant, `false` to deny |
+| **Roles** | Roles that are allowed (e.g., `cmdb_admin`, `admin`) |
+
+**Best practice:** Start restrictive — deny everything by default, then grant specific roles specific operations. Avoid `*` wildcards on `cmdb_ci.write` or `cmdb_ci.create`.
+
+### ACLs and IRE Interaction
+
+IRE runs as a system process (not as a user), so it typically bypasses ACLs when Discovery, Import Sets, or Service Graph Connectors write to `cmdb_ci`. However:
+
+- **Manual form saves** go through the ACL engine — a user without `write` on `cmdb_ci.serial_number` cannot change it via the UI.
+- **Business rules** run as `admin` by default — they bypass ACLs unless you explicitly check roles (`gs.hasRole()`).
+- **Transform Maps** run as the user who triggered the import — ACLs apply to the import user.
+
+### Common CMDB ACL Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Granting `write` on `cmdb_ci.*` to `itil` | Any help-desk tech can edit serial numbers, creating duplicates | Restrict `write` to `cmdb_admin` + `sn_importer` only |
+| Blocking `create` on `cmdb_ci` but not on subclasses | Users can still create `cmdb_ci_server` records directly | Apply ACLs to `cmdb_ci` and all major subclasses, or use table-level `create = false` on base |
+| No ACL on `cmdb_rel_ci` | Users can delete relationships, breaking impact analysis | Restrict `cmdb_rel_ci.delete` to `cmdb_admin` |
+| Forgetting `list` ACL | CMDB tables appear in list views for all users | Add `list` ACL restricting visibility to appropriate roles |
+
+---
+
+## Performance Tweaks & Debugging for CMDB
+
+CMDB performance issues usually come from slow queries on large `cmdb_ci` tables, missing indexes, inefficient IRE processing, or relationship graph bloat.
+
+### Query Performance
+
+| Problem | Symptom | Fix |
+|---------|---------|-----|
+| Full table scan on `cmdb_ci` | List view loads slowly (>5s) with thousands of CIs | Ensure queries use indexed fields (`name`, `serial_number`, `sys_id`, `data_source`) |
+| Unindexed custom field filter | Filtering on `u_custom_field` is slow | Add a database index on the custom field (Dictionary → Indexed = true) |
+| Dot-walking in queries | `model.cpu_type = 'Xeon'` triggers table join | Avoid dot-walks in `addQuery()` where possible; query `cmdb_model` separately then join in code |
+| No limit on result set | `Gr.query()` returns tens of thousands of rows | Always call `setLimit()` or use `setLimit(1)` for existence checks |
+
+### Indexes
+
+| Index Type | When to Use | Example |
+|------------|-------------|---------|
+| **Standard index** | Frequently filtered field | `serial_number`, `name`, `data_source`, `install_status` |
+| **Text index** | Contains/starts-with searches | `short_description`, `u_comments` |
+| **Composite index** | Queries filtering on 2+ fields together | `install_status` + `data_source` |
+
+To add an index: **System Definition → Dictionary → open the field → Indexed = true → Update**. Test on sub-prod first — indexing a large table can lock it temporarily.
+
+### Debugging IRE Performance
+
+IRE can slow down when:
+- **Too many identifier entries** on a class (each entry is evaluated in priority order until first match)
+- **Complex reconciliation rules** with many attributes
+- **Child classes inheriting irrelevant parent identifiers** (e.g., `cmdb_ci_virtual_server` trying serial-number matching)
+
+**Debug approach:**
+1. Check **All > Configuration → Identification/Reconciliation → Identification Rules** — how many entries per class?
+2. Watch **ECC Queue** → State = Error for IRE-related probes
+3. Check **CMDB Health → Dashboards** → Duplication rate
+4. Review **System Logs** (`sys_log`) for `sn_cmdb` entries during bulk imports
+
+### CMDB Health Monitoring
+
+| Dashboard | What It Shows | Where |
+|-----------|--------------|-------|
+| **Completeness** | % of required fields populated per CI class | All > CMDB Health > Dashboards > Completeness |
+| **Correctness** | Data accuracy vs. source systems | All > CMDB Health > Dashboards > Correctness |
+| **Compliance** | Classes meeting completeness thresholds | All > CMDB Health > Dashboards > Compliance |
+| **Duplication** | Duplicate CI rate | All > CMDB Health > Dashboards > Duplication |
+
+### Quick Performance Wins
+
+1. **Retire, don't delete** — deleted CIs leave orphaned `cmdb_rel_ci` rows that bloat relationship queries
+2. **Limit custom fields on `cmdb_ci`** — every field on the base table is inherited by all subclasses and counted in CMDB Health completeness
+3. **Use coalesce in transform maps** — prevents duplicate inserts during bulk loads
+4. **Add indexes on `data_source` and `install_status`** — these are the most common filter fields
+5. **Schedule IRE-heavy jobs off-peak** — Discovery runs, bulk imports, and de-duplication should run outside business hours
+
+---
+
+## Best Practices: When to Use What
+
+This section helps you choose the right platform capability for a given task. The same outcome can often be achieved multiple ways — the right choice depends on where the logic lives, who maintains it, and when it needs to run.
+
+### Decision Matrix
+
+| Goal | Business Rule | Client Script | Flow Designer | Decision Table | Playbook | Approval Action |
+|------|--------------|---------------|---------------|----------------|----------|-----------------|
+| Validate field on form save | ✅ (before) | ✅ (onSubmit) | ❌ | ❌ | ❌ | ❌ |
+| Auto-set a field value | ✅ (before) | ✅ (onChange) | ✅ | ✅ | ❌ | ❌ |
+| Send email when incident created | ✅ (after/async) | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Route to approval group | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Complex multi-step process | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| Field depends on another field value | ❌ | ✅ (onChange) | ❌ | ✅ | ❌ | ❌ |
+| Show/hide UI sections | ❌ | ✅ (onLoad) | ❌ | ✅ (UI Policy) | ❌ | ❌ |
+| Integrate with external system | ✅ (async) | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Bulk update many records | ✅ (GlideRecord) | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Decision based on multiple conditions | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| User interaction needed | ❌ | ✅ | ✅ (wait for input) | ❌ | ❌ | ✅ |
+
+### When to Use Each
+
+**Business Rule (server-side):**
+- Data integrity — enforce rules regardless of how the record is saved (form, import, API, integration)
+- Cross-table operations — update related records when a CI changes
+- Bulk processing — GlideRecord queries across many records
+- Async operations — emails, REST calls, long-running tasks
+
+**Client Script (browser-side):**
+- Immediate UI feedback — field validation before save
+- Dynamic form behavior — show/hide, set defaults on load
+- User experience — only runs in the browser, not for API/import saves
+
+**Flow Designer (low-code automation):**
+- Multi-step processes with conditions and branches
+- Integrations with external systems (IntegrationHub spokes)
+- Processes that need to wait for user input or external events
+- When you want admins (not developers) to maintain the logic
+
+**Decision Table:**
+- Pure business logic based on multiple conditions → actions
+- Rules that change frequently (non-developers can edit)
+- Simple if/then mappings (e.g., priority based on impact + urgency)
+
+**Playbook:**
+- Coordinated response to incidents or major events
+- Multiple tasks assigned to different groups
+- Timeline-driven response procedures
+
+**Approval Action:**
+- Manager/approver sign-off before proceeding
+- Process gates (e.g., change cannot implement without CAB approval)
+
+---
+
+## Coding JavaScript — Platform Script Types & Order of Operations
+
+ServiceNow runs several types of JavaScript, each with a distinct execution context and order relative to the platform's backend operations.
+
+### Script Type Reference
+
+| Type | Where It Runs | When It Runs | Typical Use |
+|------|--------------|--------------|-------------|
+| **Business Rule — before** | Server | Before the record is written to the DB | Validate/modify field values, cancel the save |
+| **Business Rule — after** | Server | After the record is written to the DB | Trigger downstream actions (create related records, send notifications) |
+| **Business Rule — async** | Server | After the DB commit (separate thread) | Long-running tasks (emails, integrations, REST calls) — doesn't block the user |
+| **Client Script — onLoad** | Browser | When the form loads | Set defaults, show/hide fields, UI initialization |
+| **Client Script — onChange** | Browser | When a field value changes | Dynamic field behavior, cross-field validation |
+| **Client Script — onSubmit** | Browser | When the user clicks Submit | Final validation before the form is sent to the server |
+| **Client Script — onCellEdit** | Browser | When editing a list cell | Inline list editing validation |
+| **UI Policy** | Browser | When the form loads / field changes | Mandatory, read-only, visible field control (no code) |
+| **Transform Script** | Server | During Import Set transformation | Field-level transformation as records move from staging to target |
+| **Script Include** | Server | Called from any server-side script | Reusable library functions |
+| **GlideAjax (client → server)** | Browser → Server | On-demand from client script | Call server-side logic from the browser without a full page reload |
+
+### Order of Operations — When Each Script Runs
+
+For a record save (e.g., creating or updating a CI via a form), the execution order is:
+
+```
+1. Client Script onLoad (form already loaded earlier)
+2. Client Script onChange (as user edits fields)
+3. UI Policy evaluation (mandatory/read-only/visible)
+4. Client Script onSubmit (user clicks Save)
+5. Business Rule — before (server, before DB write)
+   └─ Can modify current, can abort (set abort = true)
+6. Database write (record is persisted)
+7. Business Rule — after (server, after DB write)
+   └─ Record exists; can create related records
+8. Business Rule — async (server, after commit, separate thread)
+   └─ Does not block the user; runs when platform resources are available
+9. Transform Script (only during Import Set processing)
+   └─ Runs per-row during transform, field-by-field
+```
+
+### Order Field vs Priority Field
+
+Different platform features use different ordering fields:
+
+| Feature | Ordering Field | Lower Number = Runs First? | Notes |
+|---------|---------------|---------------------------|-------|
+| **Business Rule** | `Order` | ✅ Yes | Business rules on the same table with `before` type run in order; lowest first |
+| **UI Policy** | `Order` | ✅ Yes | UI policies evaluate in order; first matching policy with conditions wins |
+| **Decision Table** | `Order` | ✅ Yes | Rules evaluated lowest order first; first match wins |
+| **Flow Designer** | `Order` (on actions within a flow) | ✅ Yes | Actions within a branch run in order |
+| **Transform Map** | `Order` (on field maps) | ✅ Yes | Field maps transform in order |
+| **Scheduled Job** | `Priority` | ✅ Yes | Lower priority number = runs sooner |
+| **Identification Rule entry** | `Priority` | ✅ Yes | Identifier entries evaluated lowest priority first; first match wins |
+| **Reconciliation Rule** | `Priority` | ✅ Yes | Source priority: Discovery (lower number) outranks Manual (higher number) |
+| **Event Registry** | `Order` | ✅ Yes | Event handlers run lowest order first |
+
+**Important distinction:** A lower number means "runs first" for ordering fields, BUT certain platform features run before others regardless of their order number. For example:
+
+- **Business Rule — before** always runs before the database write, no matter what its `Order` value is
+- **Business Rule — async** always runs after the commit, even if its `Order` is lower than a `before` rule's `Order`
+- **Client scripts** always run in the browser before any server-side business rule
+- **UI Policies** evaluate before Business Rules on form load
+
+### Field-Level Execution Context
+
+| Context | When It Applies | Examples |
+|---------|----------------|----------|
+| **onLoad** | Form first opens | Set default `install_status = production` on new CI |
+| **onChange** | User changes a field value | When `install_status` changes to `retired`, set `end_date` |
+| **onSubmit** | User clicks Save | Validate that `serial_number` is not blank before allowing save |
+| **onCellEdit** | Inline list editing | Validate field on list view cell edit |
+| **before BR** | Before DB write | Modify `data_source` based on who is saving |
+| **after BR** | After DB write | Create an `event` record when a CI is inserted |
+| **async BR** | After commit | Send notification email to CMDB team |
+| **Transform Script** | During import | Map source `serial` field to `cmdb_ci.serial_number` |
+
+### Platform Backend vs Custom Script Distinction
+
+ServiceNow's backend features (Discovery, IRE, Import Sets, Transform Maps) run in a specific internal sequence. Custom scripts (business rules, client scripts) hook into that sequence at defined points:
+
+- **Discovery data arrives** → IRE runs (identification, then reconciliation) → Transform Map runs → Business Rules fire (before/after/async)
+- **Manual form save** → Client scripts run → Business Rule — before → DB write → Business Rule — after → Business Rule — async
+- **API/REST save** → Business Rule — before → DB write → Business Rule — after → Business Rule — async (no client scripts)
+
+**Rule of thumb:** If you need to affect *what gets saved*, use a **before business rule**. If you need to affect *what happens after save*, use **after** or **async**. If you need *immediate UI feedback*, use a **client script**. Never rely on client scripts for security or data integrity — they can be bypassed by API calls.
 
 ---
 

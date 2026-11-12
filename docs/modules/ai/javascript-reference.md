@@ -514,6 +514,66 @@ gs.print('Total incidents: ' + count);
 
 ---
 
+## Performance Tweaks & Debugging — JavaScript / Server-Side
+
+ServiceNow server-side JavaScript (business rules, script includes, transform scripts, scheduled jobs) runs on the platform's Rhino/Nashorn JVM. Poorly written scripts can slow down form saves, imports, and the entire instance.
+
+### GlideRecord Performance
+
+| Problem | Symptom | Fix |
+|---------|---------|-----|
+| `get()` without `setLimit()` | Query scans entire table | Always add `setLimit(1)` when checking existence: `gr.addQuery('serial_number', 'SN-123'); gr.setLimit(1); gr.query();` |
+| Selecting all fields | `gr.query()` loads every column | Use `gr.addQuery()` + `gr.setLimit()` + only access needed fields; or use `gr.getValue()` selectively |
+| Dot-walking in queries | `model.cpu_type = 'Xeon'` forces table join | Query `cmdb_model` first, collect sys_ids, then query target table with `model IN [sys_ids]` |
+| Looping with individual queries | N+1 query problem in for-loops | Use `addQuery('sys_id', 'IN', idList)` with a single query instead of querying inside a loop |
+| No index on filtered field | Full table scan on large tables | Add database index on frequently filtered fields (Dictionary → Indexed = true) |
+
+### Business Rule Performance
+
+| Problem | Symptom | Fix |
+|---------|---------|-----|
+| `before` rule doing heavy work | Form save feels slow | Move long-running work to an `async` business rule |
+| Rule fires on every field change | Unnecessary DB writes | Use `current.field.changes()` to only act when relevant fields change |
+| `after` rule calling external API | Save waits for API response | Use `async` type instead — the API call won't block the user |
+| Multiple rules on same table | Unpredictable execution order | Set `Order` field; lower numbers run first |
+
+### Client Script Performance
+
+| Problem | Symptom | Fix |
+|---------|---------|-----|
+| Heavy logic in `onLoad` | Form takes long to render | Defer non-critical work; use `g_form.showFieldMsg()` sparingly |
+| `onChange` firing on every keystroke | UI lag during typing | Check `g_form.getControl('field').value` changed meaningfully before acting |
+| Synchronous GlideAjax | Browser freezes during call | Always use asynchronous GlideAjax with callback |
+
+### Debugging Server-Side JavaScript
+
+| Tool | What It Shows | How to Access |
+|------|--------------|---------------|
+| **System Logs** (`sys_log`) | `gs.print()`, `gs.error()`, `gs.info()` output | All > System Logs > System Logs |
+| **Business Rule execution** | Which rules fired, in what order | Add `gs.print('BR ' + current.number + ' running')` at the top of each rule |
+| **ECC Queue** | MID Server probe/sensor results | MID Server > ECC Queue (for integration/Discovery issues) |
+| **Thread Dump** | Long-running threads blocking | System Diagnostics > Thread Dump (admin only) |
+| **Node Stats** | Instance CPU/memory pressure | System Diagnostics > Stats > Stats |
+
+### Quick Performance Wins
+
+1. **Always use `setLimit()`** — especially on existence checks (`setLimit(1)`)
+2. **Prefer `async` business rules** — for emails, REST calls, and integrations that don't block the user
+3. **Guard with `.changes()`** — only run logic when the relevant field actually changed
+4. **Avoid dot-walks in queries** — join in code instead of forcing SQL joins
+5. **Add indexes on filter fields** — `name`, `serial_number`, `data_source`, `install_status` on `cmdb_ci`
+6. **Profile with `gs.print()`** — log timestamps before/after slow operations to identify bottlenecks
+
+---
+
+### Cross-Reference
+
+- **[CMDB Guide → Security & ACLs](../cmdb/cmdb-guide.md#security--acls-for-cmdb)** — Access Control rules that gate who can read/write CMDB tables and fields
+- **[CMDB Guide → Performance Tweaks & Debugging](../cmdb/cmdb-guide.md#performance-tweaks--debugging-for-cmdb)** — CMDB-specific query optimization, index guidance, and IRE debugging
+
+---
+
+
 ## Related Guides
 
 - **[AI Platform Guide](./ai-guide.md)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management
