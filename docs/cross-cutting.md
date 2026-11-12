@@ -125,13 +125,13 @@ flowchart TD
     K --> P[Flow returns immediately Processing in background]
     L --> Q[Custom endpoint Request/Response handling]
     
-    style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    style E fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    style D fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style G fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style I fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style K fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style L fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style D fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style G fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style I fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style K fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style L fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
 ```
 
 ---
