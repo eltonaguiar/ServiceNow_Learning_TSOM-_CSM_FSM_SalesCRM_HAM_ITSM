@@ -597,6 +597,7 @@ flowchart TD
     REC -->|Conflict| PR[Apply Source Priority]
     REC -->|No Conflict| SKIP[No Change]
     NEW --> REL[Create Relationships]
+```
 
 ### IRE Identification and Reconciliation Flow
 
