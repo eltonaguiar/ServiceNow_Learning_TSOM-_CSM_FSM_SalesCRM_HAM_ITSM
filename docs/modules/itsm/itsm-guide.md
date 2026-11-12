@@ -401,6 +401,157 @@ A major incident is **not** just a P1. Priority is a form value; a major inciden
 
 **Change tasks:** Work assigned to fulfillment groups; completion of all tasks is required before the change can move to Implement.
 
+---
+
+### 📊 Major Incident vs Normal Incident Comparison
+
+```mermaid
+flowchart TD
+    subgraph "Normal Incident"
+        N1[Incident Created] --> N2[Triage & Assign]
+        N2 --> N3[Investigate & Resolve]
+        N3 --> N4[Resolve & Close]
+        N4 --> N5[Post-incident review optional]
+    end
+    
+    subgraph "Major Incident"
+        M1[Incident Created] --> M2{Business impact<br/>= major?}
+        M2 -->|Yes| M3[Declare Major Incident]
+        M3 --> M4[MIM Workbench Opens]
+        M4 --> M5[Bridge Call Scheduled]
+        M5 --> M6[Comms Plan Executed]
+        M6 --> M7[Stakeholder Tasks Created]
+        M7 --> M8[War Room Coordination]
+        M8 --> M9[Resolution Applied]
+        M9 --> M10[Post-Incident Review Scheduled]
+        M10 --> M11[Lessons Learned Documented]
+    end
+    
+    N2 -->|Low impact| N5
+    M2 -->|No| N1
+    
+    style M3 fill:#ff6b6b,color:#fff
+    style M4 fill:#ff6b6b,color:#fff
+    style M5 fill:#ff6b6b,color:#fff
+    style M8 fill:#ff6b6b,color:#fff
+    
+    note right of N1
+        Standard workflow
+        SLA: P1-P5 targets
+        Owner: Incident Manager
+    end note
+    
+    note right of M3
+        Declaration triggers:
+        - Business impact threshold
+        - Executive notification required
+        - Public-facing outage
+    end note
+```
+
+---
+
+### 📊 CAB & Change Types Decision Flow
+
+```mermaid
+flowchart TD
+    START[Change Request Created] --> TYPE{Change type?}
+    
+    TYPE -->|Standard| STD[Pre-approved, templated]
+    TYPE -->|Normal| NORM[Requires assessment]
+    TYPE -->|Emergency| EMRG[Expedited path]
+    
+    STD --> STD_APPROVE{Template exists?<br/>Low risk?}
+    STD_APPROVE -->|Yes| STD_EXEC[Auto-approve → Implement]
+    STD_APPROVE -->|No| NORM
+    
+    NORM --> CAB[CAB Review]
+    CAB --> CAB_DECISION{Approved?}
+    CAB_DECISION -->|Yes| NORM_EXEC[Implement with approval]
+    CAB_DECISION -->|No| REJECT[Rejected / Return for revision]
+    
+    EMRG --> ECAB[ECAB (on-call subset)]
+    ECAB --> EMRG_DECISION{Expedited approval?}
+    EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately → Retro review]
+    EMRG_DECISION -->|No| REJECT
+    
+    STD_EXEC --> POST[Post-implementation review optional]
+    NORM_EXEC --> POST
+    EMRG_EXEC --> RETRO[Retro CAB review required within 7 days]
+    
+    style STD fill:#6bcb77,color:#fff
+    style STD_EXEC fill:#6bcb77,color:#fff
+    style NORM fill:#ffd93d,color:#000
+    style CAB fill:#ffd93d,color:#000
+    style EMRG fill:#ff6b6b,color:#fff
+    style ECAB fill:#ff6b6b,color:#fff
+    
+    note right of STD
+        Standard changes:
+        - Pre-approved
+        - Low risk
+        - No CAB needed
+        - Examples: password reset, routine patching
+    end note
+    
+    note right of NORM
+        Normal changes:
+        - CAB-reviewed
+        - Higher risk
+        - Requires approval
+        - Examples: new deployment, infra change
+    end note
+    
+    note right of EMRG
+        Emergency changes:
+        - ECAB-approved
+        - Production outage fix
+        - Retro review mandatory
+        - Blackout window exceptions
+    end note
+```
+
+---
+
+### 📊 Change Collision Detection & Blackout Windows
+
+```mermaid
+flowchart TD
+    subgraph "Pre-Implementation Checks"
+        CHECK1[Change start time within<br/>blackout window?]
+        CHECK2[CI collision detected?<br/>Same CI, overlapping windows]
+        CHECK3[Dependency chain blocked?<br/>Upstream change not complete]
+    end
+    
+    CHECK1 -->|Yes → BLOCKED| BLOCK[Block implementation]
+    CHECK1 -->|No → OK| CHECK2
+    CHECK2 -->|Yes → BLOCKED| BLOCK
+    CHECK2 -->|No → OK| CHECK3
+    CHECK3 -->|Yes → BLOCKED| BLOCK
+    CHECK3 -->|No → OK| ALLOW[Allow implementation]
+    
+    BLOCK --> NOTIF[Notify requester:<br/>"Change blocked due to<br/>blackout/collision/dependency"]
+    NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
+    RESOLVE --> CHECK1
+    
+    style BLOCK fill:#ff6b6b,color:#fff
+    style ALLOW fill:#6bcb77,color:#fff
+    
+    note right of CHECK1
+        Blackout windows:
+        - Month-end close
+        - Holiday periods
+        - Scheduled maintenance
+        - Business-critical events
+    end note
+    
+    note right of CHECK2
+        Collision detection:
+        - Same CI affected
+        - Time windows overlap
+        - Prevents conflicting changes
+    end note
+```
 ### 📦 Request Fulfillment
 - **Catalog Item:** The "Product" the user sees.
 - **Record Producer:** A simple form that creates a record (Incident or Case).

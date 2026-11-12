@@ -270,6 +270,145 @@ Compliance position = f(entitlement quantity, normalized installs, usage evidenc
 
 ---
 
+---
+
+### 📊 Reconciliation Flow Diagram
+
+```mermaid
+flowchart LR
+    subgraph "Owned Licenses"
+        ENT[Entitlement Record] -->|license_metric, quantity| CONTRACT[Contract]
+    end
+    
+    subgraph "Discovered Installs"
+        DISC[Discovery Model] -->|normalizes to| SWMODEL[Software Model]
+        INST[Installation] --> SWMODEL
+        USE[Usage Data] --> INST
+    end
+    
+    subgraph "Reconciliation Engine"
+        RECON[Reconciliation Job] --> CALC[Calculate Compliance Position]
+    end
+    
+    ENT --> RECON
+    SWMODEL --> RECON
+    INST --> RECON
+    USE --> RECON
+    
+    CALC -->|under-licensed| UNDER[Under-Licensed<br/>Buy more or reclaim]
+    CALC -->|over-licensed| OVER[Over-Licensed<br/>Money wasted]
+    CALC -->|compliant| COMP[Compliant<br/>No action needed]
+    CALC -->|unlicensed| UNL[Unlicensed<br/>No entitlement found]
+    
+    style UNDER fill:#ff6b6b,color:#fff
+    style OVER fill:#ffd93d,color:#000
+    style COMP fill:#6bcb77,color:#fff
+    style UNL fill:#4d96ff,color:#fff
+```
+
+### 📊 Compliance Position States
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unlicensed: No entitlement exists
+    Unlicensed --> UnderLicensed: Entitlement created (partial)
+    UnderLicensed --> Compliant: Quantity >= demand
+    Compliant --> OverLicensed: Excess quantity added
+    OverLicensed --> Compliant: Reclamation applied
+    Compliant --> UnderLicensed: Demand increased, no new entitlement
+    UnderLicensed --> Unlicensed: All entitlements expired
+    
+    note right of Unlicensed
+        Zero entitlements for this model
+        High audit risk if discovered
+    end note
+    
+    note right of UnderLicensed
+        Entitlement < demand
+        True-up required or reclaim unused
+    end note
+    
+    note right of Compliant
+        Entitlement ≈ demand
+        Within acceptable variance
+    end note
+    
+    note right of OverLicensed
+        Entitlement > demand
+        Money wasted on unused licenses
+    end note
+```
+
+---
+
+### 📊 Publisher-Specific Rules Flow
+
+```mermaid
+flowchart TD
+    START[Reconciliation Result] --> CHECK{Publisher-specific<br/>rules apply?}
+    
+    CHECK -->|Microsoft| MS[Microsoft Rules]
+    CHECK -->|Oracle| ORA[Oracle Rules]
+    CHECK -->|Adobe| ADO[Adobe Rules]
+    CHECK -->|IBM| IBM[IBM Rules]
+    CHECK -->|No rules| NORMAL[Normalized calculation]
+    
+    MS --> MS_RULES{Metric type?}
+    MS_RULES -->|Per User| MS_USER[Count named users]
+    MS_RULES -->|Per Device| MS_DEV[Count devices]
+    MS_RULES -->|Per Core| MS_CORE[Count cores × factor]
+    
+    ORA --> ORA_RULES{Deployment type?}
+    ORA_RULES -->|Virtualized| ORA_VIRT[10% rule applies]
+    ORA_RULES -->|Physical| ORA_PHYS[Full core count]
+    
+    ADO --> ADO_RULES{Product line?}
+    ADO_RULES -->|Creative Cloud| ADO_CC[Per-seat subscription]
+    ADO_RULES -->|Document Cloud| ADO_DC[Per-document pricing]
+    
+    MS_USER --> FINAL[Compliance Position]
+    MS_DEV --> FINAL
+    MS_CORE --> FINAL
+    ORA_VIRT --> FINAL
+    ORA_PHYS --> FINAL
+    ADO_CC --> FINAL
+    ADO_DC --> FINAL
+    NORMAL --> FINAL
+    
+    style MS fill:#e5b567
+    style ORA fill:#e5b567
+    style ADO fill:#e5b567
+    style IBM fill:#e5b567
+```
+
+---
+
+### 📊 SaaS License Management Flow
+
+```mermaid
+flowchart LR
+    subgraph "SaaS Connectors"
+        M365[Microsoft 365] --> USAGE[Usage Data]
+        SFDC[Salesforce] --> USAGE
+        ADOBE[Adobe CC] --> USAGE
+        ZOOM[Zoom] --> USAGE
+    end
+    
+    USAGE -->|seat utilization, active users| RECON[SaaS Reconciliation]
+    
+    RECON -->|under-licensed| TRUEUP[True-up seats]
+    RECON -->|over-licensed| RECLAIM[Reclaim unused seats]
+    RECON -->|compliant| OPTIMIZE[Optimize allocation]
+    
+    TRUEUP --> FINAL[Updated Entitlement]
+    RECLAIM --> FINAL
+    OPTIMIZE --> FINAL
+    
+    style M365 fill:#0078d4,color:#fff
+    style SFDC fill:#00a1e0,color:#fff
+    style ADOBE fill:#ff0000,color:#fff
+    style ZOOM fill:#2d8cff,color:#fff
+```
 ## Compliance Positions Explained
 
 | Position | Meaning | Financial meaning | Typical action |

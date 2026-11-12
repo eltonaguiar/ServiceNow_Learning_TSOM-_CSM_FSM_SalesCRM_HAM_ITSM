@@ -499,6 +499,153 @@ graph TD
 
 ---
 
+---
+
+### 📊 HAM vs ITAM vs CMDB Comparison
+
+```mermaid
+flowchart TD
+    subgraph "HAM — Hardware Asset Management"
+        HAM[Asset Record] -->|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
+        HAM --> FIN[Financial Data<br/>Cost, PO, Contract, Depreciation]
+        HAM --> ASG[Assignment Data<br/>User, Location, Department]
+    end
+    
+    subgraph "ITAM — IT Asset Management (umbrella)"
+        HAM -->|normalized via NDS| CMDB[CMDB CI Record]
+        HAM --> CONTRACT[Contract/PO Link]
+        HAM --> MODEL[Asset Model]
+    end
+    
+    subgraph "CMDB — Configuration Management Database"
+        CMDB --> TEC[Technical Data<br/>OS, IP Address, Serial Number]
+        CMDB --> REL[Relationships<br/>Runs On, Depends On, Connected To]
+        CMDB --> SERVICES[Business Services<br/>Mapped via CSDM]
+    end
+    
+    HAM -.->|Financial view| ITAM
+    CMDB -.->|Technical view| ITAM
+    
+    style HAM fill:#e5b567,color:#000
+    style ITAM fill:#4cc38a,color:#000
+    style CMDB fill:#4d96ff,color:#fff
+    
+    note right of HAM
+        HAM tracks:
+        - Physical hardware assets
+        - Procurement → retirement lifecycle
+        - Financial ownership & depreciation
+        - Assignment to users/locations
+    end note
+    
+    note right of CMDB
+        CMDB tracks:
+        - Technical configuration items
+        - OS, network, relationships
+        - Business service dependencies
+        - CSDM framework alignment
+    end note
+    
+    note right of ITAM
+        ITAM unifies:
+        - HAM (hardware) + SAM (software)
+        - Financial + technical views
+        - Cost optimization & compliance
+    end note
+```
+
+---
+
+### 📊 Asset Lifecycle with Discovery Integration
+
+```mermaid
+flowchart LR
+    subgraph "Procurement"
+        REQ[Request Submitted] --> APPROVE[Approval Workflow]
+        APPROVE --> PO[Purchase Order Created]
+        PO --> VENDOR[Vendor Ships Equipment]
+    end
+    
+    subgraph "Receiving & Check-In"
+        VENDOR --> RECEIVED[Received at Facility]
+        RECEIVED --> CHECKIN[Check-In Record Created]
+        CHECKIN --> INSTOCK[In Stock State]
+    end
+    
+    subgraph "Assignment & Discovery"
+        INSTOCK --> ASSIGN[Assigned to User/Location]
+        ASSIGN --> DISCOVER[Discovery Scans Device]
+        DISCOVER --> NORMALIZE[NDS Normalization]
+        NORMALIZE --> CMDB[CI Created/Updated in CMDB]
+    end
+    
+    subgraph "Maintenance & Retirement"
+        CMDB --> ACTIVE[Active Asset Lifecycle]
+        ACTIVE --> MAINT[Maintenance/Repair]
+        MAINT --> ACTIVE
+        ACTIVE --> RETIRE[Retirement Initiated]
+        RETIRE --> WIPE[Data Wipe Certified]
+        WIPE --> DISPOSAL[Disposal Completed]
+    end
+    
+    style INSTOCK fill:#6bcb77,color:#fff
+    style CMDB fill:#4d96ff,color:#fff
+    style ACTIVE fill:#ffd93d,color:#000
+    style DISPOSAL fill:#ff6b6b,color:#fff
+    
+    note right of DISCOVER
+        Discovery integration:
+        - MID Server scans device
+        - Serial number captured
+        - CI normalized to asset
+        - Relationships discovered
+    end note
+```
+
+---
+
+### 📊 Asset State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Purchased: PO received
+    
+    Purchased --> ReceivingCheckIn: Physical receipt
+    ReceivingCheckIn --> InStock: Check-in complete
+    
+    InStock --> InUseAssigned: User assignment
+    InStock --> InMaintenance: Repair needed
+    
+    InUseAssigned --> InMaintenance: Maintenance required
+    InMaintenance --> InUseRepairComplete: Repair done
+    
+    InUseAssigned --> RetiredEndOfLife: End of life
+    InUseAssigned --> LostOrStolen: Reported lost/stolen
+    
+    RetiredEndOfLife --> DisposalDataWipe: Wipe certified
+    LostOrStolen --> WriteOff: Financial write-off
+    
+    DisposalDataWipe --> [*]: Asset retired
+    WriteOff --> [*]: Asset written off
+    
+    note right of InStock
+        Available for assignment
+        Stored in stockroom
+        Not yet deployed
+    end note
+    
+    note right of InUseAssigned
+        Active deployment
+        User has device
+        SLA monitoring active
+    end note
+    
+    note right of RetiredEndOfLife
+        End of useful life
+        Replacement procured
+        Depreciation complete
+    end note
+```
 ## Common Mistakes
 
 || Mistake | Symptom | Fix |
