@@ -370,7 +370,8 @@
   function jumpTo(index) {
     if (index < 0 || index >= state.blocks.length) return;
     state.currentIndex = index;
-    // Do NOT auto-start TTS — user must click Play explicitly.
+    // Stop any ongoing TTS so it doesn't scroll back to where it was speaking
+    stop();
     // Clicking a paragraph only scrolls to that section.
     state.blocks[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
