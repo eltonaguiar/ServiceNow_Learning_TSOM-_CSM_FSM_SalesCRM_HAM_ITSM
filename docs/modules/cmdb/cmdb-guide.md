@@ -41,6 +41,7 @@
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [IntegrationHub Spoke → IRE: Invoking, Suppressing, and Bridging the Gap](#integrationhub-spoke-ire-making-it-work-and-knowing-when-to-skip-it)
 - [Common CMDB Gotchas & Complex Issues](#common-cmdb-gotchas--complex-issues)
+- [How CI Relationships Are Determined — OOB, Detection, Fixes & Manual Creation](#how-ci-relationships-are-determined--oob-detection-fixes--manual-creation)
 
 ---
 
@@ -1289,6 +1290,159 @@ You can create new relationship types via **All > Configuration > CI Relationshi
 | Script / API | Business rules, Script Includes, or REST API writing to `cmdb_rel_ci` | Programmatic relationship creation |
 
 **Best practice:** Let Discovery and Service Mapping populate relationships where possible; use manual entry only for exceptions. Keep relationship types stable — changing a type name breaks existing maps and reports.
+
+---
+
+## How CI Relationships Are Determined — OOB, Detection, Fixes & Manual Creation
+
+Relationships between CIs live in `cmdb_rel_ci`. Each row has a `parent`, a `child`, and a `type` that comes from `cmdb_rel_rel_type`. Understanding how relationships get created — and how to detect and fix wrong ones — is critical for accurate impact analysis, change risk assessment, and service mapping.
+
+---
+
+### Does ServiceNow Provide Relationships Out of the Box?
+
+**Yes — but only some of them.**
+
+| Source | What It Provides | Automated? |
+|--------|-----------------|------------|
+| **Discovery patterns** | Infrastructure relationships: server→OS, server→network interface, server→CPU, VM→hypervisor, network device→connected switch | ✅ Yes — during Discovery runs |
+| **Service Mapping patterns** | Application dependencies: web server→app server, app server→database, application→service | ✅ Yes — during top-down mapping |
+| **OOB relationship types** | `cmdb_rel_rel_type` records: `Runs on::Runs`, `Depends on::Used by`, `Connected to::Connects to`, `Member of::Member of`, `Realized by::Realizes` | ✅ Yes — ship with the platform |
+| **Import Sets / Transform Maps** | Bulk parent/child pairs from external CMDBs or asset systems | ✅ Yes — if configured with coalesce |
+| **Manual entry** | Human-created relationships via CI Relationships module | ❌ No — requires admin action |
+| **Script / API** | Business rules, Script Includes, or REST API writing to `cmdb_rel_ci` | ❌ No — requires development |
+
+**Bottom line:** ServiceNow provides the *relationship types* OOB and Discovery/Service Mapping will auto-create many *relationship instances* during normal operation. But you will still have gaps — especially for custom applications, business services, and logical dependencies that Discovery can't observe.
+
+---
+
+### How Relationships Are Determined (Creation Flow)
+
+| Method | How It Works | Best For |
+|--------|-------------|----------|
+| **Discovery** | MID Server probes the target, classifiers identify the device type, patterns explore running processes, listening ports, and connections. Discovery writes `cmdb_rel_ci` rows linking e.g. `cmdb_ci_server` → `cmdb_ci_network_adapter` → `cmdb_ci_ip_address` | Infrastructure: servers, network gear, VMs, OS, databases |
+| **Service Mapping (top-down)** | Starts at an entry point (URL/hostname/IP), executes patterns against applications, follows outbound connections to discover dependent components, builds `cmdb_rel_ci` rows and `cmdb_ci_service_discovered` | Application services: web→app→db→service |
+| **Import Set + Transform Map** | Bulk-load parent/child pairs; set `coalesce = true` on key fields to match existing CIs | Initial seed data, external CMDB migration, bulk loads |
+| **Manual** | All > Configuration > CI Relationships > New → select parent, child, type | Exceptions, logical relationships Discovery can't see |
+| **Script / API** | Business rules, Script Includes, or REST API create `cmdb_rel_ci` rows programmatically | Custom integration logic, dynamic relationship creation |
+
+**Key principle:** Relationships are determined by **what Discovery and Service Mapping observe**, not by what you wish existed. If Discovery doesn't see a connection, no relationship row is created.
+
+---
+
+### Detecting Wrong or Inconsistent Relationships
+
+Wrong relationships break impact analysis, change risk assessment, and incident routing. Here's how to find them:
+
+| Problem | How to Detect | Where to Look |
+|---------|--------------|---------------|
+| **Missing relationships** | CI exists but has no `cmdb_rel_ci` rows as parent or child | CI List → open a CI → Related Lists → CI Relationships |
+| **Orphaned relationships** | `cmdb_rel_ci` points to a deleted or retired CI | `cmdb_rel_ci` list → filter `parent IS NULL` or `child IS NULL` |
+| **Wrong relationship type** | A server has `Connected to::Connects to` when it should be `Runs on::Runs` | CI Relationships list → review `type` values |
+| **Circular dependencies** | CI A → CI B → CI A (creates loops in impact analysis) | `cmdb_rel_ci` query → self-referencing chains |
+| **Duplicate relationships** | Same parent/child/type appears multiple times | `cmdb_rel_ci` list → group by parent+child+type, count > 1 |
+| **Stale relationships** | Relationship exists but the connected CI is retired or decommissioned | Cross-reference `cmdb_rel_ci` with `cmdb_ci.install_status = retired` |
+
+**Detection queries you can run:**
+
+```javascript
+// Find orphaned relationships (points to non-existent CI)
+var gr = new GlideRecord('cmdb_rel_ci');
+gr.addQuery('parent', 'ISEMPTY', '').addOrCondition('child', 'ISEMPTY', '');
+gr.query();
+while (gr.next()) {
+    gs.print('Orphaned relationship: ' + gr.getValue('sys_id'));
+}
+
+// Find duplicate relationships
+var gr2 = new GlideRecord('cmdb_rel_ci');
+gr2.groupBy('parent', 'child', 'type');
+gr2.addAggregate('COUNT', 'COUNT');
+gr2.addHaving('COUNT', '>', 1);
+gr2.query();
+while (gr2.next()) {
+    gs.print('Duplicate: parent=' + gr2.getValue('parent') + 
+             ' child=' + gr2.getValue('child') + 
+             ' type=' + gr2.getValue('type') + 
+             ' count=' + gr2.getAggregate('COUNT', 'COUNT'));
+}
+```
+
+---
+
+### Fixing Wrong Relationships
+
+| Issue | Fix |
+|-------|-----|
+| **Wrong type** | Open the `cmdb_rel_ci` record, change the `type` field, save |
+| **Wrong parent/child** | Delete the incorrect row, create a new one with correct parent/child |
+| **Orphaned row** | Delete the `cmdb_rel_ci` row (it points to a CI that no longer exists) |
+| **Duplicate rows** | Keep one, delete the rest |
+| **Missing relationship** | Create it manually (see below) |
+
+> **Warning:** Deleting a `cmdb_rel_ci` row is safe — it only removes the relationship, not the CIs themselves. But be careful: removing relationships breaks impact analysis paths until they're recreated.
+
+---
+
+### Creating a Relationship Manually
+
+**When you need to:** Discovery can't observe a logical dependency (e.g., "this business service depends on that application"), or you're building a seed map before Discovery runs.
+
+**Steps:**
+
+1. Navigate to **All > Configuration → CI Relationships > New**
+2. Fill in the form:
+
+| Field | What to Set |
+|-------|-------------|
+| **Parent** | The CI that depends on / uses the child (e.g., the web server CI) |
+| **Child** | The CI that is depended upon / used by the parent (e.g., the database CI) |
+| **Type** | Choose from `cmdb_rel_rel_type` (e.g., `Depends on::Used by`) |
+| **Start Date** | When the relationship became effective |
+| **End Date** | When it stops being effective (optional) |
+
+3. **Submit**
+
+**Via script (Business Rule / Script Include):**
+
+```javascript
+var gr = new GlideRecord('cmdb_rel_ci');
+gr.initialize();
+gr.parent = 'parent_sys_id_here';
+gr.child = 'child_sys_id_here';
+gr.type = 'Depends on::Used by';
+gr.start_date = new Date();
+gr.insert();
+gs.print('Created relationship: ' + gr.getValue('sys_id'));
+```
+
+---
+
+### Would You Realistically Need to Create Relationships Manually?
+
+| Scenario | Manual Creation Needed? | Why |
+|----------|------------------------|-----|
+| Standard server discovered by Discovery | ❌ No | Discovery creates server→OS, server→network, VM→hypervisor automatically |
+| Standard application discovered by Service Mapping | ❌ No | Service Mapping creates app→db, app→server dependencies |
+| Custom application with no Discovery pattern | ✅ Yes | Discovery can't see inside your proprietary app |
+| Business service → technical service mapping | ✅ Yes | Logical business relationships aren't discoverable |
+| Cloud resources with consistent tags | ⚠️ Maybe | Tag-based mapping can associate resources, but not detailed dependencies |
+| Initial CMDB seed data (before Discovery) | ✅ Yes | You need relationships before Discovery runs |
+| Relationship Discovery got wrong | ✅ Yes | You may need to correct or supplement |
+
+**Rule of thumb:** Aim for **80–90% automated** (Discovery + Service Mapping) and **10–20% manual** (exceptions, business logic, custom apps). If you're creating most relationships manually, something is wrong with your Discovery or Service Mapping configuration.
+
+---
+
+### Common Relationship Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| **Reversing parent/child** | Impact analysis shows the wrong direction — fixing a database appears to impact web servers instead of the reverse | Swap parent and child in `cmdb_rel_ci` |
+| **Using wrong type** | `Runs on::Runs` used for `Depends on::Used by` — change risk assessment is inaccurate | Change the `type` field on the `cmdb_rel_ci` record |
+| **Creating relationships to retired CIs** | Impact analysis includes decommissioned systems | Add `end_date` or delete the relationship |
+| **Circular dependencies** | Impact analysis loops forever | Find and break the cycle — remove one relationship in the loop |
+**Not using coalesce in import** | Duplicate `cmdb_rel_ci` rows on every import | Set `coalesce = true` on parent/child fields in the Transform Map |
 
 ---
 
