@@ -5,7 +5,7 @@ title: ServiceNow Module Guides
 
 # ServiceNow Module Guides
 
-Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for nine ServiceNow modules plus AI Features:
+Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for the modules below, plus a dedicated AI guide and a Salesforce track.
 
 ## Available Guides
 
@@ -66,9 +66,9 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
   </div>
   <div class="card">
-    <h3>AI Features</h3>
-    <p>ServiceNow AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, and NASK practical implementation</p>
-    <p class="meta"><a href="./docs/ai-features-coding-section.md">Open the AI Features coding section</a></p>
+    <h3>AI</h3>
+    <p>AI-native tiers (Foundation/Advanced/Prime), Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, Now Assist Skill Kit, governance, cost management, guardrails — plus a JavaScript/Glide API reference.</p>
+    <p class="meta"><a href="./docs/modules/ai/ai-guide/">Open the AI guide</a> · <a href="./docs/modules/ai/ai-guide/#javascript-reference--glide-apis--scripting-patterns">JavaScript reference</a></p>
   </div>
 </div>
 
@@ -134,10 +134,11 @@ Every module guide follows the same repeatable process:
 3. **Build** — Do the lab: create a record, run a flow, call an integration
 4. **Verify** — Confirm the artifact works end-to-end
 5. **Teach Back** — Write a summary
+
 ## Additional Resources
 
 - **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, and Admin essentials
-- **[AI Features & JavaScript Reference](./docs/ai-features-coding-section.md)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, and JavaScript reference patterns
+- **[AI Platform & JavaScript Reference](./docs/modules/ai/ai-guide/)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management, and JavaScript/Glide API patterns
 
 - **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
 - **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos
