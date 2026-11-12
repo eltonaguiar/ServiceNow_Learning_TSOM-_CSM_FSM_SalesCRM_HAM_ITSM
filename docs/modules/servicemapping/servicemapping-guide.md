@@ -29,6 +29,7 @@
 - [Lab: Create Your First Mapped Application Service](#lab-create-your-first-mapped-application-service)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Service Mapping — Terminology, Methods & Patterns](#service-mapping--terminology-methods--patterns)
+- [Service Mapping — Key Tables in Creation Order](#service-mapping--key-tables-in-creation-order)
 - [Quiz](#quiz)
 - [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
@@ -1117,6 +1118,123 @@ IRE → CMDB (identify, reconcile, store CIs and relationships)
 | What layer does Service Mapping primarily operate on? | The technical layer — discovering CIs and their dependencies |
 
 > **Interview tip:** Make sure you understand the difference between **horizontal Discovery** (tells you what infrastructure exists) and **top-down Service Mapping** (tells you how components work together to deliver an application service). That distinction is fundamental.
+
+---
+
+---
+
+## Service Mapping — Key Tables in Creation Order
+
+When you create a manual Service Map, the first record you create is the **Application Service (Service Instance)**. You then populate it with Configuration Items (CIs) and establish relationships between those CIs.
+
+**The important distinction:** You are not creating every server, database, and application from scratch. Those CIs should already exist in the CMDB — you are assembling them into an application service.
+
+---
+
+### 1. Actual Creation Sequence
+
+| Step | Record Created | Table | Purpose |
+|------|---------------|-------|---------|
+| **1** | Application Service / Service Instance | `cmdb_ci_service_discovered` | First record created. Name the service (e.g., "Banking Customer Portal - Production"), select Manual as the population method. |
+| **2** | Entry Point CI | `cmdb_ci` subclass (e.g., `cmdb_ci_web_server`) | Where users or external systems access the application — web server, load balancer, or URL endpoint. Select an existing CI or create one first. |
+| **3** | Remaining CIs added to service | Their respective `cmdb_ci` subclasses | Web server, application server, middleware, database instance, database server, network infrastructure. Each belongs to its own CI class/table. |
+| **4** | CI relationships | `cmdb_rel_ci` | Define dependencies — Web server Depends on application server, Application server Depends on database instance, Database instance Runs on database server. Establishes topology. |
+| **5** | CIs associated with service | `svc_ci_assoc` | Associates the application service with the CIs that belong to it. |
+
+> **Parent class note:** The application service creation process starts from the parent `cmdb_ci_service_auto` table, but the manually created service instance is stored in `cmdb_ci_service_discovered`.
+
+---
+
+### 2. Key Tables Grouped by Purpose
+
+| Table | What It Stores / Does |
+|-------|----------------------|
+| `cmdb_ci_service_auto` | Parent Application Service class used in the application service creation model |
+| `cmdb_ci_service_discovered` | Mapped Application Service records — both manually created and top-down discovered services |
+| `cmdb_ci` | Base CMDB table inherited by all CI classes |
+| `cmdb_rel_ci` | Relationships between CIs — establishes dependencies and topology |
+| `svc_ci_assoc` | Associates CIs with their application service |
+| `cmdb_ci_appl` | Application CIs — installed application software |
+| `cmdb_ci_server` | Server CIs — parent class for relevant server types |
+| `cmdb_ci_computer` | Computer CIs — including relevant computer/server subclasses |
+| `cmdb_ci_db_instance` | Database instance CIs |
+| `cmdb_ci_business_app` | Business Application records associated with the application service at portfolio/design level |
+| `cmdb_ci_service` | Parent Service class — service-related records |
+
+> **Infrastructure CIs:** The individual infrastructure CI classes depend on what you are mapping — network devices, load balancers, web servers, middleware, and cloud resources each have their own classes.
+
+---
+
+### 3. Service Mapping-Specific Supporting Tables
+
+| Table | Purpose |
+|-------|---------|
+| `sa_manual_connections` | Stores manually defined endpoints used when adding manual connections |
+| `sa_bs_components` | Stores manually entered service components from the service questionnaire |
+| `sa_cand_entry_point` | Stores potential entry points identified through load balancers or traffic-based connections |
+| `sa_discovery_message` | Stores discovery messages and errors |
+| `sa_service_counters` | Stores CI counts and discovery error counts for services |
+| `sa_errors_as_manual_ep` | Stores errors skipped when continuing application service discovery |
+| `service_process_task` | Stores data requests and review requests for application services |
+| `sa_pre_task_script` | Scripts used by Service Mapping to collect information for CI identification and patterns |
+
+---
+
+### 4. Example: Banking Customer Portal
+
+Suppose you are manually mapping a banking application. Your resulting structure might look like this:
+
+```text
+Application Service
+cmdb_ci_service_discovered
+    |
+    +-- Web Server
+    |   cmdb_ci_web_server
+    |       |
+    |       +-- Application Server
+    |           cmdb_ci_app_server
+    |               |
+    |               +-- Database Instance
+    |                   cmdb_ci_db_instance
+    |                       |
+    |                       +-- Database Server
+    |                           cmdb_ci_server
+    |
+    +-- CI associations
+        svc_ci_assoc
+
+Relationships:
+cmdb_rel_ci
+```
+
+The application service represents the **production deployment** of the banking portal, rather than the overall business application.
+
+---
+
+### 5. Important Interview Distinctions
+
+| Question | Answer |
+|----------|--------|
+| What do you create first? | Application Service / Service Instance |
+| What table stores a manually created service? | `cmdb_ci_service_discovered` |
+| Where do the servers and databases live? | Their respective CMDB CI class tables |
+| What creates dependency relationships? | `cmdb_rel_ci` |
+| What associates CIs with the service? | `svc_ci_assoc` |
+| Do you need to create patterns for manual mapping? | No |
+| Do you need patterns for automated top-down discovery? | ServiceNow provides OOB patterns; custom patterns can be developed when necessary |
+| Does manually adding a CI automatically discover its dependencies? | Not necessarily — you must add the relevant CIs and relationships, or use discoverable connections where supported |
+
+---
+
+### Business Application vs Application Service vs Infrastructure CI
+
+| Concept | What It Means | Example |
+|---------|--------------|---------|
+| **Business Application** | What application does the organization own? | Online Banking Application |
+| **Application Service** | What deployed instance of that application are we mapping? | Banking Customer Portal - Production |
+| **Infrastructure CIs** | What technology supports that instance? | Web server, app server, database server, network |
+
+> **`cmdb_ci_business_app` is not the same as `cmdb_ci_service_discovered`.** The former is a business/portfolio-level record; the latter is a deployed service instance you map for impact analysis.
 
 ---
 
