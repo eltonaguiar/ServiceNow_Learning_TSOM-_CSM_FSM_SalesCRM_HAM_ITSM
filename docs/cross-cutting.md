@@ -43,7 +43,7 @@ Integrations are how ServiceNow talks to the rest of the enterprise.
 
 | Tool | When to use | Key Concept |
 |-------|--------------|-------------|
-| **Import Sets** | Bulk data loading (Excel, CSV) | Staging table $	o$ Transform Map $	o$ Target |
+| **Import Sets** | Bulk data loading (Excel, CSV) | Staging table → Transform Map → Target |
 | **REST Message** | Real-time outbound calls | Endpoint, HTTP Method, Auth, JSON Parsing |
 | **Scripted REST API** | Allow external systems to call SN | Custom endpoints, Request/Response handling |
 | **IntegrationHub** | Low-code integrations | Spokes, Actions, Connection & Credential Aliases |
