@@ -189,10 +189,16 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'mermaid-slideshow-btn';
-    btn.textContent = '\u25B6 View diagrams as slideshow (' + diagrams.length + ')';
+    btn.textContent = '\\u25B6 View diagrams as slideshow (' + diagrams.length + ')';
     btn.addEventListener('click', function () { open(0); });
     var firstWrap = diagrams[0].parentElement;
     firstWrap.parentNode.insertBefore(btn, firstWrap);
+
+    // Auto-launch slideshow as default for diagram-heavy pages (6+ diagrams)
+    if (diagrams.length >= 6) {
+      btn.classList.add('slideshow-default');
+      setTimeout(function () { open(0); }, 800);
+    }
 
     // 4) Click any diagram to open it in the slideshow.
     diagrams.forEach(function (d, i) {
