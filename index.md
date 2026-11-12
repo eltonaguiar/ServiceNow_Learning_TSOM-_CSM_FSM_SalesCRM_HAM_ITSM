@@ -5,7 +5,7 @@ title: ServiceNow Module Guides
 
 # ServiceNow Module Guides
 
-Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for eight ServiceNow modules:
+Welcome to the ServiceNow Module Guides repository. This repo contains beginner-friendly getting-started guides for eight ServiceNow modules plus AI Features:
 
 ## Available Guides
 
@@ -57,6 +57,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p>Enterprise integration, workforce management, legacy systems, ITIL, and Agile — Boomi iPaaS, UKG, AS/400/DB2, ITIL processes, and Agile delivery.</p>
     <p class="meta"><a href="./docs/modules/other/other-guide/">Open the Other guide</a></p>
   </div>
+  <div class="card">
+    <h3>AI Features</h3>
+    <p>ServiceNow AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, and NASK practical implementation</p>
+    <p class="meta"><a href="./docs/ai-features-coding-section.md">Open the AI Features coding section</a></p>
+  </div>
 </div>
 
 ## What's in Each Guide
@@ -94,9 +99,10 @@ Every module guide follows the same repeatable process:
 3. **Build** — Do the lab: create a record, run a flow, call an integration
 4. **Verify** — Confirm the artifact works end-to-end
 5. **Teach Back** — Write a summary
-
 ## Additional Resources
+
 - **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, and Admin essentials
+- **[AI Features & JavaScript Reference](./docs/ai-features-coding-section.md)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, and JavaScript reference patterns
 
 - **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
 - **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos

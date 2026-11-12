@@ -485,29 +485,33 @@ ServiceNow is rarely an island. It needs to send data out (e.g., "create a ticke
 
 ### ELI5
 
-Jelly is ServiceNow's XML-based scripting language. It's used mainly to render the **Service Portal** — the customer/employee-facing website where users browse the service catalog, view knowledge articles, and submit requests. Think of Jelly as HTML with superpowers: it lets you embed ServiceNow logic (GlideRecord queries, variables, conditions) directly inside XML markup that gets turned into the pages users see.
+Jelly is ServiceNow's XML-based scripting language. It's used mainly for **UI Pages**, older **CMS/Content Management**, and some **email templates** — not the main way Service Portal is built. Modern Service Portal uses HTML plus client/server scripts (AngularJS in legacy portals, vanilla JS in newer ones). Think of Jelly as XML with embedded ServiceNow logic (GlideRecord queries, variables, conditions) that renders server-side into HTML.
 
-### Is Jelly for Service Portal or Workspaces?
+### Where Jelly Is Used
 
 | Platform | Uses Jelly? | Notes |
 |----------|-------------|-------|
-| **Service Portal** | ✅ Yes | Primary use case. Jelly is used in portal widgets, pages, and headers/footers to render dynamic content. |
-| **Workspace (Agent Workspace / now experience)** | ❌ Largely no | Workspaces are built with **Vue.js** (SPA framework), not Jelly. Configuration is JSON-based (pages, panels, views), not Jelly XML. |
-| Legacy UI (11.x / old interface) | ✅ Yes | Older ServiceNow UI used Jelly heavily for list views, forms, and UI pages. |
+| **UI Pages** | ✅ Yes | Primary modern use case. Custom pages built with Jelly + server/client scripts. |
+| **Service Portal (legacy widgets)** | ⚠️ Partial | Older portal widgets used Jelly for server-side rendering. Newer widgets use HTML + client/server scripts. |
+| **Email Templates** | ✅ Yes | Some email templates use Jelly for dynamic content. |
+| **Legacy CMS / Content Sites** | ✅ Yes | Older content management system used Jelly heavily. |
+| **Workspace (Agent Workspace / now experience)** | ❌ No | Workspaces are built with **Vue.js** (SPA framework), not Jelly. Configuration is JSON-based. |
+| Legacy UI (11.x / old interface) | ✅ Yes | Older ServiceNow UI used Jelly for list views, forms, and UI pages. |
 
 ### Key terms
 
 | Term | Meaning |
 |------|---------|
 | Jelly | XML-based templating/scripting language in ServiceNow |
-| Widget | A reusable Service Portal building block; can contain Jelly, HTML, CSS, and client/script includes |
-| Client Script | Runs in the browser (not Jelly; standard JavaScript) within Service Portal |
-| Server Script | Runs on the server within a widget; has access to GlideRecord, current, etc. |
-| `g_user`, `current`, `glide` | Common Jelly/global objects available in portal server scripts |
+| UI Page | Custom page type that uses Jelly for server-side rendering |
+| Widget | A reusable Service Portal building block; modern widgets use HTML + client/server scripts |
+| Client Script | Runs in the browser (standard JavaScript) |
+| Server Script | Runs on the server within a UI Page/widget; has access to GlideRecord, current, etc. |
+| `g_user`, `current`, `glide` | Common objects available in Jelly/server scripts |
 
 ### Jelly example
 
-Here's a simple Jelly snippet used inside a Service Portal widget to greet the logged-in user and list their open incidents:
+Here's a simple Jelly snippet used inside a **UI Page** to greet the logged-in user and list their open incidents:
 
 ```xml
 <j:jelly trim="true" xmlns:j="jelly:core" xmlns:g="glide">
@@ -539,26 +543,28 @@ Here's a simple Jelly snippet used inside a Service Portal widget to greet the l
 
 ### How it connects to ServiceNow
 
-- Service Portal widgets use Jelly for **server-side rendering** before the page reaches the browser
-- Client-side interactivity in portals uses regular JavaScript / AngularJS (older portals) or vanilla JS + Service Portal APIs
-- Workspaces (the modern agent experience) do **not** use Jelly; they're Vue.js apps driven by JSON page configs
-- If you're maintaining an older ServiceNow implementation (pre-Entity Service Portal), you'll see far more Jelly in UI pages, list views, and form overlays
+- **UI Pages** use Jelly for **server-side rendering** before the page reaches the browser
+- **Service Portal** (modern) uses HTML + client/server scripts; Jelly is legacy in portal widgets
+- **Workspaces** (the modern agent experience) do **not** use Jelly; they're Vue.js apps driven by JSON page configs
+- **Email templates** can use Jelly for dynamic content generation
+- If you're maintaining an older ServiceNow implementation (pre-UI Builder), you'll see Jelly in UI pages, list views, and form overlays
 
 ### Common mistakes
 
 | Mistake | Symptom | Fix |
 |---------|---------|-----|
 | Using Jelly in a Workspace panel | Doesn't render; Workspace expects Vue/JSON | Use Workspace page config (JSON) or a Service Portal page embedded via iframe if needed |
-| Putting heavy logic in Jelly | Slow portal page loads | Move business logic to a Server Script or Script Include; keep Jelly for presentation |
+| Putting heavy logic in Jelly | Slow page loads | Move business logic to a Server Script or Script Include; keep Jelly for presentation |
 | Forgetting `trim="true"` | Extra whitespace breaks layout | Add `trim="true"` to the `<j:jelly>` tag |
 | Exposing raw GlideRecord without limits | Performance / security risk | Always add `.setLimit()` and check roles (`gs.hasRole()`) |
+| Assuming Jelly is the main Service Portal technology | Confusion in interviews | Clarify: UI Pages = Jelly; Service Portal = HTML + JS; Workspaces = Vue/JSON |
 
-### Mini lab: Show user's name in a Service Portal widget
+### Mini lab: Show user's name in a UI Page
 
-1. Go to **Service Portal → Widgets → New**
-2. In the **Server Script** field, write logic to fetch `gs.getUser().getDisplayName()`
-3. In the **HTML** template, use Jelly: `<h1>Hello, ${user_name}</h1>`
-4. Add the widget to a portal page and preview it as a logged-in user
+1. Go to **System UI → UI Pages → New**
+2. In the **HTML** field, write Jelly to fetch `gs.getUser().getDisplayName()`
+3. Example: `<h1>Hello, ${g_user.getDisplayName()}</h1>`
+4. Preview the UI Page as a logged-in user
 5. Verify the name displays correctly
 
 ### Quiz
@@ -569,7 +575,7 @@ Here's a simple Jelly snippet used inside a Service Portal widget to greet the l
 
 <details><summary>Answer</summary>
 1. No — Workspaces use Vue.js/JSON config, not Jelly.<br>
-2. Rendering Service Portal pages/widgets (server-side templates with embedded ServiceNow logic).<br>
+2. UI Pages, legacy CMS, and some email templates. Modern Service Portal uses HTML + client/server scripts.<br>
 3. `g_user` (current user), `gs` (GlideSystem), `current` (current record), or `glide` (Glide object).
 </details>
 
