@@ -15,11 +15,11 @@
 - [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
 - [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
-- [CI Attribute vs Model Attribute](#ci-attribute-vs-model-attribute)
+- [CI Attribute vs Model Attribute](#ci-attribute-vs-model-attribute-syntax-dot-walk-and-structure)
 - [IRE Process Diagram (Identification & Reconciliation)](#ire-process-diagram-identification--reconciliation)
 - [Identification Rules Deep Dive](#identification-rules-deep-dive)
 - [Reconciliation Rules Deep Dive](#reconciliation-rules-deep-dive)
-- [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence--sccm--soroc-example)
+- [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence-sccm-soroc-example)
 - [Data Refresh & Staleness Rules](#data-refresh--staleness-rules)
 - [Identification vs Reconciliation vs Data Source vs Data Refresh Rules](#identification-vs-reconciliation-vs-data-source-vs-data-refresh-rules)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
@@ -31,7 +31,7 @@
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
-- [IntegrationHub Spoke → IRE: Invoking, Suppressing, and Bridging the Gap](#integrationhub-spoke--ire-invoking-suppressing-and-bridging-the-gap)
+- [IntegrationHub Spoke → IRE: Invoking, Suppressing, and Bridging the Gap](#integrationhub-spoke-ire-making-it-work-and-knowing-when-to-skip-it)
 - [Common CMDB Gotchas & Complex Issues](#common-cmdb-gotchas--complex-issues)
 
 ---
@@ -1252,6 +1252,7 @@ Without an explicit IRE invocation, two CIs can end up representing the same rea
 ---
 
 ## IntegrationHub Spoke → IRE: Making It Work and Knowing When to Skip It
+{: #integrationhub-spoke-ire-making-it-work-and-knowing-when-to-skip-it }
 
 **ELI5:** IRE is like a security guard who checks the guest list before letting a CI into the CMDB. By default, IntegrationHub spokes slip past without the guard checking — so we need to call the guard explicitly. And we don't want the guard checking every single time someone edits a comment; only when something important (like a serial number) changes.
 
