@@ -23,7 +23,7 @@
 - [CMDB Data Manager](#cmdb-data-manager)
 - [Capacity and Performance Monitoring](#capacity-and-performance-monitoring)
 - [Platform Administration](#platform-administration)
-- [Jelly — Legacy UI Pages](#jelly---legacy-ui-pages)
+- [Jelly — Legacy UI Pages](#jelly--legacy-ui-pages)
 - [Update Sets vs Source Control](#update-sets-vs-source-control)
 - [App Engine & Scoped Applications](#app-engine--scoped-applications)
 - [CMDB De-duplication & Health](#cmdb-de-duplication--health)
