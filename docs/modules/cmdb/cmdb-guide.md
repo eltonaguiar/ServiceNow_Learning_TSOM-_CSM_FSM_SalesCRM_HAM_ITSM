@@ -532,6 +532,7 @@ graph TD
     SVC[Service CI] -->|Depends On Used By| APP[Application CI]
     APP -->|Runs On Runs| WEB[Server CI]
     APP -->|Depends On Used By| DB[Database CI]
+```
 
 ### Discovery to CMDB Population Flow
 
@@ -1250,181 +1251,89 @@ Without an explicit IRE invocation, two CIs can end up representing the same rea
 
 ---
 
-## IntegrationHub Spoke → IRE: Invoking, Suppressing, and Bridging the Gap
+## IntegrationHub Spoke → IRE: Making It Work and Knowing When to Skip It
 
-IntegrationHub spokes and Flow Designer flows write to `cmdb_ci` like any other inbound source, but unlike Discovery or Import Sets, an IH spoke does **not** automatically trigger IRE when it creates or updates a CI — no identification, no duplicate detection, no reconciliation. Conversely, a business rule that auto-invokes IRE on every `cmdb_ci` form save can fire on fields where IRE is unnecessary or harmful. This section covers both directions: forcing IRE from an IH spoke when you need it, and suppressing IRE on specific form changes when you don't.
+**ELI5:** IRE is like a security guard who checks the guest list before letting a CI into the CMDB. By default, IntegrationHub spokes slip past without the guard checking — so we need to call the guard explicitly. And we don't want the guard checking every single time someone edits a comment; only when something important (like a serial number) changes.
 
-### Making an IntegrationHub Spoke Run IRE (When Not Out of Box)
+---
 
-By default, an IntegrationHub REST Spoke or Flow Designer flow that inserts or updates `cmdb_ci` records bypasses IRE entirely. To force IRE, add an explicit invocation step.
+### Part 1: Make an IntegrationHub Spoke Run IRE
 
-#### Option A: Flow Designer Script action (recommended for IH flows)
+IntegrationHub spokes write to `cmdb_ci` but do **not** automatically trigger IRE — no identification, no duplicate detection, no reconciliation. You have two simple choices:
 
-Add a **Script** action in Flow Designer after the step that creates or updates the CI:
+#### Choice A — Flow Designer Script action (simplest for single CI writes)
+
+After the step that creates or updates the CI, add a **Script** action:
 
 ```javascript
-// Inputs: ci_sys_id (the sys_id of the CI just written by the spoke)
-var ciGr = new GlideRecord('cmdb_ci');
-if (!ciGr.get(flow.inputs.ci_sys_id)) {
-    // CI not found — nothing to identify
-    return;
-}
-
-// Only invoke IRE when identifying data is present
-if (ciGr.serial_number || ciGr.name || ciGr.asset_tag || ciGr.dns_domain) {
+// ci_sys_id = the sys_id of the CI the spoke just wrote
+var ci = new GlideRecord('cmdb_ci');
+if (ci.get(flow.inputs.ci_sys_id)) {
     try {
-        var idEngine = new sn_cmdb.Identification(ciGr);
-        idEngine.identify();
+        var engine = new sn_cmdb.IdentificationEngine();
+        engine.createOrUpdateCI(ci);
     } catch (e) {
-        // Fallback: trigger the out-of-box identify business rule
-        gs.print('IRE identification failed: ' + e);
+        gs.print('IRE check skipped: ' + e);
     }
 }
 ```
 
-> **Note:** `sn_cmdb.Identification` availability varies by release. If it is not available on your instance, trigger the out-of-box Identify UI action / business rule instead.
+> **ELI5:** This tells the security guard to check the guest list after the spoke has already let someone in.
 
-#### Option B: Business Rule on `cmdb_ci` (for any IH-sourced write)
+#### Choice B — Import Set + Transform Map (recommended for bulk loads)
 
-If your IH spoke writes directly to `cmdb_ci` (not via Import Set), add an async after business rule scoped to IntegrationHub writes:
+If your IH flow stages data through an Import Set first, you don't need custom code at all. Just set **coalesce = true** on key fields (`serial_number`, `name`, `asset_tag`) in the Transform Map field maps. The transform matches existing CIs automatically, and IRE reconciliation runs natively.
 
-```javascript
-(function rule(current, previous) {
-    // Only for IntegrationHub-sourced writes
-    if (current.getValue('data_source') !== 'IntegrationHub') {
-        return;
-    }
-
-    // Only re-identify when an identifying field was set/changed
-    if (current.serial_number.changes() || current.name.changes() ||
-        current.asset_tag.changes() || current.dns_domain.changes()) {
-
-        try {
-            var idEngine = new sn_cmdb.Identification(current);
-            idEngine.identify();
-        } catch (e) {
-            gs.print('IRE identify failed for IntegrationHub CI: ' + e);
-        }
-    }
-})(current, previous);
-```
-
-#### Option C: Import Set + Transform Map (preferred for bulk IH loads)
-
-If your IH flow stages data through an Import Set before loading to `cmdb_ci`, use the Transform Map instead of calling IRE directly:
-
-1. Set **coalesce = true** on key fields (`serial_number`, `name`, `asset_tag`) in the Transform Map field maps.
-2. The transform will match existing CIs instead of inserting duplicates.
-3. IRE reconciliation then governs attribute updates on matched CIs automatically.
-
-This is the cleanest path — no custom code needed, IRE runs natively through the transform.
+> **ELI5:** This is like pre-sorting the guest list before anyone arrives — no guard needed at the door.
 
 ---
 
-### Preventing Form Changes from Auto-Invoking IRE
+### Part 2: Stop Form Changes from Auto-Invoking IRE
 
-If you have a business rule (or other automation) that invokes IRE on every `cmdb_ci` update, it will fire even when an admin edits non-identifying fields like `comments`, `install_status`, or `u_location_notes`. This wastes IRE cycles and can cause unintended duplicate detection. You can suppress IRE selectively.
-
-#### Approach 1: Field-scoped business rule (recommended)
-
-Only invoke IRE when actual identifying fields change:
+If you have a business rule that calls IRE on every `cmdb_ci` save, it fires even when an admin only changes `comments` or `install_status`. That's wasteful. Scope it to identifying fields only:
 
 ```javascript
 (function rule(current, previous) {
-    var identifyingFields = ['serial_number', 'asset_tag', 'name', 'dns_domain', 'mac_address'];
-    var shouldInvokeIRE = false;
-
-    identifyingFields.forEach(function(field) {
-        if (current[field] && current[field].changes()) {
-            shouldInvokeIRE = true;
-        }
+    var idFields = ['serial_number', 'asset_tag', 'name', 'dns_domain', 'mac_address'];
+    var changed = false;
+    idFields.forEach(function(f) {
+        if (current[f] && current[f].changes()) { changed = true; }
     });
-
-    // Skip if explicitly flagged (set by UI Policy / Client Script for edge cases)
-    if (shouldInvokeIRE && !current.u_skip_ire) {
+    if (changed) {
         try {
-            var idEngine = new sn_cmdb.Identification(current);
-            idEngine.identify();
+            var engine = new sn_cmdb.IdentificationEngine();
+            engine.createOrUpdateCI(current);
         } catch (e) {
-            gs.print('IRE identify skipped due to error: ' + e);
+            gs.print('IRE check skipped: ' + e);
         }
     }
-
-    // Reset the skip flag so it doesn't persist
-    if (current.u_skip_ire) {
-        current.u_skip_ire = false;
-    }
 })(current, previous);
 ```
 
-#### Approach 2: Skip flag via UI Policy / Client Script
-
-Add a boolean field `u_skip_ire` to `cmdb_ci`. Use a Client Script to set it when only non-identifying fields are edited:
-
-```javascript
-// Client Script on cmdb_ci form
-function onChange(control, oldValue, newValue, isLoading, isTemplate) {
-    if (isLoading) return;
-
-    var nonIdentifyingFields = ['comments', 'install_status', 'u_location_notes', 'u_comment'];
-    if (nonIdentifyingFields.indexOf(control) !== -1) {
-        g_form.setValue('u_skip_ire', true);
-    } else if (['serial_number', 'asset_tag', 'name', 'dns_domain', 'mac_address'].indexOf(control) !== -1) {
-        g_form.setValue('u_skip_ire', false);
-    }
-}
-```
-
-Then the business rule (Approach 1) checks `current.u_skip_ire` before invoking IRE.
-
-#### Approach 3: Role-based or form-based suppression
-
-Suppress IRE for specific roles (e.g., `itil` admins doing bulk cleanup) or specific forms:
-
-```javascript
-(function rule(current, previous) {
-    // Skip IRE entirely for admin bulk-edit role
-    if (gs.hasRole('cmdb_admin_bulk')) {
-        return;
-    }
-
-    // Skip IRE on the "CI List" edit form (list edit), only invoke on single-record form
-    if (current.getValue('u_edit_source') === 'list_edit') {
-        return;
-    }
-
-    if (current.serial_number.changes() || current.name.changes()) {
-        var idEngine = new sn_cmdb.Identification(current);
-        idEngine.identify();
-    }
-})(current, previous);
-```
+> **ELI5:** Only wake up the security guard when something important changes (serial number, name, etc.), not when someone just fixes a typo.
 
 ---
 
-### Best Practices: Bridging the IntegrationHub–Form Gap
+### Part 3: Configuration Checks (do these before testing)
 
-The gap between "IntegrationHub doesn't run IRE automatically" and "form edits shouldn't run IRE indiscriminately" is a governance problem, not just a code problem. These practices keep both paths consistent:
+| Check | Where | What to verify |
+|-------|-------|----------------|
+| **Data Source Rules** | All > Configuration > Identification/Reconciliation > IRE Data Source Rule | Your source (e.g., `ServiceNow` or `Manual Entry`) is allowed to create or update records for that CI class |
+| **Reconciliation Rules** | All > Configuration > Identification/Reconciliation > Reconciliation | Your manual data source has the right priority (lower number = higher priority) so it can update attributes when needed |
+| **Asset-to-CI creation** | `sys_properties.list` | Set `glide.asset.create_ci_with_ire = true` to route Asset-to-CI creation through IRE automatically |
+| **Catalog Items / Record Producers** | Record Producer → staging table | Don't map variables directly to `cmdb_ci`. Map to `sys_import_set_row`, then use IntegrationHub ETL or a Transform Map with `CMDBTransformUtil` to process through IRE |
 
-| Practice | Why It Matters |
-|----------|---------------|
-| **Scope IRE to identifying fields only** | Invoking IRE on every field change wastes cycles and can trigger duplicate detection on irrelevant edits. Limit it to `serial_number`, `asset_tag`, `name`, `dns_domain`, `mac_address`. |
-| **Prefer Import Set + Transform Map for IH bulk loads** | Coalesce on key fields lets IRE match existing CIs natively — no custom script required. |
-| **Use `data_source` to differentiate write paths** | A business rule can behave differently for `IntegrationHub`, `Discovery`, `Import Set`, and `Manual` sources. |
-| **Add `u_skip_ire` as a controlled escape hatch** | A boolean flag lets admins opt out of IRE for specific edits without disabling IRE globally. |
-| **Never blanket-disable IRE on form saves** | Disabling IRE entirely on manual edits guarantees duplicate CIs over time (see Priority 1 — Manual CI Edits Bypass IRE). |
-| **Test `sn_cmdb.Identification` on your release** | API availability and behavior vary by ServiceNow release. Verify in sub-prod before promoting to production. |
-| **Document which fields trigger IRE** | Publish a field-level matrix so admins and developers know which edits invoke identification and which don't. |
+---
 
-**Decision matrix:**
+### Part 4: Quick Best Practices (ELI5)
 
-| Scenario | Invoke IRE? | How |
-|----------|-------------|-----|
-| IntegrationHub spoke creates a CI with serial number | Yes | Flow Designer Script action calling `sn_cmdb.Identification` |
-| IntegrationHub updates `comments` on an existing CI | No | Business rule skips non-identifying fields |
-| Admin edits `serial_number` on CI form | Yes | Business rule on `cmdb_ci` update, field-scoped |
-| Admin edits `install_status` on CI form | No | Business rule skips; or `u_skip_ire` flag set |
-| Bulk CI load via IH → Import Set → Transform Map | Yes (native) | Set `coalesce = true` on key fields in Transform Map |
+| Practice | Why |
+|----------|-----|
+| Only call IRE on identifying fields | Don't bother the guard for minor edits like comments |
+| Prefer Transform Map coalesce over custom scripts | Less code, fewer mistakes, IRE runs natively |
+| Test `sn_cmdb.IdentificationEngine` in sub-prod first | API availability varies by ServiceNow release |
+| Never turn IRE off completely on form saves | Disabling it guarantees duplicate CIs over time |
+| Use `data_source` to tell write paths apart | A business rule can behave differently for IntegrationHub, Discovery, Import Set, and Manual |
 
 ---
 

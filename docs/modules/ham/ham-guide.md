@@ -495,6 +495,7 @@ graph TD
     AST -->|assigned to| USR[User Record]
     AST -->|normalized to| CIH[Hardware CI]
     AST -->|depreciates via| MOD[Asset Model]
+```
 
 ---
 

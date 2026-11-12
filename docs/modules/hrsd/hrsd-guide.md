@@ -304,6 +304,7 @@ flowchart LR
     SVC --> CAS[HR Case]
     CAS --> WFA[Workflow Task]
     WFA --> FUL[Fulfillment]
+```
 
 ---
 
