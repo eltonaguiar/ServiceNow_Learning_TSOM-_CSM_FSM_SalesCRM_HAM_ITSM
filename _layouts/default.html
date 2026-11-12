@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
 <meta name="description" content="{{ site.description }}">
 <script>
@@ -39,14 +42,15 @@
 </header>
 
 <nav class="topnav" aria-label="Guides">
-  <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
+  <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM</a>
   <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM</a>
   <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM</a>
-  <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM</a>
   <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM</a>
   <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM</a>
   <a href="{{ '/docs/modules/discovery/discovery-guide/' | relative_url }}">Discovery</a>
+  <a href="{{ '/docs/modules/cmdb/cmdb-guide/' | relative_url }}">CMDB</a>
   <a href="{{ '/docs/modules/hrsd/hrsd-guide/' | relative_url }}">HRSD</a>
+  <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
   <a href="{{ '/docs/ai-features-coding-section.md' | relative_url }}">AI Features</a>
   <a href="{{ '/getting-started/' | relative_url }}">Getting Started</a>
 </nav>
@@ -55,15 +59,17 @@
   <aside class="sidebar" id="sidebar" aria-label="Sidebar">
     <div class="side-group">
       <p class="side-label">Guides</p>
-      <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM <span class="side-sub">Telecom Service Operations</span></a>
-      <a href="{{ '/docs/modules/tsom/tsom-capabilities/' | relative_url }}">TSOM capabilities <span class="side-sub">AIOps · metrics · logs · synthetics</span></a>
+      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM <span class="side-sub">Leads to Orders</span></a>
       <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM <span class="side-sub">Customer Service</span></a>
       <a href="{{ '/docs/modules/fsm/fsm-guide/' | relative_url }}">FSM <span class="side-sub">Field Service</span></a>
-      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM <span class="side-sub">Leads to Orders</span></a>
       <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM <span class="side-sub">Hardware Assets</span></a>
       <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM <span class="side-sub">IT Service</span></a>
       <a href="{{ '/docs/modules/discovery/discovery-guide/' | relative_url }}">Discovery <span class="side-sub">ITOM Discovery</span></a>
+      <a href="{{ '/docs/modules/cmdb/cmdb-guide/' | relative_url }}">CMDB <span class="side-sub">Configuration Management Database</span></a>
+      <a href="{{ '/docs/modules/tsom/tsom-assurance/' | relative_url }}">TSOM Assurance <span class="side-sub">Event Mgmt · AIOps · SIA · Synthetic</span></a>
       <a href="{{ '/docs/modules/hrsd/hrsd-guide/' | relative_url }}">HRSD <span class="side-sub">Human Resources Service Delivery</span></a>
+      <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM <span class="side-sub">Telecom Service Operations</span></a>
+      <a href="{{ '/docs/modules/tsom/tsom-capabilities/' | relative_url }}">TSOM capabilities <span class="side-sub">AIOps · metrics · logs · synthetics</span></a>
       <a href="{{ '/docs/ai-features-coding-section.md' | relative_url }}">AI Features <span class="side-sub">AI-native tiers, Now Assist, Predictive Intelligence, AI Agents, NASK</span></a>
     </div>
     <div class="side-group">
@@ -71,6 +77,7 @@
       <a href="{{ '/getting-started/' | relative_url }}">Track overview</a>
       <a href="{{ '/getting-started/foundation/' | relative_url }}">Foundation</a>
       <a href="{{ '/getting-started/tsom/' | relative_url }}">TSOM start</a>
+      <a href="{{ '/getting-started/tsom-diagrams/' | relative_url }}">TSOM diagrams</a>
       <a href="{{ '/getting-started/csm/' | relative_url }}">CSM start</a>
       <a href="{{ '/getting-started/fsm/' | relative_url }}">FSM start</a>
       <a href="{{ '/getting-started/sales-crm/' | relative_url }}">Sales CRM start</a>
@@ -104,5 +111,116 @@
 <button type="button" class="toc-show" id="tocShow" aria-label="Show the table of contents">☰ Contents</button>
 
 <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/tts.js' | relative_url }}"></script>
+<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js?v=20261110"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+  function enhanceMermaid() {
+    var content = document.getElementById('content');
+    if (!content) return;
+    var diagrams = [].slice.call(content.querySelectorAll('.mermaid'));
+    if (!diagrams.length) return;
+
+    // 1) Wrap each rendered diagram in a scroll box so oversized diagrams can be scrolled.
+    diagrams.forEach(function (d) {
+      var p = d.parentElement;
+      if (p && p.classList && p.classList.contains('mermaid-scroll')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'mermaid-scroll';
+      p.insertBefore(wrap, d);
+      wrap.appendChild(d);
+    });
+
+    // The dedicated slideshow page handles its own navigation.
+    if (document.querySelector('.diagram-slideshow')) return;
+    if (diagrams.length < 2) return;
+    if (document.querySelector('.mermaid-slideshow-btn')) return;
+
+    // 2) Build a fullscreen lightbox slideshow of every diagram on the page.
+    var idx = 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'mm-overlay';
+    overlay.innerHTML =
+      '<div class="mm-bar">' +
+        '<button type="button" data-mm="prev" aria-label="Previous diagram">&#9664;</button>' +
+        '<span class="mm-count"></span>' +
+        '<button type="button" data-mm="next" aria-label="Next diagram">&#9654;</button>' +
+        '<button type="button" data-mm="close" aria-label="Close">Close &times;</button>' +
+      '</div><div class="mm-stage"></div>';
+    document.body.appendChild(overlay);
+    var stage = overlay.querySelector('.mm-stage');
+    var count = overlay.querySelector('.mm-count');
+
+    function show(n) {
+      idx = (n % diagrams.length + diagrams.length) % diagrams.length;
+      stage.innerHTML = '';
+      var clone = diagrams[idx].cloneNode(true);
+      clone.removeAttribute('data-processed');
+      stage.appendChild(clone);
+      stage.scrollTop = 0; stage.scrollLeft = 0;
+      count.textContent = (idx + 1) + ' / ' + diagrams.length + '  (scroll to pan, arrows to change)';
+    }
+    function open(n) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; show(n); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    overlay.querySelector('[data-mm="prev"]').addEventListener('click', function () { show(idx - 1); });
+    overlay.querySelector('[data-mm="next"]').addEventListener('click', function () { show(idx + 1); });
+    overlay.querySelector('[data-mm="close"]').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') show(idx - 1);
+      else if (e.key === 'ArrowRight') show(idx + 1);
+      else if (e.key === 'Escape') close();
+    });
+
+    // 3) Add a "Slideshow" launcher before the first diagram.
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mermaid-slideshow-btn';
+    btn.textContent = '\u25B6 View diagrams as slideshow (' + diagrams.length + ')';
+    btn.addEventListener('click', function () { open(0); });
+    var firstWrap = diagrams[0].parentElement;
+    firstWrap.parentNode.insertBefore(btn, firstWrap);
+
+    // 4) Click any diagram to open it in the slideshow.
+    diagrams.forEach(function (d, i) {
+      d.style.cursor = 'zoom-in';
+      d.addEventListener('click', function () { open(i); });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code, code').forEach(function (codeEl) {
+      var text = codeEl.textContent.trim();
+      if (/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|mindmap|requirementDiagram|block-beta|C4Context|stateDiagram-v2)/.test(text)) {
+        var preEl = codeEl.parentElement;
+        var container = preEl && preEl.tagName === 'PRE' ? preEl : codeEl;
+        var mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.textContent = text;
+        container.parentNode.replaceChild(mermaidDiv, container);
+      }
+    });
+    var p = window.mermaid.init(undefined, undefined, document.querySelectorAll('.mermaid'));
+    if (p && typeof p.then === 'function') { p.then(enhanceMermaid); } else { setTimeout(enhanceMermaid, 400); }
+    window.addEventListener('load', function () { setTimeout(enhanceMermaid, 600); });
+  });
+</script>
+<style>
+  .mermaid-scroll { overflow: auto; max-height: 80vh; padding: 4px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; }
+  .mermaid-scroll svg { max-width: none; }
+  .mermaid-scroll .mermaid { margin: 0; }
+  .mermaid-slideshow-btn { display: inline-block; margin: .4rem 0 .8rem; padding: .45rem .9rem; font: inherit; font-size: .85rem; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; cursor: pointer; }
+  .mermaid-slideshow-btn:hover { background: #2a4d38; }
+  .mm-overlay { position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; background: rgba(4,8,6,.96); }
+  .mm-overlay.open { display: flex; }
+  .mm-bar { display: flex; align-items: center; gap: .6rem; padding: .6rem .9rem; border-bottom: 1px solid rgba(255,255,255,.12); color: #e8f0e8; }
+  .mm-bar button { font: inherit; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; padding: .35rem .7rem; cursor: pointer; }
+  .mm-bar button:hover { background: #2a4d38; }
+  .mm-count { flex: 1; font-size: .85rem; opacity: .85; }
+  .mm-stage { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 1.25rem; }
+  .mm-stage svg { max-width: none; height: auto; }
+  .mm-stage .mermaid { margin: 0; }
+</style>
 </body>
 </html>
