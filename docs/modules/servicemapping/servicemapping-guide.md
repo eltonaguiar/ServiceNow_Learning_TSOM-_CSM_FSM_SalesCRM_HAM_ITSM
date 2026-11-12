@@ -873,56 +873,101 @@ Use `task_sla` to:
 
 ## Service Mapping — Terminology, Methods & Patterns
 
-### The Four Service Architecture Layers
+### The Four Service Architecture Layers (CSDM Service Taxonomy)
 
 ServiceNow's architecture distinguishes four layers that are often confused in interviews. Service Mapping primarily operates at the **technical layer**, discovering CIs and their dependencies. It does not automatically create all four types of records.
 
-| Layer | Term | What It Is | Example |
-|-------|------|-----------|---------|
-| **Business Architecture** | Business Capability | What the organization must be able to do | Payment Processing |
-| | Business Application | Application supporting a business process | Online Banking Application |
-| **Service Architecture** | Business Service | What is delivered to business users/consumers | Online Banking Service |
-| | Technical Service | IT service providing technical capabilities | Database Hosting / Application Hosting |
-| **Service Mapping / CMDB** | Technical CIs + Dependencies | Discovered infrastructure and relationships | Web servers → App servers → Database → Network |
+#### The Four Main Concepts
 
-> **Key interview distinction:** Business Capability, Business Service, Business Application, and Technical Service are **not all Service Mapping objects**. Service Mapping discovers and maps **technical CIs and their dependencies** — it doesn't automatically create business capability or business service records. Those are typically defined in the CMDB or Application Portfolio Management.
+| Abbreviation | Full Name | Meaning | Example |
+|--------------|-----------|---------|---------|
+| **BA** | Business Application | The logical application owned/used by the business | Online Banking |
+| **BS** | Business Service | A service consumed by business users | Online Banking Service |
+| **TS** | Technical Service | A service provided to support technology (renamed **Technology Management Service** in CSDM v5) | Database Hosting |
+| **AS** | Application Service | A deployed application stack (e.g., Production or Development) | Online Banking – Production |
+
+These are **distinct records**, not interchangeable names.
+
+#### The Other Two: BSO and TSO
+
+| Abbreviation | Full Name | Example |
+|--------------|-----------|---------|
+| **BSO** | Business Service Offering | Online Banking – Premium |
+| **TSO** | Technical Service Offering | Database Hosting – Production |
+
+Offerings define the particular service package, environment, availability, support, and commitments.
+
+#### How They Relate
+
+Example: A bank's online banking platform.
+
+```
+BA (Online Banking)
+    ├── Has deployed instances →
+    AS (Online Banking – Production)
+    │
+    ├── Maps to →
+    BS (Online Banking Service)
+    │
+    ├── Supported by →
+    TS (Database Hosting / Technology Management Service)
+```
+
+These are illustrative relationships, not a mandatory one-to-one hierarchy. In ServiceNow, the exact relationships depend on your CSDM design and implementation.
+
+> **CSDM v5 version update:** In CSDM v5, **Technical Service is renamed Technology Management Service**. You'll encounter both names in documentation and interviews — they refer to the same concept.
 
 ```mermaid
 flowchart TD
-    subgraph BusinessArchitecture["Business Architecture"]
-        BC[Business Capability<br/>Payment Processing]
-        BA[Business Application<br/>Online Banking App]
+    subgraph BusinessArch["Business Architecture"]
+        BA[BA<br/>Business Application<br/>Online Banking]
     end
 
-    subgraph ServiceArchitecture["Service Architecture"]
-        BS[Business Service<br/>Online Banking Service]
-        TS[Technical Service<br/>Database Hosting]
+    subgraph ServiceArch["Service Architecture"]
+        BS[BS<br/>Business Service<br/>Online Banking Service]
+        TS[TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting]
+    end
+
+    subgraph AppService["Application Service (AS)"]
+        AS[AS<br/>Application Service<br/>Online Banking – Production]
     end
 
     subgraph CMDB["Service Mapping / CMDB (Technical Layer)"]
         WS[Web Server CI]
-        AS[App Server CI]
+        AP[App Server CI]
         DB[Database CI]
         NW[Network CI]
     end
 
-    BC --> BA
-    BA --> BS
-    BS --> TS
+    BA -->|Has deployed instances| AS
+    AS -->|Maps to| BS
+    BS -->|Supported by| TS
     TS --> WS
-    WS --> AS
-    AS --> DB
+    WS --> AP
+    AP --> DB
     DB --> NW
 
-    style BC fill:#e5b567,color:#000
     style BA fill:#e5b567,color:#000
     style BS fill:#4cc38a,color:#000
     style TS fill:#4cc38a,color:#000
+    style AS fill:#e5b567,color:#000
     style WS fill:#e58a8a,color:#000
-    style AS fill:#e58a8a,color:#000
+    style AP fill:#e58a8a,color:#000
     style DB fill:#e58a8a,color:#000
     style NW fill:#e58a8a,color:#000
 ```
+
+#### Service Mapping Interview Distinction
+
+| Abbreviation | What It Is | Service Mapping's Role |
+|--------------|-----------|----------------------|
+| **BA** | The application being managed | Not created by Service Mapping — defined in CMDB / App Portfolio |
+| **AS** | The deployed application stack being mapped | **This is what Service Mapping maps** to underlying infrastructure CIs and dependencies |
+| **BS** | The business-facing service | Not created by Service Mapping — defined in CMDB / Service Portfolio |
+| **TS** | The underlying technology service | Not created by Service Mapping — defined in CMDB |
+| **BSO / TSO** | Service package with environment, availability, support commitments | Not created by Service Mapping |
+
+> **Key interview distinction:** Service Mapping discovers and maps **technical CIs and their dependencies** — it doesn't automatically create BA, BS, TS, BSO, or TSO records. Those are typically defined in the CMDB or Service Portfolio Management. Service Mapping's core object is the **Application Service (AS)** — the deployed stack it maps to infrastructure.
 
 ---
 
