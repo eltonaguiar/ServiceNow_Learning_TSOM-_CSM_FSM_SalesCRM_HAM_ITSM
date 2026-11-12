@@ -753,6 +753,25 @@ Write five sentences covering: what a software model is, what an entitlement is,
 - [ServiceNow Community — ITAM/SAM content](https://www.servicenow.com/community/)
 - [ServiceNow YouTube — IT Asset Management](https://www.youtube.com/servicenow)
 
+### Official ServiceNow SAM Videos & Playlists
+
+These are the official ServiceNow-curated video playlists for SAM:
+
+- [ServiceNow Community — Ask a Ranger: Software Asset Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4zdMtBnktGnnoH_higJEN0) — 10-part Ask a Ranger series covering SAM fundamentals, reconciliation, entitlements, and compliance positions
+- [ServiceNow Community — ITAM Talks](https://www.youtube.com/playlist?list=PLkGSnjw5y2U7FAV6w-4SlOtEStyHylK5b) — ITAM Talks series with SAM-focused sessions
+- [ServiceNow Factory — Software Asset Management (CIS-SAM)](https://www.youtube.com/playlist?list=PL4_OpwAooZqR1vH_XCzuu88BkJCVvnTmO) — CIS-SAM exam prep and key concept reviews
+
+Individual official videos, in suggested watch order:
+
+| # | Video | Channel | Length | Why watch it |
+|---|-------|---------|--------|--------------|
+| 1 | [Software Asset Management — Getting started](https://www.youtube.com/watch?v=_5WrfM9t4lg) | ServiceNow Documentation | 6:02 | Shortest official orientation; aligns to [Purpose](#purpose) and [SAM vs HAM](#sam-vs-ham-vs-itam) |
+| 2 | [Get Started with Software Asset Management](https://www.youtube.com/watch?v=GBsH5QJPlUQ) | ServiceNow Community | 45:25 | Full walkthrough of setup, normalization, and the compliance workflow |
+| 3 | [How-To Clinic: Software Asset Management (SAM)](https://www.youtube.com/watch?v=5irN51Sx_K4) | ServiceNow Community | 57:59 | Deep-dive clinic covering entitlements and reconciliation |
+| 4 | [Software Asset Management: Setup and Success Guide (Part 1)](https://www.youtube.com/watch?v=IKgcBGS2tr0) | ServiceNow Community | 38:10 | Implementation path — maps to [Where to Find It](#where-to-find-it) and the [Lab](#lab-entitlement--reconciliation--compliance) |
+| 5 | [Software Asset Management — Reconciliation Process](https://www.youtube.com/watch?v=-80kNkoSFvQ) | ServiceNow Community | 11:07 | Focused explanation of [Reconciliation](#reconciliation--the-core-engine) |
+| 6 | [DEX — Software Asset Management App Usage Monitoring](https://www.youtube.com/watch?v=XeVS6pMi9-g) | ServiceNow Community | 3:10 | Usage evidence for [Optimization & Reclamation](#optimization--reclamation) |
+
 ---
 
 ## Related Guides
