@@ -100,30 +100,30 @@ When people say "Import Sets / Queues" in integration pattern discussions, they 
 
 ```mermaid
 flowchart TD
-    A[Integration Requirement] --> B{Need immediate response?}
+    A[Integration Requirement] &#45;&#45;&#62; B{Need immediate response?}
     
-    B -->|Yes| C{External system fast and reliable?}
-    B -->|No| D[Use Asynchronous Pattern]
+    B &#45;&#45;&#62;|Yes| C{External system fast and reliable?}
+    B &#45;&#45;&#62;|No| D[Use Asynchronous Pattern]
     
-    C -->|Yes| E["Synchronous REST RESTMessageV2.execute()"]
-    C -->|No| D
+    C &#45;&#45;&#62;|Yes| E["Synchronous REST RESTMessageV2.execute()"]
+    C &#45;&#45;&#62;|No| D
     
-    D --> F{Data source on-prem behind firewall?}
+    D &#45;&#45;&#62; F{Data source on-prem behind firewall?}
     
-    F -->|Yes| G[MID Server + ECC Queue Asynchronous]
-    F -->|No| H{Bulk data load?}
+    F &#45;&#45;&#62;|Yes| G[MID Server + ECC Queue Asynchronous]
+    F &#45;&#45;&#62;|No| H{Bulk data load?}
     
-    H -->|Yes| I[Import Sets Staging → Transform Map → Target]
-    H -->|No| J{Cloud-to-cloud SaaS integration?}
+    H &#45;&#45;&#62;|Yes| I[Import Sets Staging → Transform Map → Target]
+    H &#45;&#45;&#62;|No| J{Cloud-to-cloud SaaS integration?}
     
-    J -->|Yes| K["REST Message executeAsync() or Integration Hub Flow"]
-    J -->|No| L[Scripted REST API or Integration Hub]
+    J &#45;&#45;&#62;|Yes| K["REST Message executeAsync() or Integration Hub Flow"]
+    J &#45;&#45;&#62;|No| L[Scripted REST API or Integration Hub]
     
-    E --> M[Set appropriate timeout Handle errors gracefully]
-    G --> N[MID Server polls ECC Queue Results returned asynchronously]
-    I --> O[Transform Map with coalesce Run transform asynchronously]
-    K --> P[Flow returns immediately Processing in background]
-    L --> Q[Custom endpoint Request/Response handling]
+    E &#45;&#45;&#62; M[Set appropriate timeout Handle errors gracefully]
+    G &#45;&#45;&#62; N[MID Server polls ECC Queue Results returned asynchronously]
+    I &#45;&#45;&#62; O[Transform Map with coalesce Run transform asynchronously]
+    K &#45;&#45;&#62; P[Flow returns immediately Processing in background]
+    L &#45;&#45;&#62; Q[Custom endpoint Request/Response handling]
     
     style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
     style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000

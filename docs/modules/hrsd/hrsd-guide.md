@@ -272,17 +272,17 @@ The business goal of HRSD is to give employees a consumer-grade, self-service wa
 
 ```mermaid
 flowchart TD
-    Emp[Employee] --> Portal[Employee Center]
-    Portal --> LE[Lifecycle Event Trigger]
-    LE --> J[Onboarding Journey]
-    J --> T1[HR Task Contract Paperwork]
-    J --> T2[IT Task Laptop Access]
-    J --> T3[HR Task Benefits Orientation]
-    J --> T4[HR Task Payroll Setup]
-    T1 --> C1[Task Completed]
-    T2 --> C2[Task Completed]
-    T3 --> C3[Task Completed]
-    T4 --> C4[Journey Completed]
+    Emp[Employee] &#45;&#45;&#62; Portal[Employee Center]
+    Portal &#45;&#45;&#62; LE[Lifecycle Event Trigger]
+    LE &#45;&#45;&#62; J[Onboarding Journey]
+    J &#45;&#45;&#62; T1[HR Task Contract Paperwork]
+    J &#45;&#45;&#62; T2[IT Task Laptop Access]
+    J &#45;&#45;&#62; T3[HR Task Benefits Orientation]
+    J &#45;&#45;&#62; T4[HR Task Payroll Setup]
+    T1 &#45;&#45;&#62; C1[Task Completed]
+    T2 &#45;&#45;&#62; C2[Task Completed]
+    T3 &#45;&#45;&#62; C3[Task Completed]
+    T4 &#45;&#45;&#62; C4[Journey Completed]
 
 ### HR Service to COE Data Segregation
 
@@ -298,12 +298,12 @@ graph TD
 
 ```mermaid
 flowchart LR
-    Emp[Employee] --> EC[Employee Center]
-    EC --> CAT[HR Service Catalog Item]
-    CAT --> SVC[HR Service]
-    SVC --> CAS[HR Case]
-    CAS --> WFA[Workflow Task]
-    WFA --> FUL[Fulfillment]
+    Emp[Employee] &#45;&#45;&#62; EC[Employee Center]
+    EC &#45;&#45;&#62; CAT[HR Service Catalog Item]
+    CAT &#45;&#45;&#62; SVC[HR Service]
+    SVC &#45;&#45;&#62; CAS[HR Case]
+    CAS &#45;&#45;&#62; WFA[Workflow Task]
+    WFA &#45;&#45;&#62; FUL[Fulfillment]
 ```
 
 ---

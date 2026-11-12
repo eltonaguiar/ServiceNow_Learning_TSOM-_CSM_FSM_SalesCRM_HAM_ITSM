@@ -74,21 +74,21 @@ flowchart TD
         NA[Now Assist — Alert Investigation / Analysis]
     end
 
-    TMF642 --> EM
-    TMF688 --> EM
-    REST --> EM
-    KAFKA --> EM
-    EM --> ER
-    ER --> AC
-    MI --> EM
-    HLA --> EM
-    SM --> EM
-    AC --> GRP
-    GRP --> SIA
-    SIA --> SOW
-    SIA --> PLAY
-    LEAP --> PLAY
-    NA --> SOW
+    TMF642 &#45;&#45;&#62; EM
+    TMF688 &#45;&#45;&#62; EM
+    REST &#45;&#45;&#62; EM
+    KAFKA &#45;&#45;&#62; EM
+    EM &#45;&#45;&#62; ER
+    ER &#45;&#45;&#62; AC
+    MI &#45;&#45;&#62; EM
+    HLA &#45;&#45;&#62; EM
+    SM &#45;&#45;&#62; EM
+    AC &#45;&#45;&#62; GRP
+    GRP &#45;&#45;&#62; SIA
+    SIA &#45;&#45;&#62; SOW
+    SIA &#45;&#45;&#62; PLAY
+    LEAP &#45;&#45;&#62; PLAY
+    NA &#45;&#45;&#62; SOW
 
     style EM fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
     style GRP fill:#e5b567,color:#000
@@ -298,17 +298,17 @@ TSOM's story is a four-stage loop, easy to reorder by accident:
 
 ```mermaid
 flowchart TD
-    A[What do I need to detect?] --> B{Type of signal}
-    B -->|Real-time metric stream / threshold| C[Metric Intelligence]
-    B -->|Log lines / log patterns| D[Health Log Analytics]
-    B -->|HTTP endpoint availability| E[Synthetic Monitoring]
-    B -->|External alarm / event feed| F[Event Management → TMF 642/688]
-    B -->|Historical incident patterns| G[AIOps LEAP]
-    C --> H[→ em_alert → grouping → impact analysis]
-    D --> H
-    E --> H
-    F --> H
-    G --> I[→ automation opportunities / playbooks]
+    A[What do I need to detect?] &#45;&#45;&#62; B{Type of signal}
+    B &#45;&#45;&#62;|Real-time metric stream / threshold| C[Metric Intelligence]
+    B &#45;&#45;&#62;|Log lines / log patterns| D[Health Log Analytics]
+    B &#45;&#45;&#62;|HTTP endpoint availability| E[Synthetic Monitoring]
+    B &#45;&#45;&#62;|External alarm / event feed| F[Event Management → TMF 642/688]
+    B &#45;&#45;&#62;|Historical incident patterns| G[AIOps LEAP]
+    C &#45;&#45;&#62; H[→ em_alert → grouping → impact analysis]
+    D &#45;&#45;&#62; H
+    E &#45;&#45;&#62; H
+    F &#45;&#45;&#62; H
+    G &#45;&#45;&#62; I[→ automation opportunities / playbooks]
     style C fill:#4cc38a,color:#000
     style D fill:#4cc38a,color:#000
     style E fill:#4cc38a,color:#000
@@ -320,16 +320,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ALARM[Raw alarm from NMS/OSS] --> INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
-    INGEST --> EVENT[em_event]
-    EVENT --> RULE[Event Rules — severity, filter, transform]
-    RULE --> ALERT[em_alert]
-    ALERT --> GROUP[Alert Grouping — 5 types]
-    GROUP --> PARENT[Parent alert]
-    PARENT --> SIA[Service Impact Analysis — CMDB walk]
-    SIA --> BLAST[Blast radius: services, customers, accounts]
-    BLAST --> SOW[Service Operations Workspace]
-    SOW --> PLAY[Playbook / automated remediation]
+    ALARM[Raw alarm from NMS/OSS] &#45;&#45;&#62; INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
+    INGEST &#45;&#45;&#62; EVENT[em_event]
+    EVENT &#45;&#45;&#62; RULE[Event Rules — severity, filter, transform]
+    RULE &#45;&#45;&#62; ALERT[em_alert]
+    ALERT &#45;&#45;&#62; GROUP[Alert Grouping — 5 types]
+    GROUP &#45;&#45;&#62; PARENT[Parent alert]
+    PARENT &#45;&#45;&#62; SIA[Service Impact Analysis — CMDB walk]
+    SIA &#45;&#45;&#62; BLAST[Blast radius: services, customers, accounts]
+    BLAST &#45;&#45;&#62; SOW[Service Operations Workspace]
+    SOW &#45;&#45;&#62; PLAY[Playbook / automated remediation]
     style ALERT fill:#e58a8a,color:#fff
     style PARENT fill:#e5b567,color:#000
     style BLAST fill:#4cc38a,color:#000

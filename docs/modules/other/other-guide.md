@@ -953,15 +953,15 @@ The "Other" systems (Boomi, UKG, legacy AS/400, ITIL, Agile) are measured on int
 
 ```mermaid
 graph LR
-    SN[ServiceNow] -->|REST Message / Outbound| Boomi[Boomi AtomSphere]
-    Boomi -->|ServiceNow Connector| SN2[ServiceNow Inbound REST API]
-    Boomi -->|Process + Map| Salesforce[Salesforce]
-    Boomi -->|Process + Map| SAP[SAP]
-    Boomi -->|Process + Map| NetSuite[NetSuite]
-    Boomi -->|Web Listener| Ext[External system calls Boomi]
+    SN[ServiceNow] &#45;&#45;&#62;|REST Message / Outbound| Boomi[Boomi AtomSphere]
+    Boomi &#45;&#45;&#62;|ServiceNow Connector| SN2[ServiceNow Inbound REST API]
+    Boomi &#45;&#45;&#62;|Process + Map| Salesforce[Salesforce]
+    Boomi &#45;&#45;&#62;|Process + Map| SAP[SAP]
+    Boomi &#45;&#45;&#62;|Process + Map| NetSuite[NetSuite]
+    Boomi &#45;&#45;&#62;|Web Listener| Ext[External system calls Boomi]
 
     subgraph Boomi internals
-        Atom[Atom runtime] --> Shape[Shape] --> Map[Map] --> Dest[Destination]
+        Atom[Atom runtime] &#45;&#45;&#62; Shape[Shape] &#45;&#45;&#62; Map[Map] &#45;&#45;&#62; Dest[Destination]
     end
 
     style Boomi fill:#e3f2fd,color:#000
@@ -972,14 +972,14 @@ graph LR
 
 ```mermaid
 flowchart TD
-    UKG[UKG Dimensions timecard approved] -->|Webhook| API[ServiceNow Inbound REST API]
-    API --> BR[Business Rule map UKG fields]
-    BR --> Case[Create/update hr_case / u_timecard]
-    Case --> Assign{Total hours > 40?}
-    Assign -->|Yes| OT[Auto-assign to Payroll + overtime flag]
-    Assign -->|No| Normal[Auto-assign to standard group]
-    OT --> Notify[Notify payroll team]
-    Normal --> Done[Record saved]
+    UKG[UKG Dimensions timecard approved] &#45;&#45;&#62;|Webhook| API[ServiceNow Inbound REST API]
+    API &#45;&#45;&#62; BR[Business Rule map UKG fields]
+    BR &#45;&#45;&#62; Case[Create/update hr_case / u_timecard]
+    Case &#45;&#45;&#62; Assign{Total hours > 40?}
+    Assign &#45;&#45;&#62;|Yes| OT[Auto-assign to Payroll + overtime flag]
+    Assign &#45;&#45;&#62;|No| Normal[Auto-assign to standard group]
+    OT &#45;&#45;&#62; Notify[Notify payroll team]
+    Normal &#45;&#45;&#62; Done[Record saved]
 
     style UKG fill:#fff3e0,color:#000
     style Case fill:#e1f5e1,color:#000
@@ -989,15 +989,15 @@ flowchart TD
 
 ```mermaid
 graph TD
-    AS400[AS/400 / DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
-    MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
-    staging --> TM[Transform Map ITEMNUMBER → cmdb_ci.name]
-    TM --> CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
-    CMDB --> Disc[Discovery reconciliation]
+    AS400[AS/400 / DB2 for i ITEMMAST table] &#45;&#45;&#62;|JDBC query| MID[MID Server JDBC probe]
+    MID &#45;&#45;&#62;|Delta: last_modified > last_run| staging[Import Set staging table]
+    staging &#45;&#45;&#62; TM[Transform Map ITEMNUMBER → cmdb_ci.name]
+    TM &#45;&#45;&#62; CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
+    CMDB &#45;&#45;&#62; Disc[Discovery reconciliation]
 
     subgraph Error handling
-        Fail[Failed rows] --> DL[Dead-letter queue]
-        DL --> Retry[Retry / alert]
+        Fail[Failed rows] &#45;&#45;&#62; DL[Dead-letter queue]
+        DL &#45;&#45;&#62; Retry[Retry / alert]
     end
 
     style AS400 fill:#fce4ec,color:#000
@@ -1008,18 +1008,18 @@ graph TD
 
 ```mermaid
 graph TD
-    SS[Service Strategy] --> SD[Service Design]
-    SD --> ST[Service Transition]
-    SO[Service Operation] --> CSI[Continual Service Improvement]
+    SS[Service Strategy] &#45;&#45;&#62; SD[Service Design]
+    SD &#45;&#45;&#62; ST[Service Transition]
+    SO[Service Operation] &#45;&#45;&#62; CSI[Continual Service Improvement]
 
     subgraph ServiceNow mapping
-        SO --> Inc[Incident: incident table]
-        SO --> Prob[Problem: problem table]
-        SO --> Req[Request: sc_request]
-        ST --> Chg[Change: change_request]
-        SD --> KB[Knowledge: knowledge_base]
-        SS --> SLA[SLA: sla_definition]
-        CSI --> Rep[Reports / dashboards]
+        SO &#45;&#45;&#62; Inc[Incident: incident table]
+        SO &#45;&#45;&#62; Prob[Problem: problem table]
+        SO &#45;&#45;&#62; Req[Request: sc_request]
+        ST &#45;&#45;&#62; Chg[Change: change_request]
+        SD &#45;&#45;&#62; KB[Knowledge: knowledge_base]
+        SS &#45;&#45;&#62; SLA[SLA: sla_definition]
+        CSI &#45;&#45;&#62; Rep[Reports / dashboards]
     end
 
     style SO fill:#fff3e0,color:#000
@@ -1030,16 +1030,16 @@ graph TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Backlog : stories created
-    Backlog --> Sprint_Planning : team pulls stories
-    Sprint_Planning --> In_Progress : sprint starts
-    In_Progress --> In_Test : dev complete
-    In_Test --> Done : QA passes
-    In_Test --> Backlog : QA fails / scope change
-    Done --> [*] : sprint ends
-    Done --> Retrospective : velocity measured
-    Retrospective --> Next_Sprint : plan next
-    Next_Sprint --> Sprint_Planning
+    [*] &#45;&#45;&#62; Backlog : stories created
+    Backlog &#45;&#45;&#62; Sprint_Planning : team pulls stories
+    Sprint_Planning &#45;&#45;&#62; In_Progress : sprint starts
+    In_Progress &#45;&#45;&#62; In_Test : dev complete
+    In_Test &#45;&#45;&#62; Done : QA passes
+    In_Test &#45;&#45;&#62; Backlog : QA fails / scope change
+    Done &#45;&#45;&#62; [*] : sprint ends
+    Done &#45;&#45;&#62; Retrospective : velocity measured
+    Retrospective &#45;&#45;&#62; Next_Sprint : plan next
+    Next_Sprint &#45;&#45;&#62; Sprint_Planning
 ```
 
 ---

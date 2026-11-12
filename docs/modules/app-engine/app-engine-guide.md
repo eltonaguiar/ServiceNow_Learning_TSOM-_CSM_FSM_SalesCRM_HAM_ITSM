@@ -186,19 +186,19 @@ App Engine / Creator is measured on development speed, quality, and reuse — th
 
 ```mermaid
 graph TD
-    D[Data Experience Tables, columns, relationships] --> P[Process Experience Flows, subflows, approvals]
-    P --> E[Experience Experience Portals, Workspaces, Mobile]
-    E --> S[Security Experience Roles, ACLs, policies]
-    S --> D
+    D[Data Experience Tables, columns, relationships] &#45;&#45;&#62; P[Process Experience Flows, subflows, approvals]
+    P &#45;&#45;&#62; E[Experience Experience Portals, Workspaces, Mobile]
+    E &#45;&#45;&#62; S[Security Experience Roles, ACLs, policies]
+    S &#45;&#45;&#62; D
 
     subgraph Output
         O[Scoped App x_ namespace, App Repo package]
     end
 
-    D --> O
-    P --> O
-    E --> O
-    S --> O
+    D &#45;&#45;&#62; O
+    P &#45;&#45;&#62; O
+    E &#45;&#45;&#62; O
+    S &#45;&#45;&#62; O
 
     style D fill:#e3f2fd,color:#000
     style P fill:#fff3e0,color:#000
@@ -210,13 +210,13 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Trig[Trigger Record Created / Scheduled / API] --> Cond{Condition?}
-    Cond -->|Yes| Act1[Action 1 Update record]
-    Act1 --> Act2[Action 2 Send email]
-    Act2 --> Sub[Subflow Reusable chunk]
-    Sub --> Act3[Action 3 IntegrationHub spoke]
-    Act3 --> Done[Record updated]
-    Cond -->|No| Skip[Skip branch]
+    Trig[Trigger Record Created / Scheduled / API] &#45;&#45;&#62; Cond{Condition?}
+    Cond &#45;&#45;&#62;|Yes| Act1[Action 1 Update record]
+    Act1 &#45;&#45;&#62; Act2[Action 2 Send email]
+    Act2 &#45;&#45;&#62; Sub[Subflow Reusable chunk]
+    Sub &#45;&#45;&#62; Act3[Action 3 IntegrationHub spoke]
+    Act3 &#45;&#45;&#62; Done[Record updated]
+    Cond &#45;&#45;&#62;|No| Skip[Skip branch]
 
     style Trig fill:#e3f2fd,color:#000
     style Sub fill:#fff3e0,color:#000
@@ -227,10 +227,10 @@ flowchart TD
 
 ```mermaid
 graph LR
-    Dev[Dev instance AES build] --> Repo[Application Repository Publish version]
-    Repo --> Test[Test instance Install + verify]
-    Test --> Staging[Staging instance UAT]
-    Staging --> Prod[Production instance Install from App Repo]
+    Dev[Dev instance AES build] &#45;&#45;&#62; Repo[Application Repository Publish version]
+    Repo &#45;&#45;&#62; Test[Test instance Install + verify]
+    Test &#45;&#45;&#62; Staging[Staging instance UAT]
+    Staging &#45;&#45;&#62; Prod[Production instance Install from App Repo]
 
     style Prod fill:#ffebee,color:#000
     style Repo fill:#e3f2fd,color:#000
@@ -240,17 +240,17 @@ graph LR
 
 ```mermaid
 graph TD
-    Page[Workspace Page JSON config] --> Panel1[Panel: List]
-    Page --> Panel2[Panel: Form]
-    Page --> Panel3[Panel: Detail]
+    Page[Workspace Page JSON config] &#45;&#45;&#62; Panel1[Panel: List]
+    Page &#45;&#45;&#62; Panel2[Panel: Form]
+    Page &#45;&#45;&#62; Panel3[Panel: Detail]
 
-    Panel1 --> Comp1[Component: Data Table]
-    Panel1 --> Comp2[Component: Filter]
+    Panel1 &#45;&#45;&#62; Comp1[Component: Data Table]
+    Panel1 &#45;&#45;&#62; Comp2[Component: Filter]
 
-    Panel2 --> Comp3[Component: Field Group]
-    Panel2 --> Comp4[Component: Button]
-    Comp4 -->|Event| Server[Server script / API call]
-    Server -->|Client state update| Comp3
+    Panel2 &#45;&#45;&#62; Comp3[Component: Field Group]
+    Panel2 &#45;&#45;&#62; Comp4[Component: Button]
+    Comp4 &#45;&#45;&#62;|Event| Server[Server script / API call]
+    Server &#45;&#45;&#62;|Client state update| Comp3
 
     style Page fill:#e3f2fd,color:#000
     style Comp4 fill:#fff3e0,color:#000
@@ -260,10 +260,10 @@ graph TD
 
 ```mermaid
 graph LR
-    AES[App Engine Studio Workbench] --> IDE[IDE: VS Code / IntelliJ]
-    DM[Data Model Tables & columns] --> SQL[SQL / Schema]
-    FD[Flow Designer Logic & process] --> JS[JavaScript / Python]
-    UB[UI Builder Screens & portals] --> HTML[HTML / CSS / React]
+    AES[App Engine Studio Workbench] &#45;&#45;&#62; IDE[IDE: VS Code / IntelliJ]
+    DM[Data Model Tables & columns] &#45;&#45;&#62; SQL[SQL / Schema]
+    FD[Flow Designer Logic & process] &#45;&#45;&#62; JS[JavaScript / Python]
+    UB[UI Builder Screens & portals] &#45;&#45;&#62; HTML[HTML / CSS / React]
 
     style AES fill:#e3f2fd,color:#000
     style FD fill:#fff3e0,color:#000

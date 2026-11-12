@@ -135,11 +135,11 @@ Work is sent to the MID Server as ECC Queue **output** records; results come bac
 
 ```mermaid
 flowchart TD
-    Start[Discovery Schedule fires] --> Scan[1. Scanning Shazzam port probes find live IPs]
-    Scan --> Classify[2. Classification Classifiers decide device type — Windows, Linux, switch, …]
-    Classify --> Identify[3. Identification IRE matches an existing CI or creates a new one]
-    Identify --> Explore[4. Exploration Patterns/probes gather OS, CPU, software File-Based Discovery runs here]
-    Explore --> CI[CI created or updated in CMDB cmdb_ci · cmdb_ci_server · cmdb_file_information]
+    Start[Discovery Schedule fires] &#45;&#45;&#62; Scan[1. Scanning Shazzam port probes find live IPs]
+    Scan &#45;&#45;&#62; Classify[2. Classification Classifiers decide device type — Windows, Linux, switch, …]
+    Classify &#45;&#45;&#62; Identify[3. Identification IRE matches an existing CI or creates a new one]
+    Identify &#45;&#45;&#62; Explore[4. Exploration Patterns/probes gather OS, CPU, software File-Based Discovery runs here]
+    Explore &#45;&#45;&#62; CI[CI created or updated in CMDB cmdb_ci · cmdb_ci_server · cmdb_file_information]
     CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
 
     style Start fill:#e58a8a,color:#fff
@@ -156,9 +156,9 @@ flowchart TD
 flowchart LR
     Instance[ServiceNow Instance] <==>|output records work sent to MID| ECC[ECC Queue ecc_queue]
     ECC <==>|input records results returned| MID[MID Server inside your network]
-    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device server, switch, appliance]
-    Target -->|returns data| MID
-    MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
+    MID &#45;&#45;&#62;|WMI · WinRM · SSH · SNMP| Target[Target Device server, switch, appliance]
+    Target &#45;&#45;&#62;|returns data| MID
+    MID &#45;&#45;&#62;|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
 
     subgraph InstanceSide [Instance side]
         Instance
@@ -186,11 +186,11 @@ flowchart TD
     Sensor[Sensor instance-side parser]
     CI[(CMDB CI cmdb_ci_*)]
 
-    Pattern -->|calls| Probe
-    Probe -->|collects from| Target[Target device files · registry · WMI · SNMP]
-    Target -->|raw output| Probe
-    Probe -->|returns payload| Sensor
-    Sensor -->|maps onto CI fields| CI
+    Pattern &#45;&#45;&#62;|calls| Probe
+    Probe &#45;&#45;&#62;|collects from| Target[Target device files · registry · WMI · SNMP]
+    Target &#45;&#45;&#62;|raw output| Probe
+    Probe &#45;&#45;&#62;|returns payload| Sensor
+    Sensor &#45;&#45;&#62;|maps onto CI fields| CI
 
     style Pattern fill:#e5b567,color:#000
     style Probe fill:#4cc38a,color:#000

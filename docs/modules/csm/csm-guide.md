@@ -132,23 +132,23 @@ This guide maps to the **Certified Implementation Specialist – Customer Servic
 ```mermaid
 graph TD
     subgraph "B2B — Business to Business"
-        company[Customer Account] --> contact[Contact]
-        company --> entitlement[Entitlement]
-        company --> install_base[Install Base]
+        company[Customer Account] &#45;&#45;&#62; contact[Contact]
+        company &#45;&#45;&#62; entitlement[Entitlement]
+        company &#45;&#45;&#62; install_base[Install Base]
     end
     
     subgraph "B2C — Business to Consumer"
-        consumer[Consumer] --> case[Case]
+        consumer[Consumer] &#45;&#45;&#62; case[Case]
     end
     
     subgraph "B2B2C — Business to Business to Consumer"
-        company2[Customer Account] --> consumer2[Consumer via Portal]
-        company2 --> product[Product Model]
+        company2[Customer Account] &#45;&#45;&#62; consumer2[Consumer via Portal]
+        company2 &#45;&#45;&#62; product[Product Model]
     end
     
     subgraph "B2B2E — Business to Business to Employee"
-        company3[Customer Account] --> employee[Employee User]
-        employee --> case2[Case]
+        company3[Customer Account] &#45;&#45;&#62; employee[Employee User]
+        employee &#45;&#45;&#62; case2[Case]
     end
 
     style company fill:#0b0e11,stroke:#4cc38a
@@ -438,16 +438,16 @@ sn_customerservice_entitlement
 ### Case Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] --> New
-    New --> In Progress : Assign / Start work
-    In Progress --> On Hold : Waiting on dependency
-    On Hold --> In Progress : Third party responds
-    In Progress --> Resolved : Fix applied
-    Resolved --> Closed : Close code + notes filled
-    Resolved --> Reopened : Issue recurs
-    Closed --> [*]
-    New --> Canceled : Duplicate / invalid
-    Canceled --> [*]
+    [*] &#45;&#45;&#62; New
+    New &#45;&#45;&#62; In Progress : Assign / Start work
+    In Progress &#45;&#45;&#62; On Hold : Waiting on dependency
+    On Hold &#45;&#45;&#62; In Progress : Third party responds
+    In Progress &#45;&#45;&#62; Resolved : Fix applied
+    Resolved &#45;&#45;&#62; Closed : Close code + notes filled
+    Resolved &#45;&#45;&#62; Reopened : Issue recurs
+    Closed &#45;&#45;&#62; [*]
+    New &#45;&#45;&#62; Canceled : Duplicate / invalid
+    Canceled &#45;&#45;&#62; [*]
 
     note right of New: Priority = Impact × Urgency
     note right of Resolved: Requires Close Code + Close Notes
@@ -466,9 +466,9 @@ graph TD
     subgraph "Entitlement"
         ENT[Entitlement / SLA]
     end
-    AC --> CASE
-    CASE --> ENT
-    ENT --> CASE
+    AC &#45;&#45;&#62; CASE
+    CASE &#45;&#45;&#62; ENT
+    ENT &#45;&#45;&#62; CASE
 ```
 
 ### CSM Business Model (B2B / B2C / B2B2C / B2B2E)
@@ -486,9 +486,9 @@ graph TD
     subgraph sg_b2b2e["B2B2E"]
         B2B2E[Business to Employee]
     end
-    B2B --> B2C
-    B2C --> B2B2C
-    B2B2C --> B2B2E
+    B2B &#45;&#45;&#62; B2C
+    B2C &#45;&#45;&#62; B2B2C
+    B2B2C &#45;&#45;&#62; B2B2E
 ```
 
 ---

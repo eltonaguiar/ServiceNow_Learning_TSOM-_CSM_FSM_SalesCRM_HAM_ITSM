@@ -96,16 +96,16 @@ stateDiagram-v2
     state "In Maintenance" as InMaintenance
     state "Lost / Stolen" as LostStolen
 
-    [*] --> Procurement : Asset ordered
-    Procurement --> Received : Asset received in warehouse
-    Received --> InUse : Asset assigned to employee
-    InUse --> InMaintenance : Repair needed
-    InMaintenance --> InUse : Repair complete
-    InUse --> Retired : End of life / replacement
-    InUse --> LostStolen : Asset missing
-    LostStolen --> [*]
-    Retired --> [*]
-    InMaintenance --> Retired : Beyond economical repair
+    [*] &#45;&#45;&#62; Procurement : Asset ordered
+    Procurement &#45;&#45;&#62; Received : Asset received in warehouse
+    Received &#45;&#45;&#62; InUse : Asset assigned to employee
+    InUse &#45;&#45;&#62; InMaintenance : Repair needed
+    InMaintenance &#45;&#45;&#62; InUse : Repair complete
+    InUse &#45;&#45;&#62; Retired : End of life / replacement
+    InUse &#45;&#45;&#62; LostStolen : Asset missing
+    LostStolen &#45;&#45;&#62; [*]
+    Retired &#45;&#45;&#62; [*]
+    InMaintenance &#45;&#45;&#62; Retired : Beyond economical repair
 
     note right of Procurement: Purchase order, receipt
     note right of Received: Asset tag assigned, CI created
@@ -130,19 +130,19 @@ stateDiagram-v2
 graph TD
     subgraph "Hardware Asset (alm_asset)"
         asset[Asset Record]
-        asset -->|tracks| financial[Financial Data Cost, PO, Contract, Depreciation]
-        asset -->|tracks| assignment[Assignment User, Location, Department]
+        asset &#45;&#45;&#62;|tracks| financial[Financial Data Cost, PO, Contract, Depreciation]
+        asset &#45;&#45;&#62;|tracks| assignment[Assignment User, Location, Department]
     end
     
     subgraph "Configuration Item (cmdb_ci)"
         ci[CI Record]
-        ci -->|tracks| technical[Technical Data OS, IP, Serial, CPU, RAM]
-        ci -->|tracks| relationships[Relationships Runs on, Depends on, Connected to]
+        ci &#45;&#45;&#62;|tracks| technical[Technical Data OS, IP, Serial, CPU, RAM]
+        ci &#45;&#45;&#62;|tracks| relationships[Relationships Runs on, Depends on, Connected to]
     end
     
     subgraph "The Link"
-        asset -->|normalized to| ci
-        ci -->|sourced from| asset
+        asset &#45;&#45;&#62;|normalized to| ci
+        ci &#45;&#45;&#62;|sourced from| asset
     end
 
     style asset fill:#e5b567,color:#000
@@ -458,15 +458,15 @@ HAM's business goals center on maintaining an accurate hardware asset inventory 
 
 ```mermaid
 flowchart TD
-    PO[Purchased] --> RC[Receiving Check In]
-    RC --> IS[In Stock]
-    IS --> AS[In Use Assigned]
-    AS --> IM[In Maintenance Repair]
-    IM --> AS2[In Use Repair Complete]
-    AS --> RT[Retired End Of Life]
-    RT --> DP[Disposal Data Wipe]
-    AS --> LOST[Lost Or Stolen]
-    LOST --> WR[Write Off]
+    PO[Purchased] &#45;&#45;&#62; RC[Receiving Check In]
+    RC &#45;&#45;&#62; IS[In Stock]
+    IS &#45;&#45;&#62; AS[In Use Assigned]
+    AS &#45;&#45;&#62; IM[In Maintenance Repair]
+    IM &#45;&#45;&#62; AS2[In Use Repair Complete]
+    AS &#45;&#45;&#62; RT[Retired End Of Life]
+    RT &#45;&#45;&#62; DP[Disposal Data Wipe]
+    AS &#45;&#45;&#62; LOST[Lost Or Stolen]
+    LOST &#45;&#45;&#62; WR[Write Off]
 
 ### Asset to CI Normalization Link
 
@@ -490,11 +490,11 @@ flowchart LR
 
 ```mermaid
 graph TD
-    AST[Asset Record] -->|under contract with| CON[Contract Record]
-    AST -->|stored in| STO[Stockroom Record]
-    AST -->|assigned to| USR[User Record]
-    AST -->|normalized to| CIH[Hardware CI]
-    AST -->|depreciates via| MOD[Asset Model]
+    AST[Asset Record] &#45;&#45;&#62;|under contract with| CON[Contract Record]
+    AST &#45;&#45;&#62;|stored in| STO[Stockroom Record]
+    AST &#45;&#45;&#62;|assigned to| USR[User Record]
+    AST &#45;&#45;&#62;|normalized to| CIH[Hardware CI]
+    AST &#45;&#45;&#62;|depreciates via| MOD[Asset Model]
 ```
 
 ---
@@ -506,21 +506,21 @@ graph TD
 ```mermaid
 flowchart TD
     subgraph "HAM — Hardware Asset Management"
-        HAM[Asset Record] -->|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
-        HAM --> FIN[Financial Data Cost, PO, Contract, Depreciation]
-        HAM --> ASG[Assignment Data User, Location, Department]
+        HAM[Asset Record] &#45;&#45;&#62;|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
+        HAM &#45;&#45;&#62; FIN[Financial Data Cost, PO, Contract, Depreciation]
+        HAM &#45;&#45;&#62; ASG[Assignment Data User, Location, Department]
     end
     
     subgraph "ITAM — IT Asset Management (umbrella)"
-        HAM -->|normalized via NDS| CMDB[CMDB CI Record]
-        HAM --> CONTRACT[Contract/PO Link]
-        HAM --> MODEL[Asset Model]
+        HAM &#45;&#45;&#62;|normalized via NDS| CMDB[CMDB CI Record]
+        HAM &#45;&#45;&#62; CONTRACT[Contract/PO Link]
+        HAM &#45;&#45;&#62; MODEL[Asset Model]
     end
     
     subgraph "CMDB — Configuration Management Database"
-        CMDB --> TEC[Technical Data OS, IP Address, Serial Number]
-        CMDB --> REL[Relationships Runs On, Depends On, Connected To]
-        CMDB --> SERVICES[Business Services Mapped via CSDM]
+        CMDB &#45;&#45;&#62; TEC[Technical Data OS, IP Address, Serial Number]
+        CMDB &#45;&#45;&#62; REL[Relationships Runs On, Depends On, Connected To]
+        CMDB &#45;&#45;&#62; SERVICES[Business Services Mapped via CSDM]
     end
     
     HAM -.->|Financial view| ITAM
@@ -561,31 +561,31 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph "Procurement"
-        REQ[Request Submitted] --> APPROVE[Approval Workflow]
-        APPROVE --> PO[Purchase Order Created]
-        PO --> VENDOR[Vendor Ships Equipment]
+        REQ[Request Submitted] &#45;&#45;&#62; APPROVE[Approval Workflow]
+        APPROVE &#45;&#45;&#62; PO[Purchase Order Created]
+        PO &#45;&#45;&#62; VENDOR[Vendor Ships Equipment]
     end
     
     subgraph "Receiving & Check-In"
-        VENDOR --> RECEIVED[Received at Facility]
-        RECEIVED --> CHECKIN[Check-In Record Created]
-        CHECKIN --> INSTOCK[In Stock State]
+        VENDOR &#45;&#45;&#62; RECEIVED[Received at Facility]
+        RECEIVED &#45;&#45;&#62; CHECKIN[Check-In Record Created]
+        CHECKIN &#45;&#45;&#62; INSTOCK[In Stock State]
     end
     
     subgraph "Assignment & Discovery"
-        INSTOCK --> ASSIGN[Assigned to User/Location]
-        ASSIGN --> DISCOVER[Discovery Scans Device]
-        DISCOVER --> NORMALIZE[NDS Normalization]
-        NORMALIZE --> CMDB[CI Created/Updated in CMDB]
+        INSTOCK &#45;&#45;&#62; ASSIGN[Assigned to User/Location]
+        ASSIGN &#45;&#45;&#62; DISCOVER[Discovery Scans Device]
+        DISCOVER &#45;&#45;&#62; NORMALIZE[NDS Normalization]
+        NORMALIZE &#45;&#45;&#62; CMDB[CI Created/Updated in CMDB]
     end
     
     subgraph "Maintenance & Retirement"
-        CMDB --> ACTIVE[Active Asset Lifecycle]
-        ACTIVE --> MAINT[Maintenance/Repair]
-        MAINT --> ACTIVE
-        ACTIVE --> RETIRE[Retirement Initiated]
-        RETIRE --> WIPE[Data Wipe Certified]
-        WIPE --> DISPOSAL[Disposal Completed]
+        CMDB &#45;&#45;&#62; ACTIVE[Active Asset Lifecycle]
+        ACTIVE &#45;&#45;&#62; MAINT[Maintenance/Repair]
+        MAINT &#45;&#45;&#62; ACTIVE
+        ACTIVE &#45;&#45;&#62; RETIRE[Retirement Initiated]
+        RETIRE &#45;&#45;&#62; WIPE[Data Wipe Certified]
+        WIPE &#45;&#45;&#62; DISPOSAL[Disposal Completed]
     end
     
     style INSTOCK fill:#6bcb77,color:#fff
@@ -608,25 +608,25 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Purchased: PO received
+    [*] &#45;&#45;&#62; Purchased: PO received
     
-    Purchased --> ReceivingCheckIn: Physical receipt
-    ReceivingCheckIn --> InStock: Check-in complete
+    Purchased &#45;&#45;&#62; ReceivingCheckIn: Physical receipt
+    ReceivingCheckIn &#45;&#45;&#62; InStock: Check-in complete
     
-    InStock --> InUseAssigned: User assignment
-    InStock --> InMaintenance: Repair needed
+    InStock &#45;&#45;&#62; InUseAssigned: User assignment
+    InStock &#45;&#45;&#62; InMaintenance: Repair needed
     
-    InUseAssigned --> InMaintenance: Maintenance required
-    InMaintenance --> InUseRepairComplete: Repair done
+    InUseAssigned &#45;&#45;&#62; InMaintenance: Maintenance required
+    InMaintenance &#45;&#45;&#62; InUseRepairComplete: Repair done
     
-    InUseAssigned --> RetiredEndOfLife: End of life
-    InUseAssigned --> LostOrStolen: Reported lost/stolen
+    InUseAssigned &#45;&#45;&#62; RetiredEndOfLife: End of life
+    InUseAssigned &#45;&#45;&#62; LostOrStolen: Reported lost/stolen
     
-    RetiredEndOfLife --> DisposalDataWipe: Wipe certified
-    LostOrStolen --> WriteOff: Financial write-off
+    RetiredEndOfLife &#45;&#45;&#62; DisposalDataWipe: Wipe certified
+    LostOrStolen &#45;&#45;&#62; WriteOff: Financial write-off
     
-    DisposalDataWipe --> [*]: Asset retired
-    WriteOff --> [*]: Asset written off
+    DisposalDataWipe &#45;&#45;&#62; [*]: Asset retired
+    WriteOff &#45;&#45;&#62; [*]: Asset written off
     
     note right of InStock
         Available for assignment

@@ -362,15 +362,15 @@ wm_territory
 ### Work Order Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
-    Draft --> Scheduled : Schedule created
-    Scheduled --> Dispatched : Agent assigned
-    Dispatched --> In Progress : Technician en route / arrived
-    In Progress --> Completed : Task finished
-    Completed --> Closed : All tasks done, parts returned
-    Closed --> [*]
-    Draft --> Canceled : Cancelled before scheduling
-    Canceled --> [*]
+    [*] &#45;&#45;&#62; Draft
+    Draft &#45;&#45;&#62; Scheduled : Schedule created
+    Scheduled &#45;&#45;&#62; Dispatched : Agent assigned
+    Dispatched &#45;&#45;&#62; In Progress : Technician en route / arrived
+    In Progress &#45;&#45;&#62; Completed : Task finished
+    Completed &#45;&#45;&#62; Closed : All tasks done, parts returned
+    Closed &#45;&#45;&#62; [*]
+    Draft &#45;&#45;&#62; Canceled : Cancelled before scheduling
+    Canceled &#45;&#45;&#62; [*]
 
     note right of Draft: Territory and skills required
     note right of Completed: Time entries captured
@@ -389,11 +389,11 @@ graph TD
     subgraph "Task"
         TSK[Work Order Task]
     end
-    DB -->|Auto-assign| TECH
-    TECH -->|Start work| TSK
-    TSK -->|Update state| DB
-    TSK -->|Consume parts| Inventory[Parts Inventory]
-    TSK -->|Log time| Time[Time Entries]
+    DB &#45;&#45;&#62;|Auto-assign| TECH
+    TECH &#45;&#45;&#62;|Start work| TSK
+    TSK &#45;&#45;&#62;|Update state| DB
+    TSK &#45;&#45;&#62;|Consume parts| Inventory[Parts Inventory]
+    TSK &#45;&#45;&#62;|Log time| Time[Time Entries]
 ```
 
 ### Scheduling and Travel Time Flow
@@ -408,12 +408,12 @@ graph TD
     subgraph "Optimization Engine"
         OE[Dynamic Scheduling Engine]
     end
-    SK --> OE
-    TR --> OE
-    AV --> OE
-    OE -->|Place work order| WO[Work Order]
-    WO --> TT[Travel Time Added to Schedule]
-    TT -->|Adjust start/end| AV
+    SK &#45;&#45;&#62; OE
+    TR &#45;&#45;&#62; OE
+    AV &#45;&#45;&#62; OE
+    OE &#45;&#45;&#62;|Place work order| WO[Work Order]
+    WO &#45;&#45;&#62; TT[Travel Time Added to Schedule]
+    TT &#45;&#45;&#62;|Adjust start/end| AV
 ```
 
 ---

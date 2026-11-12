@@ -138,18 +138,18 @@ This guide maps to the **Certified Implementation Specialist – Service Mapping
 ```mermaid
 graph TD
     subgraph "Horizontal Discovery - 'What exists on the network?'"
-        A["MID Server"] --> B["Scan IP Range"]
-        B --> C["Discover CIs"]
-        C --> D["cmdb_ci, cmdb_ci_server, cmdb_ci_appl"]
-        D --> E["Standalone CIs"]
+        A["MID Server"] &#45;&#45;&#62; B["Scan IP Range"]
+        B &#45;&#45;&#62; C["Discover CIs"]
+        C &#45;&#45;&#62; D["cmdb_ci, cmdb_ci_server, cmdb_ci_appl"]
+        D &#45;&#45;&#62; E["Standalone CIs"]
     end
     
     subgraph "Top-Down Service Mapping - 'Which CIs support this service?'"
-        F["Application Service"] --> G["Entry Point: URL/IP"]
-        G --> H["Pattern-Based Discovery"]
-        H --> I["Follow Dependencies"]
-        I --> J["cmdb_ci_service_discovered"]
-        J --> K["cmdb_rel_ci Relationships"]
+        F["Application Service"] &#45;&#45;&#62; G["Entry Point: URL/IP"]
+        G &#45;&#45;&#62; H["Pattern-Based Discovery"]
+        H &#45;&#45;&#62; I["Follow Dependencies"]
+        I &#45;&#45;&#62; J["cmdb_ci_service_discovered"]
+        J &#45;&#45;&#62; K["cmdb_rel_ci Relationships"]
     end
     
     E -.->|feed data| J
@@ -189,13 +189,13 @@ graph TD
         db_server[DB01 Host cmdb_ci_server]
     end
 
-    svc --> f5
-    f5 --> web
-    web --> web_server
-    web --> app
-    app --> app_server
-    app --> db
-    db --> db_server
+    svc &#45;&#45;&#62; f5
+    f5 &#45;&#45;&#62; web
+    web &#45;&#45;&#62; web_server
+    web &#45;&#45;&#62; app
+    app &#45;&#45;&#62; app_server
+    app &#45;&#45;&#62; db
+    db &#45;&#45;&#62; db_server
 
     style svc fill:#4cc38a,color:#000
     style f5 fill:#e5b567,color:#000
@@ -345,12 +345,12 @@ flowchart TD
     Rel["cmdb_rel_ci Relationships Runs on · Depends on · Connects to"]
     Map["Service Map graphical dependency view"]
 
-    Entry --> Service
-    Service --> MID
-    MID --> Pattern
-    Pattern --> Dep
-    Dep --> Rel
-    Rel --> Map
+    Entry &#45;&#45;&#62; Service
+    Service &#45;&#45;&#62; MID
+    MID &#45;&#45;&#62; Pattern
+    Pattern &#45;&#45;&#62; Dep
+    Dep &#45;&#45;&#62; Rel
+    Rel &#45;&#45;&#62; Map
 
     style Entry fill:#e58a8a,color:#fff
     style Service fill:#4cc38a,color:#000
@@ -373,13 +373,13 @@ graph TD
     db["DB01 - SQL Server cmdb_ci_appl"]
     dbhost[DB01 Host cmdb_ci_server]
 
-    svc --> f5
-    f5 --> web
-    web --> webhost
-    web --> app
-    app --> apphost
-    app --> db
-    db --> dbhost
+    svc &#45;&#45;&#62; f5
+    f5 &#45;&#45;&#62; web
+    web &#45;&#45;&#62; webhost
+    web &#45;&#45;&#62; app
+    app &#45;&#45;&#62; apphost
+    app &#45;&#45;&#62; db
+    db &#45;&#45;&#62; dbhost
 
     style svc fill:#4cc38a,color:#000
     style f5 fill:#e5b567,color:#000
@@ -395,15 +395,15 @@ graph TD
 ```mermaid
 flowchart LR
     subgraph HD["Horizontal Discovery - 'What exists on the network?'"]
-        H1["Scan IP ranges"] --> H2["Discover CIs"]
-        H2 --> H3["cmdb_ci · cmdb_ci_server · cmdb_ci_appl"]
-        H3 --> H4["Standalone CIs"]
+        H1["Scan IP ranges"] &#45;&#45;&#62; H2["Discover CIs"]
+        H2 &#45;&#45;&#62; H3["cmdb_ci · cmdb_ci_server · cmdb_ci_appl"]
+        H3 &#45;&#45;&#62; H4["Standalone CIs"]
     end
 
     subgraph SM["Top-Down Service Mapping - 'Which CIs support this service?'"]
-        S1["Application service + entry point"] --> S2["Pattern / traffic discovery"]
-        S2 --> S3["CI-to-CI relationships"]
-        S3 --> S4["cmdb_ci_service_discovered + cmdb_rel_ci"]
+        S1["Application service + entry point"] &#45;&#45;&#62; S2["Pattern / traffic discovery"]
+        S2 &#45;&#45;&#62; S3["CI-to-CI relationships"]
+        S3 &#45;&#45;&#62; S4["cmdb_ci_service_discovered + cmdb_rel_ci"]
     end
 
     H4 -.->|feeds discovered CIs| S3

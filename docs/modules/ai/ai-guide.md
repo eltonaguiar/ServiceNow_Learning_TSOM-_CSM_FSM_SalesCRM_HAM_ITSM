@@ -144,10 +144,10 @@ graph TD
         E[CMDB, Clean Data, Workflow Data Fabric, RaptorDB]
     end
 
-    E --> D
-    D --> C
-    C --> B
-    B --> A
+    E &#45;&#45;&#62; D
+    D &#45;&#45;&#62; C
+    C &#45;&#45;&#62; B
+    B &#45;&#45;&#62; A
 
     style E fill:#e1f5e1,color:#000
     style D fill:#fff3e0,color:#000
@@ -856,10 +856,10 @@ ServiceNow AI is measured on adoption, quality, cost control, and business outco
 
 ```mermaid
 graph TD
-    F["Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB"] --> P["Predictive Intelligence Classification, Similarity, Regression, Clustering"]
-    P --> G["Generative AI — Now Assist Summarization, Drafting, KB Generation, Code"]
-    G --> V["Virtual Agent Conversational AI, Deflection, NLU"]
-    V --> A["Agentic AI AI Agents, Multi-step Execution, Orchestrator"]
+    F["Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB"] &#45;&#45;&#62; P["Predictive Intelligence Classification, Similarity, Regression, Clustering"]
+    P &#45;&#45;&#62; G["Generative AI — Now Assist Summarization, Drafting, KB Generation, Code"]
+    G &#45;&#45;&#62; V["Virtual Agent Conversational AI, Deflection, NLU"]
+    V &#45;&#45;&#62; A["Agentic AI AI Agents, Multi-step Execution, Orchestrator"]
 
     style F fill:#e1f5e1,color:#000
     style P fill:#fff3e0,color:#000
@@ -872,13 +872,13 @@ graph TD
 
 ```mermaid
 flowchart LR
-    Rec[Record: Incident] --> Skill[Now Assist Skill e.g., Summarize]
-    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc.]
-    LLM -->|Generated output| Out[Draft: Summary / Note / Reply]
-    Out --> Agent[Human Agent reviews]
-    Agent -->|Edits & saves| Rec2[Record updated]
-    Out -->|Rejected / unsafe| Guardian[AI Guardian Offensiveness / Prompt Injection]
-    Guardian -->|block + log| Alert[Control Tower Audit]
+    Rec[Record: Incident] &#45;&#45;&#62; Skill[Now Assist Skill e.g., Summarize]
+    Skill &#45;&#45;&#62;|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc.]
+    LLM &#45;&#45;&#62;|Generated output| Out[Draft: Summary / Note / Reply]
+    Out &#45;&#45;&#62; Agent[Human Agent reviews]
+    Agent &#45;&#45;&#62;|Edits & saves| Rec2[Record updated]
+    Out &#45;&#45;&#62;|Rejected / unsafe| Guardian[AI Guardian Offensiveness / Prompt Injection]
+    Guardian &#45;&#45;&#62;|block + log| Alert[Control Tower Audit]
 
     style LLM fill:#e3f2fd,color:#000
     style Guardian fill:#ffebee,color:#000
@@ -888,17 +888,17 @@ flowchart LR
 
 ```mermaid
 graph TD
-    Hist["Historical Records 30K–300K clean rows"] --> Train[Model Training Service]
-    Train --> Model[Predictive Model Classification / Similarity]
-    Model --> Deploy[Activate model]
-    Deploy --> New[New Incident / Case]
-    New --> Predict{Predictive call}
-    Predict -->|Classification| Assign[Auto-assign group/category]
-    Predict -->|Similarity| Sim[Similar Incidents related list]
-    Sim --> Agent[Agent reviews matches]
-    Assign --> Agent
-    Agent --> Close[Close / update record]
-    Close --> Feed[(Feedback loop improves model)]
+    Hist["Historical Records 30K–300K clean rows"] &#45;&#45;&#62; Train[Model Training Service]
+    Train &#45;&#45;&#62; Model[Predictive Model Classification / Similarity]
+    Model &#45;&#45;&#62; Deploy[Activate model]
+    Deploy &#45;&#45;&#62; New[New Incident / Case]
+    New &#45;&#45;&#62; Predict{Predictive call}
+    Predict &#45;&#45;&#62;|Classification| Assign[Auto-assign group/category]
+    Predict &#45;&#45;&#62;|Similarity| Sim[Similar Incidents related list]
+    Sim &#45;&#45;&#62; Agent[Agent reviews matches]
+    Assign &#45;&#45;&#62; Agent
+    Agent &#45;&#45;&#62; Close[Close / update record]
+    Close &#45;&#45;&#62; Feed[(Feedback loop improves model)]
 
     style Model fill:#fff3e0,color:#000
     style Feed fill:#e1f5e1,color:#000
@@ -908,21 +908,21 @@ graph TD
 
 ```mermaid
 graph TD
-    Orch[AI Agent Orchestrator ReAct + Route scheduling] --> A1[Agent A Read incident]
-    Orch --> A2[Agent B Find similar incidents]
-    Orch --> A3[Agent C Search KB]
-    Orch --> A4[Agent D Check recent changes]
+    Orch[AI Agent Orchestrator ReAct + Route scheduling] &#45;&#45;&#62; A1[Agent A Read incident]
+    Orch &#45;&#45;&#62; A2[Agent B Find similar incidents]
+    Orch &#45;&#45;&#62; A3[Agent C Search KB]
+    Orch &#45;&#45;&#62; A4[Agent D Check recent changes]
 
-    A1 --> Merge[Context package]
-    A2 --> Merge
-    A3 --> Merge
-    A4 --> Merge
-    Merge --> Panel[Now Assist Panel Triage summary + recommendation]
-    Panel --> Human{Human approves?}
-    Human -->|Yes| Exec[Execute flow / runbook]
-    Human -->|No| Draft[Keep as draft]
-    Exec --> Done[Incident updated]
-    Draft --> Done
+    A1 &#45;&#45;&#62; Merge[Context package]
+    A2 &#45;&#45;&#62; Merge
+    A3 &#45;&#45;&#62; Merge
+    A4 &#45;&#45;&#62; Merge
+    Merge &#45;&#45;&#62; Panel[Now Assist Panel Triage summary + recommendation]
+    Panel &#45;&#45;&#62; Human{Human approves?}
+    Human &#45;&#45;&#62;|Yes| Exec[Execute flow / runbook]
+    Human &#45;&#45;&#62;|No| Draft[Keep as draft]
+    Exec &#45;&#45;&#62; Done[Incident updated]
+    Draft &#45;&#45;&#62; Done
 
     MCP[MCP servers: Jira, SAP, GitHub] -.->|tool calls| A1
     A2 -.->|A2A| Ext[External agents]
@@ -935,14 +935,14 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Invoke[Skill/Agent invoked] --> Meter[Assist Metering +1 Assist]
-    Meter --> Quota[(Monthly quota)]
-    Quota --> Check{Threshold?}
-    Check -->|50%| Alert1[Email/Slack alert]
-    Check -->|80%| Alert2[Escalate to CoE]
-    Check -->|95%| Alert3[Auto-top-up or throttle]
-    Check -->|Exhausted| Block[Skills stop working Predictions fail]
-    Check -->|OK| Continue[Continue normally]
+    Invoke[Skill/Agent invoked] &#45;&#45;&#62; Meter[Assist Metering +1 Assist]
+    Meter &#45;&#45;&#62; Quota[(Monthly quota)]
+    Quota &#45;&#45;&#62; Check{Threshold?}
+    Check &#45;&#45;&#62;|50%| Alert1[Email/Slack alert]
+    Check &#45;&#45;&#62;|80%| Alert2[Escalate to CoE]
+    Check &#45;&#45;&#62;|95%| Alert3[Auto-top-up or throttle]
+    Check &#45;&#45;&#62;|Exhausted| Block[Skills stop working Predictions fail]
+    Check &#45;&#45;&#62;|OK| Continue[Continue normally]
 
     style Block fill:#ffebee,color:#000
     style Alert3 fill:#fff3e0,color:#000
