@@ -16,6 +16,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
   </div>
   <div class="card">
+    <h3>TSOM Assurance</h3>
+    <p>Event Management, AIOps, Service Impact Analysis, and Synthetic Monitoring — the observability stack for telecom and enterprise environments.</p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-assurance/">Open TSOM Assurance guide</a></p>
+  </div>
+  <div class="card">
     <h3>CSM</h3>
     <p>Customer Service Management — cases, accounts, entitlements, and customer-facing SLAs.</p>
     <p class="meta"><a href="./docs/modules/csm/csm-guide/">Open the CSM guide</a></p>
@@ -56,19 +61,14 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide/">Open the HRSD guide</a></p>
   </div>
   <div class="card">
-    <h3>Other</h3>
-    <p>Enterprise integration, workforce management, legacy systems, ITIL, and Agile — Boomi iPaaS, UKG, AS/400/DB2, ITIL processes, and Agile delivery.</p>
-    <p class="meta"><a href="./docs/modules/other/other-guide/">Open the Other guide</a></p>
+    <h3>SAM</h3>
+    <p>Software Asset Management — software models and SUMN normalization, entitlements, the reconciliation engine, compliance positions, SaaS seat management, optimization/reclamation, publisher audit traps, and a full entitlement→reconciliation→compliance lab.</p>
+    <p class="meta"><a href="./docs/modules/sam/sam-guide/">Open the SAM guide</a></p>
   </div>
   <div class="card">
     <h3>Service Mapping</h3>
     <p>Application service discovery — pattern-based top-down mapping of CIs to business services, CMDB relationships, and service impact analysis.</p>
     <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
-  </div>
-  <div class="card">
-    <h3>SAM</h3>
-    <p>Software Asset Management — software models and SUMN normalization, entitlements, the reconciliation engine, compliance positions, SaaS seat management, optimization/reclamation, publisher audit traps, and a full entitlement→reconciliation→compliance lab.</p>
-    <p class="meta"><a href="./docs/modules/sam/sam-guide/">Open the SAM guide</a></p>
   </div>
   <div class="card">
     <h3>AI</h3>
@@ -79,6 +79,26 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>JavaScript Reference</h3>
     <p>Platform scripting reference — GlideRecord, GlideSystem, GlideAjax, GlideForm, GlideAggregate, GlideDateTime, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns.</p>
     <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
+  </div>
+  <div class="card">
+    <h3>Cross-Cutting Skills</h3>
+    <p>Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer.</p>
+    <p class="meta"><a href="./docs/cross-cutting/">Open the Cross-Cutting guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Interview Prep</h3>
+    <p>Prioritized by interview order — what to review for each upcoming interview, STAR story bank, certification talking points.</p>
+    <p class="meta"><a href="./docs/interviews/prioritized-prep-list/">Open the Interview Prep guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Learning Paths</h3>
+    <p>Official courses & certifications — Now Learning paths for CSA, CAD, CIS-ITSM, CIS-SAM, and more.</p>
+    <p class="meta"><a href="./docs/learning/">Open the Learning Paths guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Video Library</h3>
+    <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
+    <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
   </div>
 </div>
 
@@ -148,17 +168,6 @@ Every module guide follows the same repeatable process:
 ## Additional Resources
 
 - **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
-- **[AI Platform Guide](./docs/modules/ai/ai-guide/)** — AI-native tiers, Now Assist, Predictive Intelligence, Virtual Agent, AI Agents, NASK, governance, cost management, and guardrails
-- **[JavaScript Reference — Glide APIs & Scripting Patterns](./docs/modules/ai/javascript-reference/)** — GlideRecord, GlideSystem, GlideAjax, GlideForm, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns
-
-- **[Official Learning Portal](./docs/learning.md)** — Self-directed, English-language official courses and certification paths
-- **[Official Video Resources](./docs/youtube.md)** — Curated official YouTube channels, playlists, and best practice videos
-
-- **[SUCCESS_PACK_OPENCODE.MD](./SUCCESS_PACK_OPENCODE.MD)** — 90-day ServiceNow career landing strategy (opencode)
-- **[SUCCESS_PACK_HERMES.MD](./SUCCESS_PACK_HERMES.MD)** — ServiceNow 2026 role landing strategy (hermes)
-- **[Machine-readable module data](./data/modules.json)** — JSON with all module metadata
-- **[Scripts](./scripts/)** — Tavily/Firecrawl web search scraper and cached job data processor
-
----
-
-*Generated by opencode on 2026-11-05. Part of the ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM repository.*
+- **[Interview Prep Guide](docs/interviews/prioritized-prep-list.md)** — Prioritized by interview order
+- **[Learning Paths](docs/learning.md)** — Official courses & certifications
+- **[Video Library](docs/youtube.md)** — Official channels & playlists
