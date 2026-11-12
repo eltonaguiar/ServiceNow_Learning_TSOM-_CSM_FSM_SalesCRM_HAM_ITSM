@@ -602,14 +602,13 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    IN[Incoming CI Data] &#45;&#45;&#62; IDR{Identification}
-    IDR &#45;&#45;&#62;|Match| EX[CI Exists]
-    IDR &#45;&#45;&#62;|No Match| NEW[Create CI]
-    EX &#45;&#45;&#62; REC{Reconciliation}
-    REC &#45;&#45;&#62;|Conflict| UP[Update With Trusted Source]
-    REC &#45;&#45;&#62;|No Conflict| UN[No Change Needed]
-
----
+    IN[Incoming CI Data] --> IDR{Identification}
+    IDR -->|Match| EX[CI Exists]
+    IDR -->|No Match| NEW[Create CI]
+    EX --> REC{Reconciliation}
+    REC -->|Conflict| UP[Update With Trusted Source]
+    REC -->|No Conflict| UN[No Change Needed]
+```
 
 ## Common Mistakes
 

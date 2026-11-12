@@ -523,8 +523,8 @@ graph LR
     Order -->|Push| Acct
 
     style Quote fill:#e1f5e1,color:#000
-        style Order fill:#fce4ec,color:#000
-    ```
+    style Order fill:#fce4ec,color:#000
+```
 
     ---
 
