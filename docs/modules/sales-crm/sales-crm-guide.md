@@ -368,6 +368,72 @@ sn_sales_product
 
 ---
 
+## Integrations — OAuth 2.0 & Webhooks for Sales CRM
+
+Sales CRM tables (`sn_sales_opportunity`, `sn_sales_quote`, `sn_sales_order`, `sn_sales_account`, `sn_sales_contact`) all extend `task` and are accessible via the ServiceNow Table API (`/api/now/table/...`). External systems can read/write Sales CRM data using OAuth 2.0, and Sales CRM can push events to external systems via webhooks.
+
+### OAuth 2.0 — Let an external system call Sales CRM APIs
+
+Use this when an external system (e.g., a CPQ tool, e-commerce site, or analytics platform) needs to read or write Sales CRM records directly.
+
+**Setup steps:**
+
+| Step | Where | Action |
+|------|-------|--------|
+| **1. Activate OAuth plugin** | System Definition > Plugins | Ensure "OAuth 2.0" is active (`com.snc.platform.security.oauth.is.active = true`) |
+| **2. Register the OAuth application** | System OAuth > Application Registry > New | Select "Create an OAuth API endpoint for external clients"; record the auto-generated Client ID and Client Secret |
+| **3. Configure grant type** | Application Registry record | Set Default Grant Type to `Client Credentials` (for server-to-server) or `Authorization Code` (for user-facing apps) |
+| **4. Assign an OAuth user** | Application Registry > OAuth Application User | Pick or create an active ServiceNow user (e.g., `rest_sales_api`) with `web_service_access_only = true` and appropriate roles on Sales CRM tables |
+| **5. Request an access token** | External system (cURL/Postman/code) | POST to `https://<instance>.service-now.com/oauth_token.do` with `grant_type=client_credentials`, `client_id`, `client_secret` |
+| **6. Call Sales CRM APIs** | External system | Use `Authorization: Bearer <access_token>` on requests to `https://<instance>.service-now.com/api/now/table/sn_sales_opportunity` etc. |
+
+**Token lifetimes:** Access tokens default to 1,800 seconds (30 minutes); refresh tokens to 8,640,000 seconds (100 days). Refresh before expiry or re-request.
+
+**Scope:** Limit the OAuth application user to the tables it needs (e.g., `sn_sales_opportunity`, `sn_sales_quote`) rather than granting broad `web_service_admin`.
+
+---
+
+### Webhooks — Push Sales CRM events to external systems
+
+Use this when Sales CRM is the source of truth and an external system needs to react instantly (e.g., push a Closed Won opportunity to an ERP, notify an accounting system of a new invoice, or trigger a provisioning flow).
+
+**Outbound webhook — ServiceNow tells an external system:**
+
+| Section | Where | What to configure |
+|---------|-------|-------------------|
+| **External listener** | The external system | Public HTTPS endpoint accepting `POST` with JSON body; note the URL and any required secret/token |
+| **Authentication** | System Definition > Secrets | Store the webhook bearer token/secret here; do not hard-code in flows |
+| **Flow** | Flow Designer | Record-based flow on `sn_sales_opportunity`, `sn_sales_quote`, or `sn_sales_order`; build JSON payload from record fields; `POST` to the external URL with Bearer auth header |
+| **Trigger** | Flow Designer | Event that fires the webhook — e.g., opportunity stage = `Closed Won`, quote status = `Sent`, order status = `Confirmed` |
+
+**Example:** A Flow Designer flow on `sn_sales_order` fires on update. When `order_status` changes to `Confirmed`, it POSTs `{order_number, account, total_amount, expected_fulfillment_date, sys_id}` to the ERP webhook URL with a Bearer token from Secrets.
+
+**Inbound webhook — external system tells Sales CRM:**
+
+| Section | Where | What to configure |
+|---------|-------|-------------------|
+| **Inbound REST API** | System Web Services > Scripted REST APIs | Create a Scripted REST API with base path; add a `POST` resource whose script reads `request.body.dataString` and writes to the target Sales CRM table |
+| **Webhook registration (external)** | The external system | Point its webhook URL at your Scripted REST API endpoint (`https://<instance>/api/snc/<api_id>/<resource_path>`); subscribe to relevant events |
+| **Authentication** | Scripted REST API resource | Set auth type (None with secret validation in script, Basic, or OAuth); validate the incoming secret |
+| **Target logic** | The resource script | Parse payload, map fields to `sn_sales_opportunity`, `sn_sales_quote`, etc.; apply business rules for stage transitions and SLA start |
+
+**Rule:** Tie the webhook to the *event* (stage change, status change), not just the table. Send just enough payload for the receiver to act (record sys_id + changed fields).
+
+---
+
+### RESTMessageV2 vs IntegrationHub Spoke for Sales CRM
+
+When Sales CRM needs to call external systems (e.g., push an order to ERP, send a quote to an e-signature service, enrich a lead with company data):
+
+| | **RESTMessageV2** | **IntegrationHub REST Spoke** |
+|---|-------------------|-------------------------------|
+| **What it is** | Server-side API (`sn_ws.RESTMessageV2`) called from scripts | Low-code IntegrationHub spoke for REST-based integrations |
+| **Best for** | Custom logic in Business Rules, Script Includes, one-off callouts | Reusable integration flows, Flow Designer, operations-team maintenance |
+| **Auth** | Set on REST Message record (Basic, Bearer, OAuth, API Key) | Set on Spoke connection configuration |
+| **Sales CRM use case** | Business Rule that POSTs opportunity data to an external pricing engine on insert | Flow that pulls invoice data from accounting system and updates `sn_sales_order` |
+
+---
+
 ## Common Mistakes
 
 | Mistake | Symptom | Fix |
