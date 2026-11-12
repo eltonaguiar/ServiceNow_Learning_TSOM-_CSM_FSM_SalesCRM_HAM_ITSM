@@ -28,7 +28,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Lab: Run Your First Discovery and File-Based Scan](#lab-run-your-first-discovery-and-file-based-scan)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [📺 Visual & Video Guides](#-visual--video-guides)
+- [📺 Visual & Video Guides](#verified-videos--playlists)
 - [🎓 Official Learning Resources](#-official-learning-resources)
 - [Related Guides](#related-guides)
 

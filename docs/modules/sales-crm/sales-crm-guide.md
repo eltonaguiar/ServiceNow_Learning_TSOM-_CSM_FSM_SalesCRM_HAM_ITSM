@@ -27,7 +27,7 @@
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
 - [📺 Visual & Video Guides](#-visual--video-guides)
-- [🗺️ Conceptual Flow (Lead-to-Cash)](#-conceptual-flow-lead-to-cash)
+- [🗺️ Conceptual Flow (Lead-to-Cash)](#conceptual-flow-lead-to-cash)
 - [🎓 Official Learning Resources](#-official-learning-resources)
 - [Related Guides](#related-guides)
 

@@ -18,7 +18,7 @@
 - [Out-of-Box Features](#out-of-box-features)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
 - [🔍 Process Deep Dives](#-process-deep-dives)
-  - [Incident Management](#-incident-management) · [Major Incident Management](#-major-incident-management-mim) · [Problem](#-problem-management) · [Change](#-change-management) · [Request](#-request-fulfillment) · [Knowledge](#-knowledge-management)
+  - [Incident Management](#incident-management) · [Major Incident Management](#major-incident-management-mim) · [Problem](#problem-management) · [Change](#change-management) · [Request](#request-fulfillment) · [Knowledge](#knowledge-management)
 - [Key Table Hierarchy](#key-table-hierarchy)
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)

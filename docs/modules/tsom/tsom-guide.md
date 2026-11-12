@@ -136,7 +136,7 @@ breadcrumb (Synthetic Monitoring lives under **IT Operations Management → Synt
 See the [capabilities page](tsom-capabilities.md#1-breadcrumb-map--where-each-capability-actually-lives)
 for the full map before you go hunting in Telecom Service Operations.
 
-**Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites-and-availability) below; there is no `com.snc.tsom` plugin.
+**Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites-setup) below; there is no `com.snc.tsom` plugin.
 
 ---
 
