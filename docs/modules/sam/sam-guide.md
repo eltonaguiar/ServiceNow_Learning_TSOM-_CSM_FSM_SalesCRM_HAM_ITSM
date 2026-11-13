@@ -1212,7 +1212,7 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 </details>
 
 <details>
-<summary>Hidden: Mnemonics for key SAM turns (collapsed)</summary>
+<summary>💡 Mnemonics for key SAM turns (click to reveal)</summary>
 
 ## Mnemonics for fast recall during labs/exams
 - **M D I U R** = **M**odel, **D**iscovery model, **I**nstall, entitlement (**U**ser/right), **R**econciliation verdict.
