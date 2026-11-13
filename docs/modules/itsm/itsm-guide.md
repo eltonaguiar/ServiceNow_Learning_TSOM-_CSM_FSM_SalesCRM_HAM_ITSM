@@ -56,6 +56,7 @@
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
 - [Integrations for Legacy / Public-Sector Environments](#integrations-for-legacy-public-sector-environments)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
+  - [Out-of-box incident SLAs, breach, and every definition option](#out-of-box-incident-slas-breach-and-every-definition-option)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#official-learning-resources)
   - [📺 Verified Videos & Playlists](#verified-videos--playlists)
@@ -1032,10 +1033,133 @@ Conditions are fields on `contract_sla` (start, pause, stop, reset, cancel). You
 4. Second definition, `SLA-TEST Vendor`. Type = Underpinning Contract. Table = `incident`. Duration = 1 minute. Start: State is On Hold and Hold reason is Awaiting Vendor. Stop: State is not On Hold.
 5. Create an incident whose short description starts with `SLA-TEST`. Related list Task SLAs should show one `task_sla` in In Progress, pointing at the incident definition. The vendor definition must not be there yet.
 6. Set State to On Hold, Hold reason Awaiting Vendor. Customer clock pauses. Vendor clock starts.
-7. Resolve the incident. Customer clock completes. If you wait out the minute first, stage becomes Breached and `has_breached` is true.
+7. Resolve the incident. Customer clock completes with `has_breached` false if you stopped inside the minute. If you wait out the minute first, stage stays In Progress, `has_breached` becomes true, and resolving after that completes the clock with `has_breached` still true.
 8. If no row appears, the definition is inactive, the table is wrong, or the start condition missed. Use Repair SLAs. Do not hand-insert `task_sla`.
 
-Priority-based durations (P1 through P5) are the same pattern with a start condition on Priority instead of the test prefix. Response versus resolution is two definitions, not two fields on one row: the response definition stops on first assignment or first response; the resolution definition stops on Resolved.
+### Out-of-box incident SLAs, breach, and every definition option
+
+`has_breached` is not a condition you write. Nothing on `contract_sla` says "set has_breached = true". The engine sets `task_sla.has_breached` when the business clock reaches the duration. Stage does not become a "Breached" state. Stage stays In Progress until pause, stop, cancel, or reset. Breach is the flag.
+
+Open **All > Service Level Management > SLA Definitions** and filter Table is `incident`. The duration is in the name. Families have changed the hours. Eureka shipped **Priority 1 resolution (8 hour)**. Later instances ship **Priority 1 resolution (1 hour)** and a separate **Priority 1 response (15 minutes)**. Read the record on your instance. Do not copy hours from a blog into a design.
+
+Names seen on current base-system-style instances:
+
+| Name | Target | Duration in the name |
+|------|--------|----------------------|
+| Priority 1 resolution (1 hour) | Resolution | 1 hour |
+| Priority 1 response (15 minutes) | Response | 15 minutes |
+| Priority 2 resolution (8 hour) | Resolution | 8 hours |
+| Priority 2 response (1 hour) | Response | 1 hour |
+| Priority 3 resolution (1 day) | Resolution | 1 day |
+| Priority 3 response (4 hours) | Response | 4 hours |
+| Priority 4 resolution (2 day) | Resolution | 2 days |
+| Priority 4 response (8 hours) | Response | 8 hours |
+| Priority 5 response (40 hours) | Response | 40 hours |
+
+A Priority 5 resolution row is not in every instance. If the list does not show it, it was not shipped or it is inactive. Do not create it from memory and call it out of box.
+
+A user-specified "1 day" is 24 hours, not one business day. Business time comes from the schedule. A day that falls on a holiday does not count if the schedule excludes holidays.
+
+#### What the engine requires before `has_breached` is true
+
+All of these have to be true. Any one of them keeps the flag false.
+
+| # | Condition | Where it lives |
+|---|-----------|----------------|
+| 1 | A `task_sla` row exists for this definition and this incident | Engine, after start condition matches |
+| 2 | Stage is not Cancelled, and the row was not completed before the breach instant | `task_sla.stage` |
+| 3 | Business elapsed time is greater than or equal to the duration | `task_sla.business_elapsed` vs `contract_sla.duration` |
+| 4 | That is the same moment as now reaching `task_sla.planned_end_time` (breach time) | Engine |
+| 5 | Time spent matching the pause condition is excluded | `pause_condition` |
+| 6 | Time outside the schedule is excluded | `schedule` + `timezone_source` |
+| 7 | Retroactive pause, if on, also excludes pause time between the retroactive start and the moment the SLA attached | `retroactive_pause` |
+
+What the flag does after that:
+
+| Event | `has_breached` | Stage |
+|-------|----------------|-------|
+| Planned end reached, incident still open, not paused | true | In Progress |
+| Stop condition met before planned end | false | Completed |
+| Stop condition met after planned end | stays true | Completed |
+| Cancel (start condition no longer met, or cancel condition met) | stays whatever it was; the row is not a success | Cancelled |
+| Reset | old row is cancelled or completed; a new `task_sla` starts clean unless retroactive start makes it already late | new row In Progress |
+
+A breached response SLA does not set `has_breached` on the resolution SLA. They are two rows.
+
+#### P1, response, and resolution
+
+P1 is not a special engine. It is the definition whose start condition is priority 1. Response and resolution are two definitions, not two checkboxes that change the clock by themselves. The **Target** field (`response` or `resolution`) is for reporting. The stop condition is what ends the clock.
+
+| | P1 response | P1 resolution |
+|--|-------------|---------------|
+| Name | Priority 1 response (15 minutes) on current instances | Priority 1 resolution (1 hour) on current instances |
+| Table | `incident` | `incident` |
+| Type | SLA | SLA |
+| Target | Response | Resolution |
+| Start | Active is true and Priority is 1 - Critical | Same |
+| Stop | The response event on that record. Open the definition and read Stop condition. Do not assume it is "Assigned to is not empty" or "State is In Progress" unless that is what the record says | State is Resolved or Closed |
+| Pause | Whatever Pause condition is on that record. Resolution definitions pause while the incident is On Hold. Confirm which hold reasons are in the query | Same rule: read the record |
+| Cancel | Start conditions are not met, unless the record says otherwise. Priority leaving 1 cancels this clock and the P2 definition can attach | Same |
+| Retroactive start | On. Set start to is Opened (`opened_at`) | On. Set start to is Opened |
+| Retroactive pause | On when the definition has a pause condition | On |
+| Schedule | Often 24 x 7 for P1. Confirm the Schedule field | Same |
+| Flow | Default SLA flow | Default SLA flow |
+
+If a P3 is raised to P1 at 10:00 and it was opened at 09:00, retroactive start makes the P1 clocks begin at 09:00. A 15-minute response SLA is already breached at attach. That is `has_breached=true` with no one having "missed" the new priority. Turn retroactive start off if the hour should begin when it became P1.
+
+Retroactive pause is the other half. If the incident was already On Hold between 09:00 and 10:00, retroactive pause subtracts that hold from the business elapsed time, back to Opened. Without it, the hold that happened before the SLA attached still burns the clock. Retroactive pause applies to a user-specified duration. It does not apply to a relative duration.
+
+#### Every parameter on the SLA definition
+
+These are the fields on `contract_sla`. Options are the choices the form offers. A blank duration type means user-specified duration.
+
+| Field | Options | What it does |
+|-------|---------|--------------|
+| Name | free text | OOB names include the duration. Do not rename them if reports filter on the name |
+| Active | true, false | False never attaches. Existing `task_sla` rows are not deleted |
+| Type | SLA, OLA, Underpinning Contract | Reporting only. Does not attach and does not stop |
+| Target | None, Response, Resolution | Reporting only. Does not attach and does not stop |
+| Table (`collection`) | `incident`, `task`, any task child, and on some configurations a CI or service table | What the clock can attach to. `incident` is not `task` |
+| Vendor | a company | Used on an underpinning contract. Empty on an incident SLA |
+| Service commitment | true, false | Marks a definition that belongs to a service offering. OOB incident priority SLAs are not service-commitment rows |
+| Flow | a flow, or empty | Runs when the SLA attaches. OOB rows use Default SLA flow. Choosing a flow clears Workflow |
+| Workflow | a workflow, or empty | Legacy. Choosing a workflow clears Flow. Do not start a new one here |
+| Enable logging | true, false | Debug for this definition only |
+| Duration type | empty (user-specified), or a relative-duration record | User-specified is a fixed glide duration. Relative is a scripted rule |
+| Duration | glide duration, stored as `1970-01-01 HH:MM:SS` | Ignored when a relative duration is selected. "1 day" here is 24 hours |
+| Relative duration | Breach on due date, End of next business day, or another `cmn_relative_duration` | Evaluated against the record named in Relative duration works on |
+| Relative duration works on | Task record, or the SLA record | Which record's dates and schedule the relative rule reads |
+| Schedule source | No schedule, SLA definition, Task field | No schedule means 24x7. SLA definition uses the Schedule field. Task field uses Schedule source field |
+| Schedule | a `cmn_schedule` | OOB schedules include 24 x 7, 8-5 weekdays, and 8-5 weekdays excluding holidays |
+| Schedule source field | a reference field on the task, often the CI schedule | Used only when Schedule source is Task field |
+| Time zone source | Caller's time zone, SLA definition's time zone, CI location, task location, caller location | Which zone the schedule is evaluated in. OOB is often the caller's time zone (`task.caller_id.time_zone`) |
+| Time zone | a zone | Used when the source is the SLA definition's own zone |
+| Start condition | encoded query | No match, no `task_sla` |
+| When to cancel | Start conditions are not met (default), Cancel conditions are met, Never | OOB priority SLAs use the default, so leaving P1 cancels the P1 clock |
+| Cancel condition | encoded query | Read only when When to cancel is Cancel conditions are met |
+| Retroactive start (`retroactive`) | true, false | True: start time is Set start to, not the moment the start condition became true |
+| Set start to | any date/time field on the task | OOB is Opened (`opened_at`) |
+| Retroactive pause (`retroactive_pause`) | true, false | True: pause time before attach, back to the retroactive start, does not count. User-specified duration only |
+| Pause condition | encoded query | While true, business elapsed time does not advance |
+| When to resume | Pause conditions are not met (default), Resume conditions are met | Default resumes as soon as the pause query is false |
+| Resume condition | encoded query | Read only when When to resume is Resume conditions are met |
+| Stop condition | encoded query | Completes the `task_sla` whether or not it has breached |
+| Reset condition | encoded query | Ends the running `task_sla` and attaches a new one |
+| Reset action | Cancel existing Task SLA, Complete existing Task SLA | What happens to the old row. The new row still obeys retroactive start |
+| Condition type (`adv_condition_type`) | none, or a scripted condition class | none means the encoded queries above are the whole rule |
+| Condition class | a script include | Only when Condition type is not none. Custom attach, pause, or stop logic |
+
+OOB schedules you will see on the Schedule field, not on the incident:
+
+| Schedule | What it excludes |
+|----------|------------------|
+| 24 x 7 | Nothing. Nights and weekends count |
+| 8-5 weekdays | Nights and weekends |
+| 8-5 weekdays excluding holidays | Nights, weekends, and the holiday child schedule |
+
+The Default SLA flow is what the OOB definitions call. It notifies as business percentage crosses the thresholds configured in that flow, and the 100% path is the breach notification. Open the flow before you quote 50% or 75%. Those percentages are flow configuration, not fields on `contract_sla`.
+
+Repair SLAs replays history after you change a definition or a schedule. The SLA Timeline shows start, pause, resume, and stop against the audit history. Use those. Do not update `has_breached` by hand.
 
 ### Dashboards and workspaces
 

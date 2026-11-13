@@ -12,6 +12,10 @@
 - Added the records that sit next to incident and problem: request, incident task, parent incident, major incident, outage, known error, problem task, and change. Each row names the table and what that record is not.
 - Corrected the relationship diagram so `task_sla` does not extend `task`.
 
+## OOB parameters added 2026-11-13
+
+Documented every `contract_sla` field and choice, the engine rule for `task_sla.has_breached`, and the out-of-box incident response and resolution pattern (P1 start, retroactive start from `opened_at`, retroactive pause, resolution stop versus response stop). Durations are described as "in the name, confirm on the instance" because Eureka shipped an 8-hour P1 resolution and later instances ship a 1-hour P1 resolution plus a 15-minute P1 response.
+
 ## How verified
 
 - The page is the GitHub Pages source for the ITSM guide. Cross-links use the existing heading anchors.
