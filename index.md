@@ -104,7 +104,7 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
 
 <h2 id="salesforce-training">Salesforce Training</h2>
 
-<p>Separate track from the ServiceNow guides above. Beginner-friendly ELI5 crash course covering the Salesforce platform, navigation, security, data handling, automation, and code (Apex, Visualforce, LWC).</p>
+<p>Separate track from the ServiceNow guides above. Beginner-friendly ELI5 crash course covering the Salesforce platform, navigation, security, data handling, automation, and code (Apex, Visualforce, LWC), plus a DevOps release-engineering track for commercial-banking pipeline work.</p>
 
 <div class="card-grid">
   <div class="card">
@@ -126,6 +126,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>User Management & Data</h3>
     <p>Users, profiles, permission sets, roles, licenses, import/export, validation rules, field-level security, duplicate management, data design best practices.</p>
     <p class="meta"><a href="./docs/salesforce/user-management-data/">Open user & data guide</a></p>
+  </div>
+  <div class="card">
+    <h3>DevOps & Release Engineering</h3>
+    <p>Training items for a Salesforce DevOps Engineer role: Git metadata lifecycle, Dev/QA/UAT/Pre-Prod/Prod, sandbox refresh and masking, feature/release/hotfix, CI validation, Gearset/Copado/AutoRABIT vs CLI, deploy conflicts, unlocked packages, rollback, and banking change control. Mapped to Scotiabank requisition 276046.</p>
+    <p class="meta"><a href="./docs/salesforce/devops-engineer/">Open the DevOps training track</a></p>
   </div>
 </div>
 

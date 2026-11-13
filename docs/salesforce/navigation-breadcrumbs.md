@@ -152,6 +152,11 @@ The gear menu (⚙️) > **Setup** opens the left-hand navigation panel. Key sec
 | Apex Test Execution | Setup > Apex Test Execution |
 | Code Coverage | Setup > Apex Classes > [Class] > Code Coverage |
 | Salesforce CLI (command line) | `sf project deploy start`, `sf project retrieve start` |
+| Deployment Settings | Setup > Deploy > Deployment Settings |
+| Deployment Status | Setup > Deploy > Deployment Status |
+| Sandbox Templates | Setup > Sandboxes > Sandbox Templates |
+| DevOps Center (if enabled) | Setup, search "DevOps Center" |
+| Release engineering training | [DevOps Engineer track](./devops-engineer.md) |
 
 ---
 

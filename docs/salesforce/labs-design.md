@@ -322,6 +322,10 @@ Salesforce provides official, free hands-on labs and documentation. These are th
 | **Salesforce CLI (SFDX)** | Source-driven development, CI/CD, version control |
 | **Metadata API** | Programmatic deployment, custom tooling |
 | **Ant Migration Tool** | Legacy XML-based deployment (being superseded by CLI) |
+| **DevOps Center** | Salesforce-native work items and Git promotion, when the org has it enabled |
+| **Gearset / Copado / AutoRABIT** | Vendor compare-and-deploy pipelines used in enterprise orgs. Same Metadata API underneath |
+
+The release path, sandbox strategy, conflict clinic, and runbook for a commercial-banking DevOps Engineer role are in the [DevOps training track](./devops-engineer.md).
 
 ---
 

@@ -624,5 +624,6 @@ Trailhead is Salesforce's free, gamified learning platform. Start here:
 - [ ] Build a basic LWC component
 - [ ] Set up Named Credentials and make a REST callout
 - [ ] Review Debug Logs for a failed operation
+- [ ] If you are aiming at a Salesforce DevOps / release role, continue with the [DevOps Engineer training track](./devops-engineer.md) (pipelines, sandboxes, packages, rollback)
 
 ---
