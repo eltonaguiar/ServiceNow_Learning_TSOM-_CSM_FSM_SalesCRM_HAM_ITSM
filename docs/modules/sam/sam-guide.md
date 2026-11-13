@@ -1072,3 +1072,79 @@ Individual official videos, in suggested watch order:
 ---
 
 *Part of the ServiceNow Module Guides. Verify table names, plugin names, and publisher rules against your instance, release, and the official ServiceNow documentation before relying on them operationally.*
+
+---
+
+## Carry-Over Addendum — Items Documented Elsewhere, Not Yet Above
+
+This addendum tracks the **apparent gaps** between this guide and the configuration-focused repository `eltonaguiar/ALT_PARALLELSWARM_SAM` (final/grok doc + cross-reference analysis, 2026-11-13). Items here have not yet been woven into the main numbered sections but are stage-relevant for-plan, ready for promotion.
+
+### Foundations — edition vs. scope
+
+- **SAM Foundation (`com.snc.sams`) vs SAM Professional (`com.sn_samp_master_ws` / `com.snc.samp`)** — the upgrade to Pro is **irreversible**. Keep the decision reversible until the spend on publisher packs is justified.
+- **SAM Pro roles** (NOT `sam_license_manager` / `sn_sam.admin`, which are curriculum-only names): `sam_admin` (contains `sam_user`, `sam_spend_import`, `asset`, `model_manager`, `contract_manager`), `sam_user`, `sam_developer` (script privileges, trained admin only), `sam_integrator` (SaaS profiles; also needs `connection_admin` + `flow_operator`), `sam_spend_import`.
+- **SaaS LM** as a distinct Store plugin `sn_sam_saas_int` — enable only after the source inventory is in a defensible state; do not attach both SSO and direct integration to the same app.
+
+### Four Discovery-to-SAM paths (conceptual ordering)
+
+1. **Path A — Catalog (requestable)**. Adds a `sc_cat_item` in the software catalog; **does not** change reconciliation unless linked to a SAM model.
+2. **Path B — Create in SAM before discovery**. Curated model exists ahead of any installs; good for top publishers.
+3. **Path C — Discovered → linked to a SAM model** (the typical Crawl landing). Discovery model matches to a software model; model pulls license metric + suite roll-up.
+4. **Path D — Block/Exclude/Do-not-manage**. Hardware boolean + `com.snc.samp.exclude_device_flag` + `SAM — Adjust Installs for excluded CIs` job, phase-wise publishing, Content Service opt-out, `automaticsmrcreation` **off in Crawl**.
+
+### Exclusion, phase-freeze, and content-service gates
+
+- `com.snc.samp.manage.published.products` (default **false**) → enable, add licensable products, **re-run reconciliation** to make published products the report surface.
+- `com.snc.samp.automaticsmrcreation` (default **off in Crawl**) → leave off until normalization hit-rate is above the ~85% SCCM-class figure; ~95% after Content Service opt-in.
+- `com.snc.sam.auto_suite_inference` (false default) → turn on **only after** suite hierarchies are verified in the Content Library.
+- `com.snc.samp.ire.datasource.integration` property (+ payload keys `publisher`, `version`, `display_name`, optional `edition`) and CI lookup by `name`; send `sys_class_name` to prevent CI reclassification; role required `sam_developer`.
+- Content Service default **OFF**; decide region/end-point (anonymized telemetry) explicitly in a data-residency review.
+
+### Dead-connector monitoring (SaaS)
+
+- Capture **assigned-seat count + sign-in count per connector per run** with timestamp; drift alert ≥ 20% between runs without a matching PA/Audit event → notify `sam_integrator`.
+- Stale alert after ≥ 36h without a successful sync → alert + pause reclamation rules to avoid reclaiming from stale.
+
+### Hypercare KPIs
+
+Monitor these on day 1 post-go-live (Success Portal is pointless without baselines):
+
+- Failed/missed jobs with `Name starts with SAM`.
+- DMAP count by normalization status; stabilization expected within week 1.
+- Unlicensed product-result count trend (downward in pilot publisher set).
+- % in-scope CIs with owner+location+company.
+- Published-products ratio (`published_count / in_scope_count`).
+- Time since last successful reconciliation and last SaaS sync.
+
+### Rollback / deactivation (summary runbook)
+
+1. Wrong license metric on a model → create a corrected model, never edit in place; run reconciliation and deprecate the old.
+2. Wrong entitlement metric → true-up-style retirement + corrected entitlement.
+3. Bad normalization rule → disable rule, re-run `…Discovery Model to Software Model matching…`, inspect delta in `Match Not Found`, gated by Change Record.
+4. Garbage third-party feed → disable IRE datasource; do not delete raw installs by hand; use the drop job to reverse staged data.
+5. Snapshot before model/metric change (update set); reconciliation is computed live with no built-in versioning.
+
+### Change-control blast radius (quick rubric)
+
+| Change | Blast radius | CAB? |
+|---|---|---|
+| Add manual-normalization exception | Low | No |
+| Add a pattern-rule / wide-net rule | Medium | Owner sample-check |
+| Create/match a Software Model (high publisher) | Medium | Yes if high spend |
+| Change license metric group/type on a model | **High** | Yes |
+| Modify `com.snc.samp.recon.group` | **High** | Yes |
+| Disable a SaaS connector | **High** | Yes |
+| Published-products list change | Medium/High | RCO review |
+
+### Identity / privacy
+
+- Per-user metrics rely on correct active/inactive status on `sys_user` (manager, department, location).
+- Document telemetry/consent posture for SCCM/BigFix agent metering; define retention for `samp_sw_usage`.
+- Pick one system of record for CI ownership (`managed_by`/`assigned_to`).
+
+### Implementation option pick at Sprint 0
+
+- **Guided Setup** (OOB): SAM Foundation, single-publisher scope. Does not scale to many publishers or custom integrations.
+- **Phase-wise + published-products freeze** (recommended): **decide at Sprint 0** — re-scoping mid-flight resets the normalization baselines.
+
+*Source cross-reference ends; the items above are additive to the official sections earlier in this guide.*
