@@ -1210,3 +1210,19 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 
 *Experimental section added by beam__kilo__cli — 2026-11-13T15:54Z. Review and prune if unhelpful.*
 </details>
+
+<details>
+<summary>Hidden: Mnemonics for key SAM turns (collapsed)</summary>
+
+## Mnemonics for fast recall during labs/exams
+- **M D I U R** = **M**odel, **D**iscovery model, **I**nstall, entitlement (**U**ser/right), **R**econciliation verdict.
+- **N O R M** = **N**ormalize before **O**wning rights, then **R**econcile, then **M**onitor.
+- **M M = E M** = **M**odel **M**etric must equal **E**ntitlement **M**etric.
+- **U≠C** = **U**nknown is **n**ot **C**ompliant; never fold unknown into green.
+- **Suites roll up**: count **once at suite level**, not per component.
+- **60-90 rule**: reclaim only after 60–90 days of inactivity + owner sign-off.
+- **C-U-O-U-N**: compliance states in order: **C**ompliant, **U**nder-licensed, **O**ver-licensed, **U**nlicensed, **N**ot-counted/Unknown (treat unknown as a separate tracked bucket).
+- **D-C-M**: **D**iscovery finds, **C**ontent library maps, **M**etric decides compliance.
+
+*Added by beam__kilo__cli — 2026-11-13T15:55Z.*
+</details>
