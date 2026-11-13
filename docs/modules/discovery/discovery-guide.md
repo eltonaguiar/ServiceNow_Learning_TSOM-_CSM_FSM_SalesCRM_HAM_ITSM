@@ -165,6 +165,36 @@ A Discovery run moves through four phases, all coordinated through the **ECC Que
 
 Work is sent to the MID Server as ECC Queue **output** records; results come back as **input** records, where sensors/pattern steps process them into the CMDB.
 
+The **Identification** phase (step 3) is where the CMDB's de-duplication controls live. Four IRE rule
+families decide whether a discovered device becomes a **new CI** or **updates an existing one** — see the
+[CMDB guide](../cmdb/cmdb-guide/) for the full deep dive (scope, parameters, and worked examples):
+
+| Rule family | Insert (new CI)? | Update (existing CI)? |
+|---|---|---|
+| Identification rules | yes — no match → create | yes — match → update |
+| Reconciliation rules | no | yes |
+| IRE Data Source rules | yes — **blocks insert** | no |
+| Data Refresh rules | no | yes (stale → lower-priority source may update) |
+
+```mermaid
+flowchart TD
+    DISC[Discovery payload] --> ID{Identification: existing CI?}
+    ID -->|no match| DS{IRE Data Source rule: source allowed to insert?}
+    ID -->|match| REC[Reconciliation + Data Refresh rules]
+    DS -->|allowed| NEW[INSERT new CI]
+    DS -->|blocked| REJ[INSERT rejected]
+    REC --> UPD[UPDATE existing CI]
+
+    style DISC fill:#1c232a,color:#e6edf3
+    style ID fill:#e5b567,color:#000
+    style DS fill:#e5b567,color:#000
+    style REC fill:#4cc38a,color:#000
+    style NEW fill:#4cc38a,color:#000
+    style REJ fill:#b5483f,color:#fff
+    style UPD fill:#4cc38a,color:#000
+
+```
+
 ---
 
 ## Goals, Benefits & Key Metrics
@@ -196,11 +226,12 @@ flowchart TD
     Explore --> CI[CI created or updated in CMDB cmdb_ci · cmdb_ci_server · cmdb_file_information]
     CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
 
-    style Start fill:#e58a8a,color:#fff
+    style Start fill:#e58a8a,color:#000
     style Classify fill:#e5b567,color:#000
     style Identify fill:#0a0d10,stroke:#e5b567
     style Explore fill:#4cc38a,color:#000
     style CI fill:#10141a
+
 
 ```
 
@@ -224,10 +255,11 @@ flowchart LR
         Target
     end
 
-    style Instance fill:#e58a8a,color:#fff
+    style Instance fill:#e58a8a,color:#000
     style ECC fill:#e5b567,color:#000
     style MID fill:#4cc38a,color:#000
     style CI fill:#10141a
+
 
 ```
 
@@ -250,6 +282,7 @@ flowchart TD
     style Probe fill:#4cc38a,color:#000
     style Sensor fill:#0a0d10,stroke:#e5b567
     style CI fill:#10141a
+
 
 ```
 

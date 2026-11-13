@@ -243,6 +243,7 @@ classDiagram
     cmdb_ci <|-- cmdb_ci_service
 
     note "All CIs extend cmdb_ci and inherit its fields"
+
 ```
 
 ---
@@ -332,6 +333,7 @@ graph TD
 
     style cmdb_ci fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
     style cmdb_rel_ci fill:#0a0d10,stroke:#e5b567
+
 ```
 
 **Exam focus:** CI class management, CMDB tables, CI class manager, relationships.
@@ -390,10 +392,11 @@ flowchart TD
     F --> I[CI Updated in CMDB]
     G --> J[CI Unchanged]
     
-    style B fill:#e58a8a,color:#fff
+    style B fill:#e58a8a,color:#000
     style E fill:#e5b567,color:#000
     style D fill:#4cc38a,color:#000
     style H fill:#4cc38a,color:#000
+
 ```
 
 **Identification:** Answers "Is this CI already existing or is it new?" — uses CI identifiers (serial number, MAC address, hostname + DNS, etc.)
@@ -736,6 +739,7 @@ graph TD
     SVC[Service CI] -->|Depends On Used By| APP[Application CI]
     APP -->|Runs On Runs| WEB[Server CI]
     APP -->|Depends On Used By| DB[Database CI]
+
 ```
 
 ### Discovery to CMDB Population Flow
@@ -750,6 +754,7 @@ flowchart TD
     REC -->|Conflict| PR[Apply Source Priority]
     REC -->|No Conflict| SKIP[No Change]
     NEW --> REL[Create Relationships]
+
 ```
 
 ### IRE Identification and Reconciliation Flow
@@ -762,11 +767,12 @@ flowchart TD
     EX --> REC{Reconciliation}
     REC -->|Conflict| UP[Update With Trusted Source]
     REC -->|No Conflict| UN[No Change Needed]
+
 ```
 
 ## Common Mistakes
 
-|| Mistake | Symptom | Fix |
+| Mistake | Symptom | Fix |
 |---------|---------|-----|
 | No identification rules | Duplicate CIs for the same server | Configure IRE identification rules before large discovery |
 | Not reconciling data sources | Conflicting data for same CI | Set reconciliation priority (Discovery > Import > Manual) |
@@ -790,6 +796,7 @@ stateDiagram-v2
     Development --> Retired : cancelled
     Testing --> Retired : cancelled
     Retired --> [*] : archived
+
 ```
 
 ---
@@ -810,6 +817,7 @@ graph TD
     style B fill:#fff3e0,color:#000
     style F fill:#ffebee,color:#000
     style G fill:#e8f5e9,color:#000
+
 ```
 
 ---
@@ -832,6 +840,7 @@ flowchart LR
     style B fill:#e3f2fd,color:#000
     style H fill:#ffebee,color:#000
     style I fill:#e8f5e9,color:#000
+
 ```
 
 ---
@@ -963,8 +972,9 @@ flowchart TD
 
     style P1 fill:#4cc38a,color:#000
     style P4 fill:#4cc38a,color:#000
-    style P2 fill:#e58a8a,color:#fff
-    style P3 fill:#e58a8a,color:#fff
+    style P2 fill:#e58a8a,color:#000
+    style P3 fill:#e58a8a,color:#000
+
 ```
 
 **Key point:** Field-specific precedence means different sources can own different fields on the same CI record. A source that loses on one field may win on another.
@@ -1141,11 +1151,12 @@ flowchart TD
     DS --> DS_CHECK{Source allowed to insert into this CI class?}
     DS_CHECK -->|PERMITTED| NEWCI[New CI inserted into CMDB]
     DS_CHECK -->|BLOCKED| REJECT[Insert rejected — no CI created]
-    style IDR fill:#e58a8a,color:#fff
+    style IDR fill:#e58a8a,color:#000
     style REC fill:#e5b567,color:#000
     style DS fill:#4cc38a,color:#000
     style NEWCI fill:#4cc38a,color:#000
-    style REJECT fill:#ff0000,color:#fff
+    style REJECT fill:#b5483f,color:#fff
+
 ```
 
 **Step-by-step examples**
@@ -1169,6 +1180,86 @@ flowchart TD
 **Technical qualification:** This is a conceptual decision flow, not a literal guarantee of the internal execution order of every IRE processing operation in the ServiceNow platform. It describes the logical outcome: identification determines exist vs. new, reconciliation gates attribute updates on existing CIs, and Data Source Rules gate new-CI creation.
 
 **One final nuance:** Reconciliation and Data Refresh Rules are relevant to updates of matched records. Reconciliation is not applied to a brand-new CI insert. Data Source Rules can stop that insert.
+
+#### Insert vs Update — the explicit truth table
+
+The four controls do **not** apply uniformly to both operations:
+
+| Rule family | Insert (new CI)? | Update (existing CI)? |
+|-------------|------------------|----------------------|
+| Identification rules | ✅ yes — no match → create | ✅ yes — match → update |
+| Reconciliation rules (static/dynamic) | ❌ no | ✅ yes |
+| IRE Data Source rules | ✅ yes — **blocks insert** | ❌ no (update still allowed) |
+| Data Refresh rules | ❌ no | ✅ yes — stale → lower-priority source may update |
+
+Mental model: **Identification runs first on both.** **Data Source rules are the insert gate.**
+**Reconciliation + Data Refresh are the update gates.**
+
+```mermaid
+flowchart TD
+    IN[Incoming payload] --> ID{Identification: existing CI?}
+    ID -->|no match| DS{IRE Data Source rule: may this source insert?}
+    ID -->|match| REC[Reconciliation + Data Refresh rules]
+    DS -->|allowed| NEW[INSERT new CI]
+    DS -->|blocked| REJ[INSERT rejected]
+    REC --> UPD[UPDATE existing CI]
+
+    style IN fill:#1c232a,color:#e6edf3
+    style ID fill:#e5b567,color:#000
+    style DS fill:#e5b567,color:#000
+    style REC fill:#4cc38a,color:#000
+    style NEW fill:#4cc38a,color:#000
+    style REJ fill:#b5483f,color:#fff
+    style UPD fill:#4cc38a,color:#000
+
+```
+
+#### Dynamic Reconciliation Rules (CMDB 360)
+
+The static rules above are priority-based. ServiceNow also has **dynamic reconciliation rules**, which use
+**CMDB 360** to choose a value (e.g. the **largest** or **most-reported** value across sources) instead of
+picking the highest-priority source. Requires CMDB 360 (`glide.identification_engine.dynamic_ire_enabled = true`).
+When Dynamic IRE is in effect:
+
+- a **dynamic** rule beats a **static** rule for the same attribute;
+- **IRE Data Source rules** and **Data Refresh rules** have **no impact**;
+- you can carve classes back out with **Exclude classes from Dynamic IRE** (`cmdb_dynamic_ire_skip_class`),
+  so Static IRE (and thus those two rules) keep applying to those classes.
+
+#### Identification Inclusion Rules
+
+Identification can be narrowed to a **subset** of a class with an **identification inclusion rule**
+("Inclusion Rule (Advanced)" → an `Active record condition`, e.g. only `install_status = Installed`).
+There are **no** predefined inclusion rules OOTB → all CIs participate. They affect *everything* that calls
+IRE (Discovery, Service Mapping, import sets), so create them carefully.
+
+#### Key rule fields (the "dials")
+
+| Field | Rule family | What it does |
+|-------|-------------|--------------|
+| `Priority` | static reconciliation | lower number = higher authority |
+| `Apply to all attributes` vs `Attributes` | static reconciliation | whole class vs specific fields |
+| `Update with Null` | static reconciliation | fields this source may set to null (default: cannot null a non-null value) |
+| `Filter Condition` | static & dynamic reconciliation | rule applies only to CIs matching the condition (e.g. `[Department] [is] [Finance]`) |
+| `Effective Duration` | data refresh | staleness window (0 = always stale → lower-priority source always allowed) |
+| `Insert Not Allowed` | IRE data source | blocks this source from creating this class |
+| `Active record condition` | inclusion rule | which rows participate in identification |
+
+> Reconciliation rules **cannot** target system fields or IRE-specific fields such as `discovery_source`,
+> and cannot be dot-walked through reference fields.
+
+#### System properties (global knobs)
+
+`All > Configuration > CMDB Properties > Identification/Reconciliation Properties` (or `sys_properties.list`):
+
+| Property | Effect | Default |
+|----------|--------|---------|
+| `glide.required.attribute.enabled` | required attributes cannot be null during identification/reconciliation | true |
+| `glide.identification_engine.skip_duplicates` | auto-pick the oldest duplicate, mark the rest `duplicate_of` | true |
+| `glide.identification_engine.skip_duplicates.threshold` | max duplicate set size before identification fails instead | 5 |
+| `glide.reconciliation.override.null` | allow a lower-priority source to fill an empty field | true |
+| `glide.identification_engine.dynamic_ire_enabled` | use Dynamic IRE instead of Static IRE | false |
+| `glide.identification_engine.skip_updating_source_last_discovered_if_older` | don't back-date `last_discovered`/`discovery_source` | true |
 
 ---
 - Duplicate CIs → wrong impact analysis
@@ -1788,6 +1879,7 @@ flowchart TD
     style C fill:#4cc38a,color:#000
     style E fill:#e5b567,color:#000
     style F fill:#e5b567,color:#000
+
 ```
 
 ### New CI Class / Table Creation Flow
@@ -1805,7 +1897,8 @@ flowchart TD
     H --> I[Set data source precedence / reconciliation]
     I --> J[IRE observed — table is in cmdb_ci hierarchy]
     style J fill:#4cc38a,color:#000
-    style C fill:#e58a8a,color:#fff
+    style C fill:#e58a8a,color:#000
+
 ```
 
 ### IRE Invocation from a CI Form
@@ -1820,7 +1913,8 @@ flowchart TD
     F --> G[Match found?]
     G -->|Yes| H[Reconcile / update existing CI]
     G -->|No| I[CI remains as-is / new CI]
-    style E fill:#e58a8a,color:#fff
+    style E fill:#e58a8a,color:#000
+
 ```
 
 ### Relationship Population Flow
@@ -1839,6 +1933,7 @@ flowchart TD
     F --> H
     G --> H
     H --> I[CI-to-CI graph for impact analysis & Service Mapping]
+
 ```
 
 ---
@@ -2402,33 +2497,34 @@ Debugging technique depends entirely on *where* the code runs. A client script r
 ```mermaid
 flowchart TD
     A[Something isn't working] --> B{Where does the code run?}
-    B -->|Browser (form, list, portal)| C[Client-side debugging]
-    B -->|Server (business rule, script include, transform)| D[Server-side debugging]
+    B -->|"Browser (form, list, portal)"| C[Client-side debugging]
+    B -->|"Server (business rule, script include, transform)"| D[Server-side debugging]
     B -->|UI Builder / Workspace page| E[Next Experience debugging]
     B -->|Service Portal widget| F[AngularJS widget debugging]
 
-    C --> C1[Browser DevTools F12<br/>Console.log, debugger statement, Sources tab]
-    C --> C2[Field Watcher<br/>Settings > Developer > Field Watcher]
-    C --> C3[GlideAjax calls<br/>Network tab → xmlhttp.do requests]
+    C --> C1[Browser DevTools F12 Console.log, debugger statement, Sources tab]
+    C --> C2[Field Watcher Settings > Developer > Field Watcher]
+    C --> C3[GlideAjax calls Network tab → xmlhttp.do requests]
 
-    D --> D1[System Log (sys_log)<br/>gs.print(), gs.error(), gs.info()]
-    D --> D2[Script Debugger<br/>breakpoints, step-through, variable inspection]
-    D --> D3[Debug Business Rule<br/>System Diagnostics > Session Debug]
-    D --> D4[ECC Queue<br/>MID Server probe/sensor results]
+    D --> D1["System Log (sys_log) gs.print(), gs.error(), gs.info()"]
+    D --> D2[Script Debugger breakpoints, step-through, variable inspection]
+    D --> D3[Debug Business Rule System Diagnostics > Session Debug]
+    D --> D4[ECC Queue MID Server probe/sensor results]
 
-    E --> E1[Browser DevTools<br/>Vue.js devtools, component inspection]
-    E --> E2[Session Log<br/>Agent Workspace logs, GraphQL traces]
-    E --> E3[glide.debugger.log.ui<br/>enable Session Log tab]
+    E --> E1[Browser DevTools Vue.js devtools, component inspection]
+    E --> E2[Session Log Agent Workspace logs, GraphQL traces]
+    E --> E3[glide.debugger.log.ui enable Session Log tab]
 
-    F --> F1[CTRL+right-click widget<br/>scope data to console]
-    F --> F2[$sp.log()<br/>Log [syslog] table entries]
-    F --> F3[angular.element($0).scope()<br/>widget scope inspection]
-    F --> F4[Browser Network tab<br/>widget server calls, slow HTTP]
+    F --> F1[CTRL+right-click widget scope data to console]
+    F --> F2["$sp.log() Log [syslog] table entries"]
+    F --> F3["angular.element($0).scope() widget scope inspection"]
+    F --> F4[Browser Network tab widget server calls, slow HTTP]
 
     style C fill:#4cc38a,color:#000
     style D fill:#e3f2fd,color:#000
     style E fill:#fff3e0,color:#000
     style F fill:#e5b567,color:#000
+
 ```
 
 ### Debugging by Context
@@ -2587,6 +2683,7 @@ flowchart TD
     style Experience fill:#e3f2fd,color:#000
     style Variant fill:#fff3e0,color:#000
     style CustomComponent fill:#4cc38a,color:#000
+
 ```
 
 ## 💡 Memory Aids & Mnemonics
@@ -2740,7 +2837,7 @@ flowchart TB
         TELLER[Branch Teller System]
     end
 
-    ROOT[ATM Server<br/>cmdb_ci_server]:::root
+    ROOT[ATM Server cmdb_ci_server]:::root
 
     subgraph Upstream["Upstream Dependencies (what root needs)"]
         NET[Network Switch]
@@ -2765,6 +2862,7 @@ flowchart TB
     classDef up fill:#e5b567,color:#000
     class ATM1,ATM2,MOBILE,ONLINE,TELLER down
     class NET,DB,PWR,WAN up
+
 ```
 
 ---
@@ -2839,7 +2937,7 @@ In the CI Relations Formatter:
 ```mermaid
 flowchart TB
     subgraph Business Services
-        BS[ATM Banking Service<br/>cmdb_ci_service]
+        BS[ATM Banking Service cmdb_ci_service]
     end
 
     subgraph Application Tier
@@ -2849,13 +2947,13 @@ flowchart TB
     end
 
     subgraph Infrastructure Tier
-        SVR[ATM-SERVER-01<br/>cmdb_ci_server]
+        SVR[ATM-SERVER-01 cmdb_ci_server]
         SW[Core Network Switch]
         RTR[WAN Edge Router]
         PWR[UPS / Power Feed]
     end
 
-    subgraph Edge Devices (Downstream)
+    subgraph EdgeDevices ["Edge Devices (Downstream)"]
         ATM1[ATM Kiosk #101]
         ATM2[ATM Kiosk #102]
         ATM3[ATM Kiosk #103]
@@ -2877,9 +2975,10 @@ flowchart TB
 
     style BS fill:#4cc38a,color:#000
     style SVR fill:#e58a8a,stroke:#fff,stroke-width:3px,color:#000
-    style ATM1 fill:#e58a8a,color:#fff
-    style ATM2 fill:#e58a8a,color:#fff
-    style ATM3 fill:#e58a8a,color:#fff
+    style ATM1 fill:#e58a8a,color:#000
+    style ATM2 fill:#e58a8a,color:#000
+    style ATM3 fill:#e58a8a,color:#000
+
 ```
 
 ---
