@@ -1148,3 +1148,112 @@ Monitor these on day 1 post-go-live (Success Portal is pointless without baselin
 - **Phase-wise + published-products freeze** (recommended): **decide at Sprint 0** — re-scoping mid-flight resets the normalization baselines.
 
 *Source cross-reference ends; the items above are additive to the official sections earlier in this guide.*
+
+---
+
+## 🧪 Experimental Guidance (collapsed — learning science, personas & mnemonics)
+
+> **ELI5:** People learn differently, and one long page cannot serve everyone. This section is a *toolbox* — click any lightbulb 💡 to open the trick you want. Everything here is optional and collapses by default.
+
+<details>
+<summary>💡 Learning best practices — how to actually remember all this</summary>
+
+| Technique | Apply it to SAM by… |
+|---|---|
+| **Retrieval practice** | Close the guide; redraw the pipeline from memory before checking |
+| **Spaced repetition** | Review record types/statuses on day 1, 3, 7, 14 |
+| **Dual coding** | Pair every concept with its diagram (pipeline, IRE flow, state machine) |
+| **Interleaving** | Mix normalization, entitlements and reconciliation drills per session |
+| **Elaboration** | Say *why* each status transition happens, out loud, in your own words |
+| **Concrete examples** | Always work a named product ("Office16 ProPlus"), never a generic "software" |
+| **Cognitive load** | One record type per session; keep advanced sections collapsed until needed |
+| **Deliberate practice** | Drill the exact tables/queries you keep forgetting |
+| **Feynman technique** | Explain reconciliation to a colleague in five sentences |
+
+> "Learning styles" (VARK) as a fixed trait is **not evidence-backed**. Use multiple formats because variety helps everyone.
+</details>
+
+<details>
+<summary>💡 Paths by persona — start where you live</summary>
+
+| Persona | Route |
+|---|---|
+| **SAM Administrator** | Pipeline → statuses → reconcile → License Workbench → removal candidates → health check |
+| **Developer / Integrator** | Business rule contract → IRE REST integration → dedup rules → properties → audit recipe |
+| **License Manager / Auditor** | Entitlements → license types → true-up → publisher traps → evidence chain |
+| **ITAM Manager / Procurement** | Maturity stages → success goals → reclamation → renewals → savings reporting |
+| **Executive sponsor** | Purpose → compliance positions → KPI targets → pilot gates |
+</details>
+
+<details>
+<summary>💡 Pipeline order — "DIN MERR²"</summary>
+
+**D**iscover → **I**nstall record → **N**ormalize discovery model → **M**atch software model → **E**ntitle rights → **R**econcile → **R**eclaim unused → **R**enew.
+
+The three R's are: **R**esults, **R**ecovery, **R**enewal.
+</details>
+
+<details>
+<summary>💡 Record types — "MIES R"</summary>
+
+- **M**odel = what it **is** · **I**nstallation = what **exists**
+- **E**ntitlement = what you may **use** · **S**ubscription = what you're **assigned**
+- **R**econciliation = the **difference**
+</details>
+
+<details>
+<summary>💡 Normalization statuses — "NN PP MM"</summary>
+
+**N**ew / **N**ormalized · **P**artially / **P**ublisher Normalized · **M**atch Not Found / **M**anually Normalized.
+Automatic = Normalized/Partially/Publisher; operator-owned = New/Match Not Found/Manually Normalized; pattern-normalized locks like manual.
+</details>
+
+<details>
+<summary>💡 Roles — "AUDIS"</summary>
+
+**A**dmin ⊃ **U**ser · **D**eveloper ⊃ Admin (dangerous — restrict) · **I**ntegrator (SaaS profiles) · **S**pend import (financial transactions).
+</details>
+
+<details>
+<summary>💡 Go-live properties — "APEX"</summary>
+
+**A**uto-create models OFF during Crawl · **P**ublished-products scope · **E**xclude-device flag set early · recon grou**X**/subgroup chosen and cleared of unknowns.
+</details>
+
+<details>
+<summary>💡 IRE four rules — "I Really Do Reconcile"</summary>
+
+**I**dentification (does it exist?) · **D**ata Source Rule (may this source insert?) · **R**econciliation (who updates which attribute?) · **R**efresh (is the winner stale?). Reconciliation never gates inserts; Data Source Rules do.
+</details>
+
+<details>
+<summary>💡 Compliance truth — "UNC"</summary>
+
+**U**nknown is **N**ever **C**ompliant. Unlicensed installs and rights-needed are the exposure signals — report them explicitly.
+</details>
+
+<details>
+<summary>💡 License types — "PPS MUSAF"</summary>
+
+**P**erpetual · **P**erpetual+**S**A · **S**ubscription · **M**aintenance (non-Microsoft; must link to perpetual) · **U**pgrade/**S**tep-up · **A**dd-on/**F**rom SA. Maintenance and SA alone are not reconciled unless linked to a base perpetual licence.
+</details>
+
+<details>
+<summary>💡 Reclamation — "60–90 Silent Days"</summary>
+
+Never reclaim on one night of data: require **60–90 days** of sustained inactivity plus business-owner sign-off. Rule types: Total Usage Time, Last Used Date (plus Peak Concurrent Usage, Active Transaction Codes). Evidence lives in `samp_sw_usage`.
+</details>
+
+<details>
+<summary>💡 True-up — "Least Rights × Price"</summary>
+
+True-up cost = least rights needed × price per right. With no licence cost on the model, the system falls back to average entitlement cost — verify that fallback or the number lies.
+</details>
+
+<details>
+<summary>💡 Insert/update — "Identify First, Gate Inserts"</summary>
+
+Reconciliation never gates inserts; IRE Data Source Rules do (`INSERT_NOT_ALLOWED_FOR_SOURCE` when blocked). Specific-attribute rules beat all-attributes rules regardless of priority; lower priority number wins.
+</details>
+
+*Experimental section — memory aids are study aids, not documentation. Verify against the official product docs for your release.*
