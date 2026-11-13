@@ -1148,3 +1148,81 @@ Monitor these on day 1 post-go-live (Success Portal is pointless without baselin
 - **Phase-wise + published-products freeze** (recommended): **decide at Sprint 0** — re-scoping mid-flight resets the normalization baselines.
 
 *Source cross-reference ends; the items above are additive to the official sections earlier in this guide.*
+
+---
+
+<details>
+<summary>Experimental: Alternate learning paths, guidance, and study methods (collapsed)</summary>
+
+## Experimental learning tracks (use, measure, discard what fails)
+
+These are **opt-in**. They are not part of the canonical SAM learning path or CIS-SAM exam blueprint. Treat each as an experiment with a success measure.
+
+### 1. Evidence-based learning principles applied to SAM
+- **Retrieval practice over re-reading**: after each section, close the guide and write the three record types and their tables from memory.
+- **Spaced repetition**: review license metrics and publisher traps at 1 day, 1 week, 1 month.
+- **Interleaving**: alternate publishers (Microsoft → Oracle → IBM) instead of blocking one publisher per session.
+- **Dual coding**: pair every reconciliation concept with one diagram and one numerical example.
+- **Worked examples → fading**: first solve with the lab steps; then remove one hint at a time until independent.
+- **Cognitive load control**: cap each session to one publisher or one reconciliation step; avoid switching metrics and metrics groups in the same block.
+- **Elaboration**: explain why "unknown ≠ compliant" in your own words; if you cannot, re-study the section.
+- **Feedback loops**: reconcile, inspect the verdict, identify one root cause, repeat; never move on without a documented root cause.
+
+### 2. Learner-persona adaptations
+| persona / constraint | suggested approach | success signal |
+|---|---|---|
+| Visual/spatial | Use diagrams, table hierarchies, and color-coded compliance states (red under, yellow over, green compliant) | Can draw the three-record-type graph from memory |
+| Auditory | Narrate the reconciliation steps; record a 90-second summary for one publisher | Can explain aloud without notes |
+| Kinesthetic/hands-on | Complete the lab on a sub-prod instance; deliberately introduce one wrong metric | Can induce and fix three failure modes |
+| Reading/writing | Summarize each section in 5 bullets + 1 sentence of exam tip | A study card per section |
+| Attention variability (ADHD-friendly) | 15-minute sprints: one concept + one verification + one exit cue | Complete at least one verified step per sprint |
+| Time-limited | Follow the 30/60/90-day plan below; prioritize lab + publisher traps |
+| Exam-focused | Start with CIS-SAM domain weights and the quiz; backfill weak areas | Score ≥ 80% on the guide quiz twice |
+
+### 3. 30 / 60 / 90-day plans
+- **30 days**: Purpose, SAM vs HAM, lifecycle, three record types, discovery → installs, normalization statuses, one reconciliation lab.
+- **60 days**: Entitlements + metric matching, publisher traps, SaaS lifecycle, optimization/reclamation, common mistakes 2×.
+- **90 days**: CIS-SAM domain mapping, publisher audit defence, runnable lab repeats, flashcards daily, lab teardown/rebuild.
+
+### 4. Advanced guided methods ("thorough")
+- **Contrast cases**: compare the same install set under per-device vs per-user metrics and write why the compliance position differs.
+- **Prediction → check**: before reconciling, write your expected compliance position and three assumptions; reconcile; score assumptions.
+- **"Teach the model" drill**: verbalize the model → discovery model → install → entitlement → reconciliation chain to a non-expert; ambiguity becomes a bug.
+- **Failure museum**: maintain a personal log of "every time an admin said 'it reconciles' but it was wrong" with root cause.
+- **Reverse problem generation**: create an entitlement that makes a normal dataset look under-licensed, then explain the trap.
+- **Counterfactual reconciliation**: remove one install or change one metric and predict the new position before recomputing.
+
+### 5. Accessibility and inclusive learning
+- Provide alt text for all Mermaid diagrams in prose form; ensure color is never the only differentiator.
+- Offer plain-text versions of all tables.
+- Allow keyboard-only navigation of any embedded repo tooling and avoid time pressure in quizzes.
+- Use short sentences and define acronyms on first use.
+
+### 6. Measurement of learning (not just completion)
+- Pre-test (10 items) before study; post-test after; track delta by domain.
+- Lab artifacts scored on: terminology precision, metric choice justification, root-cause identification, audit-defense narrative.
+- Retain only interventions that improve post-test score or reduce error rate; archive the rest.
+
+### 7. Warning labels
+- Publisher rules and metrics change; the "Publisher-Specific Traps" must be re-validated against current agreements.
+- Usage data is not proof of absence; never treat a missing feed as "no waste".
+- "Unknown ≠ compliant" in this guide applies to SAM metrics; the principle of unknown states should be reused with care.
+
+*Experimental section added by beam__kilo__cli — 2026-11-13T15:54Z. Review and prune if unhelpful.*
+</details>
+
+<details>
+<summary>💡 Mnemonics for key SAM turns (click to reveal)</summary>
+
+## Mnemonics for fast recall during labs/exams
+- **M D I U R** = **M**odel, **D**iscovery model, **I**nstall, entitlement (**U**ser/right), **R**econciliation verdict.
+- **N O R M** = **N**ormalize before **O**wning rights, then **R**econcile, then **M**onitor.
+- **M M = E M** = **M**odel **M**etric must equal **E**ntitlement **M**etric.
+- **U≠C** = **U**nknown is **n**ot **C**ompliant; never fold unknown into green.
+- **Suites roll up**: count **once at suite level**, not per component.
+- **60-90 rule**: reclaim only after 60–90 days of inactivity + owner sign-off.
+- **C-U-O-U-N**: compliance states in order: **C**ompliant, **U**nder-licensed, **O**ver-licensed, **U**nlicensed, **N**ot-counted/Unknown (treat unknown as a separate tracked bucket).
+- **D-C-M**: **D**iscovery finds, **C**ontent library maps, **M**etric decides compliance.
+
+*Added by beam__kilo__cli — 2026-11-13T15:55Z.*
+</details>
