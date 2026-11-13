@@ -30,6 +30,7 @@
   - [🚨 Incident Management](#incident-management)
   - [🚨 Major Incident Management (MIM)](#major-incident-management-mim)
   - [🧩 Problem Management](#problem-management)
+  - [Incident, Problem, and the records next to them](#incident-problem-and-the-records-next-to-them)
   - [⚙️ Change Management](#change-management)
   - [📊 Major Incident vs Normal Incident Comparison](#major-incident-vs-normal-incident-comparison)
   - [📊 CAB & Change Types Decision Flow](#cab--change-types-decision-flow)
@@ -46,7 +47,7 @@
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
   - [Incident Lifecycle State Diagram](#incident-lifecycle-state-diagram)
-  - [Incident → Problem → Change → Request Flow](#incident--problem--change--request-flow)
+  - [Incident, Problem, Change — what links to what](#incident-problem-change--what-links-to-what)
   - [SLA Lifecycle and Priority Matrix](#sla-lifecycle-and-priority-matrix)
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
   - [The End-to-End Map](#the-end-to-end-map)
@@ -84,7 +85,7 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 ## Prerequisites & Setup
 
 **Plugins / Scoped Apps that must be active:**
-- `com.snc.itsm` — core ITSM scoped application (tables: incident, problem, change_request, change_task, task, task_sla; roles: itil, sn_incident.read, sn_incident.write, sn_change.write, sn_problem.write, admin)
+- `com.snc.itsm` — core ITSM scoped application (tables: incident, incident_task, problem, problem_task, change_request, change_task, task, contract_sla, task_sla; roles: itil, sn_incident.read, sn_incident.write, sn_change.write, sn_problem.write, admin)
 - `com.snc.cmdb` — CMDB integration for affected CI relationships and CI lifecycle
 - `com.snc.discovery` — Discovery / MID Server for auto-discovering CIs and maintaining identifier reconciliation
 - `com.snc.service_catalog` — Service Catalog for request fulfillment, record producers, and order guides
@@ -179,7 +180,7 @@ ITSM ships as a scoped application (`com.snc.itsm`).
 | Scope Aspect | Detail |
 |--------------|--------|
 | Scope name | `com.snc.itsm` |
-| Tables | `incident`, `problem`, `change_request`, `change_task`, `task`, `task_sla` |
+| Tables | `incident`, `incident_task`, `problem`, `problem_task`, `change_request`, `change_task`, `task`, `contract_sla`, `task_sla` |
 | Roles | `itil`, `sn_incident.read`, `sn_incident.write`, `sn_change.write`, `sn_problem.write`, `admin` |
 
 ### Meta Data Patterns
@@ -202,7 +203,7 @@ ITSM's scale comes from these shared objects — every process below is defined 
 | **Catalog items, record producers & order guides** | The reusable intake patterns themselves: one record producer pattern creates incidents/requests from many forms; order guides bundle related items into one checkout. | All > Service Catalog > **Catalog Definitions** |
 | **Task templates** | Pre-filled incident/change/problem templates (`sys_template` and process templates) so common work starts 90% complete — "password reset", "standard server patch". | All > System Definition > **Templates** |
 | **Change models & standard changes** | Change models define the states, approvals, and tasks for a *class* of change; standard change templates are the pre-approved, reusable instances. A good standard-change library is most of a healthy change process. | All > Change > **Change Models** / **Standard Change** |
-| **SLA definitions** | Clocks, conditions, and schedules defined once and attached to any task type — incident, case, work order all read the same definition style. | All > Service Level Management > **SLA Definitions** |
+| **SLA definitions** | One clock per commitment. The row lives on `contract_sla`. The **Table** field decides incident vs task vs both. Type (SLA / OLA / Underpinning Contract) does not. | All > Service Level Management > **SLA Definitions** |
 | **Assignment rules & on-call rotations** | Assignment rules route by category/group data; on-call schedules and rotations (`cmn_rota`) define who is reachable, reused by every escalation and major-incident page-out. | All > System Policy > **Assignment Rules** · All > On-Call Scheduling |
 | **Approval rules** | Reusable approval logic (by amount, by group, by CI owner) consumed by change, catalog, and knowledge publishing alike. | All > System Policy > **Approvals** |
 | **Flows, subflows & IntegrationHub spokes** | Flow Designer automation is the platform's shared library: a subflow like "create AD account" or a spoke action is built once and called from ITSM, CSM, HR — everywhere. | All > Process Automation > **Flow Designer** · **IntegrationHub** |
@@ -269,27 +270,19 @@ ITSMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 });
 ```
 
-#### Business Rule: SLA Pause/Resume on State Change
+#### Read-only: which SLAs attached
+
+Do not write a business rule that pauses or completes `task_sla`. Pause, stop, and cancel belong on the SLA definition. Resolving an incident is a **stop** condition, not a pause. This script only reads the clocks the engine already created.
 
 ```javascript
-(function rule(current, previous) {
-    if (current.operation() == 'update' && current.state) {
-        var oldState = previous.state;
-        var newState = current.state;
-        var gr = new GlideRecord('task_sla');
-        gr.addQuery('task', current.sys_id);
-        gr.addQuery('stage', 'in progress');
-        gr.query();
-        while (gr.next()) {
-            if (newState == 'resolved' || newState == 'closed') {
-                gr.pause();
-            } else if (oldState == 'resolved' || oldState == 'closed') {
-                gr.restart();
-            }
-            gr.update();
-        }
-    }
-})(current, previous);
+var sla = new GlideRecord('task_sla');
+sla.addQuery('task', current.sys_id);
+sla.query();
+while (sla.next()) {
+    gs.info(sla.sla.getDisplayValue()
+        + ' stage=' + sla.getDisplayValue('stage')
+        + ' breach=' + sla.getValue('planned_end_time'));
+}
 ```
 
 ---
@@ -414,10 +407,42 @@ A major incident is **not** just a P1. Priority is a form value; a major inciden
 **Interview framing:** "I distinguish severity from declaration. A P1 in a single department may not be a major incident; an outage affecting a public-facing service is declared major regardless of ticket count. The Major Incident Manager owns communication cadence and the bridge, and the review output becomes a Problem record with a linked Change."
 
 ### 🧩 Problem Management
-- **Root Cause Analysis (RCA):** The process of finding the *why*.
-- **KEDB (Known Error Database):** Publishing workarounds so Incident agents can resolve tickets faster without escalating.
-- **Problem Tasks:** Investigating logs or testing a fix.
-- **Permanent Fix vs Workaround:** A workaround restores service; a permanent fix prevents recurrence.
+
+A problem is not a worse incident. An incident restores service. A problem explains why it broke and stops it happening again. One problem can sit behind many incidents. Most incidents never need a problem.
+
+- **Root cause analysis** is the work of finding the cause. It lives on the problem (`cause_notes`) and on problem tasks. It is not a second incident.
+- **Workaround** restores service now so the incident can resolve. The problem stays open. Field: `problem.workaround`. Publish it where agents will search it.
+- **Known Error** is a problem whose cause is known and whose workaround is published, usually as an article in the Known Error knowledge base, with the problem state moved to Known Error. A known error is not a closed problem. The problem closes when the permanent fix is done.
+- **Problem task** (`problem_task` extends `task`) is a unit of investigation or fix work under that problem (root-cause task or general task). Completing the task does not resolve the linked incidents.
+- **Permanent fix** is a change (`change_request`), not a state you type into the incident. The problem says what must change. The change authorizes doing it.
+
+Open a problem when the same failure repeats, the cause is unknown after restore, or a major-incident review requires it. Do not open one per ticket.
+
+### Incident, Problem, and the records next to them
+
+These records get mixed up because several of them extend `task` and several of them show up on the incident form. The table name is the distinction. If you cannot name the table, you do not yet know which record you are in.
+
+| Record | Table | What it is | What it is not | Done when |
+|--------|-------|------------|----------------|-----------|
+| Incident | `incident` | Unplanned interruption or degraded service. Goal: restore. Customer SLA runs here. | A request, a root-cause study, or a unit of work for a second team | Caller has service back. Close code and close notes filled |
+| Request | `sc_request` / `sc_req_item` | Someone asked for a standard thing that is not broken | An incident. "Password reset" as a catalog item is a request. A service that failed and locked people out is an incident | The requested item is fulfilled |
+| Incident task | `incident_task` | Work under one incident, often for another group | A second incident. Resolving the task does not resolve the incident. An SLA whose table is `incident` does not attach here | That group's work is finished |
+| Parent incident | `incident` with children | Coordination record for one shared failure | A problem. Children are still incidents | Shared impact is gone and children are resolved or canceled |
+| Major incident | `incident` plus `major_incident_state` | A declared business event: bridge, comms plan, post-incident review | A synonym for P1. Priority is a form value. Declaration is a process | Service restored, review written, problem opened if the cause must be removed |
+| Outage | `cmdb_ci_outage` | The CI unavailability window linked from the incident | The ticket, and not the SLA. The clock still runs on `task_sla` | CI is back; the outage end time is set |
+| Problem | `problem` | Cause behind one or many incidents. Goal: prevent recurrence | A place to hide an incident you have not restored. No caller-restore SLA belongs here | Cause addressed, or accepted, and the record is closed |
+| Known error | problem state + Known Error article | Cause known, workaround published for agents | A closed problem, and not a knowledge article of any other type | Workaround is searchable. The problem stays open until the fix lands |
+| Problem task | `problem_task` | RCA or fix work under the problem | An incident, and not a change | That investigation or fix step is done |
+| Change | `change_request` | Planned modification. Emergency change can restore service now. Normal change delivers the problem's permanent fix | A problem. Identifying the cause does not authorize the change | Implemented, reviewed, closed |
+
+How they connect, and only in this direction:
+
+1. Incident restores service. Link repeating incidents to one problem through `incident.problem_id`. Do not copy the incident onto a made-up cause field.
+2. If the cause is already known, publish the workaround and move the problem to Known Error so the next incident is short.
+3. The permanent fix is a change. An emergency change can also hang off the incident when restore itself needs a production modification. That change is still not a problem.
+4. On Hold is a pause on the **incident**, with a reason. Awaiting Caller and Awaiting Vendor are real holds. Awaiting Problem is shipped, and ServiceNow recommends removing that choice — linking a problem is not a reason to stop restoring service.
+
+Priority is Impact × Urgency on the incident, from the priority lookup. It chooses which SLA duration matches. It does not declare a major incident, and it does not open a problem.
 
 ### ⚙️ Change Management
 
@@ -617,9 +642,14 @@ graph TD
     
     subgraph "ITSM Child Tables (extend task)"
         incident[incident]
+        incident_task[incident_task]
         problem[problem]
+        problem_task[problem_task]
         change_request[change_request]
         change_task[change_task]
+    end
+    subgraph "SLA engine (does not extend task)"
+        contract_sla[contract_sla]
         task_sla[task_sla]
     end
     
@@ -632,18 +662,20 @@ graph TD
     end
 
     task --> incident
+    task --> incident_task
     task --> problem
+    task --> problem_task
     task --> change_request
     task --> change_task
-    task --> task_sla
-    
+
     incident -.->|affected CI| cmdb_ci
     problem -.->|root cause CI| cmdb_ci
     change_request -.->|affected CIs| cmdb_ci
-    incident -.->|related problem| problem
-    problem -.->|related change| change_request
+    incident -.->|problem_id| problem
+    problem -.->|fix is a change| change_request
     change_request -.->|tasks within| change_task
-    task_sla -.->|SLA on| task
+    task_sla -.->|task reference| task
+    contract_sla -.->|definition| task_sla
     kb_knowledge -.->|related CI| cmdb_ci
 
     style task fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
@@ -659,25 +691,31 @@ graph TD
 incident
     │
     ├──► cmdb_ci (affected CI)
-    ├──► assignment_group (assigned group)
-    ├──► assigned_to (assigned person)
-    ├──► caller_id (who reported)
-    ├──► problem (linked problem)
+    ├──► caller_id, assignment_group, assigned_to
+    ├──► incident_task (work under this incident; not a second incident)
+    ├──► problem_id → problem (the cause; not a child ticket)
+    ├──► parent incident (shared failure; children are still incidents)
     │
 problem
     │
-    ├──► incident (related incidents)
-    ├──► change_request (related change)
+    ├──► incidents via incident.problem_id
+    ├──► problem_task (RCA or fix step)
+    ├──► change_request (permanent fix)
+    ├──► Known Error article (workaround agents can search)
     │
 change_request
     │
-    ├──► change_task (tasks within change)
-    ├──► change_task (parent/child changes)
+    ├──► change_task
+    │
+contract_sla
+    │
+    ├──► collection = incident, or task, or another task child
+    ├──► type = SLA, OLA, or Underpinning Contract (does not pick the table)
     │
 task_sla
     │
-    ├──► incident/problem/change_request (task)
-    ├──► sla (SLA definition)
+    ├──► task (the record the clock is running on)
+    ├──► sla → contract_sla (there is no sla_definition table)
     │
 cmdb_ci
     │
@@ -729,11 +767,22 @@ cmdb_ci
 | `incident` | `urgency` | Choice | How quickly needed |
 | `incident` | `close_code` | Choice | Why resolved (required at close) |
 | `incident` | `close_notes` | String | Required at close |
-| `problem` | `caused_by` | Reference | Incident that caused problem |
+| `incident` | `problem_id` | Reference | The problem behind this incident. Many incidents, one problem |
+| `incident` | `hold_reason` | Choice | Only meaningful in On Hold. Awaiting Vendor starts the vendor clock |
+| `incident` | `major_incident_state` | Choice | Declaration lifecycle. Not the same field as priority |
+| `incident_task` | `incident` | Reference | Parent incident. This row is work, not another caller ticket |
+| `problem` | `workaround` | String | Restores service now. Does not close the problem |
+| `problem` | `cause_notes` | String | The why. Empty cause notes means it is not a known error yet |
+| `problem_task` | `problem` | Reference | RCA or fix step under the problem |
 | `change_request` | `type` | Choice | Standard, Normal, Emergency |
 | `change_request` | `risk` | Choice | Risk level |
 | `change_request` | `implementation_plan` | String | Required for normal changes |
-| `task_sla` | `breach_time` | DateTime | When SLA expires |
+| `contract_sla` | `collection` | Table name | `incident` attaches to incidents only. `task` attaches to incidents and every other task child |
+| `contract_sla` | `type` | Choice | SLA, OLA, or Underpinning Contract. Does not choose the table |
+| `contract_sla` | `start_condition` | Conditions | No match, no `task_sla` row |
+| `task_sla` | `stage` | Choice | In Progress, Paused, Completed, Breached. Engine-owned. Do not script it |
+| `task_sla` | `sla` | Reference | The `contract_sla` definition |
+| `task_sla` | `planned_end_time` | DateTime | When this clock breaches |
 
 ---
 
@@ -743,7 +792,12 @@ cmdb_ci
 |---------|---------|-----|
 | Creating incidents without categories | Form fields don't appear | Define categories first |
 | Not setting assignment_group | Incidents never get worked | Always assign a group |
-| Editing state without understanding SLA | SLA pauses/resumes incorrectly | Understand state→SLA mapping |
+| Editing state without understanding SLA | Customer clock pauses or stops for the wrong reason | Put pause and stop on `contract_sla`. Do not script `task_sla` |
+| Opening a problem for every incident | Problem queue becomes a second incident queue | Open a problem for recurrence, unknown cause, or a major-incident review |
+| Using On Hold / Awaiting Problem instead of restoring service | Incident SLA hides behind a problem that has no restore action | Link `problem_id` if needed. Keep restoring. ServiceNow recommends removing Awaiting Problem |
+| Putting the customer SLA on table `task` | The same clock attaches to problems, changes, and catalog tasks | Table = `incident` unless you mean every task child |
+| Calling a P1 a major incident | Bridge and comms never happen, or they happen for a single-user P1 | Declare on `major_incident_state`. Priority is only Impact × Urgency |
+| Treating a known error as a closed problem | Next incident has no workaround, or the fix is never scheduled | Known Error means cause and workaround are published. Close the problem when the change is done |
 | Deleting demo users | Flows break that reference them | Never delete; deactivate |
 | Testing as admin only | ACLs bypassed; "it works" means nothing | Test as actual user |
 | Making assignment_group optional | Tickets orphaned | Always required |
@@ -788,37 +842,40 @@ stateDiagram-v2
     note right of Closed: SLA stops
 ```
 
-### Incident → Problem → Change → Request Flow
+### Incident, Problem, Change — what links to what
+
+A request does not fall out of a change, and a change does not close an incident by itself. Restore on the incident. Explain it on the problem. Authorize the permanent fix on the change.
+
 ```mermaid
 graph TD
-    subgraph "Incident"
-        INC[Incident Created]
-        INC --> PR[Problem Identified]
-    end
-    subgraph "Problem"
-        PR --> CR[Related Change Requested]
-    end
-    subgraph "Change"
-        CR --> REQ[Service Request / Catalog Item]
-    end
-    subgraph "Request"
-        REQ --> FUL[Service Fulfillment]
-    end
-    FUL -->|Closed| INC
+    INC[incident: restore service]
+    IT[incident_task: work for another group]
+    PR[problem: stop recurrence]
+    PT[problem_task: RCA or fix step]
+    KE[Known Error article: searchable workaround]
+    CH[change_request: permanent fix]
+    REQ[sc_req_item: something asked for, not broken]
+
+    INC -->|problem_id| PR
+    INC --> IT
+    PR --> PT
+    PR --> KE
+    PR -->|fix| CH
+    REQ -.->|not an incident| INC
 ```
 
-### SLA Lifecycle and Priority Matrix
+### SLA clock and priority matrix
+
+`contract_sla` is the definition. `task_sla.stage` is the clock. Breach is `has_breached` on that clock, not a state you set by hand.
+
 ```mermaid
-graph TD
-    subgraph "SLA Stages"
-        dir[Draft]
-        act[Active]
-        bre[Breached]
-        clo[Closed]
-    end
-    dir -->|Define terms| act
-    act -->|Breach time reached| bre
-    bre -->|SLA resolution / escalation| clo
+graph LR
+    def["contract_sla active"] -->|start condition matches| ip[In Progress]
+    ip -->|pause condition| pa[Paused]
+    pa -->|pause ends| ip
+    ip -->|stop condition| co[Completed]
+    ip -->|cancel condition| ca[Cancelled]
+    ip -->|planned end passed| br["has_breached true"]
     
     subgraph "Priority Matrix (Impact × Urgency)"
         direction LR
@@ -930,7 +987,57 @@ The City-of-Toronto-style test leans on **legacy integration** more than modern 
 
 ## SLAs, Dashboards & Workspaces
 
-**SLA Support**: The ITSM module uses the `task_sla` table for SLA tracking (confirmed in Prerequisites: tables include `task_sla` alongside `incident`, `problem`, `change_request`, `change_task`, `task`). SLA Definitions are managed at **All > Service Level Management > SLA Definitions**. Typical SLA metrics include **time to resolve**, **time to assign**, and **time to acknowledge**, driven by incident priority (Impact × Urgency matrix).
+There is no `sla_definition` table. The definition you edit is `contract_sla` (UI label: SLA Definition). The running clock the engine creates is `task_sla`. Do not insert, pause, or complete `task_sla` by script. Pause, stop, and cancel are conditions on the definition. Resolving an incident is a stop, not a pause.
+
+Navigation: All > Service Level Management > SLA Definitions. The engine has to be on (`glide.sla.enabled`).
+
+### What makes a clock attach
+
+Attachment is the **Table** field (`contract_sla.collection`) plus the **Start condition**, and the definition must be active. Type does not pick the table.
+
+| Table on the definition | Incident | Plain task, catalog task, problem |
+|-------------------------|----------|-------------------------------------|
+| `incident` | Yes | No |
+| `task` | Yes, because `incident` extends `task` | Yes. Every task child, including `problem`, `change_request`, `incident_task` |
+| `sc_task` | No | Catalog tasks only |
+| `incident_task` | No | Incident tasks only |
+
+One definition cannot cleanly mean "this incident and this vendor task, but not problem or change." Use two definitions. A definition on `task` attaches to both, and to everything else that extends `task`.
+
+Type is a separate choice on the same row:
+
+| Type | Who the commitment is with | Typical table |
+|------|----------------------------|---------------|
+| SLA | The caller / customer | `incident` |
+| OLA | Another internal team | `incident` or `incident_task` |
+| Underpinning Contract | A vendor | `incident`, started only while you are waiting on that vendor |
+
+### Incident SLA and vendor SLA
+
+Build these as two `contract_sla` rows. Do not put the vendor duration on the customer resolution SLA. Their pause and stop fight each other.
+
+**Customer resolution SLA.** Type = SLA. Table = `incident`. Start when Active is true and priority matches. Pause when State is On Hold and Hold reason is Awaiting Caller or Awaiting Vendor. Stop when State is Resolved or Closed. Schedule is a `cmn_schedule` (and `cmn_schedule_span` for the hours). Duration comes from the priority matrix, not from a script.
+
+**Vendor SLA.** Type = Underpinning Contract. Table = `incident`. Start only when State is On Hold and Hold reason is Awaiting Vendor. Stop when that hold ends. This clock measures the vendor. It does not replace the customer clock, which should be paused for the same window.
+
+Confirm the hold-reason values on the instance before you write the condition. Awaiting Problem is shipped, and ServiceNow recommends removing it. Linking `problem_id` is not a pause reason.
+
+Conditions are fields on `contract_sla` (start, pause, stop, reset, cancel). You do not edit a child table to create them. You also do not edit the SLA engine business rules.
+
+### Configure and test from scratch
+
+1. Create or pick a 24x7 schedule if you want the test to breach in real minutes. A business schedule will not breach at 19:00.
+2. New SLA Definition. Name it `SLA-TEST Incident`. Table = `incident`. Type = SLA. Duration = 1 minute. Schedule = that 24x7 schedule. Active = true.
+3. Start condition: Short description starts with `SLA-TEST`. Stop condition: State is Resolved or Closed. Pause condition: State is On Hold.
+4. Second definition, `SLA-TEST Vendor`. Type = Underpinning Contract. Table = `incident`. Duration = 1 minute. Start: State is On Hold and Hold reason is Awaiting Vendor. Stop: State is not On Hold.
+5. Create an incident whose short description starts with `SLA-TEST`. Related list Task SLAs should show one `task_sla` in In Progress, pointing at the incident definition. The vendor definition must not be there yet.
+6. Set State to On Hold, Hold reason Awaiting Vendor. Customer clock pauses. Vendor clock starts.
+7. Resolve the incident. Customer clock completes. If you wait out the minute first, stage becomes Breached and `has_breached` is true.
+8. If no row appears, the definition is inactive, the table is wrong, or the start condition missed. Use Repair SLAs. Do not hand-insert `task_sla`.
+
+Priority-based durations (P1 through P5) are the same pattern with a start condition on Priority instead of the test prefix. Response versus resolution is two definitions, not two fields on one row: the response definition stops on first assignment or first response; the resolution definition stops on Resolved.
+
+### Dashboards and workspaces
 
 **OOTB Dashboards**: ITSM OOTB dashboards are accessible at **All > ITSM > Dashboards**. Key dashboards include the **IT Agent Dashboard** (displays incident volumes, open/closed counts, SLA breach rates by priority) and the SLA compliance dashboard (shows SLA target vs actual performance across severity levels).
 
@@ -944,16 +1051,19 @@ The City-of-Toronto-style test leans on **legacy integration** more than modern 
 1. What fields determine incident priority, and where is that matrix defined?
 <details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
 
-2. What record type implements an SLA on a given incident?
-<details><summary>Answer</summary>SLA Definition</details>
+2. Which table is the SLA definition, which table is the running clock, and what makes it attach to an incident but not a task?
+<details><summary>Answer</summary>`contract_sla` is the definition. `task_sla` is the clock. There is no `sla_definition` table. Table = `incident` plus a matching start condition attaches to incidents only. Table = `task` attaches to incidents and every other task child.</details>
 
 3. Name three things that break if you reorder state values.
 <details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
 
-4. What is the difference between an incident and a problem?
-<details><summary>Answer</summary>Incident = Restoration of service; Problem = Root cause identification.</details>
+4. What is the difference between an incident, a problem, a known error, and a problem task?
+<details><summary>Answer</summary>Incident restores service. Problem stops recurrence and can sit behind many incidents. Known Error means the cause is known and the workaround is published; the problem stays open. A problem task is RCA or fix work under the problem, not another incident.</details>
 
-5. What field determines which assignment group gets the incident?
+5. When does the vendor underpinning contract start, and what happens to the customer incident SLA in that same window?
+<details><summary>Answer</summary>The vendor clock starts when the incident is On Hold / Awaiting Vendor. The customer resolution SLA pauses for that window. They are two `contract_sla` rows, not one.</details>
+
+6. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>
 
 ---
