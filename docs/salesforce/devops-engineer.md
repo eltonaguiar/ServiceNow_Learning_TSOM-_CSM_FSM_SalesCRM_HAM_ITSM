@@ -17,6 +17,7 @@
 - [Training items](#training-items)
 - [1. Source of truth](#1-source-of-truth)
 - [2. Metadata that breaks releases](#2-metadata-that-breaks-releases)
+  - [2b. Payload ceilings, destructive changes, the queue, references](#2b-payload-ceilings--the-limits-that-decide-whether-a-deploy-is-one-deploy)
 - [3. Environments and sandboxes](#3-environments-and-sandboxes)
 - [4. Branching](#4-branching)
 - [5. CI/CD](#5-cicd)
@@ -24,6 +25,10 @@
 - [7. Conflict clinic](#7-conflict-clinic)
 - [8. Packages](#8-packages)
 - [9. Tests and validation](#9-tests-and-validation)
+  - [The five test levels](#the-five-test-levels)
+  - [Coverage is three different rules](#coverage-is-three-different-rules-not-one)
+  - [`validate`, the 10-day window, and the sandbox trap](#validate-the-10-day-window-and-the-sandbox-trap)
+  - [Which payloads force a test run](#which-payloads-force-a-test-run--and-the-version-trap)
 - [10. Releases, hotfixes, rollback](#10-releases-hotfixes-rollback)
 - [11. Banking change control](#11-banking-change-control)
 - [12. Design patterns you have to coach](#12-design-patterns-you-have-to-coach)
@@ -139,6 +144,101 @@ Salesforce deploys are not file copies. The Metadata API compiles the payload ag
 | `CANNOT_MODIFY_MANAGED_OBJECT` | You tried to change a managed-package component | Configure around it, or upgrade the package. Do not fork it in Git |
 
 Governor limits still matter to you even if you are not writing the trigger. A deploy can succeed and the feature can still fall over in prod because the code is not bulkified. Read the [governor-limits section of the crash course](./crash-course.md) before you sign off on an Apex story. Your question in review: "what happens when this runs on 200 records?"
+
+### 2b. Payload ceilings — the limits that decide whether a deploy is one deploy
+
+These are Metadata API limits, and they are the reason "just deploy the whole org" stops working.
+
+| Limit | Value |
+|---|---|
+| Maximum compressed `.zip` folder size | **~39 MB** |
+| Maximum uncompressed folder size | **~600 MB** (629,145,600 bytes) |
+| Maximum files in an unlocked or second-generation managed package | **10,000** |
+| Maximum files in an AppExchange-reviewed 1GP | **35,000** |
+
+Two mechanics behind the 39 MB figure, because interviewers ask:
+
+- The Metadata API base64-encodes after compressing. The resulting `.zip` must not exceed **50 MB**, and
+  base64 adds ~22%, so the **compressed payload must stay under ~39 MB before encoding**.
+
+**The 39 MB figure is the one that gets misremembered.** You will see "400 MB" in training material and in
+some AI-generated notes. That is wrong by an order of magnitude and it changes a design decision: a team
+sizing a deployment against 400 MB will not think about splitting it. It is ~39 MB compressed, ~600 MB
+uncompressed.
+
+### Destructive changes are a separate file
+
+Deletes are not a side effect of "it was not in the folder". They are an explicit manifest, and in
+production they are not undone by Git:
+
+```bash
+sf project deploy start \
+  --manifest manifest/package.xml \
+  --post-destructive-changes manifest/destructiveChanges.xml \
+  --target-org qa
+```
+
+- `post-destructive-changes` runs **after** the adds. Use it for ordinary removal.
+- `pre-destructive-changes` runs **before**. Use it only when a delete must happen before an add — for
+  example a rename that would collide.
+- A delete in production is not undone by `git revert`. Rollback means recreating the metadata, and any
+  records that lived on a deleted custom object are gone.
+
+### The deployment queue is not FIFO
+
+One deploy at a time per org, and the queue is **not** first-in-first-out. Two consequences for release
+engineering:
+
+1. A long validation blocks the window behind it, and you cannot assume your job jumps the queue because it
+   was submitted first.
+2. Two people deploying to the same org in the same window is a scheduling problem, not a technical one.
+   Whoever deploys second may be deploying on top of a change nobody reviewed.
+
+This is why the release calendar exists, and why "I'll just deploy my fix quickly" is a release-control
+problem even when the fix is one field.
+
+### Which payloads force a test run — and the version trap
+
+This is the question that decides how long a validation takes, and it has a **version-dependent** answer that
+a lot of training material gets wrong.
+
+| Metadata API version | What triggers a test run |
+|---|---|
+| **33.0 and earlier** | A long list of types: `ApexClass`, `ApexComponent`, `ApexPage`, `ApexTrigger`, `ArticleType`, `BaseSharingRule`, `CriteriaBasedSharingRule`, `CustomField`, `CustomObject`, `DataCategoryGroup`, `Flow`, `InstalledPackage`, `NamedFilter`, `OwnerSharingRule`, `PermissionSet`, `Profile`, `Queue`, `RecordType`, `RemoteSiteSetting`, `Role`, `SharingReason`, `Territory`, `ValidationRule`, `Workflow` |
+| **34.0 and later (current)** | **Only Apex classes and Apex triggers.** If the payload has no Apex component, **no tests run by default** |
+
+The official page states it with an example:
+
+> "if your package contains a custom object, all tests are run in API version 33.0 and earlier. In contrast,
+> **starting with API version 34.0, no tests are run for this package.**"
+
+**Why this matters, and why the 24-type list still circulates.** Salesforce's "Running Tests in a Deployment"
+page lists the 24 types as triggering a test run, which is correct **for API 33.0 and earlier**. That list has
+been copied forward for a decade, and several current training documents present it as the modern rule. It is
+not. On any supported API version, a payload of `CustomField`, `Profile`, `Flow` or `ValidationRule` alone runs
+**zero tests**.
+
+The practical consequence: a deploy that looks like it should have been slow and safe is neither. It is slow
+because of compile time and it is *not* validated, because nothing ran. If you want a config-only deploy to be
+validated, you must **set the test level explicitly** — the default will not do it.
+
+Two related traps from the same page:
+
+- `NoTestRun` is only valid for **development environments** (sandbox, Developer Edition, trial). It is the
+  default there, and it is rejected in production when the payload contains Apex.
+- `RunLocalTests` is the **default for production deployments that contain Apex** — and it is enforced
+  regardless of payload contents. If you set it on a config-only deploy, you get the full run anyway.
+
+Source: [Running Tests in a Deployment](https://developer.salesforce.com/docs/platform/api-metadata/guide/meta-deploy-running-tests.html).
+
+### Intra-payload references resolve; ordering is not the mechanism
+
+The Metadata API resolves references **within** a payload. If class A uses class B and both are in the same
+deployment, you do not need to order the package.xml. What fails is a reference to something **not** in the
+payload and **not** already in the target.
+
+The practical rule is therefore: **deploy the parent and the child together.** Record type + its layout + the
+permission set that grants visibility, in one payload. Not "record type Monday, permission set later".
 
 ---
 
@@ -357,12 +457,63 @@ Help: [Quick Deploy](https://help.salesforce.com/s/articleView?id=sf.deploy_quic
 Production rules you can say without notes:
 
 - A payload with Apex must run tests
-- Salesforce requires 75% coverage as the production gate
+- Salesforce requires 75% coverage as the production gate — but **which** 75% depends on the test level (below)
 - `RunSpecifiedTests` means you name the tests, and the Apex you are deploying has to be covered by those tests
 - `RunLocalTests` runs local tests and skips managed-package tests. It is the honest gate before a release, and it is slow. That is why you validate before the window, then quick-deploy inside it
 - A green Dev sandbox is not evidence. The validation that counts is against the org you are about to change
 
+### The five test levels
+
+| Level | What runs | Use it when |
+|---|---|---|
+| `NoTestRun` | Nothing | Never in production with Apex in the payload — Salesforce rejects it |
+| `RunSpecifiedTests` | Only the tests you name | Fast, targeted. **Coverage is then measured per class in the package** |
+| `RunRelevantTests` | Tests related to the change (newest level; confirm availability in your CLI) | First deploy of a new component, before you know which tests matter |
+| `RunLocalTests` | All local tests, skipping managed-package tests | The honest pre-release gate |
+| `RunAllTestsInOrg` | Everything, including managed packages | Slowest. Required for some package installs |
+
+### Coverage is three different rules, not one
+
+This is the single most confused topic in Salesforce release engineering. The platform documentation states
+two distinct cases:
+
+| Test level used | What coverage must be |
+|---|---|
+| `RunLocalTests` / `RunAllTestsInOrg` | **75% org-wide**, and **Apex triggers must have *some* coverage** |
+| `RunSpecifiedTests` | **75% for each class and trigger in the deployment package individually** |
+
+Two things follow, and both are interview-grade:
+
+1. **There is no "1% per class" rule.** That number appears in a lot of training material. The real rule for
+   `RunSpecifiedTests` is 75% *per item*; for the other levels it is 75% org-wide plus "triggers need some
+   coverage". If you hear "1%", the person is remembering "triggers need *some* coverage" and attaching a
+   number to it that the documentation does not contain.
+2. **A single under-covered class fails the whole deploy** under `RunSpecifiedTests`, even if the org average
+   is 90%. A high org-wide average does not protect you.
+
+### `validate`, the 10-day window, and the sandbox trap
+
+```bash
+sf project deploy validate --manifest manifest/package.xml --target-org prod --test-level RunLocalTests
+sf project deploy quick --job-id 0Af... --target-org prod
+```
+
+- `validate` runs the full deploy **without committing**. It returns a **job id**, not a deployment.
+- That job id is **valid for 10 days** from the validation.
+- `--use-most-recent` only looks back **3 days**, even though the job id is good for 10. Use the explicit
+  `--job-id` once a validation ages past 3 days.
+- **Do not run `validate` against a sandbox.** The CLI documentation is explicit: the command is intended for
+  production orgs, because sandboxes do not run tests on deploy by default. To get a test run in a sandbox,
+  use `sf project deploy start --dry-run --test-level RunLocalTests`.
+- A quick deploy returns a **new** deployment id — not the validation id. Track the new one; the old id keeps
+  reporting the validation's result.
+
+If the deploy window slips more than 10 days, re-validate. Do not "just try the quick deploy" — it fails
+without warning, and there is no notification as expiry approaches.
+
 Trailhead: [Apex Testing](https://trailhead.salesforce.com/content/learn/modules/apex_testing).
+CLI reference: `project deploy validate`, `project deploy quick`.
+Metadata API: [Deploy a Recently Validated Component Set Without Tests](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_rest_deploy_recentvalidation.htm).
 
 ---
 

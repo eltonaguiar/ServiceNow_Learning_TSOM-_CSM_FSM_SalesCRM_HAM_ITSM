@@ -48,7 +48,7 @@
 |-------|-------------|
 | **Active** | Can log in and use Salesforce |
 | **Inactive (Frozen)** | Cannot log in; keeps history and records |
-| **Deactivated** | Cannot log in; license freed up (can't be reactivated, must recreate) |
+| **Deactivated** | Cannot log in; license freed up. **Can be reactivated** — edit the user and re-check **Active** |
 
 **Best practice:** Freeze users instead of deactivating when they leave temporarily. Deactivate only when you need the license back and won't need the user again.
 

@@ -342,7 +342,8 @@ Before Salesforce can call an external API, you must add the external URL to **R
 |-------|---------|---------------|
 | SOQL queries | 100 per transaction | Don't query in a loop |
 | DML rows | 10,000 per transaction | Bulkify your code |
-| Heap size | 6 MB (sync) / 12 MB (async) | Don't load too much into memory |
+| Heap size | 10 MB (sync) / 25 MB (async) | Don't load too much into memory |
+| Max callout request or response size | 6 MB (sync) / 12 MB (async), counts toward heap | Batch external API calls; this is a *different* limit from heap |
 | Callouts | 100 per transaction | Batch external API calls |
 | CPU time | 10,000 ms (sync) / 60,000 ms (async) | Avoid inefficient loops |
 
@@ -422,7 +423,7 @@ update toUpdate; // 1 DML statement total
 
 ---
 
-### 3. Heap Size — 6 MB Synchronous / 12 MB Asynchronous
+### 3. Heap Size — 10 MB Synchronous / 25 MB Asynchronous
 
 **Why it exists:** Heap is the memory your code uses while running. If one transaction hogs 2 GB of RAM, other transactions on the same server get starved.
 
@@ -431,7 +432,7 @@ update toUpdate; // 1 DML statement total
 **Best practices:**
 - Query only the fields you need (`SELECT Id, Name` not `SELECT *` equivalent).
 - Use `LIMIT` on queries that might return many rows.
-- Process large volumes asynchronously (Batch Apex, Queueable) where the heap limit doubles to 12 MB.
+- Process large volumes asynchronously (Batch Apex, Queueable) where the heap limit rises to **25 MB** and CPU to **60,000 ms** (2.5x the heap, 6x the CPU).
 - Avoid storing large collections (Lists, Maps, Sets) of unnecessary data.
 - Set variables to `null` when you're done with them to free memory.
 
@@ -481,7 +482,7 @@ for (Account a : accounts) {
 | Limit | Default | Context |
 |-------|---------|---------|
 | Apex classes/triggers | 1 million characters | Code size limit |
-| Test methods | Must cover 75%+ of code | Deployment requires test coverage |
+| Test methods | Must cover 75%+ of code | Deployment requires coverage; the exact rule depends on the test level — see the [DevOps track](./devops-engineer.md#9-tests-and-validation) |
 | Email (single) | 5,000 per day | `Messaging.SingleEmailMessage` |
 | Email (mass) | 10 per day | `Messaging.MassEmailMessage` |
 | Scheduled jobs | 100 concurrent | `@future`, Queueable, Batch Apex |

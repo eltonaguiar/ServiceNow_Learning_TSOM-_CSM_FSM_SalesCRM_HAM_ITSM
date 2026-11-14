@@ -205,11 +205,14 @@ Salesforce provides official, free hands-on labs and documentation. These are th
    - Label: "JSON Placeholder API"
    - Name: `JSON_Placeholder_API`
    - URL: `https://jsonplaceholder.typicode.com`
-   - Identity: Named Principal
-   - Authentication: Password Authentication
-   - Username: (leave blank for public API)
-   - Password: (leave blank for public API)
-   - Check "Generate Authorization Header" = ✗
+   - Identity Type: Named Principal
+   - Authentication Protocol: **No Authentication** (some UI versions label this "Anonymous")
+   - Leave Username and Password empty
+   - Leave "Generate Authorization Header" unchecked
+
+   > Do **not** choose *Password Authentication* with blank credentials. That protocol requires a username
+   > and password and will fail at callout time with an authentication error — which looks like a network
+   > problem but is a credential problem. A public API needs no credentials at all.
 
 2. **Create Remote Site Setting** (fallback if Named Credential doesn't work)
    - Setup > Remote Site Settings > New
@@ -289,15 +292,25 @@ Salesforce provides official, free hands-on labs and documentation. These are th
 
 ## System Properties & Out-of-the-Box Features
 
-### Important System Properties
+### Important Settings (and why "system properties" is the wrong frame)
 
-| Property | Where | What It Controls |
-|----------|-------|------------------|
-| `org.wideSharing.default` | Setup > Sharing Settings | Org-wide default record visibility |
-| `setup.locked` | Setup > Deploy > Deployment Status | Whether metadata changes are allowed |
-| `apex.pageLimit` | Internal | Visualforce page size limits |
-| `session.timeout` | Setup > Session Settings | How long before idle sessions expire |
-| `login.lockout` | Setup > Session Settings | Failed login lockout policy |
+Salesforce does **not** expose a general-purpose property store like `org.wideSharing.default` or
+`setup.locked`. Those names look like configuration keys but do not exist — you cannot set them, query them,
+or deploy them. What actually exists is a set of named **settings** and **limits**, configured in Setup or
+fixed by the platform.
+
+| Setting | Where | What It Controls |
+|---------|-------|------------------|
+| **Session Timeout** | Setup > Session Settings | How long before an idle session expires |
+| **Lockout Effective Period** | Setup > Session Settings | Failed-login lockout window (default 15 minutes) |
+| **Password Policies** | Setup > Password Policies | Complexity, expiry, and history rules |
+| **Login IP Range Restrictions** | Profile / Permission Set | Which addresses may log in |
+| **API Request Limits** | Setup > Company Information | Daily API call allocation and current usage |
+| **Storage Usage** | Setup > Company Information | Data and file storage consumed |
+| **Deployment Settings** | Setup > Deploy > Deployment Settings | Which orgs may receive inbound deploys |
+
+If you need a value your code can read at runtime, that is **Custom Metadata** or **Custom Settings** — not a
+system property. If you need a limit, that is a **governor limit**, and it is fixed by the platform.
 
 ### Out-of-the-Box Features You Should Know
 

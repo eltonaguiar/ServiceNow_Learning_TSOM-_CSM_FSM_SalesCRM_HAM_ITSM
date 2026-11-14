@@ -101,8 +101,9 @@ The gear menu (⚙️) > **Setup** opens the left-hand navigation panel. Key sec
 |------|------|
 | Flow Builder home | Setup > Flows |
 | Create new flow | Setup > Flows > New Flow |
-| Process Builder (legacy) | Setup > Process Builder |
-| Workflow Rules (legacy, retiring) | Setup > Workflow Rules |
+| Process Builder (**retired**) | No Setup page — read-only at best. Build new automation in Flow |
+| Workflow Rules (**retired**) | No Setup page. Build new automation in Flow (record-triggered) |
+| Flows (the replacement) | Setup > Flows |
 | Approval Processes | Setup > Approval Processes |
 | Email Templates | Setup > Email Templates |
 | Outbound Messages | Setup > Outbound Messages |
@@ -166,8 +167,9 @@ The gear menu (⚙️) > **Setup** opens the left-hand navigation panel. Key sec
 |------|------|
 | Debug Logs | Setup > Debug Logs |
 | Trace Flags | Setup > Trace Flags |
-| Apex Jobs | Setup > Apex Jobs |
-| Scheduled Jobs | Setup > Scheduled Jobs |
+| Apex Jobs / Scheduled Jobs | Setup > **Background Jobs** (Apex Jobs and Scheduled Jobs were consolidated into one page; the old separate Setup > Apex Jobs and Setup > Scheduled Jobs paths no longer exist) |
+| Batch and Queueable jobs | Setup > Background Jobs |
+| Scheduled Flow jobs | Setup > Background Jobs (or the Flow's own schedule) |
 | Batch Apex | Setup > Apex Classes > [Batch Class] > Schedule |
 | Platform Events (monitor) | Setup > Platform Event Monitoring |
 | Optimizer | Setup > Optimizer |
