@@ -81,6 +81,16 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
   </div>
   <div class="card">
+    <h3>GlideRecord & Server-Side Data</h3>
+    <p>The query engine in depth — the four query forms, encoded queries and every operator, setWorkflow(false) and what it actually suppresses, GlideAggregate for counts and sums, the loop trap, pagination, and the seven mistakes that cause governor-limit failures.</p>
+    <p class="meta"><a href="./docs/modules/scripting/gliderecord-guide/">Open the GlideRecord guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Service Catalog</h3>
+    <p>Catalog items vs record producers, variables and variable sets, catalog client scripts and g_form, UI policies, fulfilment flows, and the retail/high-volume self-service pattern for store and pharmacy requests.</p>
+    <p class="meta"><a href="./docs/modules/catalog/catalog-guide/">Open the Service Catalog guide</a></p>
+  </div>
+  <div class="card">
     <h3>Cross-Cutting Skills</h3>
     <p>Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer.</p>
     <p class="meta"><a href="./docs/cross-cutting/">Open the Cross-Cutting guide</a></p>
