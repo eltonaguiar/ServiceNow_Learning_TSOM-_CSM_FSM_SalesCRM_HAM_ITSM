@@ -13,7 +13,7 @@ To avoid outdated or inaccurate community tutorials, always start with official 
 
 ---
 
-## 🛠️ Pro-Tip: How to Search Effectively
+## Pro-Tip: How to Search Effectively
 When searching for a specific module (like HRSD or TSOM), combine the module name with the channel handle to filter out non-official content:
 - `site:youtube.com "@ServiceNowDevProgram" HRSD`
 - `site:youtube.com "@ServiceNowDocs" TSOM`

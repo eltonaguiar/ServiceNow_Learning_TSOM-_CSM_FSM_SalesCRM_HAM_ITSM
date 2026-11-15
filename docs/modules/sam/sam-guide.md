@@ -309,7 +309,7 @@ Compliance position = f(entitlement quantity, normalized installs, usage evidenc
 
 ---
 
-### 📊 Reconciliation Flow Diagram
+### Reconciliation Flow Diagram
 
 ```mermaid
 flowchart LR
@@ -343,7 +343,7 @@ flowchart LR
     style UNL fill:#4d96ff,color:#fff
 ```
 
-### 📊 Compliance Position States
+### Compliance Position States
 
 ```mermaid
 stateDiagram-v2
@@ -378,7 +378,7 @@ stateDiagram-v2
 
 ---
 
-### 📊 Publisher-Specific Rules Flow
+### Publisher-Specific Rules Flow
 
 ```mermaid
 flowchart TD
@@ -420,7 +420,7 @@ flowchart TD
 
 ---
 
-### 📊 SaaS License Management Flow
+### SaaS License Management Flow
 
 ```mermaid
 flowchart LR

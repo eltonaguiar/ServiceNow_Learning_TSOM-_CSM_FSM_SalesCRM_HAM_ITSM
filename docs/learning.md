@@ -17,7 +17,7 @@ The **Product Documentation** is the definitive reference for every table, field
 - **Documentation Portal:** [ServiceNow Docs](https://docs.servicenow.com/)
 - **Best Practice:** Always check the version dropdown in the top-left of the documentation page to ensure you are reading the docs for the release your instance is running (e.g., Washington DC).
 
-## 🗺️ Learning Strategy
+## Learning Strategy
 1. **Orient:** Watch an official overview video from the [@servicenow](https://www.youtube.com/@servicenow) channel.
 2. **Study:** Complete the corresponding Learning Path on **Now Learning**.
 3. **Reference:** Use the **Product Documentation** to verify specific technical constraints or table hierarchies.

@@ -591,7 +591,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/ktYPUwEVSf4" title="Customer Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -605,7 +605,7 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 - [Customer Success Management](https://www.youtube.com/playlist?list=PLkGSnjw5y2U6KAWN_dexa69O4Uz44Y8Hq)
 - [CSM Configurable Workspace](https://www.youtube.com/playlist?list=PLkGSnjw5y2U628hT0MZNNUErF9lnKVEln)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Customer Service Management"
@@ -614,7 +614,7 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Customer Service Management"
 
-## 💡 Memory Aids & Mnemonics
+## Memory Aids & Mnemonics
 
 <details>
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

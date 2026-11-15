@@ -521,7 +521,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/u_GMNLZb7EI" title="Field Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -535,7 +535,7 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
 - [Episode 2 — Implementation Leading Practices](https://www.youtube.com/watch?v=6n3ClFZaTA0)
 - [Episode 4 — Work Order Management](https://www.youtube.com/watch?v=UJechLZQRfY)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Field Service Management"
@@ -544,7 +544,7 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Field Service Management"
 
-## 💡 Memory Aids & Mnemonics
+## Memory Aids & Mnemonics
 
 <details>
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

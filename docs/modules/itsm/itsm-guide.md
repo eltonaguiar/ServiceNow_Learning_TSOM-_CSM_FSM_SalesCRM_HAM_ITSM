@@ -1202,7 +1202,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/q_P85jz7r4Q" title="IT Service Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -1215,7 +1215,7 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 - [Workforce Optimization for ITSM (Docs)](https://www.youtube.com/playlist?list=PLCOmiTb5WX3p1e1nxlu1AVg194igSSGwO)
 - [Service Operations Workspace (Docs)](https://www.youtube.com/playlist?list=PLCOmiTb5WX3p9_wNUn86rQ92BfS1jZIhB)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "IT Service Management"

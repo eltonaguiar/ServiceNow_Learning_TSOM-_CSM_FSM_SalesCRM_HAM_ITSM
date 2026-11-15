@@ -392,7 +392,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/hZ3pNnd6wP4" title="Human Resources Service Delivery Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -405,7 +405,7 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
 - [ServiceNow Exchange: HRSD + ITSM + EC](https://www.youtube.com/playlist?list=PLkGSnjw5y2U4S7dJPF_oSg6_LaRs7tGUe)
 - [Now Learning course (Introduction to HRSD)](https://learning.servicenow.com/lxp/en/hr-service-delivery/introduction-to-human-resources-service-delivery-hrsd?id=learning_course_prev&course_id=1343ed43c31f2518cfdf34ee05013189)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Human Resources Service Delivery"
@@ -414,7 +414,7 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Human Resources Service Delivery"
 
-## 💡 Memory Aids & Mnemonics
+## Memory Aids & Mnemonics
 
 <details>
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

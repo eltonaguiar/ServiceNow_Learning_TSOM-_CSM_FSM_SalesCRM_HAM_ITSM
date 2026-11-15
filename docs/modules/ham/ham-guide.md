@@ -541,7 +541,7 @@ graph TD
 
 ---
 
-### 📊 HAM vs ITAM vs CMDB Comparison
+### HAM vs ITAM vs CMDB Comparison
 
 ```mermaid
 flowchart TD
@@ -596,7 +596,7 @@ flowchart TD
 
 ---
 
-### 📊 Asset Lifecycle with Discovery Integration
+### Asset Lifecycle with Discovery Integration
 
 ```mermaid
 flowchart LR
@@ -644,7 +644,7 @@ flowchart LR
 
 ---
 
-### 📊 Asset State Machine
+### Asset State Machine
 
 ```mermaid
 stateDiagram-v2
@@ -895,7 +895,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="Hardware Asset Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -910,7 +910,7 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
 - [Installing Hardware Asset Management (HAM) – Part 1](https://www.youtube.com/watch?v=lAyVRyzHRp0)
 - [Installing Hardware Asset Management (HAM) – Part 2](https://www.youtube.com/watch?v=oVjh-WUJhkE)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Hardware Asset Management"
@@ -919,7 +919,7 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Hardware Asset Management"
 
-## 💡 Memory Aids & Mnemonics
+## Memory Aids & Mnemonics
 
 <details>
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

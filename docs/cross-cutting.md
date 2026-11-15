@@ -96,7 +96,7 @@ When people say "Import Sets / Queues" in integration pattern discussions, they 
 
 ---
 
-### 📊 Integration Best Practices Decision Flow
+### Integration Best Practices Decision Flow
 
 ```mermaid
 flowchart TD

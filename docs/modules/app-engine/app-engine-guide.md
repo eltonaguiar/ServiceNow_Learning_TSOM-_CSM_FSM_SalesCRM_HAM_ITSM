@@ -369,7 +369,7 @@ To avoid unofficial or outdated content, always use these validated official Ser
 
 ### 📺 Verified Videos & Playlists
 
-### 🚀 Quick Start Guide
+### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
 <div style="text-align: center; margin: 1.5rem 0;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/KO7WangGeg4" title="App Engine Studio Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -382,7 +382,7 @@ Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/wat
 - [What is App Engine Studio?](https://www.youtube.com/watch?v=f8Z-RgicTNs)
 - [Building an app template with AES](https://www.youtube.com/watch?v=cRBP0AGWRh8)
 
-### 🚀 The Authoritative Path
+### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
    - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "App Engine Studio"
@@ -391,7 +391,7 @@ Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/wat
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "App Engine Studio"
 
-## 💡 Memory Aids & Mnemonics
+## Memory Aids & Mnemonics
 
 <details>
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
