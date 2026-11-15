@@ -1241,72 +1241,72 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 ## Section 1 — SAM Foundations (Videos 1–2)
 
 ### Video 1 · SAM in 60 Seconds
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_audio.mp4" type="video/mp4"></video>
-*Download:* [video_01_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_clean.mp4" type="video/mp4"></video>
+*Download:* [video_01_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_clean.mp4)
 
 ### Video 1f · SAM in 60 Seconds (Full)
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_full_audio.mp4" type="video/mp4"></video>
-*Download:* [video_01_full_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_full_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_clean.mp4" type="video/mp4"></video>
+*Download:* [video_01_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_01_clean.mp4)
 
 ### Video 2 · The Chain
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_02_audio.mp4" type="video/mp4"></video>
-*Download:* [video_02_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_02_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_02_clean.mp4" type="video/mp4"></video>
+*Download:* [video_02_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_02_clean.mp4)
 
 ---
 
 ## Section 2 — Data Integrity & Normalization (Videos 3–4)
 
 ### Video 3 · Normalization (SUMN) Deep Dive
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_03_audio.mp4" type="video/mp4"></video>
-*Download:* [video_03_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_03_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_03_clean.mp4" type="video/mp4"></video>
+*Download:* [video_03_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_03_clean.mp4)
 
 ### Video 4 · Entitlements
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_04_audio.mp4" type="video/mp4"></video>
-*Download:* [video_04_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_04_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_04_clean.mp4" type="video/mp4"></video>
+*Download:* [video_04_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_04_clean.mp4)
 
 ---
 
 ## Section 3 — Reconciliation & Compliance (Videos 5–6)
 
 ### Video 5 · Reconciliation Engine Explained
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_05_audio.mp4" type="video/mp4"></video>
-*Download:* [video_05_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_05_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_05_clean.mp4" type="video/mp4"></video>
+*Download:* [video_05_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_05_clean.mp4)
 
 ### Video 6 · Compliance Positions
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_06_audio.mp4" type="video/mp4"></video>
-*Download:* [video_06_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_06_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_06_clean.mp4" type="video/mp4"></video>
+*Download:* [video_06_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_06_clean.mp4)
 
 ---
 
 ## Section 4 — Publisher-Specific & SaaS (Videos 7–8)
 
 ### Video 7 · Publisher Traps
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_07_audio.mp4" type="video/mp4"></video>
-*Download:* [video_07_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_07_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_07_clean.mp4" type="video/mp4"></video>
+*Download:* [video_07_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_07_clean.mp4)
 
 ### Video 8 · SaaS License Management
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_08_audio.mp4" type="video/mp4"></video>
-*Download:* [video_08_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_08_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_08_clean.mp4" type="video/mp4"></video>
+*Download:* [video_08_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_08_clean.mp4)
 
 ---
 
 ## Section 5 — Optimization, Exam & Lab (Videos 9–12)
 
 ### Video 9 · Optimization & Reclamation
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_09_audio.mp4" type="video/mp4"></video>
-*Download:* [video_09_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_09_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_09_clean.mp4" type="video/mp4"></video>
+*Download:* [video_09_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_09_clean.mp4)
 
 ### Video 10 · Top 8 SAM Traps
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_10_audio.mp4" type="video/mp4"></video>
-*Download:* [video_10_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_10_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_10_clean.mp4" type="video/mp4"></video>
+*Download:* [video_10_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_10_clean.mp4)
 
 ### Video 11 · CIS-SAM Exam Map
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_11_audio.mp4" type="video/mp4"></video>
-*Download:* [video_11_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_11_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_11_clean.mp4" type="video/mp4"></video>
+*Download:* [video_11_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_11_clean.mp4)
 
 ### Video 12 · Lab Walkthrough
-<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_12_audio.mp4" type="video/mp4"></video>
-*Download:* [video_12_audio.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_12_audio.mp4)
+<video controls width="100%"><source src="https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_12_clean.mp4" type="video/mp4"></video>
+*Download:* [video_12_clean.mp4](https://eltonaguiar.github.io/ALT_PARALLELSWARM_SAM/sam-videos/videos/video_12_clean.mp4)
 
 ---
 
