@@ -513,13 +513,31 @@ Optimization is where SAM pays for itself. In priority order:
 5. **Align renewal quantities to actual demand** — negotiate using the reconciled number, not the vendor's proposal
 6. **Enforce process** — new software requests gated by an approval that checks existing entitlement first
 
-**Reclamation workflow:**
-```
-Identify (reconciliation + usage) → Validate with owner → Notify user → Grace period
-→ Reclaim/remove → Re-run reconciliation → Confirm savings recorded
-```
+### Reclamation Rules — What They Are and How They Work
 
-**Never** reclaim based on a single night's data. Usage feeds gap. Require a sustained inactivity window (typically 60–90 days) and business owner sign-off.
+A **reclamation rule** is a configurable SAM Pro definition that identifies removal candidates based on usage data. It does **not** automatically uninstall or email; it surfaces candidates for review.
+
+**Key fields on a reclamation rule (`sam_sw_reclamation_rule`):**
+- Software model or publisher filter
+- Inactivity threshold (days since last use)
+- Metric type (per-device, per-user, per-core)
+- Exclusion list (critical servers, VIP users, lab machines)
+- Action on candidate: "Create removal task", "Flag for review", or "Do nothing"
+
+**Execution flow:**
+1. Scheduled job (default nightly) runs all active reclamation rules.
+2. Rule queries `cmdb_sam_sw_usage` joined to normalized installs.
+3. Matches exceeding the inactivity threshold become **removal candidates** (`sam_sw_removal_candidate`).
+4. Candidate record links back to the install, the device/user, and the rule that flagged it.
+5. SAM admin reviews the candidate list in the SAM Workspace → Reclamation tab.
+6. Admin can bulk-create removal tasks or mark candidates as "do not reclaim".
+7. Actual removal (uninstall or license revocation) is a manual or orchestrated step outside the rule.
+
+**Does it email automatically?** No. The rule itself does not send email. You can attach a notification or Flow Designer flow to the `sam_sw_removal_candidate` insert, but that is a separate configuration. Most mature shops require human review before any removal action.
+
+**Unused vs. unused paid software:** The rule looks at usage evidence, not cost. A free tool with zero usage still appears as a candidate; a paid seat with zero usage is the one that actually saves money. Always join the candidate list to the entitlement cost before prioritizing removal work.
+
+**Retail/pharmacy angle:** Pharmacy workstations often have long-idle licensed tools (specialized dispensing software). Set longer inactivity windows (120+ days) and exclude store-level devices from automatic reclamation to avoid operational risk.
 
 ---
 

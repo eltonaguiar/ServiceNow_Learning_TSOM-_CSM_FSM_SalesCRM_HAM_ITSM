@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rexall ServiceNow Developer — Key Concepts</title>
+<style>
+:root { --bg:#0f1117; --fg:#e6e6e6; --accent:#4cc38a; --card:#1a1d26; --muted:#8a8f98; }
+body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--fg); }
+header { padding:2rem 3rem; background:#161922; border-bottom:1px solid #2a2f3a; }
+h1 { margin:0 0 .25rem; font-size:2rem; }
+.subtitle { color:var(--muted); }
+.slide { padding:3rem; max-width:1100px; margin:2rem auto; background:var(--card); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.4); }
+h2 { color:var(--accent); margin-top:0; }
+.diagram { background:#11141b; padding:1.5rem; border-radius:8px; margin:1rem 0; overflow:auto; }
+.mermaid { font-size:14px; }
+table { width:100%; border-collapse:collapse; margin:1rem 0; }
+th, td { padding:.6rem .8rem; text-align:left; border-bottom:1px solid #2a2f3a; }
+th { background:#161922; color:var(--accent); }
+ul { line-height:1.6; }
+.badge { display:inline-block; background:#2a2f3a; padding:.1rem .5rem; border-radius:4px; font-size:.85rem; }
+footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; }
+</style>
+<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>Rexall ServiceNow Developer — Core Concepts</h1>
+  <p class="subtitle">80% Development • 20% Platform Admin • Enterprise Integration • Retail/Pharmacy Context</p>
+</header>
+
+<div class="slide">
+  <h2>1. Flow Designer + IntegrationHub + Service Portal (80% Dev Focus)</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    subgraph "User Experience"
+        SP[Service Portal<br/>Catalog Items, Widgets]
+    end
+    subgraph "Automation Layer"
+        FD[Flow Designer<br/>Trigger → Action → Subflow]
+        IH[IntegrationHub<br/>REST/SOAP Spokes]
+    end
+    subgraph "Platform Core"
+        BR[Business Rules<br/>Client Scripts<br/>UI Policies]
+    end
+    SP -->|Submit| FD
+    FD -->|Call| IH
+    IH -->|Transform| BR
+    style SP fill:#4cc38a,color:#000
+    style FD fill:#4cc38a,color:#000
+    style IH fill:#4cc38a,color:#000
+    </pre>
+  </div>
+  <p><strong>Interview line:</strong> "I use Flow Designer for the visual orchestration, IntegrationHub for reusable REST/SOAP connectors, and Service Portal for the end-user experience — keeping 80% of the work in low-code while dropping to JavaScript only when the logic is too complex for a Flow."</p>
+</div>
+
+<div class="slide">
+  <h2>2. Boomi iPaaS Pattern (Enterprise Integration Asset)</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+    subgraph "Legacy / Third-Party"
+        AS400[AS/400<br/>DB2]
+        UKG[UKG<br/>Workforce]
+        PHARM[Pharmacy<br/>Systems]
+    end
+    subgraph "iPaaS"
+        BOOMI[Boomi AtomSphere<br/>Processes • Connectors • Maps]
+    end
+    subgraph "ServiceNow"
+        REST[REST Message /<br/>Scripted REST API]
+        CMDB[CMDB<br/>HRSD<br/>ITSM]
+    end
+    AS400 -->|JDBC/Flat| BOOMI
+    UKG -->|REST| BOOMI
+    PHARM -->|File/API| BOOMI
+    BOOMI -->|Transform| REST
+    REST --> CMDB
+    style BOOMI fill:#e5b567,color:#000
+    style REST fill:#4cc38a,color:#000
+    </pre>
+  </div>
+  <table>
+    <tr><th>Pattern</th><th>When to use</th><th>ServiceNow side</th></tr>
+    <tr><td>Boomi → ServiceNow</td><td>Bulk or scheduled sync from legacy</td><td>Import Set + Transform Map or Scripted REST</td></tr>
+    <tr><td>ServiceNow → Boomi</td><td>Outbound to UKG, pharmacy systems</td><td>REST Message + Flow Designer spoke</td></tr>
+    <tr><td>Real-time webhook</td><td>UKG time punches, inventory events</td><td>Scripted REST API listener</td></tr>
+  </table>
+</div>
+
+<div class="slide">
+  <h2>3. Legacy (AS/400, DB2) → ServiceNow Data Flow</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    subgraph "IBM i (AS/400)"
+        DB2[(DB2<br/>Tables)]
+        RPG[RPG/COBOL<br/>Programs]
+    end
+    subgraph "Integration"
+        JDBC[JDBC Probe /<br/>Boomi JDBC]
+        FILE[Flat File /<br/>CSV Export]
+    end
+    subgraph "ServiceNow"
+        IMP[Import Set]
+        TM[Transform Map]
+        CMDB[cmdb_ci<br/>alm_asset<br/>sn_hr_core_profile]
+    end
+    DB2 -->|JDBC| JDBC
+    RPG -->|Export| FILE
+    JDBC --> IMP
+    FILE --> IMP
+    IMP --> TM
+    TM --> CMDB
+    style DB2 fill:#e58a8a,color:#fff
+    style CMDB fill:#4cc38a,color:#000
+    </pre>
+  </div>
+  <p><strong>Key fields to map:</strong> serial_number, asset_tag, model_id, install_status, cost_center, department, location. Use IRE (Identification Engine) to prevent duplicates on serial_number + model_id.</p>
+</div>
+
+<div class="slide">
+  <h2>4. Platform Upgrade & Regression Testing Workflow</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Clone: Clone Prod → Sub-Prod
+    Clone --> Upgrade: Apply patch / upgrade
+    Upgrade --> Regression: Run regression suite
+    Regression --> Pass: All tests green
+    Regression --> Fail: Triage & fix
+    Fail --> Regression
+    Pass --> Promote: Merge Update Sets → Prod
+    Promote --> Smoke: Post-prod smoke test
+    Smoke --> [*]
+    
+    note right of Regression
+      - ITSM workflows
+      - HRSD onboarding
+      - Integration endpoints
+      - Custom UI policies
+      - ACL regression
+    end note
+    </pre>
+  </div>
+  <p><strong>Regression checklist (retail context):</strong> Catalog item submission → approval → task creation; Employee onboarding via HRSD; UKG/Boomi inbound sync; Service Portal widgets; Role-based access for pharmacy vs corporate users.</p>
+</div>
+
+<div class="slide">
+  <h2>5. Update Set Lifecycle + Instance Health (20% Admin)</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+    Dev[Dev Instance] -->|Build| US[Update Set]
+    US -->|Preview| Preview{Conflicts?}
+    Preview -->|Yes| Resolve[Resolve conflicts<br/>Accept / Merge]
+    Preview -->|No| Retrieve[Retrieve to Test]
+    Resolve --> Retrieve
+    Retrieve --> Test[Test Instance]
+    Test -->|Validate| Promote[Promote to Prod]
+    Promote --> Prod[Production]
+    Prod --> Health[Instance Health<br/>Checks]
+    Health -->|Issues| Fix[Fix-forward<br/>or back-out]
+    Fix --> Health
+    style US fill:#4cc38a,color:#000
+    style Prod fill:#e58a8a,color:#fff
+    </pre>
+  </div>
+  <table>
+    <tr><th>Admin Task</th><th>Why it matters in retail/pharmacy</th></tr>
+    <tr><td>Update Set hygiene</td><td>One feature per set; never mix ITSM + HRSD changes</td></tr>
+    <tr><td>Instance clone before upgrade</td><td>Protect pharmacy operations during patch windows</td></tr>
+    <tr><td>Role & group sync</td><td>Corporate vs store-level access separation</td></tr>
+    <tr><td>System Diagnostics health</td><td>Early warning on MID Server, IntegrationHub, or Flow Designer queue backlogs</td></tr>
+  </table>
+</div>
+
+<div class="slide">
+  <h2>6. ITIL + Agile/Scrum in Retail Context</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+    subgraph "ITIL (Process)"
+        INC[Incident] --> P[Problem]
+        P --> CHG[Change]
+        CHG --> KB[Knowledge]
+    end
+    subgraph "Agile (Delivery)"
+        Sprint[Sprint Planning] --> Daily[Daily Stand-up]
+        Daily --> Review[Sprint Review]
+        Review --> Retro[Retrospective]
+    end
+    subgraph "Retail Overlay"
+        PHARM[Pharmacy<br/>Store Issue] --> INC
+        CORP[Corporate<br/>Request] --> INC
+        Sprint -->|2-week| Deploy[Deploy to Prod]
+    end
+    style INC fill:#e5b567,color:#000
+    style Sprint fill:#4cc38a,color:#000
+    </pre>
+  </div>
+  <p><strong>Retail reality:</strong> A pharmacy system outage is both an Incident (ITIL) and a blocker for the current Sprint (Agile). The developer must balance urgent retail fixes with planned feature work — typical 70/30 split in practice.</p>
+</div>
+
+<footer>
+  Built for Rexall ServiceNow Developer interview prep • Concepts from ServiceNow Module Guides (Other + ITSM + HRSD + CMDB)
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+</body>
+</html>

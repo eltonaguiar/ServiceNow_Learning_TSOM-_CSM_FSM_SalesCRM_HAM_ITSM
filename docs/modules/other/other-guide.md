@@ -135,7 +135,8 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Diagram 3: AS/400 (DB2 for i) → ServiceNow CMDB Extraction](#diagram-3-as400-db2-for-i--servicenow-cmdb-extraction)
   - [Diagram 4: ITIL v3 Service Lifecycle → ServiceNow Mapping](#diagram-4-itil-v3-service-lifecycle--servicenow-mapping)
   - [Diagram 5: Agile Sprint Flow in ServiceNow Agile Development](#diagram-5-agile-sprint-flow-in-servicenow-agile-development)
-- [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
+    - [Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression](#diagram-6-flow-designer--integrationhub--platform-upgrade-regression)
+  - [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
 - [6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server](#6-servicenow-integration-breadcrumbs--restsoap-apis--mid-server)
   - [ELI5](#eli5)
   - [Key breadcrumbs (where to click in ServiceNow)](#key-breadcrumbs-where-to-click-in-servicenow)
@@ -260,7 +261,8 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Diagram 3: AS/400 (DB2 for i) → ServiceNow CMDB Extraction](#diagram-3-as400-db2-for-i--servicenow-cmdb-extraction)
   - [Diagram 4: ITIL v3 Service Lifecycle → ServiceNow Mapping](#diagram-4-itil-v3-service-lifecycle--servicenow-mapping)
   - [Diagram 5: Agile Sprint Flow in ServiceNow Agile Development](#diagram-5-agile-sprint-flow-in-servicenow-agile-development)
-- [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
+    - [Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression](#diagram-6-flow-designer--integrationhub--platform-upgrade-regression)
+  - [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
 - [6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server](#6-servicenow-integration-breadcrumbs--restsoap-apis--mid-server)
   - [ELI5](#eli5)
   - [Key breadcrumbs (where to click in ServiceNow)](#key-breadcrumbs-where-to-click-in-servicenow)
@@ -1398,13 +1400,47 @@ stateDiagram-v2
     In_Test --> Backlog : QA fails / scope change
     Done --> [*] : sprint ends
     Done --> Retrospective : velocity measured
-    Retrospective --> Next_Sprint : plan next
-    Next_Sprint --> Sprint_Planning
-```
+        Retrospective --> Next_Sprint : plan next
+        Next_Sprint --> Sprint_Planning
+    ```
 
----
+    ### Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression
 
-## How These Fit With ServiceNow
+    ```mermaid
+    flowchart TD
+        subgraph "User Layer"
+            SP[Service Portal<br/>Catalog Items]
+        end
+        subgraph "Automation Layer"
+            FD[Flow Designer<br/>Trigger → Actions → Subflows]
+            IH[IntegrationHub<br/>REST/SOAP Spokes]
+        end
+        subgraph "Platform Ops"
+            US[Update Sets]
+            CLONE[Clone Prod → Sub-Prod]
+            REG[Regression Suite<br/>ITSM + HRSD + Integrations]
+            PROMOTE[Promote to Prod]
+        end
+        SP -->|Submit| FD
+        FD -->|Call| IH
+        IH -->|Transform| BR[Business Rules]
+        US --> CLONE
+        CLONE --> REG
+        REG -->|Pass| PROMOTE
+        REG -->|Fail| FIX[Fix & Re-test]
+        FIX --> REG
+        PROMOTE --> SMOKE[Post-Prod Smoke]
+        SMOKE --> HEALTH[Instance Health Checks]
+        style FD fill:#4cc38a,color:#000
+        style IH fill:#4cc38a,color:#000
+        style REG fill:#e5b567,color:#000
+    ```
+
+    **Retail/pharmacy regression checklist:** Catalog item → approval → task creation; Employee onboarding (HRSD); UKG/Boomi inbound sync; Service Portal widgets; Role separation (pharmacy vs corporate).
+
+    ---
+
+    ## How These Fit With ServiceNow
 
 | "Other" item | ServiceNow connection point | Typical integration direction |
 |--------------|----------------------------|------------------------------|
