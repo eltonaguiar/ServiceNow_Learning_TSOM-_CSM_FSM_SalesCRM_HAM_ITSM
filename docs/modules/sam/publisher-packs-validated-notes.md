@@ -37,6 +37,29 @@ Rule for this page: a statement is only called **Validated** if it can be read i
 | S11 | [Oracle licensing in soft-partitioned environments](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/oracle-licensing-soft-partitioned-environments.html) | 2026-09-10 |
 | S12 | [Software entitlement fields](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/software-entitlement-fields.html) | 2026-09-10 |
 | S13 | [Software Asset Management release notes](https://www.servicenow.com/docs/r/release-notes/software-asset-management-rn.html) | 2026-09-10 |
+| S14 | [Software model fields](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/software-model-fields.html) | 2026-09-10 |
+| S15 | [Add a custom license metric](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/add-custom-license-metric.html) | 2026-11-05 |
+| S16 | [Create an entitlement (Foundation)](https://www.servicenow.com/docs/r/it-service-management/software-asset-management-foundation-plugin/t_AddASoftwareEntitlementSAMF.html) | 2026-10-08 |
+
+---
+
+## Metric group — what the primary docs actually say
+
+**Validated (S12, *Software entitlement fields*):**
+
+- "Metric group: This field is automatically populated based on the Software Model field. Each metric group has a set of license metrics that are specific to the software publisher."
+- "Note: If this field is set to Consumption or Subscription, the License type field is automatically set to Subscription."
+- "License metric: License metric for the license group that the software license is counted against when reconciliation is run. The options for license metric change based on the Metric group field."
+
+**Validated (S14, *Software model fields*):** the model's Software Entitlements tab repeats the same pair of definitions, and the **Metric Attributes** related list is keyed by metric group + license metric with the attribute types `Maximum active OSEs per server`, `Maximum installs per OSE`, `Maximum installs per right`, `Maximum processors per right`, `Minimum users per processor`, `Minimum cores per processor`, `Minimum cores per server`, each with an integer value or an *unlimited* flag. So the group is declared on the model and inherited by the entitlement — not typed fresh on every entitlement.
+
+**Validated (S15, *Add a custom license metric*):** the module is `All > Software Asset > Administration > Custom License Metrics`; the form's **Metric group** is fixed to **Custom**, so a scripted metric surfaces by its *name* in the entitlement's License metric picker.
+
+**Validated (S16, Foundation):** Foundation's create-entitlement form offers **Common** only (plus custom metrics). The publisher groups are a Professional capability, which matches the edition split recorded above.
+
+**Still unverified:** "The Metric group selected does not have to correspond to the publisher of the software title" (corpus only). The narrower claim — each group carries publisher-specific metrics — is validated and compatible with either reading, so the guide keeps the stronger sentence labelled as observed practice rather than platform rule.
+
+**Confusion to keep flagging:** "metric group" (counting-rule family) vs the reconciliation **group** (`com.snc.samp.recon.group` — Company / Cost Center / Country / Department / Region / None). Different fields, different jobs, names that collide.
 
 ---
 

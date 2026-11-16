@@ -69,3 +69,24 @@ Triggered by two review comments: the one-line compliance formula was too vague 
 
 - Structural checks re-run: TOC anchors before/after diff (zero newly broken), fence balance, per-table pipe consistency in the new blocks.
 - Live pages after deploy checked for the new headings and the worked-example numbers.
+
+## Third pass — "metric group" explained from the field definitions
+
+Review comment on the published anchor `#publisher-packs--license-metrics-add-ons`: the section used the term *metric group* throughout without ever saying what it is or where to find it.
+
+### Guide
+
+- New `### What a metric group actually is (and where to find it)` immediately before the group → metric matrix: the validated field definition quoted verbatim (auto-populated from the software model; each group carries publisher-specific metrics; the License metric options cascade from it; Subscription/Consumption forces License type), a five-row "where you see it" table (entitlement form, model's Metric Attributes, Custom License Metrics module, import template, Foundation), six bullets on what the field actually controls, a five-way disambiguation table (group vs license metric vs metric attribute vs license type vs reconciliation group), the three ways to enumerate an instance's groups, an explicit "do not fall back to Common" warning, a SQL Server walk-through from model to packs, and an ELI5.
+- The intro table row, the Metric Attributes step and the "Exam-critical nuance" paragraph now link into it; the Metric Attributes step explains what an attribute *is* instead of only naming two examples.
+- TOC entry added.
+
+### Notes page
+
+- Sources S14 (software model fields), S15 (custom license metrics), S16 (Foundation create entitlement), quoted rather than paraphrased.
+- New "Metric group — what the primary docs actually say" section, including why the publisher-mismatch sentence stays unverified while the narrower claim is validated.
+- The metric-group vs reconciliation-group collision recorded as a recurring source of reports-is-wrong tickets.
+
+### Verification
+
+- Anchor diff (unresolved count must not increase), fence parity, per-table pipe consistency.
+- Live page greps for the new heading, `Metric Attributes`, `Custom License Metrics` and `recon.group`.

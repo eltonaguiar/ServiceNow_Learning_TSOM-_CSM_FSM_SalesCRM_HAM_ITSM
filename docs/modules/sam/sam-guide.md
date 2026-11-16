@@ -25,6 +25,7 @@
 - [Publisher Packs & License Metrics (Add-Ons)](#publisher-packs--license-metrics-add-ons)
   - [Plugin IDs — verify in your instance](#plugin-ids--verify-in-your-instance)
   - [Where packs are installed and verified](#where-packs-are-installed-and-verified)
+  - [What a metric group actually is (and where to find it)](#what-a-metric-group-actually-is-and-where-to-find-it)
   - [Metric groups and their metrics](#metric-groups-and-their-metrics)
   - [Pack-specific properties that change reconciliation](#pack-specific-properties-that-change-reconciliation)
   - [Verification snippets](#verification-snippets)
@@ -290,7 +291,7 @@ An **entitlement** records the legal right to use software, and must carry:
 
 | What the pack adds | Why it matters |
 |---|---|
-| **Metric groups** — publisher-specific license metrics (PVU, Named User Plus, User Subscription, Per Core with CAL…) | The entitlement's metric drives the whole calculation, and you can only pick a metric the instance actually has |
+| **Metric groups** — publisher-specific license metrics (PVU, Named User Plus, User Subscription, Per Core with CAL…) | The entitlement's metric drives the whole calculation, and you can only pick a metric the instance actually has. What the field is and where it lives: [What a metric group actually is](#what-a-metric-group-actually-is-and-where-to-find-it) |
 | **Counting rules and reference data** — core-factor / processor-definition tables, suite and bundle logic, edition rules, cost ratios | Reconciliation counts cores, users or documents the publisher's way instead of a generic way |
 | **Dashboards** — Software Publisher Analytics, Office 365 / Adobe Cloud dashboards | Pack-gated: without the pack the dashboard simply is not there |
 | **Pack-scoped system properties** — Oracle recon level, SQL Server SA cost ratio, IBM region, Citrix app license period | Defaults that silently change results when left unset or wrong |
@@ -337,10 +338,75 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 1. `All > System Applications > All Available Applications` (ServiceNow Store for store apps) → search `samp` → activate the pack plugins you are licensed for.
 2. **Metric group check first, modelling second.** The license-metric picker on a software entitlement only offers metrics from groups present in the instance. If "Oracle" metrics are missing from the picker, the pack is not active — do not model an Oracle entitlement with a generic metric to get around it.
 3. `All > Software Asset Management > Administration > Properties` → review the pack-scoped properties you depend on (table below).
-4. Open the software model → **Metric Attributes** related list → set attributes such as *Maximum cores per processor* (VMware) or edition / Software Assurance flags.
+4. Open the software model → **Metric Attributes** related list. These rows are group + metric + numeric knobs the counting rule reads (`Minimum cores per processor`, `Maximum processors per right`, `Minimum users per processor`); set them such as *Maximum cores per processor* (VMware, default 32) or edition / Software Assurance flags. The entitlement inherits the group from here.
 5. Confirm dashboards appeared: *Software Publisher Analytics* covers Citrix, IBM, Microsoft, Oracle, SAP and VMware; the **Office 365** and **Adobe Cloud** dashboards are pack-gated too.
 
-**Exam-critical nuance:** the metric group is **auto-populated from the software model**, and the available license metrics change with the group. Pick the group that matches the metric your contract actually uses, not the publisher string on the title: the counting rule follows the metric, so a mismatched pairing still reconciles — to a precise, meaningless number. (The corpus records an official sentence saying the group need not match the publisher; it is not on the Brazil pages re-checked in the validation log, so treat it as practice rather than a documented platform rule.)
+**Exam-critical nuance:** the metric group is **auto-populated from the software model**, and the available license metrics change with the group — mechanics, UI locations and the group-vs-metric-vs-attribute table are in [What a metric group actually is](#what-a-metric-group-actually-is-and-where-to-find-it). Pick the group that matches the metric your contract actually uses, not the publisher string on the title: the counting rule follows the metric, so a mismatched pairing still reconciles — to a precise, meaningless number. (The corpus records an official sentence saying the group need not match the publisher; it is not on the Brazil pages re-checked in the validation log, so treat it as practice rather than a documented platform rule.)
+
+### What a metric group actually is (and where to find it)
+
+A **metric group** is the taxonomy layer between a publisher pack and a license metric. It is one field on the software entitlement, inherited from the software model, whose only job is to answer: *which family of counting rules may this record use?* It is not a licence, not a quantity, and not the publisher name — it is a filter that scopes the **License metric** picker.
+
+```text
+software model  ->  metric group  ->  allowed license metrics  ->  counting rule  ->  compliance position
+```
+
+The field definitions are short enough to quote in full (S12, *Software entitlement fields*):
+
+> **Metric group** — "This field is automatically populated based on the Software Model field. Each metric group has a set of license metrics that are specific to the software publisher." Note: "If this field is set to Consumption or Subscription, the License type field is automatically set to Subscription."
+>
+> **License metric** — "License metric for the license group that the software license is counted against when reconciliation is run. The options for license metric change based on the Metric group field."
+
+**Where you actually see it**
+
+| # | Surface | How to get there | What is on screen |
+|---|---|---|---|
+| 1 | Software entitlement (`alm_license`) | `All > Software Asset > Licenses > All` → open an entitlement (workspace: License operations → entitlements) | `Metric group` and `License metric` side by side; the group is populated from the model, and the reference icon next to `License metric` opens that metric's calculation text |
+| 2 | Software model → **Metric Attributes** | `All > Software Asset > Software Models` → open a model → Metric Attributes related list | One row per group + metric pairing, each carrying attributes (`Minimum cores per processor`, `Maximum processors per right`, `Minimum users per processor`, `Maximum active OSEs per server`…) with an integer value or an *unlimited* flag |
+| 3 | Custom license metrics | `All > Software Asset > Administration > Custom License Metrics` | The form's `Metric group` is fixed to **Custom**; the metric's *name* is what later appears in the entitlement's picker |
+| 4 | Entitlement import | Download the entitlement import template | `Metric group` is a **required** column, and its valid values are group names, not metric names |
+| 5 | Foundation | Create an entitlement on Foundation | **Common** only, plus custom metrics — publisher groups arrive with the Professional packs |
+
+**What the field actually controls**
+
+- **The picker.** Choose `Microsoft` and Microsoft metrics appear; choose `Common` and you get Per Core, Per Device, Per User, the CALs. A metric outside the group cannot be selected, which is why "the metric is missing" almost always means "the pack is missing".
+- **The calculator.** The group routes the model to a publisher counting engine — Oracle core factors, IBM PVU full vs sub-capacity, Citrix distinct user/device, VMware per-processor caps. Change the group and a different engine runs.
+- **License type side effects.** `Consumption` or `Subscription` forces `License type = Subscription`.
+- **Which metric attributes exist.** Publisher groups auto-create attributes on the model: VMware *Maximum cores per processor* (default 32) and *Minimum cores per processor* (16), Oracle edition floors, SQL Server per-socket minimums.
+- **Whether script runs.** `Custom` means a scripted metric; every other group is shipped logic.
+- **Nothing about scope.** Quantity, dates, company, region — all live elsewhere.
+
+**Five fields people conflate** — this is the exam trap *and* the production trap:
+
+| Term | What it is | Example value | Lives on |
+|---|---|---|---|
+| **Metric group** | Family of counting rules; scopes the picker | `Microsoft` | Entitlement field, inherited from the model |
+| **License metric** | The counting rule itself — what is counted | `Per Core (with CAL)` | Entitlement field |
+| **Metric attribute** | A numeric knob the rule reads | `Minimum cores per processor = 16` | Model → Metric Attributes |
+| **License type** | Contract shape, not a counting rule | `Perpetual + Software Assurance` | Entitlement field |
+| **Reconciliation group** | *Organisational* slice a position is reported for | `Cost center`, `Region` | `com.snc.samp.recon.group` property — not on the entitlement |
+
+> **Name collision worth stating in any handover:** "metric group" is not "reconciliation group". `com.snc.samp.recon.group` (Company / Cost Center / Country / Department / Region / None) decides *how positions are sliced*; the metric group decides *how they are counted*. Same word, unrelated fields — a reliable source of "the report is wrong" tickets.
+
+**How to enumerate the groups your instance actually has** — three checks, cheapest first:
+
+1. Open any entitlement → `Metric group` field → the choice list is authoritative. If `Oracle` is absent, no Oracle pack is active, full stop.
+2. `System Applications > All Available Applications` → search `samp` → confirm the pack is **Active** (plugin table above).
+3. The import template: its accepted `Metric group` values mirror the choice list, which is the practical check when preparing a bulk load without clicking through the UI.
+
+**The shortcut that must not be taken:** do not "make it work" by putting a publisher product on a `Common` metric. The platform permits it, the entitlement saves, and reconciliation returns a confident number computed with the wrong rule. Record the product as out of scope until the pack is installed.
+
+**Worked chain — SQL Server, end to end**
+
+1. Model `Microsoft SQL Server 2022 Enterprise` exists and is normalised.
+2. Model → Metric Attributes: group `Microsoft`, metric `Per Core`, attribute *Minimum cores per processor* set to the contract floor.
+3. New entitlement → `Software model` = that model → `Metric group` auto-fills `Microsoft` → the picker now offers only Microsoft metrics → select `Per Core`.
+4. `Rights per license pack` 2 × `Number of packs` 12 → `Purchased rights` 24, computed for you.
+5. Reconciliation: the group selects the Microsoft calculator; `required` = cores on the physical **and** virtual side with the per-socket floor; `delta = required - 24`.
+
+Run step 3 again with a `Common` `Per Core` entitlement and the arithmetic still completes — against a different demand formula. That is precisely why the group is a first-class field and not a label on the title.
+
+**ELI5:** the group is the language, the metric is the sentence, the attributes are the grammar. "Per core" means nothing until you know whether you are speaking Microsoft (packs of two, four-core floors) or Oracle (core factors, edition minimums).
 
 ### Metric groups and their metrics
 
