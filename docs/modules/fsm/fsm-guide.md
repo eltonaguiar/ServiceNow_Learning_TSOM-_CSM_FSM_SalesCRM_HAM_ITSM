@@ -14,7 +14,7 @@
 - [Purpose](#purpose)
 - [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Meta Data Patterns](#meta-data-patterns)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
@@ -33,12 +33,12 @@
   - [Dispatch → Technician → Task Flow](#dispatch--technician--task-flow)
   - [Scheduling and Travel Time Flow](#scheduling-and-travel-time-flow)
 - [Lab: Create and Dispatch Your First Work Order](#lab-create-and-dispatch-your-first-work-order)
-- [📺 Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
   - [FSM Getting Started](#fsm-getting-started)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
 - [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
@@ -48,8 +48,8 @@
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -110,9 +110,9 @@ Field Service Management (FSM) is ServiceNow's platform for managing field servi
 
 ## Where to Find It
 
-|| Breadcrumb | Path |
-||------------|------|
-|| Module entry | All > Field Service Management > ... |
+| Breadcrumb | Path |
+|------------|------|
+| Module entry | All > Field Service Management > ... |
 | Work Orders | All > Field Service Management > Work Orders > All |
 | Tasks | All > Field Service Management > Tasks > All |
 | Dispatch Board | All > Field Service Management > Dispatch > Dispatch Board |
@@ -364,7 +364,7 @@ wm_territory
 | Not setting scheduled dates | Scheduling engine can't place work | Always set start/end dates |
 | Work order without territory | Order stays unassigned | Always assign territory |
 | Ignoring travel time | Technician arrives late | Enable travel time calculation |
-|| Creating tasks without work order | Orphaned tasks | Always link task to work order |
+| Creating tasks without work order | Orphaned tasks | Always link task to work order |
 
 ---
 

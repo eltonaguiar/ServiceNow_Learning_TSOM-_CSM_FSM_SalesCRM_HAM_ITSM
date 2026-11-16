@@ -15,7 +15,7 @@
 - [Prerequisites & Setup](#prerequisites--setup)
 - [Where to Find It](#where-to-find-it)
 - [Official Exam Alignment — CIS-ITSM](#official-exam-alignment--cis-itsm)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Meta Data Patterns](#meta-data-patterns)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
@@ -26,17 +26,17 @@
   - [Incident — On Hold Reason](#incident--on-hold-reason)
   - [Change — Type](#change--type)
   - [Problem — State](#problem--state)
-- [🔍 Process Deep Dives](#process-deep-dives)
-  - [🚨 Incident Management](#incident-management)
-  - [🚨 Major Incident Management (MIM)](#major-incident-management-mim)
-  - [🧩 Problem Management](#problem-management)
+- [🔍 Process Deep Dives](#-process-deep-dives)
+  - [🚨 Incident Management](#-incident-management)
+  - [🚨 Major Incident Management (MIM)](#-major-incident-management-mim)
+  - [🧩 Problem Management](#-problem-management)
   - [Incident, Problem, and the records next to them](#incident-problem-and-the-records-next-to-them)
-  - [⚙️ Change Management](#change-management)
-  - [📊 Major Incident vs Normal Incident Comparison](#major-incident-vs-normal-incident-comparison)
-  - [📊 CAB & Change Types Decision Flow](#cab--change-types-decision-flow)
-  - [📊 Change Collision Detection & Blackout Windows](#change-collision-detection--blackout-windows)
-  - [📦 Request Fulfillment](#request-fulfillment)
-  - [📖 Knowledge Management](#knowledge-management)
+  - [⚙️ Change Management](#-change-management)
+  - [📊 Major Incident vs Normal Incident Comparison](#-major-incident-vs-normal-incident-comparison)
+  - [📊 CAB & Change Types Decision Flow](#-cab--change-types-decision-flow)
+  - [📊 Change Collision Detection & Blackout Windows](#-change-collision-detection--blackout-windows)
+  - [📦 Request Fulfillment](#-request-fulfillment)
+  - [📖 Knowledge Management](#-knowledge-management)
 - [Key Table Hierarchy](#key-table-hierarchy)
   - [ITSM Core Table Relationship Diagram](#itsm-core-table-relationship-diagram)
   - [Table Relationships](#table-relationships)
@@ -48,29 +48,28 @@
 - [Core Concept Diagrams](#core-concept-diagrams)
   - [Incident Lifecycle State Diagram](#incident-lifecycle-state-diagram)
   - [Incident, Problem, Change — what links to what](#incident-problem-change--what-links-to-what)
-  - [SLA Lifecycle and Priority Matrix](#sla-lifecycle-and-priority-matrix)
 - [Deep Dive: A CSDM Map, End to End (SCCM Laptop Example)](#deep-dive-a-csdm-map-end-to-end-sccm-laptop-example)
   - [The End-to-End Map](#the-end-to-end-map)
   - [Visualizing the Relationships (Top-Down Object Model)](#visualizing-the-relationships-top-down-object-model)
   - [Why This Mapping Matters for SCCM](#why-this-mapping-matters-for-sccm)
 - [Lab: Create and Resolve Your First Incident](#lab-create-and-resolve-your-first-incident)
-- [Integrations for Legacy / Public-Sector Environments](#integrations-for-legacy-public-sector-environments)
+- [Integrations for Legacy / Public-Sector Environments](#integrations-for-legacy--public-sector-environments)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [Out-of-box incident SLAs, breach, and every definition option](#out-of-box-incident-slas-breach-and-every-definition-option)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -129,9 +128,9 @@ IT Service Management (ITSM) is ServiceNow's flagship application for managing I
 
 ## Where to Find It
 
-|| Breadcrumb | Path |
-||------------|------|
-|| Module entry | All > IT Service Management > ... |
+| Breadcrumb | Path |
+|------------|------|
+| Module entry | All > IT Service Management > ... |
 | Incidents | All > Incident > All |
 | Problems | All > Problem > All |
 | Changes | All > Change > All |
@@ -802,8 +801,8 @@ cmdb_ci
 | Deleting demo users | Flows break that reference them | Never delete; deactivate |
 | Testing as admin only | ACLs bypassed; "it works" means nothing | Test as actual user |
 | Making assignment_group optional | Tickets orphaned | Always required |
-|| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
-|| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
+| Not closing with close_code/notes | Reporting is incomplete | Enforce at close |
+| Creating custom fields when OOB exists | Unnecessary complexity | Use existing fields first |
 
 ---
 

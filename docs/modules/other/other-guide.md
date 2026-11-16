@@ -39,17 +39,17 @@ For each item you'll find an ELI5 explanation, the business reason companies use
 - [Purpose](#purpose)
 - [Free vs Paid — what you can actually touch](#free-vs-paid--what-you-can-actually-touch)
 - [Prerequisites & Setup](#prerequisites--setup)
-  - [Required Plugins / Scoped Apps](#required-plugins-scoped-apps)
+  - [Required Plugins / Scoped Apps](#required-plugins--scoped-apps)
   - [Guided Setup](#guided-setup)
   - [System Properties to Consider](#system-properties-to-consider)
   - [Cross-Module Dependencies](#cross-module-dependencies)
   - [ACLs Related to Core Tables](#acls-related-to-core-tables)
   - [Breadcrumbs — Enable First](#breadcrumbs--enable-first)
-- [1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS](#1-boomi-dell-boomi-atomsphere--enterprise-ipaas)
+- [1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS](#1-boomi-dell-boomi--atomsphere--enterprise-ipaas)
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual Boomi → ServiceNow sync](#mini-lab-conceptual-boomi--servicenow-sync)
@@ -64,7 +64,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual UKG → ServiceNow flow](#mini-lab-conceptual-ukg--servicenow-flow)
@@ -73,7 +73,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual AS/400 inventory → ServiceNow CMDB](#mini-lab-conceptual-as400-inventory--servicenow-cmdb)
@@ -108,7 +108,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
 - [8. App Engine Studio & Code Deployment Methods](#8-app-engine-studio--code-deployment-methods)
   - [App Engine Studio (AES) — who uses it and where](#app-engine-studio-aes--who-uses-it-and-where)
   - [Code deployment methods — comparison](#code-deployment-methods--comparison)
-  - [Source control / repository linkage (Git)](#source-control-repository-linkage-git)
+  - [Source control / repository linkage (Git)](#source-control--repository-linkage-git)
   - [Lower environments vs production — the practical distinction](#lower-environments-vs-production--the-practical-distinction)
   - [Mini lab: Deploy an app from dev to test via Update Sets](#mini-lab-deploy-an-app-from-dev-to-test-via-update-sets)
   - [Collapsible Mini Labs: Deployment Scenarios](#collapsible-mini-labs-deployment-scenarios)
@@ -116,27 +116,25 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Scenario 2: Alice edits directly in Prod, Bob commits an update set to Prod](#scenario-2-alice-edits-directly-in-prod-bob-commits-an-update-set-to-prod)
   - [Scenario 3: What the "conflict" actually looks like](#scenario-3-what-the-conflict-actually-looks-like)
   - [The fixing process](#the-fixing-process)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
-  - [Diagram 1: Boomi Integration Flow (ServiceNow ↔ Boomi ↔ Target Apps)](#diagram-1-boomi-integration-flow-servicenow-↔-boomi-↔-target-apps)
+  - [Diagram 1: Boomi Integration Flow (ServiceNow ↔ Boomi ↔ Target Apps)](#diagram-1-boomi-integration-flow-servicenow--boomi--target-apps)
   - [Diagram 2: UKG → ServiceNow Timecard Flow](#diagram-2-ukg--servicenow-timecard-flow)
   - [Diagram 3: AS/400 (DB2 for i) → ServiceNow CMDB Extraction](#diagram-3-as400-db2-for-i--servicenow-cmdb-extraction)
   - [Diagram 4: ITIL v3 Service Lifecycle → ServiceNow Mapping](#diagram-4-itil-v3-service-lifecycle--servicenow-mapping)
   - [Diagram 5: Agile Sprint Flow in ServiceNow Agile Development](#diagram-5-agile-sprint-flow-in-servicenow-agile-development)
-    - [Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression](#diagram-6-flow-designer--integrationhub--platform-upgrade-regression)
-  - [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
 - [6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server](#6-servicenow-integration-breadcrumbs--restsoap-apis--mid-server)
   - [ELI5](#eli5)
   - [Key breadcrumbs (where to click in ServiceNow)](#key-breadcrumbs-where-to-click-in-servicenow)
@@ -165,17 +163,17 @@ For each item you'll find an ELI5 explanation, the business reason companies use
 - [Purpose](#purpose)
 - [Free vs Paid — what you can actually touch](#free-vs-paid--what-you-can-actually-touch)
 - [Prerequisites & Setup](#prerequisites--setup)
-  - [Required Plugins / Scoped Apps](#required-plugins-scoped-apps)
+  - [Required Plugins / Scoped Apps](#required-plugins--scoped-apps)
   - [Guided Setup](#guided-setup)
   - [System Properties to Consider](#system-properties-to-consider)
   - [Cross-Module Dependencies](#cross-module-dependencies)
   - [ACLs Related to Core Tables](#acls-related-to-core-tables)
   - [Breadcrumbs — Enable First](#breadcrumbs--enable-first)
-- [1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS](#1-boomi-dell-boomi-atomsphere--enterprise-ipaas)
+- [1. Boomi (Dell Boomi / AtomSphere) — Enterprise iPaaS](#1-boomi-dell-boomi--atomsphere--enterprise-ipaas)
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual Boomi → ServiceNow sync](#mini-lab-conceptual-boomi--servicenow-sync)
@@ -190,7 +188,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual UKG → ServiceNow flow](#mini-lab-conceptual-ukg--servicenow-flow)
@@ -199,7 +197,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [ELI5](#eli5)
   - [Why companies use it](#why-companies-use-it)
   - [Key terms & background](#key-terms--background)
-  - [API / integration surface](#api-integration-surface)
+  - [API / integration surface](#api--integration-surface)
   - [How it connects to ServiceNow](#how-it-connects-to-servicenow)
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Conceptual AS/400 inventory → ServiceNow CMDB](#mini-lab-conceptual-as400-inventory--servicenow-cmdb)
@@ -234,7 +232,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
 - [8. App Engine Studio & Code Deployment Methods](#8-app-engine-studio--code-deployment-methods)
   - [App Engine Studio (AES) — who uses it and where](#app-engine-studio-aes--who-uses-it-and-where)
   - [Code deployment methods — comparison](#code-deployment-methods--comparison)
-  - [Source control / repository linkage (Git)](#source-control-repository-linkage-git)
+  - [Source control / repository linkage (Git)](#source-control--repository-linkage-git)
   - [Lower environments vs production — the practical distinction](#lower-environments-vs-production--the-practical-distinction)
   - [Mini lab: Deploy an app from dev to test via Update Sets](#mini-lab-deploy-an-app-from-dev-to-test-via-update-sets)
   - [Collapsible Mini Labs: Deployment Scenarios](#collapsible-mini-labs-deployment-scenarios)
@@ -242,27 +240,25 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Scenario 2: Alice edits directly in Prod, Bob commits an update set to Prod](#scenario-2-alice-edits-directly-in-prod-bob-commits-an-update-set-to-prod)
   - [Scenario 3: What the "conflict" actually looks like](#scenario-3-what-the-conflict-actually-looks-like)
   - [The fixing process](#the-fixing-process)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
-  - [Diagram 1: Boomi Integration Flow (ServiceNow ↔ Boomi ↔ Target Apps)](#diagram-1-boomi-integration-flow-servicenow-↔-boomi-↔-target-apps)
+  - [Diagram 1: Boomi Integration Flow (ServiceNow ↔ Boomi ↔ Target Apps)](#diagram-1-boomi-integration-flow-servicenow--boomi--target-apps)
   - [Diagram 2: UKG → ServiceNow Timecard Flow](#diagram-2-ukg--servicenow-timecard-flow)
   - [Diagram 3: AS/400 (DB2 for i) → ServiceNow CMDB Extraction](#diagram-3-as400-db2-for-i--servicenow-cmdb-extraction)
   - [Diagram 4: ITIL v3 Service Lifecycle → ServiceNow Mapping](#diagram-4-itil-v3-service-lifecycle--servicenow-mapping)
   - [Diagram 5: Agile Sprint Flow in ServiceNow Agile Development](#diagram-5-agile-sprint-flow-in-servicenow-agile-development)
-    - [Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression](#diagram-6-flow-designer--integrationhub--platform-upgrade-regression)
-  - [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
 - [6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server](#6-servicenow-integration-breadcrumbs--restsoap-apis--mid-server)
   - [ELI5](#eli5)
   - [Key breadcrumbs (where to click in ServiceNow)](#key-breadcrumbs-where-to-click-in-servicenow)
@@ -284,7 +280,6 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Common mistakes](#common-mistakes)
   - [Mini lab: Show user's name in a UI Page](#mini-lab-show-users-name-in-a-ui-page)
   - [Quiz](#quiz)
-- [How These Fit With ServiceNow](#how-these-fit-with-servicenow)
 - [Quick Glossary (All Sections)](#quick-glossary-all-sections)
 
 ---
@@ -1452,6 +1447,7 @@ stateDiagram-v2
 
 ---
 
+```
 ## 6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server
 
 ### ELI5
@@ -1775,11 +1771,11 @@ Here's a simple Jelly snippet used inside a **UI Page** to greet the logged-in u
 | Scripted REST API | Expose ServiceNow data as REST for external callers |
 | Jelly | XML templating language for Service Portal |
 | Service Portal | Customer/employee-facing website (uses Jelly) |
-|| Workspace / Agent Workspace | Modern agent UI (Vue.js, not Jelly) ||
-|| App Engine Studio (AES) | Guided low-code development environment inside App Engine; build apps without heavy coding ||
-|| Application Repository (App Repo) | Central, versioned artifact store; publish app versions from dev, install on test/prod ||
-|| Update Set | Group of configuration changes moved from dev → test → prod ||
-|| Source Control (Git) | Link scoped apps to Git repos on non-prod instances; Git is source of truth, prod installs from App Repo ||
+| Workspace / Agent Workspace | Modern agent UI (Vue.js, not Jelly) |
+| App Engine Studio (AES) | Guided low-code development environment inside App Engine; build apps without heavy coding |
+| Application Repository (App Repo) | Central, versioned artifact store; publish app versions from dev, install on test/prod |
+| Update Set | Group of configuration changes moved from dev → test → prod |
+| Source Control (Git) | Link scoped apps to Git repos on non-prod instances; Git is source of truth, prod installs from App Repo |
 
 ---
 

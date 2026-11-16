@@ -46,7 +46,7 @@
 - [Optimization & Reclamation](#optimization--reclamation)
 - [Publisher-Specific Traps](#publisher-specific-traps)
 - [Gaps Closed — Depth That Was Missing](#gaps-closed--depth-that-was-missing)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Business Rule — flag an installation with no normalized software model](#business-rule--flag-an-installation-with-no-normalized-software-model)
   - [Scheduled Job — expire entitlements past their end date](#scheduled-job--expire-entitlements-past-their-end-date)
   - [Script Include — compliance summary per publisher](#script-include--compliance-summary-per-publisher)
@@ -78,15 +78,15 @@
   - [Now Learning (structured training)](#now-learning-structured-training)
   - [Product documentation](#product-documentation)
   - [Official videos](#official-videos)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 - [AI Swarm Generated Videos (unofficial)](#ai-swarm-generated-videos-unofficial)
@@ -1692,6 +1692,30 @@ Write five sentences covering: what a software model is, what an entitlement is,
 - Keep a one-line log per drill: `model · metric · attribute or property changed · demand / required / active_rights · position`.
 - If you cannot predict the post-fix number, the diagnosis is not finished. You have found a symptom, not a cause.
 
+### Answer sheet — instructor copy
+
+<details><summary>Open the marking key (7 drills, 28 points)</summary>
+
+**How to mark.** 4 points per drill: **1** names the term that moved, **1** cites proof an auditor would accept, **1** fixes without over-correcting, **1** predicts the post-fix direction and factor *before* re-running. Wording is free; the mechanism is not.
+
+**Predictions are directional.** Your instance's absolute numbers depend on its socket, core and install counts. Award the point for the direction and the factor — "`required` roughly quadruples on a low-core socket" — not for a literal figure.
+
+| # | Term that moved | Proof to accept | Fix that scores | Predicted after fix | If they miss it |
+|---|-----------------|-----------------|-----------------|---------------------|-----------------|
+| 1 | `required` | Entitlement's metric **group** reads Common, against a Microsoft model | Switch to the Microsoft `Per Core` (or `Per Core (with CAL)` when the contract is CAL-based), re-run | `required` rises to the Microsoft floor — about 4× the raw core count on a low-core socket | They chase `demand` because the installs "look right" |
+| 2 | `demand` | Count of installations where `software_model` = this model vs. the product family; the gap is the unnormalized set | Normalize the discovery models to the software model, re-run | `demand` rises by the number of installs moved inside the model | They call it a discovery problem — it is a model-mapping problem |
+| 3 | `active_rights` | Entitlement start/end dates and state; `active_rights` is 0 or short by exactly the expired quantity | Correct the end date (or lift it out of On Order), re-run | Position returns to the pre-break result | They re-count installs, which never changed |
+| 4 | `required` | The model's **Minimum cores per processor** attribute: 1 vs. 4 | Restore **4**, re-run; if genuinely short, fix the quantity, not the attribute | `required` returns to the floored figure | They accept the better-looking number as progress |
+| 5 | **nothing** | `Maximum active OSEs per server` = **2** on the model | Recognise the cap; raise the attribute deliberately only if the contract permits, and record why | Unchanged — until the attribute moves, then it steps up | They file a defect against reconciliation |
+| 6 | `demand` | Allocation count for the model is 0 while user assignments exist | Create the allocations, re-run | `demand` rises to the named-user count | They treat "assigned" as "consumed" |
+| 7 | **all three** — `demand` down, `active_rights` down, `required` unchanged, so the subtraction lands on zero | The exclusion list, the model's normalization state and the entitlement dates, read together | Remove the exclusion *and* normalize *and* restore the date, re-run | Position moves twice — a clean result after three faults is the finding | They accept "Compliant, zero deltas" as the answer |
+
+**Automatic zero on that drill** if the submitted fix is "re-run reconciliation" or "install the missing entitlement" with no named term and no proof. Re-running is not a diagnosis; it is a hope.
+
+**Running it as a class:** hand out the drills only, keep this section collapsed, and collect the prediction written *before* the re-run. The predictions are the lesson — the corrections are just arithmetic.
+
+</details>
+
 ---
 
 ## SLAs, Dashboards & Workspaces
@@ -2020,7 +2044,7 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 | Kinesthetic/hands-on | Complete the lab on a sub-prod instance; deliberately introduce one wrong metric | Can induce and fix three failure modes |
 | Reading/writing | Summarize each section in 5 bullets + 1 sentence of exam tip | A study card per section |
 | Attention variability (ADHD-friendly) | 15-minute sprints: one concept + one verification + one exit cue | Complete at least one verified step per sprint |
-| Time-limited | Follow the 30/60/90-day plan below; prioritize lab + publisher traps |
+| Time-limited | Follow the 30/60/90-day plan below; prioritize lab + publisher traps | |
 | Exam-focused | Start with CIS-SAM domain weights and the quiz; backfill weak areas | Score ≥ 80% on the guide quiz twice |
 
 ### 3. 30 / 60 / 90-day plans

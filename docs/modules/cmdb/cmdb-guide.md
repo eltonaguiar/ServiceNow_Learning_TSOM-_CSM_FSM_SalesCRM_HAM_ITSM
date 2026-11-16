@@ -21,7 +21,7 @@
   - [CI Class Hierarchy (OOB)](#ci-class-hierarchy-oob)
   - [OOB Identifier Rules (Computer CI Class)](#oob-identifier-rules-computer-ci-class)
 - [IRE Process Diagram (Identification & Reconciliation)](#ire-process-diagram-identification--reconciliation)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Re-usable Metadata Inventory](#re-usable-metadata-inventory)
   - [Re-usable Code Snippets](#re-usable-code-snippets)
@@ -36,8 +36,8 @@
   - [Outbound webhook — ServiceNow tells an external system about an event](#outbound-webhook--servicenow-tells-an-external-system-about-an-event)
   - [Inbound webhook — external system tells ServiceNow about an event](#inbound-webhook--external-system-tells-servicenow-about-an-event)
   - [What gets tied to a webhook — alignment to events](#what-gets-tied-to-a-webhook--alignment-to-events)
-  - [Service (Flow Designer / IntegrationHub spoke) vs webhook — when to use which](#service-flow-designer-integrationhub-spoke-vs-webhook--when-to-use-which)
-  - [Webhooks vs events — are they the same?](#webhooks-vs-events--are-they-the-same?)
+  - [Service (Flow Designer / IntegrationHub spoke) vs webhook — when to use which](#service-flow-designer--integrationhub-spoke-vs-webhook--when-to-use-which)
+  - [Webhooks vs events — are they the same?](#webhooks-vs-events--are-they-the-same)
 - [Key Fields](#key-fields)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
@@ -51,7 +51,7 @@
 - [Deep Dive: Identification & Reconciliation (IRE)](#deep-dive-identification--reconciliation-ire)
   - [Identification Rules Deep Dive](#identification-rules-deep-dive)
   - [Reconciliation Rules Deep Dive](#reconciliation-rules-deep-dive)
-  - [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence--sccm-soroc-example)
+  - [Field-Specific Precedence — SCCM / Soroc Example](#field-specific-precedence--sccm--soroc-example)
   - [Data Refresh & Staleness Rules](#data-refresh--staleness-rules)
   - [Identification vs Reconciliation vs Data Source vs Data Refresh Rules](#identification-vs-reconciliation-vs-data-source-vs-data-refresh-rules)
 - [Lab: Create a CI and a Relationship](#lab-create-a-ci-and-a-relationship)
@@ -66,23 +66,23 @@
   - [Best Practices](#best-practices)
   - [CI Attribute vs Model Attribute — Syntax, Dot-Walk, and Structure](#ci-attribute-vs-model-attribute--syntax-dot-walk-and-structure)
   - [Per-Attribute Discrepancies](#per-attribute-discrepancies)
-- [Adding a New CI Class / Table](#adding-a-new-ci-class-table)
+- [Adding a New CI Class / Table](#adding-a-new-ci-class--table)
   - [Option A: CI Class Manager (Recommended for CMDB classes)](#option-a-ci-class-manager-recommended-for-cmdb-classes)
-  - [Option B: Table (sys_db_object) with Extends = cmdb_ci](#option-b-table-sys_db_object-with-extends-=-cmdb_ci)
+  - [Option B: Table (sys_db_object) with Extends = cmdb_ci](#option-b-table-sys_db_object-with-extends--cmdb_ci)
   - [Both Observe IRE](#both-observe-ire)
-  - [Store App / Alternatives vs Building from Scratch](#store-app-alternatives-vs-building-from-scratch)
+  - [Store App / Alternatives vs Building from Scratch](#store-app--alternatives-vs-building-from-scratch)
 - [CMDB Relationships — OOB, User-Defined, or Both](#cmdb-relationships--oob-user-defined-or-both)
   - [Out-of-Box Relationship Types](#out-of-box-relationship-types)
   - [User-Defined Relationship Types](#user-defined-relationship-types)
-  - [OOB, User-Defined, or Both?](#oob-user-defined-or-both?)
+  - [OOB, User-Defined, or Both?](#oob-user-defined-or-both)
   - [How Relationships Are Typically Populated](#how-relationships-are-typically-populated)
 - [How CI Relationships Are Determined — OOB, Detection, Fixes & Manual Creation](#how-ci-relationships-are-determined--oob-detection-fixes--manual-creation)
-  - [Does ServiceNow Provide Relationships Out of the Box?](#does-servicenow-provide-relationships-out-of-the-box?)
+  - [Does ServiceNow Provide Relationships Out of the Box?](#does-servicenow-provide-relationships-out-of-the-box)
   - [How Relationships Are Determined (Creation Flow)](#how-relationships-are-determined-creation-flow)
   - [Detecting Wrong or Inconsistent Relationships](#detecting-wrong-or-inconsistent-relationships)
   - [Fixing Wrong Relationships](#fixing-wrong-relationships)
   - [Creating a Relationship Manually](#creating-a-relationship-manually)
-  - [Would You Realistically Need to Create Relationships Manually?](#would-you-realistically-need-to-create-relationships-manually?)
+  - [Would You Realistically Need to Create Relationships Manually?](#would-you-realistically-need-to-create-relationships-manually)
   - [Common Relationship Mistakes](#common-relationship-mistakes)
 - [Ensuring IRE Is Observed When Creating CI Tables](#ensuring-ire-is-observed-when-creating-ci-tables)
 - [How a Child Class Overrides Parent IRE Rules](#how-a-child-class-overrides-parent-ire-rules)
@@ -101,13 +101,13 @@
 - [Common CMDB Gotchas & Complex Issues](#common-cmdb-gotchas--complex-issues)
 - [CMDB Decision Diagrams](#cmdb-decision-diagrams)
   - [Field Placement Decision Tree (cmdb_ci vs Model Table)](#field-placement-decision-tree-cmdb_ci-vs-model-table)
-  - [New CI Class / Table Creation Flow](#new-ci-class-table-creation-flow)
+  - [New CI Class / Table Creation Flow](#new-ci-class--table-creation-flow)
   - [IRE Invocation from a CI Form](#ire-invocation-from-a-ci-form)
   - [Relationship Population Flow](#relationship-population-flow)
 - [FAQ](#faq)
 - [Telecom Network Discrepancies (TSOM Context)](#telecom-network-discrepancies-tsom-context)
   - [Discrepancy Type 1: Inventory-to-CMDB Mismatch](#discrepancy-type-1-inventory-to-cmdb-mismatch)
-  - [Discrepancy Type 2: Circuit Topology / Termination Mismatch](#discrepancy-type-2-circuit-topology-termination-mismatch)
+  - [Discrepancy Type 2: Circuit Topology / Termination Mismatch](#discrepancy-type-2-circuit-topology--termination-mismatch)
   - [Discrepancy Type 3: Service-to-Resource Alignment (CSDM Gap)](#discrepancy-type-3-service-to-resource-alignment-csdm-gap)
   - [Discrepancy Type 4: SD-WAN Discrepancy Audit (TSOM Context)](#discrepancy-type-4-sd-wan-discrepancy-audit-tsom-context)
 - [Quiz](#quiz)
@@ -115,7 +115,7 @@
   - [Prioritized Summary](#prioritized-summary)
   - [Priority 1 — Manual CI Edits Bypass IRE](#priority-1--manual-ci-edits-bypass-ire)
   - [Priority 2 — Duplicate CI Creation](#priority-2--duplicate-ci-creation)
-  - [Priority 3 — Relationship Orphans / Broken References](#priority-3--relationship-orphans-broken-references)
+  - [Priority 3 — Relationship Orphans / Broken References](#priority-3--relationship-orphans--broken-references)
   - [Priority 4 — Data Source Precedence Conflicts](#priority-4--data-source-precedence-conflicts)
   - [Priority 5 — Field Placement (cmdb_ci vs Model Table)](#priority-5--field-placement-cmdb_ci-vs-model-table)
   - [Priority 6 — CMDB Health Data Quality Issues](#priority-6--cmdb-health-data-quality-issues)
@@ -154,22 +154,22 @@
   - [Client Script Mistakes](#client-script-mistakes)
   - [Business Rule Mistakes](#business-rule-mistakes)
   - [Transform Script Mistakes](#transform-script-mistakes)
-  - [Portal / Widget Mistakes](#portal-widget-mistakes)
+  - [Portal / Widget Mistakes](#portal--widget-mistakes)
 - [UI Builder — Key Items, Reusable Components, and Page Variants](#ui-builder--key-items-reusable-components-and-page-variants)
   - [What UI Builder Is](#what-ui-builder-is)
   - [Key Items in UI Builder](#key-items-in-ui-builder)
   - [Reusable Components (Beyond Widget Instances)](#reusable-components-beyond-widget-instances)
   - [Page Variants — Customized Pages for Different Users](#page-variants--customized-pages-for-different-users)
   - [UI Builder Architecture Diagram](#ui-builder-architecture-diagram)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Application Service Dependency Views vs Schema Map — Upstream vs Downstream Dependencies](#application-service-dependency-views-vs-schema-map--upstream-vs-downstream-dependencies)
   - [Dependency Views vs Schema Map — Comparison](#dependency-views-vs-schema-map--comparison)
@@ -720,7 +720,7 @@ No, but they're related. An **event** (`em_event`) is a ServiceNow internal reco
 The CMDB's business goal is to act as the single source of truth for all configuration items, so operational decisions about impact, change, and ownership are based on accurate data.
 
 || Business Goal | Benefit | Example Key Metric | Example Value |
-|----------------|-------------|--------------------|----------------|
+|---|---|---|---|---|
 || Single source of truth | Trust for impact analysis | CMDB completeness | ≥ 95% of CIs with required attributes |
 || Data accuracy | Reliable impact analysis | CMDB data accuracy score | ≥ 90% |
 || Data quality and health | Proactive remediation | CMDB Health Score | ≥ 90 / 100 |
@@ -779,7 +779,7 @@ flowchart TD
 | Deleting CIs instead of retiring | Broken relationships, orphaned incidents | Use status=Retired, not delete |
 | No relationship types defined | Service Mapping can't build maps | Define CI relationship types before mapping |
 | CMDB not tied to incidents | No impact analysis | Populate `cmdb_ci` on incident records |
-|| Ignoring CMDB Health dashboards | Data quality degrades over time | Review completeness/correctness dashboards monthly |
+| Ignoring CMDB Health dashboards | Data quality degrades over time | Review completeness/correctness dashboards monthly |
 
 ---
 
@@ -2204,7 +2204,7 @@ ServiceNow uses **Access Control (ACL)** rules to determine who can read, write,
 | Target | Condition Example | Purpose |
 |--------|------------------|---------|
 | `cmdb_ci.read` | `gs.hasRole('cmdb_admin')` | Only CMDB admins can read base CI table |
-| `cmdb_ci.write` | `gs.hasRole('cmdb_admin') || gs.hasRole('sn_importer')` | CMDB admins and importers can write CIs |
+| `cmdb_ci.write` | `gs.hasRole('cmdb_admin') \|\| gs.hasRole('sn_importer')` | CMDB admins and importers can write CIs |
 | `cmdb_ci.create` | `false` | Block manual CI creation entirely — force IRE-driven creation |
 | `cmdb_ci.delete` | `false` | Block CI deletion; force retirement (`install_status = retired`) |
 | `cmdb_ci.serial_number.write` | `gs.hasRole('cmdb_admin')` | Only admins can change serial numbers (prevents accidental duplicates) |

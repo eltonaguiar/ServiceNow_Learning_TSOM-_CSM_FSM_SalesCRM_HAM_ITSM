@@ -23,15 +23,15 @@
   - [Cross-Module Dependencies](#cross-module-dependencies)
   - [ACLs Related to Core Tables](#acls-related-to-core-tables)
   - [Breadcrumbs — What Needs to Be Enabled First](#breadcrumbs--what-needs-to-be-enabled-first)
-  - [Does a PDI support telecom out of the box?](#does-a-pdi-support-telecom-out-of-the-box?)
+  - [Does a PDI support telecom out of the box?](#does-a-pdi-support-telecom-out-of-the-box)
   - [What is out of the box vs what you install](#what-is-out-of-the-box-vs-what-you-install)
   - [Plugin and application dependencies](#plugin-and-application-dependencies)
-  - [Do you need CSM for TSOM to work?](#do-you-need-csm-for-tsom-to-work?)
+  - [Do you need CSM for TSOM to work?](#do-you-need-csm-for-tsom-to-work)
 - [Exploring TSOM — the official picture (Australia docs)](#exploring-tsom--the-official-picture-australia-docs)
   - [The Telecom data model](#the-telecom-data-model)
   - [Telecom Visibility — and how it differs from ITOM Visibility](#telecom-visibility--and-how-it-differs-from-itom-visibility)
   - [Success measures, by phase](#success-measures-by-phase)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Meta Data Patterns](#meta-data-patterns)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
@@ -55,7 +55,7 @@
   - [What does not exist](#what-does-not-exist)
 - [Lab: Create Your First Telecom Service](#lab-create-your-first-telecom-service)
   - [What you just did, in plain English](#what-you-just-did-in-plain-english)
-- [📺 Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
   - [TSM Showcase](#tsm-showcase)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [SLA Support](#sla-support)
@@ -69,19 +69,19 @@
   - [Now Assist for ITOM — Implementer level](#now-assist-for-itom--implementer-level)
   - [Service Graph Connector for OpenTelemetry — TSOM angle](#service-graph-connector-for-opentelemetry--tsom-angle)
 - [TSOM Implementer Skill Coverage — All 15 Course Skills](#tsom-implementer-skill-coverage--all-15-course-skills)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
-  - [🚀 Quick Start Guide](#quick-start-guide)
-  - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
+  - [🚀 Quick Start Guide](#-quick-start-guide)
+  - [🚀 The Authoritative Path](#-the-authoritative-path)
+- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -171,7 +171,7 @@ breadcrumb (Synthetic Monitoring lives under **IT Operations Management → Synt
 See the [capabilities page](tsom-capabilities.md#1-breadcrumb-map--where-each-capability-actually-lives)
 for the full map before you go hunting in Telecom Service Operations.
 
-**Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites-setup) below; there is no `com.snc.tsom` plugin.
+**Tip:** If you don't see these menus, the TSOM application is not installed. The plugin to request is `com.sn_tsom_core` (Store app id `sn_tsom_core`) — see [Prerequisites and availability](#prerequisites--setup) below; there is no `com.snc.tsom` plugin.
 
 ---
 
@@ -629,7 +629,7 @@ arrows is missing, the demo looks fine and production does not work.*
 | Ignoring territory/region constraints | Orders fail to assign | Set territory on service order |
 | Creating duplicate circuits | Same circuit appears twice | Use circuit ID as identification rule |
 | Forgetting activation date | SLA calculations wrong | Set `activation_date` on provision |
-|| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
+| Mixing physical and logical inventory | Confusion in reports | Keep network elements separate from services |
 
 ---
 

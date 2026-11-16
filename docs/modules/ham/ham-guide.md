@@ -17,9 +17,9 @@
 - [HAM Asset Lifecycle Diagram](#ham-asset-lifecycle-diagram)
 - [Asset vs CI Diagram](#asset-vs-ci-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
-  - [Asset State & Substate (install_status / install_substatus)](#asset-state--substate-install_status-install_substatus)
+  - [Asset State & Substate (install_status / install_substatus)](#asset-state--substate-install_status--install_substatus)
   - [Hardware Model Lifecycle Phase](#hardware-model-lifecycle-phase)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Application Scope](#application-scope)
   - [Meta Data Patterns](#meta-data-patterns)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
@@ -49,18 +49,18 @@
 - [Deep Dive: File Signature Normalization (SAM)](#deep-dive-file-signature-normalization-sam)
   - [How It Works](#how-it-works)
   - [Tables It Introduces](#tables-it-introduces)
-  - [Worked Example: `superman.exe` → DC Comics Software](#worked-example-`supermanexe`--dc-comics-software)
+  - [Worked Example: `superman.exe` → DC Comics Software](#worked-example-supermanexe--dc-comics-software)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
 - [Lab: Break Three Records, Diagnose the Symptom](#lab-break-three-records-diagnose-the-symptom)
-- [📺 Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
   - [HAM Overview](#ham-overview)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [SLA Support](#sla-support)
   - [OOTB Dashboards](#ootb-dashboards)
   - [OOTB Workspaces](#ootb-workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
 - [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
@@ -70,8 +70,8 @@
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -483,7 +483,7 @@ ast_contract
 HAM's business goals center on maintaining an accurate hardware asset inventory and controlling cost from procurement through retirement.
 
 || Business Goal | Benefit | Example Key Metric | Example Value |
-|----------------|-------------|--------------------|----------------|
+|---|---|---|---|---|
 || Complete hardware inventory | Foundation for ITAM decisions | Inventory completeness | ≥ 98% of procured assets recorded |
 || Cost control and TCO | Optimize purchasing and renewals | Asset utilization rate | ~72% in use; target ≥ 70% |
 || TCO management | Reduce lifecycle cost | TCO and cost avoidance via reuse | ~15% reduction over 3 years |
@@ -692,7 +692,7 @@ stateDiagram-v2
 ```
 ## Common Mistakes
 
-|| Mistake | Symptom | Fix |
+| Mistake | Symptom | Fix |
 |---------|---------|-----|
 | Creating assets without categories | Asset form missing fields | Define categories first |
 | Duplicate asset tags | Can't identify physical asset | Enforce unique asset tags |

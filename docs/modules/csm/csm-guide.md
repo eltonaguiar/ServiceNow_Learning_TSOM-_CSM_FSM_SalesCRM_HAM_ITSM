@@ -20,7 +20,7 @@
   - [Case Type Categories (OOB)](#case-type-categories-oob)
   - [Case Type Selector Versions](#case-type-selector-versions)
   - [Case State Flow](#case-state-flow)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Meta Data Patterns](#meta-data-patterns)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
@@ -37,14 +37,14 @@
 - [Core Concept Diagrams](#core-concept-diagrams)
   - [Case Lifecycle State Diagram](#case-lifecycle-state-diagram)
   - [Account → Case → Entitlement Flow](#account--case--entitlement-flow)
-  - [CSM Business Model (B2B / B2C / B2B2C / B2B2E)](#csm-business-model-b2b-b2c-b2b2c-b2b2e)
+  - [CSM Business Model (B2B / B2C / B2B2C / B2B2E)](#csm-business-model-b2b--b2c--b2b2c--b2b2e)
 - [Lab: Create Your First Customer Case](#lab-create-your-first-customer-case)
-- [📺 Visual & Video Guides](#visual--video-guides)
+- [📺 Visual & Video Guides](#-visual--video-guides)
   - [CSM Full Overview](#csm-full-overview)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
 - [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
@@ -54,8 +54,8 @@
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -115,9 +115,9 @@ Customer Service Management (CSM) is ServiceNow's platform for managing customer
 
 ## Where to Find It
 
-|| Breadcrumb | Path |
-||------------|------|
-|| Module entry | All > Customer Service > ... |
+| Breadcrumb | Path |
+|------------|------|
+| Module entry | All > Customer Service > ... |
 | Cases | All > Customer Service > Cases > All |
 | Accounts | All > Customer Service > Accounts |
 | Consumers | All > Customer Service > Consumers |
@@ -443,7 +443,7 @@ sn_customerservice_entitlement
 | Testing portal as admin | Can't see customer experience | Test as actual customer user |
 | One case type for everything | Workflow can't differentiate | Create case types per request type |
 | Missing account on case | No entitlement/SLA resolution | Always populate account |
-|| Not setting contact | No notification recipient | Always set contact/consumer |
+| Not setting contact | No notification recipient | Always set contact/consumer |
 
 ---
 

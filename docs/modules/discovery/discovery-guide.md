@@ -22,7 +22,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Discovery Phases — Scan → Classify → Identify → Explore](#discovery-phases--scan--classify--identify--explore)
   - [MID Server → ECC Queue → CI Flow](#mid-server--ecc-queue--ci-flow)
   - [Pattern → Probe → Sensor Flow](#pattern--probe--sensor-flow)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [The re-usable metadata inventory](#the-re-usable-metadata-inventory)
 - [Out-of-Box Features](#out-of-box-features)
 - [Key Table Hierarchy](#key-table-hierarchy)
@@ -30,9 +30,9 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
 - [Appendix: IntegrationHub & e-Bonding — connecting discovered data out](#appendix-integrationhub--e-bonding--connecting-discovered-data-out)
-  - [What is IntegrationHub?](#what-is-integrationhub?)
-  - [What is e-bonding?](#what-is-e-bonding?)
-  - [How Discovery + e-bonding fit together](#how-discovery-+-e-bonding-fit-together)
+  - [What is IntegrationHub?](#what-is-integrationhub)
+  - [What is e-bonding?](#what-is-e-bonding)
+  - [How Discovery + e-bonding fit together](#how-discovery--e-bonding-fit-together)
   - [Integration patterns compared](#integration-patterns-compared)
   - [Mini lab: Conceptual e-bond — Discovery CI change → Teams](#mini-lab-conceptual-e-bond--discovery-ci-change--teams)
   - [Common e-bonding mistakes](#common-e-bonding-mistakes)
@@ -55,7 +55,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: File-Based Discovery](#deep-dive-file-based-discovery)
   - [How the Filtering Actually Works (a common misconception)](#how-the-filtering-actually-works-a-common-misconception)
   - [The Allow-List: samp_file_name → cmdb_file_information](#the-allow-list-samp_file_name--cmdb_file_information)
-  - [Worked Example — Getting a Custom File Discovered: `C:\temp\server_runner.exe`](#worked-example--getting-a-custom-file-discovered-`ctempserver_runnerexe`)
+  - [Worked Example — Getting a Custom File Discovered: `C:\temp\server_runner.exe`](#worked-example--getting-a-custom-file-discovered-ctempserver_runnerexe)
   - [Worked Example — One Windows Server, Four Files](#worked-example--one-windows-server-four-files)
   - [Worked Example — A Custom Application Folder](#worked-example--a-custom-application-folder)
 - [Deep Dive: Running File-Based Discovery](#deep-dive-running-file-based-discovery)
@@ -69,8 +69,8 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
 - [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
@@ -80,8 +80,8 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -477,7 +477,7 @@ sys_class_name}) was discovered/updated by ${discovery_source} at ${discovered}`
 | **No loop guard** | ServiceNow update triggers external update which triggers ServiceNow update … | Check `discovery_source` / `u_external_updated` before writing; skip if already synced |
 | **Hard-coded credentials** | Password rotation breaks the e-bond | Use Connection & Credential Aliases; never embed passwords in flow actions |
 | **Syncing every field** | Massive payloads, slow syncs, field conflicts | Sync only the fields that matter (CI name, status, discovery source, last_discovered) |
-|| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
+| **Forgetting the MID Server** | Cloud instance can't reach the external on-prem tool | Install a MID Server in the external tool's network; route the e-bond through it |
 
 ---
 

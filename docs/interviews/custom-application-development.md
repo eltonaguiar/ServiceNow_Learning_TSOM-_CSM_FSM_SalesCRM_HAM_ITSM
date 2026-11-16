@@ -122,11 +122,11 @@ A scoped application encapsulates its data, logic, and UI within a namespace (`c
 | **Dependent fields** | Show/hide fields based on other field values |
 | **Mandatory fields** | Enforced via UI Policy or dictionary |
 | **Read-only fields** | Enforced via UI Policy or ACL |
-|| **Related lists** | Show child records (e.g., tasks on a case) |
+| **Related lists** | Show child records (e.g., tasks on a case) |
 
 ### UI Actions in Business Rules
 
-|| Type | When It Runs | Use Case |
+| Type | When It Runs | Use Case |
 |------|--------------|----------|
 | **List** | On list view | Bulk actions on multiple records |
 | **Form button** | On form, client-side | Submit, approve, reject |
@@ -206,7 +206,7 @@ Declarative form behavior — no JavaScript required:
 
 ### UI Actions Overview
 
-|| Placement | Trigger | Use Case |
+| Placement | Trigger | Use Case |
 |-----------|---------|----------|
 | **Form button** | User clicks button on form | Approve, reject, escalate |
 | **Form link** | User clicks link on form | Open related record |

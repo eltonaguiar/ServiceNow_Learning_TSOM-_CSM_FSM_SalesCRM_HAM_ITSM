@@ -13,7 +13,7 @@
 
 - [Purpose](#purpose)
 - [Prerequisites & Setup](#prerequisites--setup)
-  - [Plugins / Scoped Apps That Must Be Active](#plugins-scoped-apps-that-must-be-active)
+  - [Plugins / Scoped Apps That Must Be Active](#plugins--scoped-apps-that-must-be-active)
   - [Guided Setup Required](#guided-setup-required)
   - [System Properties to Consider](#system-properties-to-consider)
   - [Cross-Module Dependencies](#cross-module-dependencies)
@@ -27,7 +27,7 @@
   - [Breadcrumbs — What Needs to Be Enabled First](#breadcrumbs--what-needs-to-be-enabled-first)
 - [Where to Find It](#where-to-find-it)
 - [Certification Alignment Note](#certification-alignment-note)
-- [Re-usable Code / Metadata](#re-usable-code-metadata)
+- [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [COE (Center of Excellence) Model](#coe-center-of-excellence-model)
   - [Re-usable metadata](#re-usable-metadata)
@@ -40,14 +40,14 @@
   - [HR Lifecycle Event Journey Orchestration](#hr-lifecycle-event-journey-orchestration)
   - [HR Service to COE Data Segregation](#hr-service-to-coe-data-segregation)
   - [Employee Center Request Intake Flow](#employee-center-request-intake-flow)
-- [⚠️ ServiceNow Learning Warnings](#servicenow-learning-warnings)
+- [⚠️ ServiceNow Learning Warnings](#-servicenow-learning-warnings)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [SLA Support](#sla-support)
   - [OOTB Dashboards](#ootb-dashboards)
   - [OOTB Workspaces](#ootb-workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#official-learning-resources)
-  - [📺 Verified Videos & Playlists](#verified-videos--playlists)
+- [🎓 Official Learning Resources](#-official-learning-resources)
+  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
 - [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
@@ -57,8 +57,8 @@
   - [IRE — Identification Before Reconciliation](#ire--identification-before-reconciliation)
   - [Update Set Conflicts — ARM](#update-set-conflicts--arm)
   - [CMDB — Retire Before Delete](#cmdb--retire-before-delete)
-  - [Order vs Priority — Lower = First](#order-vs-priority--lower-=-first)
-  - [Transform Script — Coalesce = Match](#transform-script--coalesce-=-match)
+  - [Order vs Priority — Lower = First](#order-vs-priority--lower--first)
+  - [Transform Script — Coalesce = Match](#transform-script--coalesce--match)
   - [Debugging — Log First, Then Debug](#debugging--log-first-then-debug)
 - [Related Guides](#related-guides)
 
@@ -294,7 +294,7 @@ The Employee Center is the "Front Door." It moves away from separate portals (HR
 The business goal of HRSD is to give employees a consumer-grade, self-service way to manage HR life events, while giving HR teams a secure, SLA-driven case model for sensitive HR services.
 
 || Business Goal | Benefit | Example Key Metric | Example Value |
-|----------------|-------------|--------------------|----------------|
+|---|---|---|---|---|
 || Employee self-service adoption | Reduces HR service desk volume | Self-service adoption rate | ~60% of HR transactions via Employee Center |
 || HR case SLA attainment | Consistent service delivery | HR case SLA attainment | ≥ 90% of cases resolved within SLA |
 || Lifecycle journey completion | Coordinated employee experience | Lifecycle journey completion rate | ~100% within 30 days |
@@ -324,6 +324,7 @@ flowchart TD
     T3 --> C3[Task Completed]
     T4 --> C4[Journey Completed]
 
+```
 ### HR Service to COE Data Segregation
 
 ```mermaid
@@ -334,6 +335,7 @@ graph TD
     COEben -->|restricts access| ACLB[COE ACLs]
     HRSvc -->|flows to| HRCas[HR Case]
 
+```
 ### Employee Center Request Intake Flow
 
 ```mermaid

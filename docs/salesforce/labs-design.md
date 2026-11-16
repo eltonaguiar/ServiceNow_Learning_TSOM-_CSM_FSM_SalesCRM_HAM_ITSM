@@ -18,7 +18,7 @@
 - [Lab 3: Build a Lightning Web Component](#lab-3-build-a-lightning-web-component)
 - [Lab 4: Make a REST API Callout](#lab-4-make-a-rest-api-callout)
 - [Design Considerations](#design-considerations)
-- [System Properties & OOB Features](#system-properties--oob-features)
+- [System Properties & OOB Features](#system-properties--out-of-the-box-features)
 - [What to Think About Before You Build](#what-to-think-about-before-you-build)
 
 ---
