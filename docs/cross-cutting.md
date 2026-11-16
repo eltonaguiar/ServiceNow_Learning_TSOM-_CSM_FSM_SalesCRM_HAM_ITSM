@@ -10,6 +10,7 @@
 ## Contents
 
 - [Integrations](#integrations)
+- [ServiceNow-Salesforce Integration Lab (EBOND)](#servicenow-salesforce-integration-lab-ebond)
 - [Scripting](#scripting)
 - [GlideSystem (gs)](#glidesystem-gs)
 - [Flow Designer](#flow-designer)
@@ -48,6 +49,14 @@ Integrations are how ServiceNow talks to the rest of the enterprise.
 | **Scripted REST API** | Allow external systems to call SN | Custom endpoints, Request/Response handling |
 | **IntegrationHub** | Low-code integrations | Spokes, Actions, Connection & Credential Aliases |
 | **MID Server** | Accessing internal network data | Java agent behind firewall, probes/sensors for on-prem connectivity |
+
+### ServiceNow-Salesforce Integration Lab (EBOND)
+
+Hands-on lab using only free tiers: a **ServiceNow Personal Developer Instance (PDI)** + a **Salesforce Developer org**, bonded into a proof-of-concept Incident ⇄ Case sync with OOTB workflows and best practices.
+
+- Live lab site: https://eltonaguiar.github.io/EBOND_ServiceNowSalesforce/
+- Repository: https://github.com/eltonaguiar/EBOND_ServiceNowSalesforce
+- Beginner path (Level 1→4): [lab_levels_beginner_path.md](https://github.com/eltonaguiar/EBOND_ServiceNowSalesforce/blob/main/2026-11-16-SWARM/03_DONE/INTEGRATION/lab_levels_beginner_path.md)
 
 <details>
 <summary>🚀 Interview Insight: Integration Patterns — Async vs Sync, Queues Explained</summary>
