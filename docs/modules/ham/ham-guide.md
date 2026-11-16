@@ -40,6 +40,8 @@
   - [📊 Asset Lifecycle with Discovery Integration](#asset-lifecycle-with-discovery-integration)
   - [📊 Asset State Machine](#asset-state-machine)
 - [Common Mistakes](#common-mistakes)
+- [Troubleshooting HAM Records](#troubleshooting-ham-records)
+  - [When the state or model you need isn't available](#when-the-state-or-model-you-need-isnt-available)
 - [Deep Dive: File-Based Discovery and the Discovery Configuration Console](#deep-dive-file-based-discovery-and-the-discovery-configuration-console)
   - [Breadcrumbs — Getting There and Everything Related](#breadcrumbs--getting-there-and-everything-related)
   - [Configuring It in the Console](#configuring-it-in-the-console)
@@ -49,6 +51,7 @@
   - [Tables It Introduces](#tables-it-introduces)
   - [Worked Example: `superman.exe` → DC Comics Software](#worked-example-`supermanexe`--dc-comics-software)
 - [Lab: Create Your First Asset](#lab-create-your-first-asset)
+- [Lab: Break Three Records, Diagnose the Symptom](#lab-break-three-records-diagnose-the-symptom)
 - [📺 Visual & Video Guides](#visual--video-guides)
   - [HAM Overview](#ham-overview)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
@@ -507,6 +510,7 @@ flowchart TD
     RT --> DP[Disposal Data Wipe]
     AS --> LOST[Lost Or Stolen]
     LOST --> WR[Write Off]
+```
 
 ### Asset to CI Normalization Link
 
@@ -701,6 +705,52 @@ stateDiagram-v2
 
 ---
 
+## Troubleshooting HAM Records
+
+Every row below restates something already documented in this guide — the state table, the fields table, the discovery deep dive. It is the same facts read backwards, from symptom to cause.
+
+| Symptom | What it usually means | Check | Fix |
+|---|---|---|---|
+| Asset form is missing fields | `category` was never set — the category decides which fields appear | `alm_asset.category` | Set the category first, then re-open the form |
+| Two records for one laptop | Re-created instead of transferred; duplicate `asset_tag` | `asset_tag`, Transfers related list | Retire the duplicate, keep the record that carries the history |
+| Warranty claim rejected | Serial missing or wrong on the asset | `alm_hardware.serial_number` | Record the serial at receipt, correct the record |
+| Reports show laptops you replaced | Assets left `In Use` after replacement | `state` / `install_status` | Move to `Retired` with an honest substate (Disposed, Sold, Donated, Lease return…) |
+| Renewal date slipped past | Contract exists but was never linked to the asset | `ast_contract.end_date` / `renewal_date`, Contracts related list | Link the contract, set `renewal_date` |
+| Depreciation is wrong | Backdated `purchase_date`, or `cost` empty | `purchase_date`, `cost` | Use the invoice date and the actual cost |
+| Asset and CI disagree | Asset created without a CI, or both created independently | Related list → CI | Link the existing CI; do not create a second record for one device |
+| Software installs missing on a machine that has the app | File-Based Discovery not activated, or the first CDS sync has not landed (~24 hours) | Plugin `com.snc.discovery.file_based_discovery`; discovery Status record | Activate, wait for CDS, enable the exploration, re-scan |
+| A known application is invisible in installations | No file signature, so normalization never matched it | File Signature Normalization tables | Add the signature, normalize the discovery model |
+| "We own 500, only 380 show in stock" | Substates not maintained — `In transit`, the long `In Stock` and `Retired` lists | State and substate counts | Audit substates; a substate is a location-in-process, not decoration |
+| Model cannot be ordered | Lifecycle phase is `End of sale` or later | `alm_asset_model` lifecycle phase | Move to the current model |
+
+**Three checks before any HAM escalation**
+
+1. **State and substate** — is the record in the state that represents reality, or the state someone last typed?
+2. **Links** — contract, CI, location, assigned user. An unlinked record behaves like a missing record.
+3. **Model** — category, lifecycle phase, manufacturer. Most "the form is broken" complaints live in the model.
+
+### When the state or model you need isn't available
+
+```mermaid
+flowchart TD
+    A[Dropdown or form problem] --> B{What is missing?}
+    B -->|A field on the asset form| C[Category drives the form — set the category first]
+    B -->|A state / substate| D{Does an existing substate fit?}
+    D -->|Yes| D1[Use the substate — In Stock and Retired both carry long lists]
+    D -->|No| D2[States are instance data: All > Asset Management > Administration > States]
+    B -->|A model in the picker| E[All > Asset Management > Administration > Asset Models]
+    E --> E1{Exists but not selectable?}
+    E1 -->|Yes| E2[Check the lifecycle phase — End of sale / End of life]
+    E1 -->|No| E3[Create the model, then the asset]
+```
+
+- **Asset states are instance data, not platform constants.** The table above reflects OOTB values, and they vary by release (the Rome set is numeric 1–11). Check `Administration > States` before concluding the value does not exist.
+- **Adding a state has downstream reach.** Anything that enumerates states — reports, dashboards, filters, integrations — will not know your new value until it is added there too. Prefer an existing substate; if you add a state, treat it as a configuration release item.
+- **Check the lifecycle phase before the ACLs.** A model at `End of sale` or beyond is a purchasing conversation, not a form bug — confirm the phase matches intent before hunting permissions.
+- **A missing field is almost always the category.** The fields table says it directly: `category` determines which fields appear.
+
+---
+
 ## Deep Dive: File-Based Discovery and the Discovery Configuration Console
 
 > **Full module:** File-Based Discovery now has a complete home in the [Discovery module guide](../discovery/discovery-guide.md) — console areas, the filtering model, worked examples, and the three-step run-and-verify procedure (Status record + the `snc_tmp_*.tmp` scan file on the target). This section keeps the SAM-side configuration view.
@@ -835,6 +885,51 @@ The attributes used for the match, every time: **file name**, **file size**, and
 8. **Link** the contract to the asset in Related Lists
 9. **Change** asset state to "Retired" (simulate end of life)
 10. **Verify** in Related Lists: CI, Contracts, Transfers, History
+
+---
+
+## Lab: Break Three Records, Diagnose the Symptom
+
+The lab above builds a correct asset. This one builds the three defects that fill real HAM backlogs — then asks you to diagnose each from the symptom alone, without peeking.
+
+**Rules:** sub-production only; break one thing per drill; predict the symptom before you look; reset between drills.
+
+### Drill 1 — The asset with no category
+
+**Break it:** create an asset and leave `category` empty.
+
+**Predict, then look:** open the form. Fields you expected are absent.
+
+<details><summary>Answer</summary>
+
+**Cause:** `category` drives which fields the form shows — it is not a label. **Proof:** `alm_asset.category` is empty; add a category and the fields appear with no other change. **Fix:** set the category at creation; make it a mandatory form field if your estate keeps repeating this. **Reset:** clear the category, or retire the test asset.
+</details>
+
+### Drill 2 — The duplicate laptop
+
+**Break it:** create a second asset for a device that already exists, reusing its `asset_tag` — or skipping the tag entirely.
+
+**Predict, then look:** how many records represent one physical device, and what breaks first downstream.
+
+<details><summary>Answer</summary>
+
+**Cause:** re-creation instead of transfer; the record was never the problem, the process was. **Proof:** `asset_tag` is the identity sticker — two records sharing one tag, or an untagged duplicate beside a tagged original, means one device and two objects. **Fix:** retire the duplicate with an honest substate, keep the record carrying the history (assignments, contracts, CI link). **Reset:** retire both test records.
+</details>
+
+### Drill 3 — The ghost asset
+
+**Break it:** replace a device — move its asset to `Retired` with a substate — then create the replacement but leave the contract linked only to the retired record.
+
+**Predict, then look:** which report is wrong first, and which record is telling the truth.
+
+<details><summary>Answer</summary>
+
+**Cause:** the retirement was recorded but the *linkage* never moved; contract and CI still point at the dead record. **Proof:** the retired asset's Contracts related list versus the replacement's empty one — `ast_contract.renewal_date` now has no live asset behind it. **Fix:** link the contract to the replacement and confirm the CI is the surviving one. **Reset:** unlink, restore the states.
+</details>
+
+### What "done" looks like
+
+For each drill you can name the field that caused it and the single related list or query that proves it — without opening the answer. That is the whole skill: HAM symptoms are almost always a missing category, a missing link, or a state that stopped matching reality.
 
 
 ---

@@ -32,6 +32,7 @@
   - [Verification snippets](#verification-snippets)
   - [Failure modes by pack](#failure-modes-by-pack)
   - [The 10-percent rule that is not a rule: soft partitioning](#the-10-percent-rule-that-is-not-a-rule-soft-partitioning)
+  - [When the metric you need isn't in the picker](#when-the-metric-you-need-isnt-in-the-picker)
 - [One-Page Cheat Sheet — Groups, Metrics, Attributes, Arithmetic](#one-page-cheat-sheet--groups-metrics-attributes-arithmetic)
 - [Reconciliation — The Core Engine](#reconciliation--the-core-engine)
   - [📊 Reconciliation Flow Diagram](#reconciliation-flow-diagram)
@@ -67,6 +68,7 @@
   - [Step 5 — Prove the fix](#step-5--prove-the-fix)
   - [Step 6 — Prove normalization matters](#step-6--prove-normalization-matters)
   - [Step 7 — Teach back (write it down)](#step-7--teach-back-write-it-down)
+- [Lab: Break It on Purpose — Seven Diagnosis Drills](#lab-break-it-on-purpose--seven-diagnosis-drills)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [Workspaces and consoles](#workspaces-and-consoles)
   - [Dashboards/indicators worth standing up](#dashboardsindicators-worth-standing-up)
@@ -539,6 +541,57 @@ Rows are **created automatically** when an entitlement uses that metric group + 
 - **Hard partitioning / virtualisation:** Oracle licenses the server unless partitioning is certified. The aggregation level for VMware-hosted Oracle instances is `com.snc.samp.oracle.reconlevel` — `ESX` (all cores on the host), `ESX cluster` (default; all processors on every host in the cluster) or `vCenter(s)` (all cores on every ESX host, maths keyed to ESXi version). `com.snc.samp.oracle.hostaffinityenabled` applies only at `vCenter(s)` and lets VM–host affinity rules reduce the count.
 - **Audit instrument:** Oracle LMS scripts and Oracle's own 3PTV-verified collection, not SAM. SAM's job is to be able to explain the delta.
 - **Unverified:** the `samp_oracle_options` *Considered for licensing* gating is corpus-only — check your instance before designing around it.
+
+### When the metric you need isn't in the picker
+
+Two different failures wear the same complaint. **An empty picker** — no metric at all — means the field has nothing to cascade from, so the fault is upstream. **One metric missing from a populated picker** means the group resolved and your metric is not in it: renamed, retired, or living in a different pack. Fix the first by repairing the cascade; fix the second by finding where the metric actually lives.
+
+```mermaid
+flowchart TD
+    A[Entitlement: License metric field] --> B{Empty, or one metric short?}
+    B -->|Empty| C{Software model selected?}
+    C -->|No| C1[Pick the model — the picker cascades from it]
+    C -->|Yes| D{Model carries a license metric?}
+    D -->|No| D1[Fix the model: set its license metric / group]
+    D -->|Yes| E{Pack for that group installed?}
+    E -->|No| E1[Install the pack · Foundation gives Common only]
+    E -->|Yes| E2[Escalate with group name, release and plugin state]
+    B -->|One short| F{Which metric?}
+    F -->|Per Core Physical / Virtual OSE| F1[Retired in New York — use Per Core]
+    F -->|Red Hat metric| F2[IBM pack delivers it]
+    F -->|Subscription / Consumption| F3[SaaS License Management adds the group]
+    F -->|Something bespoke| G[Custom License Metrics → group Custom, listed by name]
+```
+
+**Run these in order and stop at the first "no":**
+
+| # | Check | What it tells you |
+|---|---|---|
+| 1 | Is a software model on the entitlement? | The entitlement's **Metric group** is populated *from* the model. No model, no group, no list. |
+| 2 | Does that model carry a license metric (`license_metric_type`)? | An empty model metric produces a blank or **None** group — the fault is upstream of the entitlement. |
+| 3 | Which group does the field show, and is it the one you expected? | The group is inherited, not chosen. **Common** on a Microsoft product means you are about to count the wrong way. |
+| 4 | Is the pack for that group installed and licensed? | Publisher groups are a **Professional** capability; Foundation ships base logic plus Common. Verify in System Definition > Plugins. |
+| 5 | Is the metric one that was retired or renamed? | `Per Core (Physical Core)` and `Per Core (Virtual OSE)` are retired from New York and folded into `Per Core`. The picker is telling the truth. |
+| 6 | Is it another vendor's metric in disguise? | Red Hat metrics ship in the **IBM** pack; `Subscription` / `Consumption` come from SaaS License Management, and `Consumption` forces `License type = Subscription`. |
+| 7 | Is it genuinely bespoke? | `All > Software Asset > Administration > Custom License Metrics`. The group is fixed to **Custom**; the metric then appears in the entitlement picker by **name**. |
+
+**What the picker is telling you, in one line each**
+
+| What you see | Reading |
+|---|---|
+| Picker empty, group blank | No usable model metric — fix the model, not the entitlement |
+| Group says Common, product is Microsoft/Oracle/IBM | A Common metric computes a plausible, wrong number |
+| Group right, list short one metric | Renamed or retired in your release, or it belongs to another pack |
+| Metric right, `Required` still 0 | No longer a picker problem — move to [troubleshooting](#troubleshooting-a-wrong-compliance-position) |
+| Custom metric listed by name, demand stays 0 | The custom metric is a **label**; SAM gives it no counting rule of its own. Verify how it is consumed before reporting it. |
+
+**Three tempting wrong fixes** — each fills the field and produces a false number:
+
+- **Picking a Common metric to make the list non-empty.** The counting rule follows the metric, so the position looks computed and means nothing.
+- **Editing the model's metric to force the picker to show yours.** You have changed what reconciliation counts for every entitlement and every historical position on that model.
+- **Creating a custom metric and calling it audit-grade.** Custom metrics exist so a bespoke contract term can be *represented*; they do not inherit a publisher's counting rule. Label it, scope it, say so in the report.
+
+**Legitimate outcomes when the metric genuinely is unavailable:** install the pack and re-baseline; or record the entitlement as **out of scope** with the reason on the record and keep it out of the position. An absent metric is a scope decision, not an arithmetic problem.
 
 ### The 10-percent rule that is not a rule: soft partitioning
 
@@ -1541,6 +1594,103 @@ A complete, repeatable lab that demonstrates the whole SAM chain. Use a sub-prod
 ### Step 7 — Teach back (write it down)
 
 Write five sentences covering: what a software model is, what an entitlement is, what an installation is, what reconciliation computes, and what a compliance position means.
+
+---
+
+## Lab: Break It on Purpose — Seven Diagnosis Drills
+
+[The lab above](#lab-entitlement--reconciliation--compliance) proves the happy path. This one trains the skill you need on a Friday afternoon: **someone hands you a wrong number and no explanation.** Each drill takes 10–15 minutes. Break the instance deliberately, look at the result *without* reading the answer, and write down three things first:
+
+1. Which term moved — `demand`, `required`, or `active_rights`?
+2. What single piece of evidence proves it — a count, a field, a property, a date?
+3. What would you change, and what do you predict the new number to be?
+
+**Scoring:** 1 point for naming the term, 1 for the proof, 1 for a fix that does not over-correct, 1 bonus for predicting the post-fix number before you run it. 28 points available. Below 14, re-read [Troubleshooting a wrong compliance position](#troubleshooting-a-wrong-compliance-position).
+
+**Ground rules:** sub-production only; change **one thing per drill**; record install count, entitlement quantity and position before and after; reset before the next drill — each drill's reset is in its answer.
+
+### Drill 1 — The entitlement that counts the wrong way
+
+**Break it:** take a Microsoft SQL Server model with installs. Create an entitlement for it, then set the entitlement's **License metric** to Common `Per Core` instead of the Microsoft metric.
+
+**You should see:** a position that computes and looks calm. `Required` is far below the core count visible on the host.
+
+<details><summary>Answer</summary>
+
+**Moved:** `required`. **Proof:** the entitlement's metric group reads **Common**, and Common `Per Core` uses a 1-core floor where Microsoft uses 4. **Fix:** switch to the Microsoft `Per Core` — or `Per Core (with CAL)` if the contract is CAL-based — and re-run. **Reset:** revert the metric, re-run, confirm the old number returns. **Why it catches people:** nothing errors. A Common metric is legal on a Microsoft model; it just prices the estate with the wrong rule.
+</details>
+
+### Drill 2 — Installs you can see and reconciliation cannot
+
+**Break it:** find a discovery model for the same product that is *not* normalized. Note the installation count. Add several discovery records (or detach existing installations) so a handful sit outside your software model.
+
+**You should see:** the CMDB and the installation list both show machines; `demand` on the model did not move.
+
+<details><summary>Answer</summary>
+
+**Moved:** `demand`. **Proof:** count installations where `software_model = your model` against installations for the product family — the gap is your unnormalized set. **Fix:** normalize the discovery models to the software model, re-run. **Reset:** un-normalize one record. **Why it catches people:** "the software is installed" and "the model is counted" are different statements; only the second is demand.
+</details>
+
+### Drill 3 — The expired contract
+
+**Break it:** on a licensed model, set the entitlement's end date to yesterday — or move it into `On Order`.
+
+**You should see:** the position move toward **Unlicensed** although the quantity is adequate.
+
+<details><summary>Answer</summary>
+
+**Moved:** `active_rights` — not `demand`, not `required`. **Proof:** entitlement start/end dates and state; `active_rights` is 0, or short by exactly the expired quantity. **Fix:** correct the end date (or take it out of On Order) and re-run. **Reset:** restore the date, re-run. **Why it catches people:** everyone stares at the install count. Rights are a date-bounded fact, not a stored number.
+</details>
+
+### Drill 4 — The floor that is doing its job
+
+**Break it:** on the SQL Server model, set *Minimum cores per processor* to **1**, or compare a Common `Per Core` entitlement against a Microsoft one for the same host.
+
+**You should see:** `required` fall toward the raw core count — on a low-core socket, up to 4× lower than before.
+
+<details><summary>Answer</summary>
+
+**Moved:** `required`. **Proof:** the model's metric attribute value next to the socket and core counts. **Fix:** restore **4** and re-run — and if procurement is genuinely short, fix the quantity, not the attribute. **Reset:** attribute back to 4. **Why it catches people:** a lowered floor makes the position *better*, which feels like progress. This is the most dangerous "fix" in the product.
+</details>
+
+### Drill 5 — The third OSE that costs nothing
+
+**Break it:** on a `Per Core (with CAL)` / Windows Server model, add a third operating system environment to a host that already has two.
+
+**You should see:** `required` does not move.
+
+<details><summary>Answer</summary>
+
+**Moved:** nothing. **Proof:** `Maximum active OSEs per server` = **2** on the model. **Fix:** this is a cap, not a bug — confirm the contract permits the extra OSEs, then raise the attribute deliberately and record why. **Reset:** remove the third OSE. **Why it catches people:** the cap is silent and the number looks stable, so it reads as "reconciliation didn't notice".
+</details>
+
+### Drill 6 — The named-user metric that counts nobody
+
+**Break it:** take a per-named-user product, assign users to the installations (or to the model) — but create no **allocations**.
+
+**You should see:** `demand` = 0 despite real, assigned users.
+
+<details><summary>Answer</summary>
+
+**Moved:** `demand`. **Proof:** allocation count for the model is 0 while user assignments exist. **Fix:** allocate the rights — allocation is the act that turns "someone uses it" into "a right is consumed". **Reset:** remove the allocations. **Why it catches people:** assignment and allocation sound like the same verb; only one of them is demand.
+</details>
+
+### Drill 7 (capstone) — Two faults, one boring answer
+
+**Break it:** combine drills 2 and 3 — leave a discovery model unnormalized *and* expire the entitlement that would have covered it. Then add an exclusion so the model drops out of demand entirely.
+
+**You should see:** **Compliant. Zero deltas. Nothing to do.** The most dangerous screen in SAM.
+
+<details><summary>Answer</summary>
+
+**Moved:** all three at once — `demand` down (exclusion plus unnormalized model), `active_rights` down (expiry) — so the subtraction lands on compliant. **Proof:** the exclusion list, the discovery model's normalization state and the entitlement dates, read together. **Fix:** remove the exclusion, normalize, restore the date; re-run and watch the position move twice. **Reset:** undo in reverse order. **Why it catches people:** compliance is a subtraction, and two errors can cancel. A clean result is evidence of nothing until you have read the three inputs.
+</details>
+
+### Lab hygiene
+
+- Reset each drill before the next. Stacked faults make a diagnosis unfalsifiable — which is exactly how production estates get into this state.
+- Keep a one-line log per drill: `model · metric · attribute or property changed · demand / required / active_rights · position`.
+- If you cannot predict the post-fix number, the diagnosis is not finished. You have found a symptom, not a cause.
 
 ---
 

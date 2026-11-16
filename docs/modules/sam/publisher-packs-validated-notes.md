@@ -371,6 +371,25 @@ The guide gained two reference sections on 2026-11-16: `### Troubleshooting a wr
 
 **Deliberately not in the cheat sheet:** CrowdStrike consumption internals, IBM's full Australia Patch 6+ metric list, and SAP's document multipliers. They belong in the sections, not on a one-page card, and compressing them would invite misquotation.
 
+## Missing-metric tree and diagnosis lab — provenance
+
+`### When the metric you need isn't in the picker` and `## Lab: Break It on Purpose — Seven Diagnosis Drills` add no new platform claims either. Routing:
+
+| Claim | Rests on | Status |
+|---|---|---|
+| Entitlement metric group is populated from the software model; the picker cascades from it | S16/S17 — "automatically populated based on the Software Model field" | Validated |
+| Publisher metric groups require their pack; Foundation ships Common only | S1–S9 pack pages + the Foundation/Professional split | Validated |
+| `Per Core (Physical Core)` / `(Virtual OSE)` retired from New York, results may change | S13 | Validated |
+| Red Hat metrics ship in the IBM pack | S1/S4 | Validated |
+| `Subscription` / `Consumption` come from SaaS License Management; Consumption forces `License type = Subscription` | S15/S16 | Validated |
+| Custom License Metrics path, group fixed to **Custom**, metric appears by name | S15 | Validated |
+| 4-core floor, `Maximum active OSEs per server` = 2, minimum users per processor 25 | S17 | Validated |
+| Per-named-user metrics count allocations | Demand table plus pack pages | Corroborated |
+| "A custom metric carries no counting rule of its own" | No page says this; inferred from custom metrics supplying a name and a fixed group only | Unverified — labelled inline in the guide |
+| Drill predictions ("required falls toward raw core count", "required does not move") | Arithmetic over the validated attributes | Derived, not quoted |
+
+The drills are deliberately sub-production only; nothing in them is safe to rehearse against a reconciled production model.
+
 ---
 
 ## Re-validation recipe (next release)
