@@ -337,6 +337,42 @@ Worked example (S8): 10 material + 10 sales documents = (10 × 0.2) + (10 × 1) 
 | CrowdStrike version gates | Validated | S1 — kept, with KB1801232 for older builds |
 | The "10% rule" for virtualised Oracle | False / folklore | No rule of any percentage exists in Oracle's Partitioning Policy or the Brazil pages; the video calling it "not a rule" is correct (S11) — kept only as an explicitly debunked myth |
 
+## Compliance troubleshooting & cheat sheet — what rests on what
+
+The guide gained two reference sections on 2026-11-16: `### Troubleshooting a wrong compliance position` (Reconciliation section) and `## One-Page Cheat Sheet — Groups, Metrics, Attributes, Arithmetic`. **Neither introduces a new platform claim.** Every row routes to something already validated above; this table states the routing so the next reviewer does not have to re-derive it.
+
+| Troubleshooting row | Rests on | Status |
+|---|---|---|
+| Unlicensed with installs present; `active_rights` 0 | Entitlement date validity and On Order exclusion are part of the guide's own three-term model; the four position names come from the SAM position vocabulary used throughout the corpus | Corroborated |
+| Demand 0 despite installs; duplicate models | Normalization (SUMN) → software model is the counting unit (S12/S14) | Validated |
+| Concurrent user demand 0 | Concurrent User needs a Resource Value record; Engineering Applications pack page states resource values feed concurrency | Corroborated |
+| Per Named User counts nobody | Demand table's "count of **allocations**" for per-named metrics | Corroborated |
+| SQL demand below contract on Common Per Core | `Minimum cores per processor` 1 (Common Per Core) vs 4 (Microsoft Per Core) — S17 | Validated |
+| SQL demand ≈ 4 × cores | `Minimum cores per processor` 4 for Microsoft Per Core — S17 | Validated |
+| OSE cap swallows extra OSEs | `Maximum active OSEs per server` 2 — S17 | Validated |
+| Windows per-VM licensing not reflected | Per Core (with CAL) cluster-level rule (S6) + 8-licence minimum per VM (S5) | Validated |
+| Oracle demand above population | `Minimum users per processor` 25 — S17 | Validated |
+| Oracle jump after VM move | `com.snc.samp.oracle.reconlevel`, default `ESX cluster` — S10/S11 | Validated |
+| Oracle 2× on Per Processor | Oracle Processor Core Factor Table is applied via processor definitions — S7 | Validated |
+| VMware round number per socket | 16-core floor (VVS/VVEP) and `Maximum cores per processor` 32 — S9/S17 | Validated |
+| IBM sub-capacity unsupportable | ILMT / BigFix Inventory prerequisite — S4 | Validated |
+| Red Hat metrics missing | Red Hat metrics sit behind the IBM pack — S1/S4 | Validated |
+| SAP users all one type | Named User Type is carried on the software model — S8 | Validated |
+| Adobe seats not reclaimed | Allocated in use / Not Allocated in use / Allocated not in use — S1/S2 | Validated |
+| Citrix position empty | Discovery schedule on the Delivery Controller; Application Group mapping precedence — S3 | Validated |
+| Position flips between runs | No single page; follows from discovery de-duplication and usage-evidence inputs | Unverified (diagnostic heuristic) |
+| Two dashboards disagree | `com.snc.samp.recon.group` default **None** — S10; the "position is per model × metric" framing is the guide's own | Partly validated |
+| Position shifts after upgrade | Per Core (Physical Core) / (Virtual OSE) retired in New York, results may change — S13 | Validated |
+| Everything compliant, zero deltas | Exclusions and ignore lists remove installs from demand; "Not counted" is a distinct state in the position vocabulary | Corroborated |
+
+**Explicitly the guide's framing, not a ServiceNow statement:** the demand → required → active_rights ordering, the "which term moved?" triage, and the "not a bug — do not fix" list. They are pedagogical scaffolding built on validated mechanics; the mechanics are sourced, the diagnosis sequence is ours.
+
+**Cheat sheet provenance:** every default in its knob table is copied from the S17 list above; every group/metric/gate row comes from S1–S9; the position table reuses the six states already defined in the guide. Nothing in it should need re-validating separately — if a value changes upstream, fix it in `### Metric attributes` and mirror it into the cheat sheet.
+
+**Deliberately not in the cheat sheet:** CrowdStrike consumption internals, IBM's full Australia Patch 6+ metric list, and SAP's document multipliers. They belong in the sections, not on a one-page card, and compressing them would invite misquotation.
+
+---
+
 ## Re-validation recipe (next release)
 
 1. Open S1 and diff the metric table against the guide's matrix — renames and deprecations land there first (the New York `Per Core` collapse is the template).

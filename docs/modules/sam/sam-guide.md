@@ -32,11 +32,13 @@
   - [Verification snippets](#verification-snippets)
   - [Failure modes by pack](#failure-modes-by-pack)
   - [The 10-percent rule that is not a rule: soft partitioning](#the-10-percent-rule-that-is-not-a-rule-soft-partitioning)
+- [One-Page Cheat Sheet — Groups, Metrics, Attributes, Arithmetic](#one-page-cheat-sheet--groups-metrics-attributes-arithmetic)
 - [Reconciliation — The Core Engine](#reconciliation--the-core-engine)
   - [📊 Reconciliation Flow Diagram](#reconciliation-flow-diagram)
   - [📊 Compliance Position States](#compliance-position-states)
   - [📊 Publisher-Specific Rules Flow](#publisher-specific-rules-flow)
   - [📊 SaaS License Management Flow](#saas-license-management-flow)
+  - [Troubleshooting a wrong compliance position](#troubleshooting-a-wrong-compliance-position)
 - [Compliance Positions Explained](#compliance-positions-explained)
 - [Discovery & Data Sources](#discovery--data-sources)
 - [SaaS License Management](#saas-license-management)
@@ -722,6 +724,84 @@ Subscription VMware products (VVS, VVEP) require a minimum of **16 cores per pro
 
 ---
 
+## One-Page Cheat Sheet — Groups, Metrics, Attributes, Arithmetic
+
+Everything below is condensed from the three sections above it — [what a metric group is](#what-a-metric-group-actually-is-and-where-to-find-it), [metric attributes](#metric-attributes--the-numbers-the-counting-rule-reads), [group → metric table](#metric-groups-and-their-metrics). Print this; use the linked sections when a row surprises you.
+
+**1 · The chain, in one line**
+
+```text
+pack  →  metric group  →  license metric  →  metric attributes  →  demand  →  required  →  active_rights  →  position
+(gate)     (inherited)       (what to count)     (floors/caps)       (count)     (rule applied)   (purchased)      (delta)
+```
+
+**2 · Which group, when** — a group exists only if its pack is active; **Foundation gets `Common` only**
+
+| Group | Pack / plugin | The metrics you actually meet | The rule that governs the group |
+|---|---|---|---|
+| **Common** | none (base logic) | Per Core, Per Processor, Per User, Per Device, Per Named User/Device, User/Device CAL, Concurrent User, Resource Consumption | No publisher floors — `Per Core` ships `Minimum cores per processor = 1` |
+| **Microsoft** | `com.snc.samp.microsoft` | Per Core, Per Core (with CAL), Per Processor, Server (Per Instance), Server (Per Server), Per User/Device, User/Device CAL, User Subscription | Cores on the physical **and** virtual side; two per-core variants with different floors |
+| **Oracle** | `com.snc.samp.oracle` | Per Processor, Named User Plus, Employee | Core-factor table + edition NUP minimums; licenses the server, never the VM |
+| **IBM** | `com.sn_samp_ibm` | PVU, RVU, Virtual Processor Core, Authorized User, Per Processor (+ Australia Patch 6+ metrics) | Full capacity vs sub-capacity against activated cores; ILMT/BigFix feed required |
+| **Red Hat** | `com.sn_samp_ibm` (**same** pack) | Per Socket-pair, Per Core | Socket pairs on the host or VM pair |
+| **SAP** | `com.sn_samp_sap` | Named User, Engine Measurement, Digital Access, User Subscription, Full Usage Equivalent | Named-user **type** comes from the software model, not the entitlement |
+| **Adobe** | `com.sn_samp_adobe` | Per Device, Per User, User Subscription | One right per active subscription record per user; allocated / not-allocated states |
+| **Citrix** | `com.sn_samp_citrix` | Concurrent User, Per Device, Per Processor, Per User, Per User/Device | Distinct users and devices across related models; potential access, not launches |
+| **VMware** | `com.sn_samp_vmware` | Per Processor, Per Core, Per OSI, Per Application Instance, Per Device, Per Named User | 32 cores per CPU (Per Processor); 16-core floor (Per Core) |
+| **Subscription / Consumption** | SaaS License Management (`sn_sam_saas_int`) | User Subscription / SaaS Consumption | Forces `License type = Subscription` |
+| **Custom** | Custom License Metrics module | your scripted metric | Metric group fixed to **Custom**; appears by name in the picker |
+| **CrowdStrike** | `sn_sam_saas_int` 15.0.8+ | Reserved Hourly Average Sensor, Sensor Subscription | Hourly average over 28 days; weekly totals averaged over 4 weeks |
+
+**3 · The arithmetic, in five lines**
+
+```text
+demand        = licensed things after exclusions   (per device; per user for user metrics; per allocation for named)
+required      = metric_rule(demand)                 (floors, core factors, cluster boundary, OSE divisor)
+active_rights = Σ entitlements valid as-of          (expired and On Order rows excluded)
+delta         = required − active_rights
+position      = Unlicensed (0 rights) | Under (>0) | Compliant (0) | Over (<0)
+```
+
+**4 · The knobs that decide the answer** — documented defaults, editable per model (`All > Software Asset > Software Models` → **Metric Attributes**)
+
+| Group → metric | Knob : default | Formula it plugs into |
+|---|---|---|
+| Microsoft → Per Core | `Minimum cores per processor` **4**, `Minimum cores per VM` **4** | `Processors × Max(4, Cores)` |
+| Microsoft → Per Core (with CAL) | `Minimum cores per processor` **8**, per VM **8**, `Minimum cores per server` **16**, `Maximum active OSEs per server` **2**, `Maximum installs per OSE` **1** | `Max(Processors × Max(8, Cores), 16)` then `(OSEs / 2) × cores` |
+| Microsoft → Per Processor | `Maximum processors per right` **2** | `Processors / 2` |
+| Oracle → Per Processor | `Maximum number of sockets per server` **2**, `Maximum size of instance on cloud` **8** | cores × Oracle core factor |
+| Oracle → Named User Plus | `Minimum users per processor` **25**, `Minimum NUPs` **5**, per server **10**, on cloud **10**, WebLogic on-premise / cloud **10** | `max(25 × processors, users + devices)` for EE |
+| VMware → Per Processor | `Maximum cores per processor` **32** | `Processors × (Cores / 32)` |
+| VMware → Per Application Instance | `Maximum installs per right` **1** | one right per instance |
+| Red Hat → Per Socket-pair | `Maximum sockets per right` **2**, `Maximum VMs per right` **2** | `sockets / 2` |
+| Per User / Per Device (all groups) | `Maximum installs per right` **Unlimited** | one right per user or device, whatever the install count |
+| IBM / Citrix / Common → Per Processor | `Maximum cores per processor` **Unlimited** | one right per CPU |
+
+**5 · Hardcoded — stop hunting for a row:** VMware Per Core's 16-core floor, VVEP's 3 × 2 × 32 cap, Oracle and IBM core factors (`samp_processor_definition`).
+
+**6 · Position → what you may say**
+
+| State | Test | Do | Do not say |
+|---|---|---|---|
+| **Unlicensed** | `active_rights = 0` with demand > 0 | Buy, remove, or scope out | "we own it somewhere" |
+| **Under-licensed** | `delta > 0` | True-up, or cut demand | "it's close enough" |
+| **Compliant** | `delta = 0` | Monitor, harvest | "we're safe forever" |
+| **Over-licensed** | `delta < 0` | Reclaim, cut the renewal | "extra cover" |
+| **Not counted** | excluded by rule | Review exclusions yearly | "zero risk" |
+| **Unknown / Unallocated** | insufficient data | Fix normalization or the feed | "compliant" |
+
+**7 · Seven sentences worth memorising**
+
+1. `position = f(...)` is **three** computations; only the term that moved is worth debugging.
+2. The metric group is **inherited from the model** — fix the model, not the entitlement.
+3. Attributes move `required`; entitlements move `active_rights`. If both moved, you edited the wrong record.
+4. Two Microsoft per-core variants, two floor sets: **4/4** versus **8/8/16**.
+5. Default `Maximum installs per right = Unlimited` is the quietest under-count in SAM.
+6. There is no 10% rule and no tolerance band — floors are contractual.
+7. "Unknown" is not "compliant"; a program that reports it as compliant is where audit penalties come from.
+
+---
+
 ## Reconciliation — The Core Engine
 
 Reconciliation is a scheduled job that walks every software model with activity and computes a compliance position. ServiceNow schedules it **weekly by default** (the properties page calls it "the weekly run of reconciliation"); most shops additionally trigger it on demand or nightly via a scheduled job, but weekly is the shipped cadence.
@@ -807,6 +887,44 @@ Oracle Database EE, Named User Plus
 | Compliance fluctuates nightly | Usage data feed is intermittent |
 | Specific publisher wildly over-licensed | Suite/bundle roll-up missing, so components counted individually |
 | Oracle shows impossible numbers | Core-factor table not configured (Oracle licenses physical cores with a core factor) |
+
+### Troubleshooting a wrong compliance position
+
+Work in the order of the arithmetic, never in the order of the complaint: **which term moved — `demand`, `required`, or `active_rights`?** Recompute those four lines for one model and compare them to the stored result. If you cannot say which term moved, you do not yet have a diagnosis.
+
+**Three questions, in order**
+
+1. **Did `demand` move?** → installs, normalization, allocations, usage feeds ([Discovery & Data Sources](#discovery--data-sources)).
+2. **Did `required` move while demand held?** → metric choice, metric attributes, publisher rules, pack properties.
+3. **Did `active_rights` move while demand held?** → entitlements: dates, quantity, metric, model link.
+
+| What you see | Term that moved | Most likely cause | Proof to collect | Fix |
+|---|---|---|---|---|
+| Whole publisher shows **Unlicensed** with installs present | `active_rights` | No entitlement for that model, every entitlement expired, or rows sitting On Order | entitlement rows for the model with start/end dates covering the as-of date | Create/renew the entitlement, correct the dates, or clear the On Order state |
+| Installs visible in the CMDB, `demand` = 0 | `demand` | Installs not normalized to that model (unmatched product), or a duplicate model holds them | `cmdb_sam_sw_install` rows grouped by normalized product | Normalize/remap the product, merge the duplicate models |
+| Users clearly working in a concurrent product, `demand` = 0 | `demand` | No Resource Value record for Concurrent User | resource-value row for the model | Add the RV row, re-run reconciliation |
+| Per Named User metric counting nobody | `demand` | The metric counts **allocations**, not installs — none exist | allocation records for the model | Allocate users/devices, or change metric if the contract is install-based |
+| SQL Server demand far *below* contract | `required` | The model is on Common `Per Core` (floor 1) or the Microsoft pack is inactive, so the floor never applies | entitlement's Metric group + the model's Metric Attributes | Activate the Microsoft pack, switch to Microsoft `Per Core`, restore the floor of 4 |
+| Demand ≈ 4 × core count on small sockets | `required` | `Minimum cores per processor = 4` | attribute value | Expected — the entitlement quantity must reflect the floor, not raw cores |
+| A third (or fifth) OSE on a licensed-for-two server adds nothing | `required` | `Maximum active OSEs per server = 2` is a cap the contract may not contain | attribute value vs the contract | Set the cap to the contract's number and record the clause; do not leave the default |
+| Windows Server per-VM licensing not reflected | `required` | Per Core (with CAL) on an ESX cluster prices peak cluster cores; per-VM needs SA/subscription plus the 8-licence minimum per VM | metric, cluster membership, SA flags | Pick the metric the contract actually describes; do not mix the two per-core variants |
+| Oracle demand far above the user population | `required` | Enterprise NUP minimum of 25 × processors (WebLogic: 10) — the minimum *is* the answer | edition, attribute, processor count | Confirm the edition; if it is EE, the number is correct and the contract is the lever |
+| Oracle count jumps after a VM or vCenter move | `required` | `com.snc.samp.oracle.reconlevel` — default `ESX cluster` prices every host in the cluster | property value, host affinity, vCenter scope | Set the boundary the contract uses, deliberately, and record why |
+| Oracle Per Processor demand is ~2× expected | `required` | Core-factor table has no row for the CPU family, so cores count at 1.0 | `samp_processor_definition` entries | Load the Oracle processor core factor table |
+| VMware demand is a suspicious round number per socket | `required` | 16-core floor (Per Core, hardcoded) or `Maximum cores per processor = 32` (Per Processor) | metric + attribute | Expected — model it, do not "fix" it; 64-core CPUs legitimately cost two rights |
+| IBM sub-capacity claim cannot be supported | `rules` | No ILMT / BigFix Inventory feed | integration record, ILMT API version | Integrate the feed, or claim full capacity |
+| A Red Hat entitlement offers no socket or core metric | configuration | The **IBM** pack is not installed — Red Hat metrics live there | application list / metric picker | Install `com.sn_samp_ibm`, then re-check the picker |
+| Every SAP user classified the same | `demand` | Wrong model on the entitlement → wrong Named User Type | model linked to the entitlement | Relink the correct S/4 or ECC model with its user types |
+| Adobe seats never reclaimed while the position is over-licensed | `demand` | `Allocated not in use` — allocation exists, subscription does not | the three allocation states on the entitlement | Reclaim, or make the owner justify the seat |
+| Citrix position empty | `demand` | No Discovery schedule on the Delivery Controller, or mappings at both Delivery Group and Application Group level (Application Group wins) | Discovery schedule, mapping level | Create the schedule; re-run once data lands |
+| Position flips between runs with nothing changed | `demand` | Intermittent usage feed, Discovery source rotation, or a normalization remap | install count per source across three consecutive runs | Fix the feed or the rotation before reporting any position |
+| Two dashboards disagree and both are "right" | scope | `com.snc.samp.recon.group` differs (default **None**), one report filters by publisher, and a position is per **model × metric** | property value, report filters | Align the recon group; always state model × metric next to the number |
+| Position shifts right after a release upgrade | `rules` | `Per Core (Physical Core)` / `Per Core (Virtual OSE)` retired in New York and folded into `Per Core`; ServiceNow warns results may change | release notes, model metrics | Re-baseline before quoting the number to anyone |
+| Everything compliant, zero deltas anywhere | `demand` | Exclusions, ignore lists or excluded CIs swallowing installs — those models are **Not counted**, not compliant | exclusion and ignore-list review | Re-audit exclusions; report them as a separate line |
+
+**Not a bug — do not "fix" these:** SQL Server's 4-cores-per-socket floor, VMware Per Core's 16-core floor, Oracle's edition NUP minimums, and the cluster/aggregation boundary. Each is contractual or hardcoded; the fix is in the quantity you own or the clause you can cite, never in the attribute default quietly changed to 1.
+
+**Capture before you escalate** either upward or to a vendor: the reconciliation timestamp, the model **and** metric, every non-default metric attribute with its justification, the entitlement rows with dates and quantities, and the demand count broken out by discovery source. Those five items turn "the tool is wrong" into an answerable question — and they are exactly what an auditor or an Oracle LMS script will ask for.
 
 **Reconciliation is a report, not a correction.** Fixing the underlying model, entitlement, or normalization — never editing the result.
 
