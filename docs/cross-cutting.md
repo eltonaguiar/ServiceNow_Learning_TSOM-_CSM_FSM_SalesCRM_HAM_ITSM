@@ -10,6 +10,7 @@
 ## Contents
 
 - [Integrations](#integrations)
+- [ServiceNow ⇄ Salesforce lab](#servicenow--salesforce-lab)
 - [Scripting](#scripting)
 - [GlideSystem (gs)](#glidesystem-gs)
 - [Flow Designer](#flow-designer)
@@ -133,6 +134,19 @@ flowchart TD
     style K fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
     style L fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
 ```
+
+---
+
+### ServiceNow ⇄ Salesforce lab
+
+Hands-on POC: a free ServiceNow Personal Developer Instance and a free Salesforce Developer Edition org, bonded as Incident ⇄ Case.
+
+- Live lab: https://eltonaguiar.github.io/EBOND_ServiceNowSalesforce/
+- Lab steps on that site: https://eltonaguiar.github.io/EBOND_ServiceNowSalesforce/lab.html
+- Repo: https://github.com/eltonaguiar/EBOND_ServiceNowSalesforce
+- Runnable code: `lab/` in that repo (Table API curl, Scripted REST, Apex Queueable callout, async Business Rule). External Client App on Salesforce — do not create a Connected App (blocked for new apps since Spring '26).
+
+This lab is the worked example for the toolset above: Table API and Scripted REST inbound, REST Message outbound, Flow HTTP Callout or Apex for the Salesforce side.
 
 ---
 
