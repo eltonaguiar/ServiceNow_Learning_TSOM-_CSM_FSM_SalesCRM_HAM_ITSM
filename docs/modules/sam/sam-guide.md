@@ -5,7 +5,7 @@
 **Module:** SAM (Software Asset Management)  
 **App:** ITAM (IT Asset Management) — SAM Pro  
 **Confidence:** verify  
-**Updated:** 2026-11-16 — publisher-pack and license-metric section added  
+**Updated:** 2026-11-16 — publisher-pack section (validated against Brazil docs), reconciliation arithmetic, soft-partitioning/10-percent myth, gaps closed  
 
 > **Scope note:** This guide targets the **SAM Administrator** role: entitlements, software models, reconciliation, compliance reporting, publisher audits, optimization/reclamation, renewal tracking, and SaaS license management. It is the software counterpart to the [HAM guide](../ham/ham-guide/).
 
@@ -29,6 +29,7 @@
   - [Pack-specific properties that change reconciliation](#pack-specific-properties-that-change-reconciliation)
   - [Verification snippets](#verification-snippets)
   - [Failure modes by pack](#failure-modes-by-pack)
+  - [The 10-percent rule that is not a rule: soft partitioning](#the-10-percent-rule-that-is-not-a-rule-soft-partitioning)
 - [Reconciliation — The Core Engine](#reconciliation--the-core-engine)
   - [📊 Reconciliation Flow Diagram](#reconciliation-flow-diagram)
   - [📊 Compliance Position States](#compliance-position-states)
@@ -39,6 +40,7 @@
 - [SaaS License Management](#saas-license-management)
 - [Optimization & Reclamation](#optimization--reclamation)
 - [Publisher-Specific Traps](#publisher-specific-traps)
+- [Gaps Closed — Depth That Was Missing](#gaps-closed--depth-that-was-missing)
 - [Re-usable Code / Metadata](#re-usable-code-metadata)
   - [Business Rule — flag an installation with no normalized software model](#business-rule--flag-an-installation-with-no-normalized-software-model)
   - [Scheduled Job — expire entitlements past their end date](#scheduled-job--expire-entitlements-past-their-end-date)
@@ -295,7 +297,7 @@ An **entitlement** records the legal right to use software, and must carry:
 
 Available packs: **Adobe, Citrix, IBM (includes Red Hat), Microsoft, Oracle, SAP, VMware.** SaaS License Management adds the `Subscription` and `Consumption` metric groups. On **Foundation** you get base logic only — publisher-specific metric groups are a **Professional** capability.
 
-> **Release pin:** metric names, plugin IDs and defaults below come from the Brazil-release documentation (Software Asset Management > *Software license metrics*, page updated 2026-09-10) as captured in the `ALT_PARALLELSWARM_SAM` research corpus. Verify in your own release — ServiceNow renames and retires metrics between releases (see the *Per Core* deprecation under Microsoft).
+> **Release pin:** metric names, plugin IDs and defaults below were re-validated against ServiceNow's Brazil-release documentation on 2026-11-16 (metric and pack pages dated 2026-09-10, properties page 2026-03-12); the first draft came from the `ALT_PARALLELSWARM_SAM` corpus. Per-claim status, the exact quotes each statement rests on, and the leftovers that remain unverified are in [Publisher Pack Notes — Validation Log](../publisher-packs-validated-notes/). Still verify in your own release — ServiceNow renames and retires metrics between releases (see the *Per Core* deprecation under Microsoft).
 
 ```mermaid
 flowchart LR
@@ -338,7 +340,7 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 4. Open the software model → **Metric Attributes** related list → set attributes such as *Maximum cores per processor* (VMware) or edition / Software Assurance flags.
 5. Confirm dashboards appeared: *Software Publisher Analytics* covers Citrix, IBM, Microsoft, Oracle, SAP and VMware; the **Office 365** and **Adobe Cloud** dashboards are pack-gated too.
 
-**Exam-critical nuance:** the metric group you select does **not** have to match the publisher of the title. The group controls which metrics are *selectable*; the contract decides which is *correct*. Choosing the Microsoft group for a non-Microsoft title is permitted by the platform, but the counting rule follows the metric, so a wrong pairing produces a confident wrong number.
+**Exam-critical nuance:** the metric group is **auto-populated from the software model**, and the available license metrics change with the group. Pick the group that matches the metric your contract actually uses, not the publisher string on the title: the counting rule follows the metric, so a mismatched pairing still reconciles — to a precise, meaningless number. (The corpus records an official sentence saying the group need not match the publisher; it is not on the Brazil pages re-checked in the validation log, so treat it as practice rather than a documented platform rule.)
 
 ### Metric groups and their metrics
 
@@ -346,7 +348,7 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 |---|---|---|---|
 | **Common** | Per Core, Per Device, Per Named Device, Per Named User, Per Processor, Per User, User CAL, Device CAL, User/Device CAL, Concurrent User, Resource Consumption | Base metrics; `Per Core` = CPU core count × CPU count on a physical server or VM | No pack |
 | **Microsoft** | Per Core, Per Core (with CAL), Per Processor, Per Device, Per User, User CAL, Device CAL, Server (Per Instance), Server (Per Server), User Subscription | Cores on physical **and** virtual sides; CAL and server-install variants | Microsoft pack |
-| **Oracle** | Per Processor, Named User Plus, Employee | Cores on a processor (hyper-threading matters on AWS); NUP licenses the host; Employee counts total employees | Oracle pack |
+| **Oracle** | Per Processor, Named User Plus, Employee | Cores on a processor (hyper-threading matters on AWS); NUP licenses the host plus users *and* devices, with edition minimums applied automatically; Employee counts total employees | Oracle pack |
 | **IBM** | PVU, RVU, Virtual Processor Core, Authorized User, Authorized/Employee/External User Value Unit, Per Processor, Per Device, Per User, Per Named User, plus Australia Patch 6+ metrics (Application Instance, Concurrent User, Connection, Events Per Second, Floating User, Flows Per Minute, Managed Client/Device/Virtual Server, Order Lines, RPU Decimal Petabyte Managed, Storage Device, Terabyte, Token) | Full-capacity vs sub-capacity against activated cores | IBM pack |
 | **Red Hat** | Per Socket-pair, Per Core | Socket pairs on the host or VM pair; cores physical + virtual | IBM pack |
 | **SAP** | Named User, Engine Measurement, Digital Access, User Subscription (S/4HANA Cloud Public), Full Usage Equivalent (S/4HANA Cloud Private) | Named-user **type** comes from the software model; Digital Access counts third-party documents | SAP pack |
@@ -376,44 +378,89 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 - **Software Assurance changes the maths**: `com.snc.samp.ms.sa.to.nonsa.cost.ratio` (default `1.25`), `com.snc.samp.sqlserver.standard_sa.to.enterprise_sa.cost.ratio` (default `0.25`) and `com.snc.samp.windowserver.license.threshold` (default `4.59`, Datacenter vs Standard) drive edition-optimisation suggestions. Wrong ratios = wrong "upgrade to Enterprise" advice.
 - **Component licences**: `com.snc.samp.use_component_licenses` (default `false`) decides whether component licences are used when the suite configuration is insufficient.
 - **Guided setup**: Success Portal > Product Setups > Microsoft SQL Server / Windows Server / M365 configures one instance at a time — it is not a bulk loader.
+- **Cluster is a calculation boundary, not an allocation unit.** The metric page says Per Core (with CAL) licenses at cluster level for an ESX server in a cluster (peak cores across all hosts); the Per Core (with CAL) rules page says you allocate to individual hosts or individual VMs, "not to cluster". Both are Brazil: allocate per host/VM, then let the cluster rule size the requirement.
+- **Per-machine floors differ by product.** Windows Server floors are **8 licences per physical processor** and **16 per server**, and VM-based licensing needs SA/subscription with an **8-licence minimum per VM**. SQL Server's **4 cores per socket** minimum is Microsoft's contract term, not a documented SAM behaviour — do not mix the two in one explanation.
+- **P+SA version assignment:** a PPN with a P+SA licence type and no version gets a model with the exact version applied automatically (on entitlement creation *and* MLS import); check *Upgrade history* before debugging a phantom P+SA mismatch.
+- **Supported models list:** Per User, Per Device, Per Core, Per Core (with CAL), User CAL, Device CAL, Server (per instance), Server (per server), Per Processor, User Subscription, Software Assurance. Anything else is not a Microsoft-pack model.
 
 #### Oracle
 
 | Metric | What it counts | Trap |
 |---|---|---|
 | **Per Processor** | Cores on a processor | Enable Hyper-Threading when the VM runs on AWS, or the count is short |
-| **Named User Plus** | The physical host, plus (for server software reconciled through a client access record) the users accessing it | NUP minimums per processor are a contract term SAM does not enforce for you |
+| **Named User Plus** | All users **and** physical devices that access the product; through a client access record it licenses the accessing users | Needs a client access record; edition minimums are enforced for you (below) |
 | **Employee** | Total full-time, part-time and temporary employees, including contractors, agents and consultants | For Java SE Universal the requirement is **total employees**, not employees who use the product |
 
-- **Hard partitioning / virtualisation:** Oracle licenses the server unless partitioning is certified. The aggregation level for VMware-hosted Oracle instances is `com.snc.samp.oracle.reconlevel` (default `ESX cluster`); `com.snc.samp.oracle.hostaffinityenabled` applies only when the level is `vCenter(s)`.
-- **Eligibility table:** `samp_oracle_options` — a server must be marked *Considered for licensing = Yes* **and** have a physical-server relationship, or it is silently skipped.
-- **Audit instrument:** Oracle LMS scripts, not ServiceNow. SAM's job is to be able to explain the delta.
+- **Edition minimums are applied for you** through metric attributes (*Minimum users per processor*, *Minimum NUPs for WebLogic on-premise deployments*, *Minimum NUPs for WebLogic cloud deployments*). Rights = the **larger** of (minimum × processors/cores on the underlying physical server) and (users + devices). EE: 25 per processor (25 × 8 cores = 200 rights beats 20 users). SE: 5. SE2: 10 per database server, and each SE2 database may use a maximum of 16 CPU threads. WebLogic SE: 10 per processor; WebLogic EE and Suite: 10 per processor core.
+- **Per Processor** applies the **Oracle Processor Core Factor Table**: 2 CPUs × 4 cores × 0.5 factor = 4 rights. It licenses only the underlying physical or cloud server — never individual VMs or partitions — and associated options/management packs inherit the same metric.
+- **A CAL record changes the metric:** if a client access record exists, SAM licenses users and devices with NUP **only** and will not use Per Processor even when Per Processor rights are available.
+- **Employee** consumption comes from resource-value records; cost uses the `samp_price_tier` tier table, with a one-year true-up for the subscription period.
+- **Hard partitioning / virtualisation:** Oracle licenses the server unless partitioning is certified. The aggregation level for VMware-hosted Oracle instances is `com.snc.samp.oracle.reconlevel` — `ESX` (all cores on the host), `ESX cluster` (default; all processors on every host in the cluster) or `vCenter(s)` (all cores on every ESX host, maths keyed to ESXi version). `com.snc.samp.oracle.hostaffinityenabled` applies only at `vCenter(s)` and lets VM–host affinity rules reduce the count.
+- **Audit instrument:** Oracle LMS scripts and Oracle's own 3PTV-verified collection, not SAM. SAM's job is to be able to explain the delta.
+- **Unverified:** the `samp_oracle_options` *Considered for licensing* gating is corpus-only — check your instance before designing around it.
+
+### The 10-percent rule that is not a rule: soft partitioning
+
+The reconciliation diagram used to say "10% rule applies" for virtualised Oracle. That was wrong, and worth unpacking because the belief is widespread:
+
+> **There is no 10% rule.** Neither Oracle's Partitioning Policy nor any ServiceNow Brazil page defines a percentage, a discount, or a tolerance for virtualised Oracle. The training video that says "it isn't a rule" is correct.
+
+**Where the number comes from.** A database VM might hold 8 vCPUs on a 96-core cluster — roughly 8%. People see the VM's share, assume licensing tracks it, and the "10% rule" gets repeated as if it were policy. It isn't. Oracle counts **physical cores at the aggregation boundary** and multiplies by the core factor; the VM's size never appears in the arithmetic.
+
+**What actually decides the number — the boundary:**
+
+| Platform | Boundary Oracle makes you license | Source |
+|---|---|---|
+| Physical server | Every processor on that server | Oracle Processor definition |
+| VMware ESXi 5.0 and earlier | All processors on every ESXi host within **the same shared storage under the same datacenter** | ServiceNow, soft-partitioned environments (Brazil) |
+| VMware ESXi 5.1–5.5 | All processors on every ESXi host within **the same vCenter Server instance** | same |
+| VMware vCenter 6.0 and later | All processors on all ESXi 5.1+ hosts within **all vCenter instances across your network** | same |
+| VMware + VM–host affinity | Sum of the physical hosts the VMs **can** reside on, per the affinity rules — honoured only at the `vCenter(s)` aggregation level, and only if your agreement provisions affinity | `com.snc.samp.oracle.hostaffinityenabled` |
+| Nutanix AHV | All physical cores on the AHV host, **and all cores in the cluster** if the host is in one (AHV is not approved hard partitioning) | same |
+| Approved hard partitioning (IBM LPAR, Oracle VM Server for SPARC LDOM, IBM PR/SM, Fujitsu PPAR, Solaris Zones with capped CPUs) | Only the partition's capped cores | Oracle Partitioning Policy |
+
+**ELI5.** Imagine a landlord with a building of 20 flats. You rent one flat, and your friend drops by to visit. Under Oracle's rules the question is not "how many flats do I use?" but "**which flats could my stuff be moved into without asking anyone?**" If the walls are on wheels — every flat can be reshuffled at any time (vMotion, DRS, HA) — you pay for the whole building. If the walls are concrete and bolted down with a fixed number of rooms (an approved hard partition: LPAR, LDOM, capped Solaris Zone), you pay for your flat. A VMware VM with 8 vCPUs is a flat with 8 chairs; if those chairs can be wheeled into any other flat, the chairs don't limit the bill. CPU pinning and affinity rules are wheels with a lock on them — Oracle doesn't accept the lock unless your contract says it does.
+
+**What to do instead of invoking a percentage:**
+
+1. Choose the aggregation level deliberately: `ESX`, `ESX cluster` (default) or `vCenter(s)` (`com.snc.samp.oracle.reconlevel`).
+2. Isolate Oracle onto a small, dedicated cluster with no shared vMotion or storage path to the rest of the estate — this is the only lever that genuinely shrinks the boundary.
+3. If VM–host affinity rules exist in your agreement, turn on `com.snc.samp.oracle.hostaffinityenabled` and let SAM sum the reachable hosts.
+4. Model hard-partitioned platforms as hard partitions; do not let a soft-partitioned cluster inherit a host-level count.
+5. Report the boundary you licensed next to the number — "200 EE NUP rights, cluster boundary, 8 cores × 25 minimum" survives an audit conversation; "about 10%" does not.
 
 #### IBM (and Red Hat)
 
-- **PVU / RVU full capacity** requires licences for **all activated processor cores** in the physical environment. **Sub-capacity** requires less than full capacity and therefore requires evidence — ILMT or BigFix Inventory, integrated via `sn_samp_ibm_lic.ilmt_api_version`. Without that feed, sub-capacity claims are indefensible.
-- **Virtual Processor Core (VPC)** is only available if you request and install **IBM License Compliance for SAM** from the ServiceNow Store — it is not part of the base IBM pack.
-- **Region matters**: `sn_samp_ibm_lic.default_region` defaults to North and South America; PVU tables are region-specific.
+- **PVU / RVU / VPC only work with a sanctioned data feed.** They are supported *only* when the pack is integrated with **ILMT**, **BigFix Inventory**, or a SAM provider authorised in IBM's **Client Value Acceleration (CVA)** program — this is a hard prerequisite, not an audit nicety.
+- **Discovery-tool matrix:** PVU and RVU accept ILMT/BigFix integration API **v1 or v2** (or Discovery + IBM License Compliance for a CVA provider). **VPC needs API v2** on ILMT/BigFix, or Discovery + IBM License Compliance. All other metrics (Authorized User, External UVU, …) accept any discovery tool.
+- **Full vs sub-capacity:** full capacity requires licences for **all activated processor cores** in the physical environment; sub-capacity covers less than full capacity and is only defensible with the feed above. RVU works the same way over activated cores *used or managed*.
+- **VPC** is only available if you request and install **IBM License Compliance for SAM** from the Store. The IBM pack itself ships with SAM Professional (`com.snc.samp`) and does not need the legacy PVU Process Pack.
+- **Region matters**: `sn_samp_ibm_lic.default_region` defaults to North and South America, auto-associates hosts to a region, and **requires the IBM License Compliance app as well as the pack** — IBM usage cannot be calculated for hosts without a region.
 - **Australia Patch 6+** IBM metrics (Events Per Second, Terabyte, Order Lines, Managed Device…) each need a **Resource Value** record (`samp_sw_resource_value`) identifying what is measured — no record, no demand, silent compliance.
-- **Red Hat ships inside the IBM pack** (Per Socket-pair, Per Core). Teams that "don't have IBM" often still need this pack for RHEL.
+- **Red Hat ships inside the IBM pack** (Per Socket-pair, Per Core) and covers RHEL Server plus RHEL for Virtual Datacenters. Teams that "don't have IBM" often still need this pack for RHEL, and the RHEL Server vs RHEL for VD choice is driven by a **3.2** cost-ratio threshold.
 
 #### SAP
 
 - **Named User** counts users assignable to a **Named User Type**, and that type is defined **on the software model linked to the entitlement** — a wrong model silently reclassifies the whole user population.
-- **Digital Access** counts **documents created by the third-party / non-SAP application** — this is the indirect-access battleground, and it is measured from data most shops do not collect.
-- **Engine Measurement** for engine-based usage; **User Subscription** and **Full Usage Equivalent (FUE)** for S/4HANA Cloud Public and Private editions respectively.
+- **Digital Access** counts **documents created by the third-party / non-SAP application**, weighted by a document multiplier in `samp_sap_document`: **material and financial documents 0.2**, sales/purchase/invoice/manufacturing/quality/service/time documents **1.0**. Ten material documents = 2 licences; ten sales documents = 10. Creation counts, reading/updating/deleting does not. Data arrives via SAP Passport or SAP Estimation tooling — most shops collect none of it.
+- **Engine Measurement** covers engines measured automatically, by calculation (multiple measurements plus an indicator), or by **manual self-declaration**. Brazil adds revenue-based licensing for engines (KB1641524).
+- **S/4HANA Cloud Public Edition uses `User Subscription`** (renamed from Full Usage Equivalent in Brazil); **Private Edition keeps `Full Usage Equivalent`**. One FUE framework, four cloud use types with weighting factors (Self-Service, Core, Advanced, Development); Private Edition needs S/4HANA 2025 FPS01, SAP_BASIS 816.
+- **Scope and freshness:** NetWeaver 7.4 / SAP_BASIS 740 and later. Master data weekly, user/web/engine activity monthly; user and web activity purged after 90 days, engine measurements after a year; the activity transform maps are **off by default** and must be enabled per connection.
 
 #### Adobe
 
 - **User Subscription** consumes one right per active unique subscription record assigned to a user, and reports three states: **Allocated in use** (allocation + subscription), **Not Allocated in use** (subscription without allocation), **Allocated not in use** (allocation without subscription — the reclaim target).
 - Multiple rights in one user allocation mean that user holds the corresponding number of subscriptions: two rights with one subscription record = one *Allocated in use* + one *Allocated not in use*. This is where "we own 500, we're using 380" numbers come from.
 - **Per Device / Per User** suit shared-device and named-user contracts respectively; VIP/ETLA named-user is the common case.
+- **Agreement types** on the entitlement are Generic, **ETLA**, **CLP**, **TLP** or **VIP** — pick the one your contract names, because the Adobe Cloud integration (subscriptions vs installations) is what makes the subscription metrics meaningful. Reports *Adobe Cloud Users without Installations* and *Underused Adobe Cloud Installations* are the two audit-ready outputs.
 
 #### Citrix
 
 - **Per User/Device** is the metric that breaks naive reconciliation: the calculator evaluates compliance across **all related software models** using the number of **distinct** users and devices, so splitting products across models distorts the position.
 - A **Discovery schedule must run on the Citrix Delivery Controller** (talking to the Citrix License Server) or there is no Citrix data at all — an empty Citrix position is a missing-connector symptom, not a compliance result.
 - `com.snc.samp.citrix.app.license.period` (default `90` days) sets the app-licence measurement window.
+- **Mapping precedence:** if you map users at both **Delivery Group** and **Application Group** level, SAM honours only the **Application Group** mapping — a Delivery-Group-only model silently over-counts potential access.
+- **Concurrency mechanics:** a concurrent licence is checked out for the session and returned on disconnect, so "current sessions" ≠ "concurrent peak"; Potential access, not observed launches, is what the pack licenses.
 - **Concurrent User** needs a **Resource Value** record identifying the resource being measured.
 
 #### VMware
@@ -421,6 +468,9 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 - **Per Processor**: one right for every **32 cores** on a CPU. A *Maximum cores per processor* metric attribute (default 32) is auto-created on software models for per-processor entitlements and is used during reconciliation.
 - **Per Core**: minimum **16 cores per processor** must be licensed — applies to subscription products **VMware vSphere Standard (VVS)** and **vSphere Essentials Plus (VVEP)**. This minimum is the VMware analogue of SQL Server's 4-cores-per-socket rule and catches people out constantly.
 - **Per OSI** (vRealize Operations, Log Insight, Automation, Business for Cloud, Code Stream), **Per Application Instance** (vCenter Server), **Per Named User** (Horizon, Workspace, ThinApp, UEM), **Per Device** (Horizon FLEX, ThinApp, Mirage).
+- **VVEP ceiling:** each Essentials Plus licence covers a maximum of **3 physical hosts, 2 processors each, 32 cores per processor** — additional cores stay unlicensed, so a fat host can be non-compliant even with "enough" licences.
+- **vCenters are inferred as suite components** of VVS and VVEP and **consume no rights** — do not model them as separate entitlements or you will double-count.
+- **Perpetual reality:** VMware stopped selling new perpetual licences on **2023-12-11**; existing ones are still manageable, but new estate work is Per Core.
 
 #### Common metrics (no pack required)
 
@@ -441,9 +491,10 @@ Note the inconsistent prefixes (`com.sn_samp_*` vs `com.snc.samp.*`) — that is
 | `com.snc.samp.sqlserver.standard_sa.to.enterprise_sa.cost.ratio` | Microsoft | `0.25` | Edition optimisation advice between SQL Standard SA and Enterprise SA |
 | `com.snc.samp.ms.sa.to.nonsa.cost.ratio` | Microsoft | `1.25` | SA vs non-SA cost comparison |
 | `com.snc.samp.windowserver.license.threshold` | Microsoft | `4.59` | Datacenter vs Standard break-even |
-| `com.snc.samp.use_component_licenses` | Microsoft | `false` | Component licences used when suite config is insufficient |
+| `com.snc.samp.use_component_licenses` | Microsoft | `false` — **unverified**, not on the published properties page | Component licences used when suite config is insufficient |
 | `sn_samp_ibm_lic.default_region` | IBM | North + South America | PVU table region |
-| `sn_samp_ibm_lic.ilmt_api_version` | IBM | not documented | ILMT / BigFix Inventory feed version for sub-capacity |
+| `sn_samp_ibm_lic.ilmt_api_version` | IBM | not documented | ILMT / BigFix Inventory feed version — v2 required for VPC |
+| RHEL Server vs RHEL for Virtual Datacenters threshold | IBM | `3.2` | Picks the cheaper Red Hat licence type from the list-price ratio |
 | `com.snc.samp.citrix.app.license.period` | Citrix | `90` days | App licence measurement window |
 | `com.snc.samp.eng.app.peak.usage.period` | Engineering | `30` days | Peak-usage window for Floating/Token/Network metrics |
 | `com.snc.samp.automaticsmrcreation` | — | release-dependent | Auto-creates software models for licensable products; off = empty models for new titles |
@@ -534,11 +585,68 @@ Subscription VMware products (VVS, VVEP) require a minimum of **16 cores per pro
 
 ## Reconciliation — The Core Engine
 
-Reconciliation is a scheduled job (default nightly) that walks every software model with activity and computes:
+Reconciliation is a scheduled job that walks every software model with activity and computes a compliance position. ServiceNow schedules it **weekly by default** (the properties page calls it "the weekly run of reconciliation"); most shops additionally trigger it on demand or nightly via a scheduled job, but weekly is the shipped cadence.
 
+The one-line version — *compliance position = f(entitlement quantity, normalized installs, usage evidence, metric, rules)* — is true and useless for debugging. Written out, it is three separate computations compared at the end:
+
+```text
+demand(model, metric, as-of)   = count of licensed things AFTER exclusions
+required(model, metric)        = metric_rule(demand)          # floors, factors, cluster boundary
+active_rights(model, as-of)    = Σ entitlements valid on as-of
+delta                          = required − active_rights
+
+position = "Unlicensed" if active_rights = 0
+         | "Under"      if delta > 0
+         | "Compliant"  if delta = 0
+         | "Over"       if delta < 0
 ```
-Compliance position = f(entitlement quantity, normalized installs, usage evidence, metric, rules)
+
+Each term is defined below, because "it says we're under-licensed" is never actionable until you know which of the three moved.
+
+**The five inputs, precisely:**
+
+| Input | What it literally is | Where it comes from | How it is computed | How it usually breaks |
+|---|---|---|---|---|
+| **Entitlement quantity** | Rights you own, in the metric's own units | `alm_license` entitlements for the model, filtered by start/end date | `active_rights = Σ purchased rights` (for Microsoft per-core metrics: **number of packs × rights per pack**); expired and On Order rows excluded | Rights recorded as *users* against a *core* metric; expired renewals still counting; packs entered as raw cores |
+| **Normalized installs** | Distinct things that consume a right | `cmdb_sam_sw_install` → software model | De-duplicated **per device**, or **per user** for user metrics; retired CIs, ignored installs and excluded devices dropped first | Same product from two discovery sources; installs on retired hardware; unmapped/downgraded versions |
+| **Usage evidence** | Whether the thing was actually used | Resource Value (`samp_sw_resource_value`), vendor feeds (ILMT/BigFix, SAP, Citrix, Adobe Cloud, M365) | Metric-specific: peak concurrency, rolling average, document counts | Evidence exists but no resource-value record links it to the model → demand silently zero |
+| **Metric** | The counting rule, not a label | Entitlement `Metric group` + `License metric` (auto-populated from the model) | See the demand table below | Model set to the wrong group, so a coarser metric reconciles confidently and wrongly |
+| **Rules** | Publisher floors, factors, boundaries, exclusions | Publisher pack + pack-scoped properties | Applied inside `metric_rule(demand)` | Core-factor table incomplete; aggregation level left at a default that is wrong for the contract |
+
+**Demand formulas by metric family (the part people get wrong):**
+
+| Metric family | `required` in practice | Floors and boundaries that override the raw count |
+|---|---|---|
+| Per Core (Common / Microsoft) | CPU count × core count, physical **and** virtual side | SQL Server: minimum **4 core licences per socket** |
+| Per Core (with CAL) | Peak cores across the **ESX cluster** when vMotion/DRS can move the VM | Cluster, not host, is the calculation boundary |
+| Per Core (VMware VVS/VVEP) | Σ per processor: actual cores | Minimum **16 cores per processor**; VVEP caps 3 hosts × 2 CPUs × 32 cores |
+| Per Processor (Oracle) | Total cores × **Oracle Processor Core Factor** | Licenses the underlying physical/cloud server only |
+| Named User Plus (Oracle) | max(minimum × processors, users + devices) | EE 25/processor, SE 5, SE2 10/db, WebLogic 10/processor or core |
+| Per User / Per Device | Distinct users or devices in the normalized install estate | Client access records replace installs for server software |
+| Per Named User / Per Named Device | Count of **allocations** | No allocation = no demand, regardless of usage |
+| User Subscription (SaaS/Adobe) | Active unique subscription records per user | Multi-right allocations split into in-use / not-in-use |
+| Concurrent User | Peak simultaneous users in the window | Needs a Resource Value record |
+| Digital Access (SAP) | Σ documents created × document multiplier | Material/financial 0.2, others 1.0 |
+| Reserved Hourly Average Sensor (CrowdStrike) | Mean unique active endpoints per clock-hour over 28 days | Resets hourly; not a monthly peak |
+| Resource Consumption | `unit_consumption` | 1:1 with `licenses_required` |
+
+**Worked examples — read the delta, not the colour:**
+
+```text
+VMware VVS, Per Core
+  host A: 2 CPUs × 20 cores            = 40 rights
+  host B: 2 CPUs ×  8 cores → 2 × 16   = 32 rights   (16-core floor)
+  required = 72   purchased = 64   → delta = +8 under-licensed
+
+Oracle Database EE, Named User Plus
+  minimum 25 per processor × 8 cores   = 200 rights
+  actual users + devices               = 20
+  required = max(200, 20) = 200   purchased = 150  → delta = +50 under-licensed
 ```
+
+**What `f` is not:** it is not a heuristic, not a tolerance band, and not a percentage. There is no 10%, 5% or "close enough" allowance anywhere in the calculation — see [the 10-percent myth](#the-10-percent-rule-that-is-not-a-rule-soft-partitioning).
+
+**Scope of one position:** per software model × metric, and per company/cost centre/department/region if `com.snc.samp.recon.group` (default **None**) is configured — which is why two reports can disagree while both being "right".
 
 **Step by step:**
 
@@ -646,6 +754,9 @@ flowchart TD
     CHECK -->|Oracle| ORA[Oracle Rules]
     CHECK -->|Adobe| ADO[Adobe Rules]
     CHECK -->|IBM| IBM[IBM Rules]
+    IBM --> IBM_RULES{Feed present?}
+    IBM_RULES -->|ILMT / BigFix| IBM_OK[PVU / RVU / VPC count]
+    IBM_RULES -->|No feed| IBM_NO[Metrics unavailable]
     CHECK -->|No rules| NORMAL[Normalized calculation]
     
     MS --> MS_RULES{Metric type?}
@@ -654,12 +765,12 @@ flowchart TD
     MS_RULES -->|Per Core| MS_CORE[Count cores × factor]
     
     ORA --> ORA_RULES{Deployment type?}
-    ORA_RULES -->|Virtualized| ORA_VIRT[10% rule applies]
+    ORA_RULES -->|Virtualized| ORA_VIRT[Soft-partitioned: license the boundary]
     ORA_RULES -->|Physical| ORA_PHYS[Full core count]
     
     ADO --> ADO_RULES{Product line?}
     ADO_RULES -->|Creative Cloud| ADO_CC[Per-seat subscription]
-    ADO_RULES -->|Document Cloud| ADO_DC[Per-document pricing]
+    ADO_RULES -->|Document Cloud| ADO_DC[Per-user seats, not per document]
     
     MS_USER --> FINAL[Compliance Position]
     MS_DEV --> FINAL
@@ -668,6 +779,8 @@ flowchart TD
     ORA_PHYS --> FINAL
     ADO_CC --> FINAL
     ADO_DC --> FINAL
+    IBM_OK --> FINAL
+    IBM_NO --> FINAL
     NORMAL --> FINAL
     
     style MS fill:#e5b567
@@ -817,6 +930,51 @@ Publisher rules are where SAM projects fail audits. High-level traps (always con
 **Exam guidance:** expect conceptual questions ("which metric applies to X", "why is an Oracle count higher than the install count"), not menu-path trivia.
 
 ---
+
+## Gaps Closed — Depth That Was Missing
+
+This section exists because a first pass at the guide covered the shapes (models, entitlements, reconciliation) and missed several mechanisms that change the number. Audited against the Brazil pack, metric, property and entitlement pages; each item below was absent before and is now stated in one place.
+
+### License types are not cosmetic
+
+Perpetual, subscription, Software Assurance and cloud **BYOL** are different rights, and the entitlement carries the difference:
+
+- **State is derived, not typed.** An entitlement is *On Order* when the start date is in the future and active rights are 0, *In Use* while today sits between start and end, and *Retired* when the end date has passed and active rights are 0. An empty end date means a subscription that never expires — the most common source of phantom rights.
+- **Metric group forces license type.** Setting the metric group to **Consumption** or **Subscription** automatically sets License type = Subscription; SaaS entitlements default to `User Subscription`.
+- **BYOL vs License Included.** Microsoft cloud licensing follows BYOL (and BYOS for subscriptions); Oracle BYOL covers Database and WebLogic across on-prem and public cloud. A cloud VM licensed *included* must not also be counted against a BYOL entitlement, or you double-pay.
+
+### Microsoft core licences are bought in packs, not cores
+
+For Microsoft products on **Per Core** or **Per Core (with CAL)**, the entitlement has two extra fields that people miss:
+
+| Field | Meaning |
+|---|---|
+| **Rights per license pack** | Rights in one purchased pack — SQL Server core licences are sold in **packs of two** |
+| **Number of packs** | Packs purchased; changing it **recalculates Purchased rights automatically** |
+
+So `active_rights = packs × rights per pack`, not the number you typed into Purchased rights. A part-used pack also leaves **non-transferable rights** (visible in License Metric Results) that cannot license additional devices — the reason a position can read "32 rights left" and still be non-compliant for the next host.
+
+### The License Metric Tier tab (Brazil)
+
+Software entitlements now carry a **License Metric Tier** tab holding tier ranges and their calculation factors. This is what makes tiered metrics defensible in the product instead of a spreadsheet: Oracle Java SE **Employee** uses `samp_price_tier` for its tier pricing, IBM's tiered metrics (RPU decimal-petabyte, for example) work the same way. If a tiered metric reconciles strangely, check the tiers before the discovery data.
+
+### Two reporting surfaces, and they are not the same
+
+| Surface | Where | What it gives you |
+|---|---|---|
+| **Software Publisher Analytics** | SAM classic | Per-publisher dashboard (Citrix, IBM, Microsoft, Oracle, SAP, VMware) |
+| **Publisher overview** | Software Asset Workspace | Per-publisher view with the same metrics, plus optimisation suggestions |
+| **License usage view** | Software Asset Workspace | Drill from publisher → product → software model → license metric, with the calculation and compliance detail behind the latest reconciliation |
+
+The License usage view is the one to use when someone disputes a number: it exposes the inputs, not just the result.
+
+### Allocation management is what "optimise" actually means
+
+Rights are not just counted, they are **allocated**. SAM can allocate manually or let the engine pick the most cost-effective option — for Microsoft, licensing by physical host versus by individual VM — using the cost-ratio properties (`com.snc.samp.sqlserver.standard_sa.to.enterprise_sa.cost.ratio`, `com.snc.samp.ms.sa.to.nonsa.cost.ratio`, `com.snc.samp.windowserver.license.threshold`). The payoff is reported as **realized vs potential** savings, which is why a wrong ratio produces confident, wrong "upgrade to Enterprise" advice.
+
+### Verify the configuration before you trust the position
+
+Before reporting a compliance position, confirm: the pack plugin is active; the metric group is present and matches the contract's metric; normalization coverage is high; every usage-based metric has a Resource Value record; pack properties still hold the defaults you expect; and the aggregation level matches the contract. A **SAM Health** style check of those six is cheaper than explaining a wrong number to an auditor.
 
 ## Re-usable Code / Metadata
 
