@@ -90,3 +90,24 @@ Review comment on the published anchor `#publisher-packs--license-metrics-add-on
 
 - Anchor diff (unresolved count must not increase), fence parity, per-table pipe consistency.
 - Live page greps for the new heading, `Metric Attributes`, `Custom License Metrics` and `recon.group`.
+
+## Fourth pass — metric attributes, with the real default table
+
+Follow-up to the metric-group work: if the group decides *which* rules apply, the attributes are the numbers inside them, and the guide had only ever named two.
+
+### Guide
+
+- New `### Metric attributes — the numbers the counting rule reads`: the three fields of a related-list row, the fact that rows are auto-created and read from the **model** (so editing one moves `required`, never `active_rights`), and a 25-row table of every documented attribute with its default, the group → metric that reads it, the formula, and the failure symptom.
+- Three lessons stated explicitly: the Microsoft per-core variants do **not** share defaults (4/4 vs 8/8/16); `Maximum installs per right` ships **unlimited** for per-user/per-device metrics, so a "one install per user" clause has nowhere else to live; attributes are per model, so two models of one product can demand different numbers from identical installs.
+- Four worked examples (Windows Server with CAL 16 → 24 rights as OSEs grow; SQL Enterprise 2 × 16 cores; Oracle SE2 on AWS; VMware 32 vs 64-core CPUs), a "what is not an attribute" list (VMware's 16-core floor, core-factor tables, VVEP caps), and a five-check pre-trust routine.
+- Cross-links from the metric-group subsection, the Oracle edition-minimum bullet and the VMware Per Processor rule.
+
+### Notes page
+
+- Sources S17 (software model metric attributes) and S18 (supported Microsoft license types), with the documented defaults itemised per group.
+- **Correction 14:** the SQL Server 4-cores-per-socket floor moves from "Microsoft contract only" to **Validated** — `Minimum cores per processor = 4` for Microsoft Per Core (8 for Per Core with CAL) ships in the platform.
+- Recorded what stays hardcoded (VMware 16-core Per Core floor, VVEP cap, core-factor tables) so nobody hunts for a non-existent attribute row.
+
+### Verification
+
+- Anchor diff, fence parity, table pipe consistency, then live greps for the new heading, `Maximum active OSEs per server`, `Minimum NUPs on cloud`, `Maximum VMs per right` and `Licensable cores =`.

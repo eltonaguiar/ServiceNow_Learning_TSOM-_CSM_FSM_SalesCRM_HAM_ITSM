@@ -26,6 +26,7 @@
   - [Plugin IDs — verify in your instance](#plugin-ids--verify-in-your-instance)
   - [Where packs are installed and verified](#where-packs-are-installed-and-verified)
   - [What a metric group actually is (and where to find it)](#what-a-metric-group-actually-is-and-where-to-find-it)
+  - [Metric attributes — the numbers the counting rule reads](#metric-attributes--the-numbers-the-counting-rule-reads)
   - [Metric groups and their metrics](#metric-groups-and-their-metrics)
   - [Pack-specific properties that change reconciliation](#pack-specific-properties-that-change-reconciliation)
   - [Verification snippets](#verification-snippets)
@@ -362,7 +363,7 @@ The field definitions are short enough to quote in full (S12, *Software entitlem
 | # | Surface | How to get there | What is on screen |
 |---|---|---|---|
 | 1 | Software entitlement (`alm_license`) | `All > Software Asset > Licenses > All` → open an entitlement (workspace: License operations → entitlements) | `Metric group` and `License metric` side by side; the group is populated from the model, and the reference icon next to `License metric` opens that metric's calculation text |
-| 2 | Software model → **Metric Attributes** | `All > Software Asset > Software Models` → open a model → Metric Attributes related list | One row per group + metric pairing, each carrying attributes (`Minimum cores per processor`, `Maximum processors per right`, `Minimum users per processor`, `Maximum active OSEs per server`…) with an integer value or an *unlimited* flag |
+| 2 | Software model → **Metric Attributes** | `All > Software Asset > Software Models` → open a model → Metric Attributes related list | One row per group + metric pairing, each carrying attributes (`Minimum cores per processor`, `Maximum processors per right`, `Minimum users per processor`, `Maximum active OSEs per server`…)  with an integer value or an *unlimited* flag. Every attribute and default: [Metric attributes — the numbers the counting rule reads](#metric-attributes--the-numbers-the-counting-rule-reads) |
 | 3 | Custom license metrics | `All > Software Asset > Administration > Custom License Metrics` | The form's `Metric group` is fixed to **Custom**; the metric's *name* is what later appears in the entitlement's picker |
 | 4 | Entitlement import | Download the entitlement import template | `Metric group` is a **required** column, and its valid values are group names, not metric names |
 | 5 | Foundation | Create an entitlement on Foundation | **Common** only, plus custom metrics — publisher groups arrive with the Professional packs |
@@ -372,7 +373,7 @@ The field definitions are short enough to quote in full (S12, *Software entitlem
 - **The picker.** Choose `Microsoft` and Microsoft metrics appear; choose `Common` and you get Per Core, Per Device, Per User, the CALs. A metric outside the group cannot be selected, which is why "the metric is missing" almost always means "the pack is missing".
 - **The calculator.** The group routes the model to a publisher counting engine — Oracle core factors, IBM PVU full vs sub-capacity, Citrix distinct user/device, VMware per-processor caps. Change the group and a different engine runs.
 - **License type side effects.** `Consumption` or `Subscription` forces `License type = Subscription`.
-- **Which metric attributes exist.** Publisher groups auto-create attributes on the model: VMware *Maximum cores per processor* (default 32) and *Minimum cores per processor* (16), Oracle edition floors, SQL Server per-socket minimums.
+- **Which metric attributes exist.** Publisher groups auto-create attributes on the model: VMware *Maximum cores per processor* (default 32, and 16 cores per processor hardcoded for Per Core), Oracle edition floors, Microsoft per-socket floors. Every attribute, its default and the formula it feeds: [Metric attributes — the numbers the counting rule reads](#metric-attributes--the-numbers-the-counting-rule-reads).
 - **Whether script runs.** `Custom` means a scripted metric; every other group is shipped logic.
 - **Nothing about scope.** Quantity, dates, company, region — all live elsewhere.
 
@@ -407,6 +408,78 @@ The field definitions are short enough to quote in full (S12, *Software entitlem
 Run step 3 again with a `Common` `Per Core` entitlement and the arithmetic still completes — against a different demand formula. That is precisely why the group is a first-class field and not a label on the title.
 
 **ELI5:** the group is the language, the metric is the sentence, the attributes are the grammar. "Per core" means nothing until you know whether you are speaking Microsoft (packs of two, four-core floors) or Oracle (core factors, edition minimums).
+
+### Metric attributes — the numbers the counting rule reads
+
+A **metric attribute** is a per-model, per-metric number that the counting engine substitutes into its formula. Where the license metric says *what* to count ("cores", "processors", "users"), the attribute says *with what floor, cap or divisor*. Three fields make a row:
+
+| Field | What it holds |
+|---|---|
+| `Attribute` | Which rule the row configures — `Minimum cores per processor`, `Maximum active OSEs per server`, `Maximum cores per processor`, `Maximum VMs per right`, `Minimum NUPs on cloud`… |
+| `Attribute value` | An integer, in the metric's own units |
+| `Attribute value is unlimited` | When true, the engine applies no cap (typical for `Maximum installs per right` on per-user and per-device metrics) |
+
+Rows are **created automatically** when an entitlement uses that metric group + license metric (S17), and the engine reads them from the **model**, not the entitlement: `All > Software Asset > Software Models` → open the model → **Metric Attributes**. Edit the row, not the entitlement, then re-run reconciliation — attributes change `required`, never `active_rights`.
+
+**Documented defaults, by group** (S17; all editable, so treat these as the shipped starting point and verify in the instance):
+
+| Attribute | Default | Group → license metric | What the engine does with it | What breaks when it is wrong |
+|---|---|---|---|---|
+| Minimum cores per processor | **4** | Microsoft → Per Core | `Licensable cores = Processors × Max(Minimum cores per processor, Cores)` | Set to 1, and a 2-socket 8-core server demands 16 instead of the contract's 4-per-socket floor |
+| Minimum cores per VM | **4** | Microsoft → Per Core | Same floor applied per virtual machine | VDI estates under-counted |
+| Minimum cores per processor | **8** | Microsoft → Per Core (with CAL) | Same formula | Wrong floor on the CAL variant — the two Microsoft per-core metrics do **not** share a default |
+| Minimum cores per VM | **8** | Microsoft → Per Core (with CAL) | Per-VM floor | VMs escape the 8-core floor |
+| Minimum cores per server | **16** | Microsoft → Per Core (with CAL) | `Licensable cores = Max(Processors × Max(Minimum cores per processor, Cores), Minimum cores per server)` | 4-core branch servers drop below the 16-core server floor |
+| Maximum active OSEs per server | **2** | Microsoft → Per Core (with CAL), Per Processor | `Licenses required = (Licensable OSEs / Maximum active OSEs per server) × Licensable cores` | Five OSEs on a licensed-for-two server consumes nothing extra — the classic Windows Server audit gap |
+| Maximum installs per OSE | **1** | Microsoft → Per Core (with CAL), Per Processor, Server (Per Instance) | Extra installs inside one OSE consume further rights | Two SQL instances in one OSE count as one |
+| Maximum processors per right | **2** | Microsoft → Per Processor | `Licenses required = Processors / Maximum processors per right` | Doubles or halves the processor count |
+| Maximum installs per right | **Unlimited** | Per User / Per Device / Per Named User / Per Named Device across Microsoft, Adobe, IBM, Citrix, Common, VMware | Caps installs per user or device before another right is consumed | Left unlimited, a user with the software on four machines consumes **one** right — the most common silent under-count in SAM |
+| Minimum users per processor | **25** | Oracle → Named User Plus | Enterprise Edition floor: rights = max(25 × processors, users + devices) | NUP under-licensed on large servers |
+| Minimum NUPs | **5** | Oracle → Named User Plus (SE, SE One) | Hard floor of 5 NUPs per database | Tiny deployments report compliant when they are not |
+| Minimum NUPs per server | **10** | Oracle → Named User Plus (SE2) | 10 NUPs per database server | SE2 under-count |
+| Minimum NUPs on cloud | **10** | Oracle → Named User Plus (SE2 on AWS/Azure) | 10 NUPs per 8 vCPUs | Cloud SE2 under-count |
+| Minimum NUPs for WebLogic on-premise deployments | **10** | Oracle → Named User Plus (WebLogic) | WebLogic Standard counts sockets, Enterprise counts cores | WebLogic NUP under-count |
+| Minimum NUPs for WebLogic cloud deployments | **10** | Oracle → Named User Plus (WebLogic on AWS/Azure) | 10 per 8 vCPUs (Standard); Enterprise: 10 per 2 vCPUs with hyper-threading, 10 per vCPU without | Wrong cloud WebLogic number |
+| Maximum number of sockets per server | **2** | Oracle → Per Processor, Named User Plus | SE / SE One / SE2 may only be licensed on servers below the socket cap | Standard Edition on a 4-socket box reconciles clean |
+| Maximum size of instance on cloud | **8** | Oracle → Per Processor, Named User Plus | SE-family instance-size cap on Oracle Authorized Cloud (EE has none) | Oversized cloud instance escapes the SE ceiling |
+| Maximum cores per processor | **32** | VMware → Per Processor | `Licenses required = Processors × (Cores / Maximum cores per processor)`; VMware's 32-core-per-CPU rule effective 2 April 2020 | A 64-core CPU counted as one licence instead of two |
+| Maximum installs per right | **1** | VMware → Per Application Instance | One right per application instance | vCenter instances under-counted |
+| Maximum installs per right | **Unlimited** | VMware → Per Named User, Per OSI | Cap per user / per OS instance | Multi-install named users consume one right |
+| Maximum sockets per right | **2** | Red Hat → Per Socket-pair | One subscription per two sockets | Socket-pair count halved or doubled |
+| Maximum VMs per right | **2** | Red Hat → Per Socket-pair | RHEL Server: VMs one subscription licenses per host; RHEL for Virtual Datacenters: VMs per socket-pair subscription | VM density under-counted |
+| Maximum cores per processor | **Unlimited** | IBM, Citrix, Common → Per Processor | One license per CPU up to the physical core maximum, extra licenses beyond it | Fine at unlimited; a stale low value inflates demand |
+| Minimum cores per processor | **1** | Common → Per Core | Effectively "no floor" | A contract with a core floor gets **no** enforcement on the Common group — install the publisher pack |
+
+**Three things this table teaches that no amount of reading the metric name will:**
+
+1. **Defaults differ between look-alike metrics.** Microsoft `Per Core` starts at 4 cores per processor and per VM; `Per Core (with CAL)` starts at 8, plus 16 per server. Copying a contract clause into the wrong metric gives a plausible wrong answer.
+2. **"Unlimited" is a decision, not a null.** For per-user and per-device metrics the install cap ships unlimited, so one right covers every install that user or device has. If the contract says one install per user, the attribute is the only place that rule can live.
+3. **Attributes are per model.** Two models of the same product with different attributes produce two different demands from identical installs. That is a feature (editions, contracts, regions) and a trap (a copied model inherits the numbers).
+
+**Worked examples**
+
+*Windows Server Datacenter, Per Core (with CAL), 2 sockets × 8 cores, 2 OSEs:* `Licensable cores = 2 × Max(8, 8) = 16`, then `Max(16, Minimum cores per server 16) = 16`; OSE factor `2 / 2 = 1` → **16 rights**. Add a third OSE and it becomes `(3 / 2) × 16 = 24`.
+
+*SQL Server Enterprise, Per Core, 2 sockets × 16 cores, 4-per-socket floor:* `Processors × Max(4, Cores) = 2 × 16 = 32` rights; the 4 floor only bites on small sockets — 2 × 4 cores would demand `2 × Max(4, 4) = 8`, not 4.
+
+*Oracle SE2 on AWS, 16 vCPUs:* `Minimum NUPs on cloud = 10 per 8 vCPUs` → 20 NUP floor, regardless of how few users connect.
+
+*VMware vSphere, Per Processor, 4 CPUs × 32 cores:* `4 × (32 / 32) = 4` rights. Swap in 64-core CPUs and it doubles to 8 — the attribute, not the metric name, drives that.
+
+**What is *not* an attribute** — do not go looking for these in the related list:
+
+- **VMware Per Core minimum of 16 cores per processor** (VVS/VVEP) — a rule in the metric, not a row you can edit.
+- **Oracle core factor** and **IBM PVU core factors** — processor-definition reference data (`samp_processor_definition`), not model attributes.
+- **VVEP's 3 hosts × 2 CPUs × 32 cores cap** — contract terms enforced by the metric, not knobs.
+- **Microsoft's SQL Server per-socket minimum** — the platform ships it as the `Minimum cores per processor` default of 4; the *reason* it is 4 is Microsoft's licensing, which is why changing it needs a contract clause, not a preference.
+
+**Five checks before you trust a position**
+
+1. List every model whose attribute value **differs from the default above**, and attach the contract clause that justifies each. No clause, no override.
+2. Check `Maximum installs per right` on every per-user and per-device entitlement — if it is still unlimited, decide deliberately whether that matches the contract.
+3. Check the two Microsoft per-core variants separately; the floors are 4/4 and 8/8/16 and they are easy to mix up.
+4. Check Oracle floors against the **edition actually deployed** — 25 per processor is Enterprise, 5 is SE/SE One, 10 per server is SE2, and cloud has its own pair.
+5. After editing an attribute, re-run reconciliation and confirm `required` moved and `active_rights` did not. If both moved, you edited an entitlement by mistake.
 
 ### Metric groups and their metrics
 
@@ -457,7 +530,7 @@ Run step 3 again with a `Common` `Per Core` entitlement and the arithmetic still
 | **Named User Plus** | All users **and** physical devices that access the product; through a client access record it licenses the accessing users | Needs a client access record; edition minimums are enforced for you (below) |
 | **Employee** | Total full-time, part-time and temporary employees, including contractors, agents and consultants | For Java SE Universal the requirement is **total employees**, not employees who use the product |
 
-- **Edition minimums are applied for you** through metric attributes (*Minimum users per processor*, *Minimum NUPs for WebLogic on-premise deployments*, *Minimum NUPs for WebLogic cloud deployments*). Rights = the **larger** of (minimum × processors/cores on the underlying physical server) and (users + devices). EE: 25 per processor (25 × 8 cores = 200 rights beats 20 users). SE: 5. SE2: 10 per database server, and each SE2 database may use a maximum of 16 CPU threads. WebLogic SE: 10 per processor; WebLogic EE and Suite: 10 per processor core.
+- **Edition minimums are applied for you** through metric attributes (*Minimum users per processor*, *Minimum NUPs for WebLogic on-premise deployments*, *Minimum NUPs for WebLogic cloud deployments* — defaults 25, 10 and 10; see [Metric attributes](#metric-attributes--the-numbers-the-counting-rule-reads)). Rights = the **larger** of (minimum × processors/cores on the underlying physical server) and (users + devices). EE: 25 per processor (25 × 8 cores = 200 rights beats 20 users). SE: 5. SE2: 10 per database server, and each SE2 database may use a maximum of 16 CPU threads. WebLogic SE: 10 per processor; WebLogic EE and Suite: 10 per processor core.
 - **Per Processor** applies the **Oracle Processor Core Factor Table**: 2 CPUs × 4 cores × 0.5 factor = 4 rights. It licenses only the underlying physical or cloud server — never individual VMs or partitions — and associated options/management packs inherit the same metric.
 - **A CAL record changes the metric:** if a client access record exists, SAM licenses users and devices with NUP **only** and will not use Per Processor even when Per Processor rights are available.
 - **Employee** consumption comes from resource-value records; cost uses the `samp_price_tier` tier table, with a one-year true-up for the subscription period.
@@ -531,7 +604,7 @@ The reconciliation diagram used to say "10% rule applies" for virtualised Oracle
 
 #### VMware
 
-- **Per Processor**: one right for every **32 cores** on a CPU. A *Maximum cores per processor* metric attribute (default 32) is auto-created on software models for per-processor entitlements and is used during reconciliation.
+- **Per Processor**: one right for every **32 cores** on a CPU. A *Maximum cores per processor* metric attribute (default 32) is auto-created on software models for per-processor entitlements and is used during reconciliation — `Processors × (Cores / Maximum cores per processor)`.
 - **Per Core**: minimum **16 cores per processor** must be licensed — applies to subscription products **VMware vSphere Standard (VVS)** and **vSphere Essentials Plus (VVEP)**. This minimum is the VMware analogue of SQL Server's 4-cores-per-socket rule and catches people out constantly.
 - **Per OSI** (vRealize Operations, Log Insight, Automation, Business for Cloud, Code Stream), **Per Application Instance** (vCenter Server), **Per Named User** (Horizon, Workspace, ThinApp, UEM), **Per Device** (Horizon FLEX, ThinApp, Mirage).
 - **VVEP ceiling:** each Essentials Plus licence covers a maximum of **3 physical hosts, 2 processors each, 32 cores per processor** — additional cores stay unlicensed, so a fat host can be non-compliant even with "enough" licences.

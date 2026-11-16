@@ -40,6 +40,8 @@ Rule for this page: a statement is only called **Validated** if it can be read i
 | S14 | [Software model fields](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/software-model-fields.html) | 2026-09-10 |
 | S15 | [Add a custom license metric](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/add-custom-license-metric.html) | 2026-11-05 |
 | S16 | [Create an entitlement (Foundation)](https://www.servicenow.com/docs/r/it-service-management/software-asset-management-foundation-plugin/t_AddASoftwareEntitlementSAMF.html) | 2026-10-08 |
+| S17 | [Software model metric attributes](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/sw-metric-attributes.html) | 2026-09-10 |
+| S18 | [Supported Microsoft license types](https://www.servicenow.com/docs/r/it-asset-management/software-asset-management/supported-microsoft-license-types.html) | 2026-09-10 |
 
 ---
 
@@ -60,6 +62,23 @@ Rule for this page: a statement is only called **Validated** if it can be read i
 **Still unverified:** "The Metric group selected does not have to correspond to the publisher of the software title" (corpus only). The narrower claim — each group carries publisher-specific metrics — is validated and compatible with either reading, so the guide keeps the stronger sentence labelled as observed practice rather than platform rule.
 
 **Confusion to keep flagging:** "metric group" (counting-rule family) vs the reconciliation **group** (`com.snc.samp.recon.group` — Company / Cost Center / Country / Department / Region / None). Different fields, different jobs, names that collide.
+
+### Metric attributes — validated defaults
+
+**Validated (S17, *Software model metric attributes*):** the related list is keyed by metric group + license metric + attribute, with an integer `Attribute value` and an `Attribute value is unlimited` flag; each attribute's own description carries the formula the engine applies. Documented defaults:
+
+- **Microsoft** — Per Core: `Minimum cores per processor` 4, `Minimum cores per VM` 4. Per Core (with CAL): 8 / 8, `Minimum cores per server` 16, `Maximum active OSEs per server` 2, `Maximum installs per OSE` 1. Per Processor: `Maximum processors per right` 2, `Maximum active OSEs per server` 2, `Maximum installs per OSE` 1. Server (Per Instance): `Maximum installs per OSE` 1.
+- **Oracle** — Per Processor: `Maximum number of sockets per server` 2, `Maximum size of instance on cloud` 8. Named User Plus: `Minimum users per processor` 25, `Minimum NUPs` 5, `Minimum NUPs per server` 10, `Minimum NUPs on cloud` 10, WebLogic on-premise 10, WebLogic cloud 10, socket cap 2, cloud instance size 8.
+- **VMware** — Per Processor: `Maximum cores per processor` 32 ("effective April 2, 2020, VMware requires one license for up to 32 physical cores"). Per Application Instance: `Maximum installs per right` 1.
+- **Red Hat** — Per Socket-pair: `Maximum sockets per right` 2, `Maximum VMs per right` 2.
+- **IBM / Citrix / Common** — Per Processor: `Maximum cores per processor` unlimited. **Common Per Core**: `Minimum cores per processor` 1.
+- **Per user / per device metrics across groups** — `Maximum installs per right` is **unlimited** by default.
+
+**Validated (S18, *Supported Microsoft license types*):** attributes are what turn metric descriptions into arithmetic — Per Processor "a right is consumed for processors … the quantity of processors licensed by a single right is determined by the Maximum processor per rights"; Per Core (with CAL) consumes the minimum when "the core count is less than the specified value in either the Minimum cores per processor or Minimum cores per server metric attributes"; Per Core checks `Minimum cores per processor` before consuming rights.
+
+**Upgraded from unverified:** the SQL Server *"4 cores per socket"* floor was previously listed as Microsoft contract only — S17 documents `Minimum cores per processor = 4` for Microsoft Per Core, so the floor ships in the platform. The rule's origin is still Microsoft's licensing, which is why the guide ties overrides to contract clauses.
+
+**Still hardcoded, not attributes:** VMware Per Core's 16-cores-per-processor minimum, VVEP's 3 × 2 × 32 cap, Oracle/IBM core-factor tables (`samp_processor_definition`). Recorded so nobody hunts for a row that does not exist.
 
 ---
 
@@ -297,6 +316,7 @@ Worked example (S8): 10 material + 10 sales documents = (10 × 0.2) + (10 × 1) 
 | 11 | Reconciliation runs "nightly by default" | ServiceNow describes it as the **weekly** run, triggerable on demand (S10, S8) | **Corrected** |
 | 12 | Diagram node said Oracle virtualised → "10% rule applies" | No percentage exists in Oracle's Partitioning Policy or on any Brazil page; the mechanism is cores × core factor at the vMotion boundary (S11) | **Corrected** — node replaced, boundary table + ELI5 added |
 | 13 | Diagram node said Adobe Document Cloud → "per-document pricing" | Adobe metrics are Per Device / Per User / User Subscription; Document Cloud is not a per-document metric (S1, S2) | **Corrected** |
+| 14 | SQL Server "4 cores per socket" listed as Microsoft-contract-only | S17 documents `Minimum cores per processor = 4` for the Microsoft **Per Core** metric, and 8 for **Per Core (with CAL)** — the floor is shipped in the platform | **Upgraded to Validated** |
 
 ## Contradictions inside ServiceNow's own docs
 
