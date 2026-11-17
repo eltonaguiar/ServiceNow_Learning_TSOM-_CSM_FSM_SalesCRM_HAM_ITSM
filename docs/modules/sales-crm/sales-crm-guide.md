@@ -549,29 +549,49 @@ Sales CRM is measured on pipeline health, deal velocity, and revenue predictabil
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Lead_New : lead created
-    Lead_New --> Lead_Contacted : outreach
-    Lead_Contacted --> Lead_Qualified : qualifies
-    Lead_Qualified --> Lead_Unqualified : not a fit
-    Lead_Qualified --> Opp_Prospecting : opportunity auto-created
+    [*] --> Lead_New
+    Lead_New --> Lead_Contacted
+    Lead_Contacted --> Lead_Qualified
+    Lead_Qualified --> Lead_Unqualified
+    Lead_Qualified --> Opp_Prospecting
     Lead_Unqualified --> [*]
 
-    Opp_Prospecting --> Opp_Qualification : deal qualified
-    Opp_Qualification --> Opp_Proposal : proposal sent
-    Opp_Proposal --> Opp_Negotiation : terms discussed
-    Opp_Negotiation --> Opp_Closed_Won : deal signed
-    Opp_Negotiation --> Opp_Closed_Lost : deal lost
-    Opp_Closed_Won --> Quote_Draft : accepted quote
+    Opp_Prospecting --> Opp_Qualification
+    Opp_Qualification --> Opp_Proposal
+    Opp_Proposal --> Opp_Negotiation
+    Opp_Negotiation --> Opp_Closed_Won
+    Opp_Negotiation --> Opp_Closed_Lost
+    Opp_Closed_Won --> Quote_Draft
     Opp_Closed_Lost --> [*]
 
-    Quote_Draft --> Quote_Sent : quote submitted
-    Quote_Sent --> Quote_Accepted : customer accepts
-    Quote_Sent --> Quote_Rejected : customer rejects
-    Quote_Sent --> Quote_Expired : valid_until passed
-    Quote_Accepted --> Order_Draft : order created
-    Order_Draft --> Order_Confirmed : confirmed
-    Order_Confirmed --> Order_Fulfilled : fulfilled
-    Order_Confirmed --> Order_Cancelled : cancelled
+    Quote_Draft --> Quote_Sent
+    Quote_Sent --> Quote_Accepted
+    Quote_Sent --> Quote_Rejected
+    Quote_Sent --> Quote_Expired
+    Quote_Accepted --> Order_Draft
+    Order_Draft --> Order_Confirmed
+    Order_Confirmed --> Order_Fulfilled
+    Order_Confirmed --> Order_Cancelled
+
+    Lead_New : Lead created
+    Lead_Contacted : Outreach
+    Lead_Qualified : Qualified
+    Lead_Unqualified : Not a fit
+    Opp_Prospecting : Opportunity auto-created
+    Opp_Qualification : Deal qualified
+    Opp_Proposal : Proposal sent
+    Opp_Negotiation : Terms discussed
+    Opp_Closed_Won : Deal signed
+    Opp_Closed_Lost : Deal lost
+    Quote_Draft : Quote drafted
+    Quote_Sent : Quote submitted
+    Quote_Accepted : Customer accepts
+    Quote_Rejected : Customer rejects
+    Quote_Expired : Valid until passed
+    Order_Draft : Order created
+    Order_Confirmed : Confirmed
+    Order_Fulfilled : Fulfilled
+    Order_Cancelled : Cancelled
 ```
 
 ### Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)
@@ -664,23 +684,24 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> New : case created
-    New --> Assigned : assigned to agent
-    Assigned --> In_Progress : work started
-    In_Progress --> Waiting_on_Customer : awaiting response
-    Waiting_on_Customer --> In_Progress : customer responds
-    In_Progress --> Resolved : issue fixed
-    Resolved --> Closed : confirmed by customer
-    Resolved --> Reopened : issue recurs
-    Reopened --> In_Progress : work resumed
-    Closed --> [*] : case closed
+    [*] --> New
+    New --> Assigned
+    Assigned --> In_Progress
+    In_Progress --> Waiting_on_Customer
+    Waiting_on_Customer --> In_Progress
+    In_Progress --> Resolved
+    Resolved --> Closed
+    Resolved --> Reopened
+    Reopened --> In_Progress
+    Closed --> [*]
 
-    style New fill:#e3f2fd,color:#000
-    style Assigned fill:#fff3e0,color:#000
-    style In_Progress fill:#f3e5f5,color:#000
-    style Waiting_on_Customer fill:#ffecb3,color:#000
-    style Resolved fill:#a5d6a7,color:#000
-    style Closed fill:#ef9a9a,color:#000
+    New : Created
+    Assigned : Assigned to agent
+    In_Progress : Work in progress
+    Waiting_on_Customer : Awaiting customer response
+    Resolved : Issue fixed
+    Closed : Confirmed by customer
+    Reopened : Issue recurred
 ```
 
 ## SLAs, Dashboards & Workspaces
