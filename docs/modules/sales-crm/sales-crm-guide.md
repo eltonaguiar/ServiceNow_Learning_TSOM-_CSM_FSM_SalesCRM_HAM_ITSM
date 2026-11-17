@@ -823,10 +823,8 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
-<summary>💡 Click to reveal mnemonics & memory aids</summary>
-
 ### Business Rule Types — BAA
+
 | Mnemonic | Type | When It Runs | Use Case |
 |----------|------|--------------|----------|
 | **B**efore | before | Before DB write | Validate/modify data, cancel save (`abort = true`) |
@@ -838,6 +836,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### Client Script Types — LOCS
+
 | Mnemonic | Type | When It Runs | Use Case |
 |----------|------|--------------|----------|
 | **L**oad | onLoad | Form opens | Set defaults, show/hide fields, UI initialization |
@@ -850,6 +849,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### UI Policy vs Data Policy vs Client Script
+
 | Mnemonic | What | Where It Runs | Scope |
 |----------|------|---------------|-------|
 | **U**I | UI Policy | Browser (form load/change) | UI behavior only — mandatory, read-only, visible |
@@ -861,6 +861,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### IRE — Identification Before Reconciliation
+
 **Mnemonic:** **I before R**
 
 1. **I**dentification = "Does this CI already exist?" → match existing CI or create new
@@ -871,6 +872,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### Update Set Conflicts — ARM
+
 | Mnemonic | Option | What It Does | When to Use |
 |----------|--------|--------------|-------------|
 | **A**ccept | Accept Remote | Update Set version overwrites target | Update Set version is newer/correct |
@@ -882,6 +884,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### CMDB — Retire Before Delete
+
 **Mnemonic:** **R before D**
 
 - **R**etire: Set `install_status = retired` — keeps `cmdb_rel_ci` relationships intact for historical impact analysis
@@ -892,6 +895,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### Order vs Priority — Lower = First
+
 | Feature | Ordering Field | Lower Number = |
 |---------|---------------|----------------|
 | Business Rule | `Order` | Runs first |
@@ -906,6 +910,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### Transform Script — Coalesce = Match
+
 | Mnemonic | Setting | Result |
 |----------|---------|--------|
 | **C**oalesce | `coalesce = true` | Update existing CI (match on key fields) |
@@ -916,6 +921,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ---
 
 ### Debugging — Log First, Then Debug
+
 | Context | Primary Tool | Command |
 |---------|-------------|---------|
 | **S**erver | System Log (`sys_log`) | `gs.print()`, `gs.error()`, `gs.info()` |
@@ -923,10 +929,6 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 | **B**oth | Script Debugger | Breakpoints, step-through, variable inspection |
 
 **Remember:** **Log first** — `gs.print()` for server, `console.log()` for client. `console.log()` does NOT work in server-side business rules.
-
----
-
-</details>
 
 ---
 
