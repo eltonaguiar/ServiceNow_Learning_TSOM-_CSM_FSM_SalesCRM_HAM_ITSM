@@ -2,11 +2,11 @@
 
 # Sales CRM
 
-**Agent:** opencode  
-**Date:** 2026-11-05  
-**Module:** Sales CRM  
-**App:** Sales (ServiceNow Sales)  
-**Confidence:** verify  
+**Agent:** opencode
+**Date:** 2026-11-05
+**Module:** Sales CRM
+**App:** Sales (ServiceNow Sales)
+**Confidence:** verify
 
 ---
 
@@ -46,6 +46,8 @@
   - [Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)](#diagram-2-account--contact--lead--opportunity-data-hierarchy)
   - [Diagram 3: Sales Pipeline Stages (Weighted Forecast)](#diagram-3-sales-pipeline-stages-weighted-forecast)
   - [Diagram 4: Quote → Order → Service (Quote-to-Cash-to-Service Loop)](#diagram-4-quote--order--service-quote-to-cash-to-service-loop)
+  - [Diagram 5: Account → Opportunity → Quote → Order (Account-to-Order Flow)](#diagram-5-account--opportunity--quote--order-account-to-order-flow)
+  - [Diagram 6: Case Management Lifecycle](#diagram-6-case-management-lifecycle)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [SLA Support](#sla-support)
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
@@ -547,46 +549,46 @@ Sales CRM is measured on pipeline health, deal velocity, and revenue predictabil
 
 ```mermaid
 stateDiagram-v2
-    [*] --> New : lead created
-    New --> Contacted : outreach
-    Contacted --> Qualified : qualifies
-    Qualified --> Unqualified : not a fit
-    Qualified --> Prospecting : opportunity auto-created
-    Unqualified --> [*]
+    [*] --> Lead_New : lead created
+    Lead_New --> Lead_Contacted : outreach
+    Lead_Contacted --> Lead_Qualified : qualifies
+    Lead_Qualified --> Lead_Unqualified : not a fit
+    Lead_Qualified --> Opp_Prospecting : opportunity auto-created
+    Lead_Unqualified --> [*]
 
-    Prospecting --> Qualification : deal qualified
-    Qualification --> Proposal : proposal sent
-    Proposal --> Negotiation : terms discussed
-    Negotiation --> Closed_Won : deal signed
-    Negotiation --> Closed_Lost : deal lost
-    Closed_Won --> Order : accepted quote
-    Closed_Lost --> [*]
+    Opp_Prospecting --> Opp_Qualification : deal qualified
+    Opp_Qualification --> Opp_Proposal : proposal sent
+    Opp_Proposal --> Opp_Negotiation : terms discussed
+    Opp_Negotiation --> Opp_Closed_Won : deal signed
+    Opp_Negotiation --> Opp_Closed_Lost : deal lost
+    Opp_Closed_Won --> Quote_Draft : accepted quote
+    Opp_Closed_Lost --> [*]
 
-    Draft --> Sent : quote submitted
-    Sent --> Accepted : customer accepts
-    Sent --> Rejected : customer rejects
-    Sent --> Expired : valid_until passed
-    Accepted --> Order : order created
-    Order --> Confirmed : confirmed
-    Confirmed --> Fulfilled : fulfilled
-    Confirmed --> Cancelled : cancelled
+    Quote_Draft --> Quote_Sent : quote submitted
+    Quote_Sent --> Quote_Accepted : customer accepts
+    Quote_Sent --> Quote_Rejected : customer rejects
+    Quote_Sent --> Quote_Expired : valid_until passed
+    Quote_Accepted --> Order_Draft : order created
+    Order_Draft --> Order_Confirmed : confirmed
+    Order_Confirmed --> Order_Fulfilled : fulfilled
+    Order_Confirmed --> Order_Cancelled : cancelled
 ```
 
 ### Diagram 2: Account → Contact → Lead → Opportunity (Data Hierarchy)
 
 ```mermaid
 graph TD
-    A[sn_sales_account Customer / B2B account] --> C[sn_sales_contact Individual at account]
-    A --> O[sn_sales_opportunity Deal at account]
+    A[sn_sales_account<br/>Customer / B2B account] --> C[sn_sales_contact<br/>Individual at account]
+    A --> O[sn_sales_opportunity<br/>Deal at account]
     C --> O
 
-    L[sn_sales_lead Prospect] --> O2[sn_sales_opportunity from qualified lead]
-    O --> Q[sn_sales_quote Quotes on opportunity]
-    Q --> OR[sn_sales_order Order from accepted quote]
-    Q --> QL[sn_sales_quote_line Line items / products]
+    L[sn_sales_lead<br/>Prospect] --> O2[sn_sales_opportunity<br/>from qualified lead]
+    O --> Q[sn_sales_quote<br/>Quotes on opportunity]
+    Q --> OR[sn_sales_order<br/>Order from accepted quote]
+    Q --> QL[sn_sales_quote_line<br/>Line items / products]
 
-    P[sn_sales_product Catalog item] --> QL
-    P --> OR2[sn_sales_order_line Ordered product lines]
+    P[sn_sales_product<br/>Catalog item] --> QL
+    P --> OR2[sn_sales_order_line<br/>Ordered product lines]
 
     style A fill:#e3f2fd,color:#000
     style O fill:#fff3e0,color:#000
@@ -622,7 +624,7 @@ graph LR
     Fulfill -->|Delivered| Service[CSM/FSM Case]
     Service -->|Renewal| Opp
 
-    subgraph External Systems
+    subgraph External_Systems [External Systems]
         ERP[ERP: SAP/NetSuite]
         Acct[Accounting: Invoices]
     end
@@ -634,58 +636,52 @@ graph LR
     style Order fill:#fce4ec,color:#000
 ```
 
-    ---
+### Diagram 5: Account → Opportunity → Quote → Order (Account-to-Order Flow)
 
-    ### Diagram 5: Account → Opportunity → Quote → Order (Account-to-Order Flow)
+```mermaid
+flowchart LR
+    A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
+    B --> C[sn_sales_quote<br/>Quote/CPQ]
+    C --> D[sn_sales_order<br/>Sales Order]
+    D --> E[sn_sales_order_line<br/>Order Lines]
 
-    ```mermaid
-    flowchart LR
-        A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
-        B --> C[sn_sales_quote<br/>Quote/CPQ]
-        C --> D[sn_sales_order<br/>Sales Order]
-        D --> E[sn_sales_order_line<br/>Order Lines]
-    
-        A -->|has primary contact| L[sn_sales_contact<br/>Contact]
-        L -->|influences| B
-    
-        B -->|generates| C
-        C -->|converts to| D
-        D -->|contains| E
-    
-        style A fill:#e3f2fd,color:#000
-        style B fill:#fff3e0,color:#000
-        style C fill:#f3e5f5,color:#000
-        style D fill:#ffebee,color:#000
-        style E fill:#e8f5e9,color:#000
-        style L fill:#f1f8e9,color:#000
-    ```
+    A -->|has primary contact| L[sn_sales_contact<br/>Contact]
+    L -->|influences| B
 
-    ---
+    B -->|generates| C
+    C -->|converts to| D
+    D -->|contains| E
 
-    ### Diagram 6: Case Management Lifecycle
+    style A fill:#e3f2fd,color:#000
+    style B fill:#fff3e0,color:#000
+    style C fill:#f3e5f5,color:#000
+    style D fill:#ffebee,color:#000
+    style E fill:#e8f5e9,color:#000
+    style L fill:#f1f8e9,color:#000
+```
 
-    ```mermaid
-    stateDiagram-v2
-        [*] --> New : case created
-        New --> Assigned : assigned to agent
-        Assigned --> In Progress : work started
-        In Progress --> Waiting on Customer : awaiting response
-        Waiting on Customer --> In Progress : customer responds
-        In Progress --> Resolved : issue fixed
-        Resolved --> Closed : confirmed by customer
-        Resolved --> Reopened : issue recurs
-        Reopened --> In Progress : work resumed
-        Closed --> [*] : case closed
-    
-        style New fill:#e3f2fd,color:#000
-        style Assigned fill:#fff3e0,color:#000
-        style In Progress fill:#f3e5f5,color:#000
-        style Waiting on Customer fill:#ffecb3,color:#000
-        style Resolved fill:#a5d6a7,color:#000
-        style Closed fill:#ef9a9a,color:#000
-    ```
+### Diagram 6: Case Management Lifecycle
 
-    ---
+```mermaid
+stateDiagram-v2
+    [*] --> New : case created
+    New --> Assigned : assigned to agent
+    Assigned --> In_Progress : work started
+    In_Progress --> Waiting_on_Customer : awaiting response
+    Waiting_on_Customer --> In_Progress : customer responds
+    In_Progress --> Resolved : issue fixed
+    Resolved --> Closed : confirmed by customer
+    Resolved --> Reopened : issue recurs
+    Reopened --> In_Progress : work resumed
+    Closed --> [*] : case closed
+
+    style New fill:#e3f2fd,color:#000
+    style Assigned fill:#fff3e0,color:#000
+    style In_Progress fill:#f3e5f5,color:#000
+    style Waiting_on_Customer fill:#ffecb3,color:#000
+    style Resolved fill:#a5d6a7,color:#000
+    style Closed fill:#ef9a9a,color:#000
+```
 
 ## SLAs, Dashboards & Workspaces
 
@@ -742,41 +738,37 @@ Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `
 
 ### Comprehensive Overview: Sales and Order Management
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="Sales and Order Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Sales and Order Management Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ### Getting Started Webinar
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="Getting Started Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Getting Started Webinar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 ### Detailed Demo: Lead to Order
 <div style="text-align: center; margin: 1.5rem 0;">
-  <iframe width="560" height="315" src=" title="Lead to Order Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/zCCbYr15dG8" title="Lead to Order Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
 **Fallback links (if embeds are blocked):**
-- [Comprehensive Overview]()
-- [Getting Started Webinar]()
-- [Detailed Demo: Lead to Order]()
+- [Comprehensive Overview](https://www.youtube.com/watch?v=zCCbYr15dG8)
+- [Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)
+- [Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=zCCbYr15dG8)
+
 ## 🗺️ Conceptual Flow (Lead-to-Cash)
 
 ```mermaid
 graph LR
-    Lead[Lead] -->|Qualified| Opp[Opportunity]
-    Opp -->|Proposal| Quote[Quote/CPQ]
-    Quote -->|Accepted| Order[Order]
-    Order -->|Fulfillment| Service[CSM/FSM Service]
-    Service -->|Renewal| Lead
+    Lead[Lead] --> Opp[Opportunity]
+    Opp --> Quote[Quote/CPQ]
+    Quote --> Order[Order]
+    Order --> Service[CSM/FSM Service]
+    Service --> Lead
+
     style Lead fill:#dfd
     style Order fill:#fdd
 ```
-
----
-
----
-
----
 
 ---
 
@@ -802,11 +794,11 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 ### The Authoritative Path
 1. **Now Learning (Structured Training)**
    - The only official source for certification paths and structured video courses.
-   - [Go to Now Learning Portal](https://nowlearning.com/) $\rightarrow$ Search for "Sales CRM / Order Management"
+   - [Go to Now Learning Portal](https://nowlearning.com/) → Search for "Sales CRM / Order Management"
    
 2. **Product Documentation (Technical Reference)**
    - The definitive source for every table, field, and OOB behavior.
-   - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Sales CRM / Order Management"
+   - [ServiceNow Product Documentation](https://docs.servicenow.com/) → Search for "Sales CRM / Order Management"
 
 ## 💡 Memory Aids & Mnemonics
 
