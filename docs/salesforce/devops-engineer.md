@@ -1308,3 +1308,173 @@ Answers are in the sections above. Write them out. If you cannot, do the matchin
 - [Navigation breadcrumbs](./navigation-breadcrumbs.md) — Setup paths, including Deployment & DevOps
 - [Labs and design](./labs-design.md) — first Flow, trigger, LWC, callout
 - [Users and data](./user-management-data.md) — profiles, permission sets, import, field-level security
+
+---
+
+## Addendum — Official Salesforce Documentation & Resources
+
+Salesforce does not host its main platform documentation in a single public GitHub repository. Official documentation is primarily maintained on the Salesforce Developers Portal and Salesforce Help. Salesforce maintains official GitHub organizations for open-source code, SDKs, and specific product documentation, alongside several community-maintained GitHub repositories that index official Salesforce docs for local search and AI tools.
+
+This addendum covers the official sources you should use for AI summaries, offline reading, and Platform Admin 1 & 2 / Platform Developer 1 & 2 exam preparation.
+
+---
+
+### 1. Best Option for AI / LLM Use: `llms.txt` Files
+
+Salesforce has published `llms.txt` files (following the [llmstxt.org](https://llmstxt.org) standard) specifically designed for Large Language Models.
+
+| Resource | URL | Format | Notes |
+|----------|-----|--------|-------|
+| Main aggregated index | https://developer.salesforce.com/docs/llms.txt | Markdown | Lists product-specific `llms.txt` files (Apex, LWC, Platform, Data Cloud, Commerce Cloud, Service Cloud, Agentforce, APIs, etc.) |
+| Product-specific `llms.txt` | Linked from the main index | Markdown | Clean Markdown versions of official docs, AI-friendly |
+
+**Why this is ideal:** Salesforce explicitly tells LLMs to prefer these official sources. Content is already in AI-friendly Markdown format.
+
+---
+
+### 2. Salesforce Help — Product / Admin Documentation
+
+| Resource | URL | Format | Notes |
+|----------|-----|--------|-------|
+| Main site | https://help.salesforce.com/ | HTML + PDFs | Covers product features, admin guides, setup, release notes |
+| Downloadable PDFs | Linked from guide pages | PDF | Look for the PDF icon on product landing pages |
+
+**Best for:** Admin guides, product features, setup instructions, release notes.
+
+---
+
+### 3. Salesforce Developer Docs — HTML / Markdown
+
+| Resource | URL | Format | Notes |
+|----------|-----|--------|-------|
+| Developer portal | https://developer.salesforce.com/docs | HTML / Markdown | Apex Developer Guide, LWC, Aura, REST/SOAP/Metadata APIs, Salesforce DX, CLI, Object Reference |
+
+**Best for:** Apex, LWC, Aura, APIs, platform developer reference.
+
+---
+
+### 4. Trailhead — Official Learning Content
+
+| Resource | URL | Format | Notes |
+|----------|-----|--------|-------|
+| Trailhead | https://trailhead.salesforce.com/ | Interactive modules | Official modules, trails, and projects; more learning-oriented than pure reference |
+
+**Best for:** Platform Admin 1 & 2 and Platform Developer 1 & 2 exam preparation, hands-on trails.
+
+---
+
+### 5. Release Notes
+
+Available on the Help site (current and past releases). Many have PDF download options.
+
+---
+
+## Platform Admin 1 & 2 — Official Documentation Coverage
+
+The following table maps Platform Admin 1 & 2 exam topics to official Salesforce documentation sources. All links are to `*.salesforce.com` domains.
+
+| Topic | Official Source | What It Covers |
+|-------|----------------|----------------|
+| **Organization Setup** | [Help: Organization Setup](https://help.salesforce.com/s/articleView?id=sf.admin_org_setup.htm&type=5) | Company settings, fiscal year, currency, locales |
+| **User Setup** | [Help: Manage Users](https://help.salesforce.com/s/articleView?id=sf.users.htm&type=5) | User creation, profiles, permission sets, login access |
+| **Security and Access** | [Help: Data Security](https://help.salesforce.com/s/articleView?id=sf.data_security.htm&type=5) | Profiles, permission sets, OWD, sharing rules, roles |
+| **Standard and Custom Objects** | [Help: Objects and Fields](https://help.salesforce.com/s/articleView?id=sf.fields.htm&type=5) | Object creation, custom fields, relationships |
+| **Sales and Marketing Applications** | [Help: Sales Cloud](https://help.salesforce.com/s/articleView?id=sf.sales.htm&type=5) | Leads, opportunities, accounts, contacts, campaigns |
+| **Service and Support Applications** | [Help: Service Cloud](https://help.salesforce.com/s/articleView?id=sf.service.htm&type=5) | Cases, solutions, entitlements, service contracts |
+| **Activity Management** | [Help: Activities](https://help.salesforce.com/s/articleView?id=sf.activities.htm&type=5) | Tasks, events, calendars |
+| **Chatter** | [Help: Chatter](https://help.salesforce.com/s/articleView?id=sf.chatter.htm&type=5) | Collaboration, groups, feeds |
+| **Data Management** | [Help: Data Management](https://help.salesforce.com/s/articleView?id=sf.data.htm&type=5) | Import, export, data loader, data quality |
+| **Analytics** | [Help: Reports and Dashboards](https://help.salesforce.com/s/articleView?id=sf.reports.htm&type=5) | Report builder, dashboard creation, report types |
+| **Workflow / Automation** | [Help: Automation](https://help.salesforce.com/s/articleView?id=sf.automation.htm&type=5) | Workflow rules, approval processes, Flow Builder |
+| **Desktop and Mobile Administration** | [Help: Mobile Administration](https://help.salesforce.com/s/articleView?id=sf.mobile_admin.htm&type=5) | Salesforce Mobile, Lightning Experience setup |
+| **AppExchange** | [AppExchange](https://appexchange.salesforce.com/) | Installing and managing managed packages |
+
+### Platform Admin 1 & 2 — Trailhead Modules to Complete
+
+| Trailhead Module | URL | Admin 1 | Admin 2 |
+|------------------|-----|---------|---------|
+| [Data Security](https://trailhead.salesforce.com/content/learn/modules/data_security) | https://trailhead.salesforce.com/content/learn/modules/data_security | ✅ | ✅ |
+| [Reports and Dashboards](https://trailhead.salesforce.com/content/learn/modules/reports_dashboards) | https://trailhead.salesforce.com/content/learn/modules/reports_dashboards | ✅ | ✅ |
+| [Automate Business Processes with Flow](https://trailhead.salesforce.com/content/learn/modules/flow_builder) | https://trailhead.salesforce.com/content/learn/modules/flow_builder | ✅ | ✅ |
+| [Administer Salesforce CMS](https://trailhead.salesforce.com/content/learn/modules/salesforce_cms) | https://trailhead.salesforce.com/content/learn/modules/salesforce_cms | | ✅ |
+| [Manage User Access](https://trailhead.salesforce.com/content/learn/modules/user_access) | https://trailhead.salesforce.com/content/learn/modules/user_access | ✅ | ✅ |
+| [Data Management](https://trailhead.salesforce.com/content/learn/modules/data_management) | https://trailhead.salesforce.com/content/learn/modules/data_management | ✅ | ✅ |
+| [Process Automation](https://trailhead.salesforce.com/content/learn/modules/process_automation) | https://trailhead.salesforce.com/content/learn/modules/process_automation | | ✅ |
+| [Lightning Experience Specialist](https://trailhead.salesforce.com/content/learn/modules/lexlex) | https://trailhead.salesforce.com/content/learn/modules/lexlex | ✅ | ✅ |
+
+---
+
+## Platform Developer 1 & 2 — Official Documentation Coverage
+
+The following table maps Platform Developer 1 & 2 exam topics to official Salesforce documentation sources. All links are to `*.salesforce.com` domains.
+
+| Topic | Official Source | What It Covers |
+|-------|----------------|----------------|
+| **Apex Fundamentals** | [Apex Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dev_guide.htm) | Apex language, triggers, classes, governor limits |
+| **Apex Triggers** | [Trigger Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_triggers.htm) | Trigger context variables, bulkification, trigger frameworks |
+| **SOQL / SOSL** | [SOQL and SOSL Reference](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_sosl.htm) | Querying data, relationship queries, aggregate functions |
+| **Testing** | [Apex Testing](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing.htm) | Test classes, test data, @isTest, test setup |
+| **Governor Limits** | [Execution Governors and Limits](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_gov_limits.htm) | Limits per transaction, per org, best practices |
+| **Lightning Web Components** | [LWC Developer Guide](https://developer.salesforce.com/docs/component-library/documentation/en/lwc) | Components, properties, events, wire adapters |
+| **Aura Components** | [Aura Components Developer Guide](https://developer.salesforce.com/docs/component-library/bundle/auradocumentation/introduction) | Legacy component framework |
+| **Visualforce** | [Visualforce Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.pages.meta/pages/pages_dev_guide.htm) | Pages, components, controllers |
+| **REST API** | [REST API Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_query.htm) | REST resources, sObject API, composite API |
+| **SOAP API** | [SOAP API Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_api.htm) | Metadata API, deploy, retrieve |
+| **Metadata API** | [Metadata API Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_api.htm) | Deploying metadata, package.xml, destructive changes |
+| **Salesforce CLI** | [Salesforce CLI Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm) | `sf` command-line, org management, source tracking |
+| **Debugging** | [Debugging Apex](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_debugging.htm) | Debug logs, checkpoints, system.debug |
+
+### Platform Developer 1 & 2 — Trailhead Modules to Complete
+
+| Trailhead Module | URL | PD1 | PD2 |
+|------------------|-----|-----|-----|
+| [Apex Specialist](https://trailhead.salesforce.com/content/learn/modules/apex_specialist) | https://trailhead.salesforce.com/content/learn/modules/apex_specialist | ✅ | ✅ |
+| [Lightning Web Components Specialist](https://trailhead.salesforce.com/content/learn/modules/lwc_specialist) | https://trailhead.salesforce.com/content/learn/modules/lwc_specialist | ✅ | ✅ |
+| [Apex Testing](https://trailhead.salesforce.com/content/learn/modules/apex_testing) | https://trailhead.salesforce.com/content/learn/modules/apex_testing | ✅ | ✅ |
+| [API Basics](https://trailhead.salesforce.com/content/learn/modules/api_basics) | https://trailhead.salesforce.com/content/learn/modules/api_basics | ✅ | ✅ |
+| [Integration Specialist](https://trailhead.salesforce.com/content/learn/modules/integration_specialist) | https://trailhead.salesforce.com/content/learn/modules/integration_specialist | | ✅ |
+| [Apex Enterprise Patterns](https://trailhead.salesforce.com/content/learn/modules/apex_design_patterns) | https://trailhead.salesforce.com/content/learn/modules/apex_design_patterns | | ✅ |
+| [Security Specialist](https://trailhead.salesforce.com/content/learn/modules/security_specialist) | https://trailhead.salesforce.com/content/learn/modules/security_specialist | ✅ | ✅ |
+
+---
+
+### 6. Official Salesforce GitHub Resources
+
+Salesforce maintains official GitHub organizations for open-source code, SDKs, and specific product documentation.
+
+| Organization | URL | What It Contains |
+|--------------|-----|------------------|
+| **Salesforce (main)** | https://github.com/salesforce | Official open-source libraries, sample apps, LWC tools, developer skills |
+| **SalesforceCommerceCloud** | https://github.com/SalesforceCommerceCloud | B2C Commerce technical references, script APIs, import/export schemas |
+| **trailheadapps** | https://github.com/trailheadapps | Trailhead sample apps, official code examples, architectural patterns |
+
+### 7. Community GitHub Repositories for Salesforce Docs
+
+If you are looking for Markdown versions, offline PDFs, or AI/MCP integrations of official Salesforce documentation on GitHub, several community projects index them:
+
+| Repository | URL | Description |
+|------------|-----|-------------|
+| **salesforce-docs-mcp** | https://github.com/SalesforceDiariesBySanket/salesforce-docs-mcp | Local-first MCP server with 350+ official Salesforce developer and release note PDFs |
+| **salesforce-documentation-context** | https://github.com/damecek/salesforce-documentation-context | Downloads official Salesforce documentation PDFs, converts to Markdown, generates llms.txt for AI coding assistants |
+| **salesforce-docs-cli** | https://github.com/gauravkheterpal/salesforce-docs-cli | Python CLI tool to query and render official Salesforce developer and admin docs in the terminal |
+| **awesome-salesforce** | https://github.com/Clientell-Ai/awesome-salesforce | Categorized links to official guides, LWC recipes, developer utilities |
+
+---
+
+### 8. Practical Recommendations for AI Summaries
+
+| Goal | Recommended Source | Format | Notes |
+|------|-------------------|--------|-------|
+| Technical / Developer docs | `llms.txt` files | Markdown | Best for AI — already structured for LLMs |
+| Admin / Product guides | help.salesforce.com | HTML + PDFs | Download PDFs for offline processing |
+| APIs & Platform | developer.salesforce.com | HTML / Markdown | Use the `llms.txt` indexes |
+| Learning-style summaries | trailhead.salesforce.com | Interactive | Official but more educational |
+
+**Tips:**
+- Stick strictly to `*.salesforce.com` domains (`help.salesforce.com`, `developer.salesforce.com`, `trailhead.salesforce.com`) to keep it official-only.
+- The `llms.txt` ecosystem is the strongest starting point if you're feeding docs into an AI summarizer.
+- For bulk processing, prefer PDF downloads from the Help site or Markdown files linked from `llms.txt` files.
+- For Apex/LWC specifically, start with the Apex Developer Guide and LWC Developer Guide on developer.salesforce.com.
+
+---
+
