@@ -32,6 +32,12 @@
 - [10. Releases, hotfixes, rollback](#10-releases-hotfixes-rollback)
 - [11. Banking change control](#11-banking-change-control)
 - [12. Design patterns you have to coach](#12-design-patterns-you-have-to-coach)
+- [13. Salesforce Governor Limits — What You Check Before You Deploy](#13-salesforce-governor-limits--what-you-check-before-you-deploy)
+  - [13.1. How to Check Any Limit](#131-how-to-check-any-limit)
+  - [13.2. Per-Limit Reference](#132-per-limit-reference)
+  - [13.3. Quick Reference Table](#133-quick-reference-table)
+  - [13.4. Monitoring Limits Proactively](#134-monitoring-limits-proactively)
+  - [13.5. Common Limit Mistakes](#135-common-limit-mistakes)
 - [Labs](#labs)
 - [Interview drills](#interview-drills)
 - [Certifications](#certifications)
@@ -599,6 +605,605 @@ The posting says you provide guidance on DevOps-friendly design. These are the p
 | Custom metadata / custom settings for toggles | You can ship a feature dark and turn it on after deploy, without another deploy |
 | Bulkified Apex | A deploy can be green and still fail the first real batch. You ask the 200-record question |
 | No environment-specific branches | `if (org.IsSandbox)` in code is a last resort. Config belongs in the target, not in a `uat` branch that can never merge |
+
+## 13. Salesforce Governor Limits — What You Check Before You Deploy
+
+You do not write every trigger, but you sign off on deploys that run code. A deploy can be green and still fall over in production because the code hits a governor limit under real volume. Your review question for every Apex story: **"what happens when this runs on 200 records?"**
+
+Below is each limit you are expected to know for the DevOps Engineer role, with the Salesforce breadcrumb to check it, how much is left, what breaks when it is hit, and how to keep it under control.
+
+---
+
+### 13.1. How to Check Any Limit
+
+| Breadcrumbs | What you see |
+|-------------|--------------|
+| **Org-wide limit usage** | Setup → Company Information → "API Requests, Last 24 Hours" (shows Total and Remaining) |
+| **Apex limit usage per transaction** | Setup → Debug Logs → Open a log → search `LIMIT_USAGE` → line-by-line consumption for that transaction |
+| **Real-time org snapshot** | Setup → System Overview → "Apex Limits" |
+| **Batch / Scheduled / Queueable job status** | Setup → Apex Jobs → shows running, completed, failed, and error details |
+| **Flow usage / faults** | Setup → Flow → "Faults" or "Flow Details" → interview count, errors |
+| **Connected app API usage** | Setup → Connected Apps → OAuth Usage → API calls per connected app |
+| **Scheduled jobs** | Setup → Scheduled Jobs → jobs scheduled per 24-hour window |
+
+### Apex snippet — check limits inside code
+
+```apex
+// Heap size (per transaction)
+Integer usedHeap = Limits.getHeapSize();
+Integer maxHeap  = Limits.getLimitHeapSize();
+
+// CPU time (per transaction)
+Integer usedCpu  = Limits.getCpuTime();
+Integer maxCpu   = Limits.getLimitCpuTime();
+
+// SOQL queries (per transaction)
+Integer usedSoql = Limits.getQueries();
+Integer maxSoql  = Limits.getLimitQueries();
+
+// DML statements (per transaction)
+Integer usedDml  = Limits.getDmlStatements();
+Integer maxDml   = Limits.getLimitDmlStatements();
+
+// DML rows (per transaction)
+Integer usedRows = Limits.getDmlRows();
+Integer maxRows  = Limits.getLimitDmlRows();
+
+// Generic: remaining for any limit type
+Integer remaining = Limits.getLimit(<type>) - Limits.<getter>(<type>);
+```
+
+**Rule for releases:** if a transaction is already at **80% of any limit** in a sandbox test, treat it as a production risk and refactor before promoting.
+
+---
+
+### 13.2. Per-Limit Reference
+
+#### 1. Total Apex API Requests (org-wide, 24 hours)
+
+**ELI5:** This is how many times your org talks to the Salesforce API from outside (Postman, middleware, CI/CD, other apps calling Salesforce). Think of it as how many letters your company sends out in a day — Salesforce counts them all and stops you when you send too many.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 15,000 per 24 hours (Enterprise/Unlimited; varies by edition) |
+| Reset | Every 24 hours (rolling) |
+| Scope | Per org |
+| Can be increased? | Yes — contact Salesforce (paid add-on) |
+
+**Where to check:** Setup → Company Information → "API Requests, Last 24 Hours" → shows Total and Remaining.
+
+**How much is left:** `Remaining = Total − Used`.
+
+**What happens when hit:** `LIMIT_EXCEPTION` — All API calls fail. Integrations break. CI/CD deployments fail. SSO logins that use API calls stop working.
+
+**Best practices to control it:**
+- Cache API responses where possible (don't call Salesforce twice for the same data)
+- Use Bulk API for large data loads instead of REST API one-record-at-a-time
+- Schedule data syncs during off-peak hours
+- Monitor connected app usage: Setup → Connected Apps → OAuth Usage
+- Implement retry logic with exponential backoff for `LIMIT_EXCEPTION`
+
+---
+
+#### 2. SOQL Queries (synchronous, per transaction)
+
+**ELI5:** SOQL is how you ask Salesforce "give me all records where X matches Y." This counts how many times you run a SOQL query in one piece of code. It's like how many times you can ask the librarian for a book before they tell you to come back tomorrow.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 100 per transaction (synchronous) |
+| Reset | Per transaction (every Apex execution) |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Setup → Debug Logs → open a log → search `SOQL_EXECUTE_BEGIN` → count the lines. Or in Apex: `Limits.getQueries()`.
+
+**How much is left:** `Limits.getLimitQueries() − Limits.getQueries()` (in Apex).
+
+**What happens when hit:** `System.LimitException: Too many SOQL queries: 101` — entire transaction rolls back, no data saved.
+
+**Best practices to control it:**
+- **Bulkify:** query once *outside* loops, never inside
+- Use selective `WHERE` clauses on indexed fields (Id, Name, RecordTypeId, External ID)
+- Use `FOR (SObject obj : [SELECT ...])` pattern instead of query-then-process
+- Query only fields you need: `SELECT Id, Name FROM Account` — never `SELECT *`
+- Use `@ReadOnly` on Visualforce pages (raises query limit to 200)
+
+---
+
+#### 3. SOQL Query Rows Returned (per transaction)
+
+**ELI5:** This is how many total records your SOQL queries pull back in one transaction. Even if you only asked 5 times, if each query returned 100 books, you've got 500 books.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 50,000 per transaction (synchronous) |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Debug Log → `SOQL_EXECUTE_BEGIN` → "Number of Rows". Or Apex: `Limits.getQueryRows()`.
+
+**How much is left:** `Limits.getLimitQueryRows() − Limits.getQueryRows()`.
+
+**What happens when hit:** `System.LimitException: Too many query rows: 50001` — transaction rolls back.
+
+**Best practices to control it:**
+- Always add a `LIMIT` clause: `SELECT Id FROM Account LIMIT 10000`
+- Use selective `WHERE` clauses to reduce rows returned
+- Use `COUNT()` when you only need a count, not the records
+- Avoid `SELECT *` — query only needed fields
+
+---
+
+#### 4. DML Statements (per transaction)
+
+**ELI5:** DML is how you save, update, or delete records (insert, update, delete, upsert, merge, undelete). This counts how many separate DML operations you run — like how many forms you fill out to change something.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 150 per transaction |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Debug Log → `DML_BEGIN` lines. Or Apex: `Limits.getDmlStatements()`.
+
+**How much is left:** `Limits.getLimitDmlStatements() − Limits.getDmlStatements()`.
+
+**What happens when hit:** `System.LimitException: Too many DML statements: 151` — transaction rolls back.
+
+**Best practices to control it:**
+- **Bulkify:** collect records in a List, do ONE `insert myList` — never one insert per record
+- Use `Database.insert(list, false)` for partial success (some records can fail without aborting all)
+- Combine related updates into single DML calls
+- Never DML inside a loop — collect first, DML once
+
+---
+
+#### 5. DML Rows Processed (per transaction)
+
+**ELI5:** This is how many individual records your DML operations touch in total. If you insert 100 accounts in one DML statement, that's 100 rows.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 10,000 per transaction |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Debug Log → `DML_BEGIN` → "Number of Rows". Or Apex: `Limits.getDmlRows()`.
+
+**How much is left:** `Limits.getLimitDmlRows() − Limits.getDmlRows()`.
+
+**What happens when hit:** `System.LimitException: Too many DML rows: 10001` — transaction rolls back.
+
+**Best practices to control it:**
+- Use Batch Apex for >10,000 records
+- Use `Database.insert(list, false)` for partial failures
+- Delete records in batches via `Database.delete()`
+- Check `empty()` before DML to avoid empty operations
+
+---
+
+#### 6. Apex CPU Time (per transaction)
+
+**ELI5:** This is how much processing time your Apex uses on Salesforce's servers. It's like how many minutes of the librarian's time you use — complex calculations take longer than simple lookups.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 10,000 ms (10 seconds) sync; 60,000 ms (60 seconds) async |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Debug Log → `CUMULATIVE_LIMIT_USAGE` → "CPU time". Or Apex: `Limits.getCpuTime()`.
+
+**How much is left:** `Limits.getLimitCpuTime() − Limits.getCpuTime()`.
+
+**What happens when hit:** `System.LimitException: Apex CPU time limit exceeded` — transaction rolls back.
+
+**Best practices to control it:**
+- Avoid complex calculations in Apex — move to formula fields where possible
+- Use `Map<Id, SObject>` for lookups instead of nested loops
+- Avoid string manipulation in tight loops
+- Use `System.debug()` sparingly in production (it costs CPU)
+- Move long-running calculations to `@future` or Queueable
+
+---
+
+#### 7. Apex Heap Size (per transaction)
+
+**ELI5:** This is how much memory your Apex code uses to hold variables, lists, and objects. It's like how much desk space you take up with books and papers — pile too much and there's no room left.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 6 MB sync; 12 MB async |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Debug Log → `CUMULATIVE_LIMIT_USAGE` → "Heap size". Or Apex: `Limits.getHeapSize()`.
+
+**How much is left:** `Limits.getLimitHeapSize() − Limits.getHeapSize()`.
+
+**What happens when hit:** `System.LimitException: Apex heap size too large` — transaction rolls back.
+
+**Best practices to control it:**
+- Null out large collections when done: `myList = null;`
+- Use `transient` keyword for variables that don't need view state
+- Avoid loading large record sets into memory — use SOQL `FOR IN` loops
+- Process large datasets in Batch Apex chunks (200 records per execute)
+
+---
+
+#### 8. SOQL For Loop Queries (per transaction)
+
+**ELI5:** How many times you can iterate over query results in a `FOR` loop. Different from regular SOQL queries — this counts the loops themselves.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 200 per transaction |
+| Reset | Per transaction |
+| Scope | Per transaction |
+| Can be increased? | No |
+
+**Where to check:** Debug Log → `CUMULATIVE_LIMIT_USAGE` → "SOQL for loop iterations".
+
+**What happens when hit:** `System.LimitException: Too many SOQL for loop iterations: 201`
+
+**Best practices to control it:**
+- Use `FOR (SObject obj : [SELECT ...])` pattern — it's more efficient than query + iterate
+- Each `FOR` loop also counts as one query toward the 100-query limit
+- Don't nest `FOR` loops over query results
+
+---
+
+#### 9. Total Email Invocations (org-wide, 24 hours)
+
+**ELI5:** How many single emails your org sends via Apex — like how many individual letters your company mails in a day.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 5,000 per 24 hours (Enterprise) |
+| Reset | Every 24 hours |
+| Scope | Per org |
+| Can be increased? | Yes — contact Salesforce |
+
+**Where to check:** Setup → Email Administration → Deliverability / Single Email Mass Email limits.
+
+**What happens when hit:** `System.LimitException: Too many email invocations: 5001` — all outbound Apex email fails.
+
+**Best practices to control it:**
+- Use Email Templates instead of building bodies in code
+- Use Mass Email for bulk sends (separate limit)
+- Queue email sends with `@future` or Queueable
+- Use third-party email services (SendGrid, Mailgun) for high-volume
+- Check `HasOptedOutOfEmail` before sending
+
+---
+
+#### 10. Email Recipients (org-wide, 24 hours)
+
+**ELI5:** How many individual people can receive emails from your org in 24 hours. Emailing 100 people = 100 recipients, even if it's one email with 100 CCs.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 5,000 per 24 hours |
+| Reset | Every 24 hours |
+| Scope | Per org |
+| Can be increased? | Yes — contact Salesforce |
+
+**Where to check:** Setup → Email Administration.
+
+**What happens when hit:** Email sends fail with `LIMIT_EXCEPTION`.
+
+**Best practices to control it:**
+- Deduplicate recipients before sending
+- Use Salesforce CDP or Marketing Cloud for bulk campaigns
+- Track bounces and clean invalid addresses
+
+---
+
+#### 11. Batch Apex — Batch Size (per batch)
+
+**ELI5:** When processing records in batches, each batch handles a chunk of records. This is how many records are in one chunk.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 2,000 records per batch (recommended 200) |
+| Reset | Per batch execution |
+| Scope | Per batch |
+| Can be increased? | No, but stay at 200 |
+
+**Where to check:** Setup → Apex Jobs → open a batch job → "Batch Size" field.
+
+**How much is left:** N/A — this is a design choice, not a consumption counter.
+
+**What happens when hit:** Batch job fails or processes inefficiently.
+
+**Best practices to control it:**
+- Use batch size 200 (default and recommended)
+- Larger batches = fewer calls but higher CPU/heap risk per batch
+- Smaller batches = more calls but safer per-batch limits
+- Test batch size with your specific logic before production
+
+---
+
+#### 12. Batch Apex — Concurrent Batches (org-wide)
+
+**ELI5:** How many batch jobs can run at the same time — like how many workers processing batches simultaneously.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 5 concurrent batch jobs |
+| Reset | As jobs complete |
+| Scope | Per org |
+| Can be increased? | No |
+
+**Where to check:** Setup → Apex Jobs → count jobs with status "Processing" or "Preparing".
+
+**How much is left:** `5 − (number of concurrent batch jobs)` from the Apex Jobs page.
+
+**What happens when hit:** New batch jobs stay in "Preparing" (queued) until a running batch completes.
+
+**Best practices to control it:**
+- Chain batch jobs using `Database.executeBatch()` in the `finish()` method
+- Don't schedule multiple batches to start at the same time
+- Use Queueable Apex for simpler chaining instead of multiple batch jobs
+- Monitor Apex Jobs queue regularly
+
+---
+
+#### 13. Queueable Apex — Jobs in Queue (per transaction)
+
+**ELI5:** Queueable Apex runs code in the background. This limits how many jobs you can add to the queue in one transaction.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 50 jobs enqueued per transaction |
+| Reset | As jobs are processed |
+| Scope | Per transaction |
+| Can be increased? | No |
+
+**Where to check:** Setup → Apex Jobs → count "Queueable" jobs.
+
+**What happens when hit:** `System.LimitException: Too many queueable jobs added to the queue: 51` — additional jobs can't be queued.
+
+**Best practices to control it:**
+- Chain queueable jobs: call `System.enqueueJob(nextJob)` at the end of `execute()`
+- Never enqueue jobs inside a loop
+- Use Queueable for chaining dependent async work (better than Batch for simple chains)
+- Monitor queue depth in Apex Jobs
+
+---
+
+#### 14. Future Methods — Calls per 24 Hours (org-wide)
+
+**ELI5:** Future methods run code in the background after the current transaction. This limits how many future calls you can make in a day.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 250,000 per 24 hours |
+| Reset | Every 24 hours |
+| Scope | Per org |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Setup → Apex Jobs → filter by "Future" method type → count.
+
+**What happens when hit:** Future method calls fail — async processing stops for the day.
+
+**Best practices to control it:**
+- Prefer Queueable Apex over Future methods (Queueable can be chained and monitored)
+- Use `@future` only for simple fire-and-forget tasks
+- Don't call future methods in triggers — use Queueable instead
+- Track future method failures in a custom log object
+
+---
+
+#### 15. Scheduled Apex — Jobs per 24 Hours (org-wide)
+
+**ELI5:** Scheduled Apex runs code on a timer (like a cron job). This limits how many scheduled jobs you can have active.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 100,000 per 24 hours |
+| Reset | Every 24 hours |
+| Scope | Per org |
+| Can be increased? | No — hard limit |
+
+**Where to check:** Setup → Scheduled Jobs → count active scheduled jobs.
+
+**How much is left:** `100,000 − (active scheduled jobs)` from Scheduled Jobs page.
+
+**What happens when hit:** New scheduled jobs cannot be created.
+
+**Best practices to control it:**
+- Use one scheduled job that triggers multiple tasks via Queueable or Batch
+- Avoid scheduling jobs for every minute — use reasonable intervals
+- Delete unused scheduled jobs regularly
+- Monitor scheduled job execution history for failures
+
+---
+
+#### 16. Platform Events — Published per 24 Hours (org-wide)
+
+**ELI5:** Platform Events are internal messages your org sends to itself (or to subscribers) when something happens. This limits how many events you can publish in a day.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 100,000 (Enterprise) to 1,000,000+ (Unlimited) per 24 hours |
+| Reset | Every 24 hours |
+| Scope | Per org |
+| Can be increased? | Yes — depends on edition |
+
+**Where to check:** Setup → Platform Event Details → "Published Events".
+
+**What happens when hit:** Event publishing fails — downstream subscribers don't receive events.
+
+**Best practices to control it:**
+- Batch events where possible (publish multiple events in one call)
+- Use durable events only when replay is needed (they cost more)
+- Monitor event consumer latency — slow consumers cause backpressure
+
+---
+
+#### 17. Custom Metadata — Records per Org
+
+**ELI5:** Custom Metadata lets you store configuration data deployable like code but editable like records. This limits how many custom metadata records you can have.
+
+| Detail | Value |
+|--------|-------|
+| Limit | Varies by edition (typically 50,000+ for Enterprise) |
+| Reset | N/A — total count, not rate |
+| Scope | Per org |
+| Can be increased? | Contact Salesforce |
+
+**Where to check:** Setup → Custom Metadata Types → view record counts per type.
+
+**What happens when hit:** Cannot create new custom metadata records until some are deleted.
+
+**Best practices to control it:**
+- Use Custom Metadata for configuration that moves between sandboxes via change sets
+- Don't use Custom Metadata for transactional data (use Custom Objects instead)
+- Keep metadata records lean — avoid large text fields
+
+---
+
+#### 18. Concurrent Apex Requests (org-wide)
+
+**ELI5:** How many Apex requests can run at the exact same time — like how many people can talk to the librarian simultaneously.
+
+| Detail | Value |
+|--------|-------|
+| Limit | ~10 concurrent requests (varies by edition) |
+| Reset | As requests complete |
+| Scope | Per org |
+| Can be increased? | No |
+
+**Where to check:** Setup → System Overview → "Concurrent Apex Requests".
+
+**How much is left:** `10 − (currently running requests)`.
+
+**What happens when hit:** Requests queue up and may time out.
+
+**Best practices to control it:**
+- Avoid long-running synchronous Apex from UI (users will experience timeouts)
+- Use async processing (Queueable, Batch, Future) for long operations
+- Monitor concurrent request spikes during data loads or integrations
+
+---
+
+#### 19. Test Method — Data Rows per Test (per test)
+
+**ELI5:** When writing tests, this limits how many records your test can query or create. It's separate from production limits.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 50,000 rows per test method |
+| Reset | Per test method |
+| Scope | Per test |
+| Can be increased? | No |
+
+**Where to check:** Run tests → check test execution logs → `CUMULATIVE_LIMIT_USAGE`.
+
+**What happens when hit:** Test method fails — deployment is blocked.
+
+**Best practices to control it:**
+- Use `Test.startTest()` and `Test.stopTest()` to get fresh limits for the test logic
+- Use `@TestSetup` to create test data once for all test methods in a class
+- Use `Test.isRunningTest()` to branch logic in production code
+- Keep tests isolated — don't rely on data from other tests
+
+---
+
+#### 20. Flow Interview — Interview Limits
+
+**ELI5:** A flow interview is one run of a Flow (when a user clicks a button that starts a Flow). This limits how many flow interviews can run and how complex they can be.
+
+| Detail | Value |
+|--------|-------|
+| Limit | 2,000 interviews per 24 hours (per flow); various element limits per interview |
+| Reset | Every 24 hours |
+| Scope | Per org per flow |
+| Can be increased? | Contact Salesforce |
+
+**Where to check:** Setup → Flow → Interview details or Flow usage dashboard.
+
+**What happens when hit:** New flow interviews fail to start.
+
+**Best practices to control it:**
+- Use `Get Records` with filters instead of getting all records then filtering
+- Avoid loops inside loops in flows
+- Use Decision elements instead of multiple Get Records
+- Monitor flow errors in Setup → Flow → Faults
+- Consider Apex for complex logic that exceeds flow limits
+
+---
+
+### 13.3. Quick Reference Table
+
+| Limit | Default Value | Reset | Scope | Increase? |
+|-------|--------------|-------|-------|-----------|
+| API Requests (24h) | 15,000 | 24h | Org | Yes (paid) |
+| SOQL Queries (sync) | 100 | Per txn | Txn | No |
+| SOQL Rows Returned | 50,000 | Per txn | Txn | No |
+| DML Statements | 150 | Per txn | Txn | No |
+| DML Rows | 10,000 | Per txn | Txn | No |
+| Apex CPU Time (sync) | 10,000 ms | Per txn | Txn | No |
+| Apex Heap Size (sync) | 6 MB | Per txn | Txn | No |
+| Email Invocations (24h) | 5,000 | 24h | Org | Yes |
+| Batch Apex Concurrent | 5 | As jobs complete | Org | No |
+| Queueable Jobs | 50 per txn | Per txn | Txn | No |
+| Future Calls (24h) | 250,000 | 24h | Org | No |
+| Scheduled Jobs (24h) | 100,000 | 24h | Org | No |
+| Concurrent Apex | ~10 | As complete | Org | No |
+| Test Data Rows | 50,000 | Per test | Txn | No |
+
+---
+
+### 13.4. Monitoring Limits Proactively
+
+**Debug logs (per-transaction):**
+```
+Setup → Debug Logs → New
+- Log Level: Apex Code: Finest, Visualforce: Finer
+- Set trace flags for specific users or classes
+- Open logs → search "CUMULATIVE_LIMIT_USAGE" → see all limits at once
+- Search "LIMIT_USAGE_FOR_NS" for namespace-specific limits
+```
+
+**Apex code monitoring (real-time):**
+```apex
+if (Limits.getCpuTime() > Limits.getLimitCpuTime() * 0.80) {
+    System.debug('WARNING: CPU time at 80% of limit: ' + Limits.getCpuTime() + 'ms');
+    // Consider aborting or switching to async
+}
+```
+
+**Scheduled monitoring jobs:**
+Create a scheduled Apex job that:
+- Queries `ApiUsage` or connected app OAuth data
+- Checks `Limits.getApiRequests()` trend
+- Sends alert email when approaching 80% of any limit
+
+**Event Monitoring (Enterprise+):**
+Setup → Event Monitoring → API Usage events → track which users/connected apps consume the most API calls. Identify integration spikes before they hit limits.
+
+---
+
+### 13.5. Common Limit Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| SOQL in a for loop | `Too many SOQL queries: 101` | Move query outside loop; collect IDs first, query once |
+| DML in a for loop | `Too many DML statements: 151` | Collect records in a List, do one DML call |
+| Loading all fields in SOQL | `Apex heap size too large` | Query only needed fields |
+| Not using `LIMIT` in SOQL | `Too many query rows: 50001` | Add `LIMIT` clause + selective WHERE |
+| Future method in trigger | `Too many future calls: 250001` | Use Queueable Apex instead |
+| Synchronous Apex from UI | Page timeout / CPU limit | Move to `@future` or Queueable |
+| Not checking limits before async | Async job fails mid-run | Check limits in `start()` method of Batch |
+| Mass email without opt-out | Email limit exceeded | Check `HasOptedOutOfEmail` before sending |
 
 ---
 
