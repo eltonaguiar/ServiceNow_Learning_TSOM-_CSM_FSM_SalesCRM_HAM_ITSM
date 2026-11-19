@@ -31,6 +31,13 @@
 - [Change Advisory Board (CAB) & Change Types](#change-advisory-board-cab--change-types)
 - [JDBC / ODBC via MID Server](#jdbc--odbc-via-mid-server)
 - [Platform Governance & Lead Layer](#platform-governance--lead-layer)
+- [Testing Strategy: Unit / System / UAT / Regression](#testing-strategy-unit--system--uat--regression)
+- [Upgrades: Paths, Regression Testing, Health Checks, Clone Post-Tasks](#upgrades-paths-regression-testing-health-checks-clone-post-tasks)
+- [Troubleshooting: Logs, Transaction Logs, Performance](#troubleshooting-logs-transaction-logs-performance)
+- [Legacy Integration Patterns: SOAP, Flat-File, MID Server Deep-Dive](#legacy-integration-patterns-soap-flat-file-mid-server-deep-dive)
+- [Data Migration: Import Sets, Transform Maps, Coalesce, Data Cleansing](#data-migration-import-sets-transform-maps-coalesce-data-cleansing)
+- [Platform Architecture: Instance Types, Scopes, Cross-Scope Access, ACLs](#platform-architecture-instance-types-scopes-cross-scope-access-acls)
+- [Mentoring & Leadership Patterns](#mentoring--leadership-patterns)
 - [Quiz](#quiz)
 
 ---
@@ -48,6 +55,7 @@ Integrations are how ServiceNow talks to the rest of the enterprise.
 | **Scripted REST API** | Allow external systems to call SN | Custom endpoints, Request/Response handling |
 | **IntegrationHub** | Low-code integrations | Spokes, Actions, Connection & Credential Aliases |
 | **MID Server** | Accessing internal network data | Java agent behind firewall, probes/sensors for on-prem connectivity |
+| **Instance Data Replication (IDR)** | Instance-to-instance data sync | Producer/consumer instances, replication sets, out-of-box plugin |
 
 <details>
 <summary>🚀 Interview Insight: Integration Patterns — Async vs Sync, Queues Explained</summary>
@@ -133,6 +141,47 @@ flowchart TD
     style K fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
     style L fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
 ```
+
+### Instance Data Replication (IDR) — instance-to-instance data sync
+
+**Instance Data Replication (IDR)** is a ServiceNow feature (out-of-box in recent releases) that copies data updates from one ServiceNow instance — the **producer** — to one or more other ServiceNow instances — the **consumers**. It is the platform-native way to keep data consistent across instances **without** building REST Messages or IntegrationHub spokes for the same job.
+
+**IDR is *not* the same as e-bonding or IntegrationHub.** Use the right tool:
+
+| Need | Tool |
+|---|---|
+| Sync records **between ServiceNow instances** (prod → sub-prod, MSP → customer, hub → spoke) | **IDR** |
+| Two-way workflow sync where **both sides own parts of the record** and must correlate tickets (ticket hand-off, MSP ↔ customer) | **e-bonding** (IntegrationHub / REST + correlation ID) |
+| Call a **non-ServiceNow** external system (Salesforce, Jira, Teams, SAP) | **IntegrationHub spoke / REST Message** |
+
+**Core IDR concepts:**
+
+| Term | Meaning |
+|---|---|
+| **Producer instance** | The source instance IDR reads changes from |
+| **Consumer instance** | A target instance IDR writes changes to (one-to-many supported) |
+| **Replication set** | The definition of *which tables and fields* to replicate, and in which direction |
+| **Direction** | One-way (producer → consumer) or bidirectional (both directions) |
+| **Adapters** | The transport used to move the data between instances |
+| **Excluded tables** | System/out-of-scope tables IDR will not replicate (e.g., many `sys_` internal tables) — checked during setup |
+
+**When to choose IDR:**
+
+- Keeping **production data flowing to a sub-production instance** for realistic testing without a full clone
+- **Hub-and-spoke** designs where a central instance is the system of record and regional instances need read copies
+- Replicating **CMDB / ITSM / reference data** across instances on an ongoing basis
+- Avoiding overlap with update-set deployments — IDR handles **record data**, update sets handle **configuration (metadata)**
+
+**When *not* to choose IDR:**
+
+- **External systems** — IDR only replicates ServiceNow-to-ServiceNow. For Snowflake, Power BI, a data lake, or a third-party ITSM, use IntegrationHub / REST / JDBC / a replication product instead
+- **Anything that needs ticket-level workflow hand-off with both sides editing** — that's e-bonding, not IDR
+- **Initial seeding of very large tables** — there are record-count limits per replication set (roughly a few million records on initial seed); plan table selection accordingly
+- **Performance-sensitive windows** — replication consumes instance resources; schedule and scope carefully
+
+**Setup in one breath:** install/activate the IDR plugin → configure the producer and consumer instance connections → create a **replication set** per data domain → choose tables/fields + direction → run the **initial seed** → monitor replication status and stats from the IDR administrator view.
+
+> Full walkthrough and interview Q&A: see [Integrations — Instance Data Replication](./interviews/integrations.md#instance-data-replication-idr--instance-to-instance-sync).
 
 ---
 
@@ -450,25 +499,304 @@ A separate workbench and cadence distinct from a P1 priority:
 
 ---
 
-## JDBC / ODBC via MID Server
+## Testing Strategy: Unit / System / UAT / Regression
 
-A data source can pull from an external database over JDBC through a MID Server inside the network. The MID issues the query and returns rows into an import set for transform.
+A mature testing approach covers four layers. Each layer catches different defect classes and maps to interview expectations.
 
-**Example:** Nightly pull of court scheduling rows from an on-premise database → import set → transform map (coalesce on the case number) → the scoped app's table.
+| Layer | Scope | Tools | When It Runs | Key Interview Points |
+|-------|-------|-------|--------------|---------------------|
+| **Unit** | Single Business Rule, Script Include, UI Policy, Client Script | ATF Server Steps, Script Include unit tests (manual `gs.info` assertions), `gs.test()` in Script Includes | On every commit (CI) | "I write ATF server steps for every Script Include public method. Business Rules get unit tests via ATF server steps asserting field values after insert/update." |
+| **System** | End-to-end flow across tables, integrations, flows | ATF UI Steps, Flow Designer test mode, Postman/Newman for REST APIs | Nightly / pre-deploy | "I chain ATF UI steps to test Incident → Problem → Change handoff. For integrations, I mock external responses in ATF or use a test MID Server pointing to a sandbox." |
+| **UAT** | Business-validated scenarios with real users | ATF (recorded), manual test scripts in Test Management 2.0 | Pre-prod / pre-release | "Business stakeholders run UAT scripts from Test Management. We tag ATF tests as 'UAT' so they can be re-run by non-technical users." |
+| **Regression** | Full suite after upgrades, major deployments | ATF full suite, Performance Analyzer, Upgrade History review | Post-upgrade / major release | "After every upgrade, I run the full ATF suite, review skipped records in Upgrade History, and compare slow transaction logs pre/post. Any regression gets a bug record and ATF test to prevent recurrence." |
+
+### ATF Best Practices for Interviews
+
+- **One test per story** — each user story gets at least one ATF test
+- **Data isolation** — use `Test Data` records with unique prefixes; ATF rolls back by default but some operations (email, events) don't
+- **Mock external systems** — use `Test MID Server` or `IntegrationHub Test Connection` with mocked responses
+- **Tag tests** — `unit`, `system`, `uat`, `regression` tags let you run subsets in CI
+- **Assert outcomes, not steps** — assert the final state (record created, field value, email sent), not every click
 
 ---
 
-## Platform Governance & Lead Layer
+## Upgrades: Paths, Regression Testing, Health Checks, Clone Post-Tasks
 
-**Governance** = the guardrails that let many teams build on one instance without collisions: coding standards, scoped-app review, ACL review, and a platform backlog triaged like product work.
+ServiceNow releases two family upgrades per year (e.g., Washington → Xanadu → Yokohama → Z). Understanding the upgrade lifecycle is a core platform skill.
 
-**Platform roadmap:** sequenced adoption — stabilize (health, upgrades) → automate (Flow Designer, IntegrationHub) → expand (new modules/AI) — each tied to a business outcome, not a feature list.
+### Upgrade Paths
 
-**Technical debt register:** skipped upgrade records left unreviewed, business rules doing synchronous GlideRecord calls in loops, update sets promoted without ATF coverage — named, owned, and burned down deliberately.
+| Path | Description |
+|------|-------------|
+| **Family Upgrade** | Major release (e.g., Washington → Xanadu). Twice yearly. Includes new features, deprecated APIs, UI changes. |
+| **Patch / Hotfix** | Minor fixes within a family. Applied more frequently (monthly). Lower risk but still need validation. |
+| **Instance Upgrade** | Your instance moves from one family to the next. Scheduled by ServiceNow (usually 3–4 weeks after GA). |
 
-**Upgrades:** twice-yearly family releases; the lead's job is the clone-down → skipped-record review → ATF regression → remediation cycle.
+### The Lead's Upgrade Checklist
 
-**Mentoring:** code review as the teaching surface, pairing on design before build, and a definition of done the team shares (reviewed, tested, documented, deployable).
+| Phase | Tasks | Owner |
+|-------|-------|-------|
+| **Pre-Upgrade (4–6 weeks out)** | Review release notes for deprecated APIs; run Instance Health Scan; schedule clone-down; identify customizations at risk (Skipped Records prediction) | Platform Lead |
+| **Clone-Down (2 weeks out)** | Clone Prod → Sub-Prod; run ATF regression suite on clone; review skipped records from Upgrade History; remediate | Platform Lead + Devs |
+| **Upgrade Window** | ServiceNow applies upgrade; instance unavailable for 4–8 hours | ServiceNow |
+| **Post-Upgrade (Immediate)** | Smoke test critical flows (login, Incident create, key integrations); verify Instance Health; check error logs | Platform Lead |
+| **Post-Upgrade (1–2 weeks)** | Full ATF regression suite; performance comparison (slow queries, transaction times); user acceptance sign-off | Platform Lead + Business |
+
+### Clone Post-Tasks (After Prod → Sub-Prod Clone)
+
+| Task | Why It Matters |
+|------|----------------|
+| **Deactivate scheduled jobs** | Prevent duplicate emails, integrations running against Prod data |
+| **Update integration endpoints** | Point REST Messages, MID Servers, IntegrationHub connections to test/qa endpoints |
+| **Scramble/obfuscate PII** | Run data masking scripts on `sys_user`, `task` tables |
+| **Reset instance-specific properties** | `glide.servlet.uri`, email settings, SSO configs |
+| **Verify MID Server connectivity** | Test MID Servers can reach on-prem test systems |
+| **Run ATF smoke suite** | Confirm core flows work before full regression |
+
+### Interview Soundbites
+
+> "I treat upgrades as a project, not an event. Four weeks out I review release notes for deprecated APIs, run the Instance Health Scan, and schedule the clone-down. On the clone I run the full ATF suite, review every skipped record from Upgrade History, and remediate before the real upgrade. Post-upgrade I do a smoke test, then a full regression pass within two weeks. Any regression gets an ATF test so it never happens again."
+
+> "Clone post-tasks are non-negotiable: deactivate scheduled jobs, point integrations to test endpoints, scramble PII, reset instance properties, verify MID Server connectivity. If you skip these, your sub-prod is a time bomb."
+
+---
+
+## Troubleshooting: Logs, Transaction Logs, Performance
+
+When things break in production, these are the tools and patterns to find root cause fast.
+
+### Key Log Tables
+
+| Table | Purpose | Common Filters |
+|-------|---------|----------------|
+| `sys_transaction_log` | Every HTTP request/transaction | `duration > 5000` (slow), `status >= 400` (errors), `user`, `url` |
+| `sys_slow_query_log` | Queries exceeding threshold | `execution_time > 10000`, `table_name` |
+| `sys_log` / `syslog` | System events, errors, script logs | `level >= 3` (error), `source`, `message` |
+| `sys_script_log` | Server-side script execution (Business Rules, Script Includes) | `script`, `execution_time > 1000` |
+| `sys_attachment` | Large attachments causing OOM | `size_bytes > 50000000` |
+| `ecc_queue` | MID Server integration queue | `state = 'error'`, `agent`, `topic` |
+
+### Transaction Log Analysis Pattern
+
+```javascript
+// 1. Find slow transactions in the last hour
+var gr = new GlideRecord('sys_transaction_log');
+gr.addQuery('created_on', '>', gs.minutesAgo(60));
+gr.addQuery('duration', '>', 5000); // > 5 seconds
+gr.orderByDesc('duration');
+gr.setLimit(20);
+gr.query();
+while (gr.next()) {
+    gs.info(gr.number + ' | ' + gr.duration + 'ms | ' + gr.url + ' | ' + gr.user_name);
+}
+```
+
+### Common Performance Culprits
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| Form load > 3s | Too many Business Rules on `task`/`incident` (sync); heavy Client Scripts | Move BRs to Async; consolidate; move logic to Flow Designer |
+| List load > 5s | Missing index; `addQuery` on non-indexed field; huge related list | Add index; use `addActiveQuery`; limit related list records (`glide.ui.max_related_list_records`) |
+| Report/dashboard timeout | Query on `task` without filters; large aggregation | Add date filter; use `GlideAggregate`; enable report caching |
+| MID Server timeout | On-prem DB slow; network latency; large payload | Increase MID Server timeout; paginate queries; compress payload |
+| Upgrade skipped records | Customization conflicts with new OOTB code | Review Upgrade History; re-implement using supported APIs; add ATF test |
+
+### Interview Soundbites
+
+> "When a user reports slowness, I start with `sys_transaction_log` filtered by their user and duration > 5s. If it's a form load, I check Business Rules on that table — sync BRs doing GlideRecord queries are the #1 culprit. I move them to Async or Flow Designer. For list loads, I check `sys_slow_query_log` for missing indexes. For MID Server issues, I check `ecc_queue` for error state and agent connectivity."
+
+---
+
+## Legacy Integration Patterns: SOAP, Flat-File, MID Server Deep-Dive
+
+Public sector and enterprise roles often require integrating with legacy systems that don't have REST APIs.
+
+### SOAP Web Services
+
+| Component | Purpose |
+|-----------|---------|
+| **SOAP Message** | Outbound SOAP call (like REST Message but XML/SOAP) |
+| **Scripted SOAP API** | Inbound SOAP endpoint (WSDL-generated) |
+| **WS-Security** | UsernameToken, SAML, X.509 certificates for auth |
+| **MTOM/XOP** | Binary attachment optimization |
+
+**When to use:** Legacy ERPs, mainframes, government systems, banking cores that expose SOAP only.
+
+**Example SOAP Message structure:**
+```xml
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <wsse:Security soap:mustUnderstand="1">
+      <wsse:UsernameToken>
+        <wsse:Username>svc_account</wsse:Username>
+        <wsse:Password Type="...">...</wsse:Password>
+      </wsse:UsernameToken>
+    </wsse:Security>
+  </soap:Header>
+  <soap:Body>
+    <GetCaseDetails>
+      <CaseNumber>INC123456</CaseNumber>
+    </GetCaseDetails>
+  </soap:Body>
+</soap:Envelope>
+```
+
+### Flat-File Transfers (SFTP / Shared Drive)
+
+| Pattern | Implementation |
+|---------|----------------|
+| **Outbound** | Scheduled Job → `GlideRecord` query → CSV/JSON → write to MID Server file system → external system picks up |
+| **Inbound** | External system drops file on MID Server → `FileSensor` probe → Import Set → Transform Map → Target table |
+| **Scheduled** | MID Server `FileSensor` runs on cron; processes new files in watched directory |
+
+**Key tables:** `sys_attachment` (if small), MID Server file system (if large), `sys_import_set` (staging).
+
+### MID Server Deep-Dive for Legacy Integration
+
+| Capability | Configuration |
+|------------|---------------|
+| **JDBC/ODBC** | Data Source → Connection & Credential Alias → MID Server with JDBC driver JAR → Test Connection |
+| **SOAP** | SOAP Message → MID Server selection (capabilities: `SOAP`) → WS-Security config |
+| **File Transfer** | MID Server `FileSensor` probe → watched directory pattern → Import Set auto-creation |
+| **PowerShell / Command** | `CommandProbe` / `CommandSensor` → run scripts on Windows/Linux host via MID Server |
+| **Windows Services / WMI** | Built-in probes for service status, event logs, registry |
+
+**MID Server Sizing:**
+- 1 MID Server per network zone (DMZ, internal, cloud VPC)
+- 2+ for HA (active-passive or active-active with load balancer)
+- Monitor `ecc_queue` processing latency — if > 5 min, scale MID Servers
+
+### Interview Soundbites
+
+> "For the Court Services integration, I built a nightly pull from an on-prem database using a MID Server with JDBC. The MID Server runs a query, returns rows into an Import Set, and a Transform Map with coalesce on case number updates or inserts into the scoped app's table. I also built a SOAP Message with WS-Security UsernameToken for a legacy mainframe that only exposes SOAP. For flat-file, I used the MID Server FileSensor to watch a shared drive — external system drops CSV, MID picks it up, Import Set + Transform Map does the rest."
+
+---
+
+## Data Migration: Import Sets, Transform Maps, Coalesce, Data Cleansing
+
+Legacy data migration is a distinct skill from ongoing integration — it's one-time, high-volume, and messy.
+
+### Migration Phases
+
+| Phase | Activities | Tools |
+|-------|------------|-------|
+| **Assess** | Profile source data: row counts, null rates, duplicates, data types | Excel, SQL, Python pandas |
+| **Design** | Map source → target; define coalesce keys; write transform scripts | Transform Map designer, Script Includes for reusable logic |
+| **Cleanse** | Standardize formats (phone, email, dates); handle missing required fields; dedupe | Transform scripts, `StringUtil`, `DateUtil`, custom Script Includes |
+| **Load** | Run Import Sets in batches; validate row counts; spot-check | Import Set Run, Transform Map logs |
+| **Reconcile** | Compare source vs target counts; verify relationships; fix gaps | GlideAggregate, CMDB reconciliation reports |
+| **Cutover** | Freeze source; final delta load; switch users; monitor | Scheduled maintenance window, communication plan |
+
+### Transform Map Patterns for Migration
+
+| Pattern | Use Case | Script Example |
+|---------|----------|----------------|
+| **Coalesce on natural key** | Prevent duplicates on re-run | `source.u_case_number` → `target.number` (coalesce=true) |
+| **Lookup reference** | Convert source code to target sys_id | `var gr = new GlideRecord('cmn_location'); gr.addQuery('u_legacy_code', source.u_location_code); gr.query(); if (gr.next()) return gr.sys_id;` |
+| **Data standardization** | Clean phone, email, dates | `source.u_phone.replace(/[^0-9]/g, '')` → format as `+1-xxx-xxx-xxxx` |
+| **Default for missing required** | Handle nulls in mandatory fields | `if (!source.u_email) return 'unknown@migration.placeholder';` |
+| **Multi-source merge** | Combine HR + AD + payroll feeds | Separate Import Sets → same target table with different coalesce keys; run sequentially |
+
+### Handling Legacy Data Quality Issues
+
+| Issue | Detection | Resolution |
+|-------|-----------|------------|
+| **Duplicate rows in source** | `GROUP BY` natural key HAVING COUNT > 1 | Dedupe in staging (keep latest/most complete) before transform |
+| **Missing required fields** | Null count on mandatory target fields | Transform script: default placeholder + flag for manual review |
+| **Invalid reference values** | Lookup returns 0 rows | Transform script: create "Unknown" reference record or skip with log |
+| **Encoding/corruption** | Garbled characters, mojibake | Detect in assess phase; specify UTF-8/UTF-16 in Import Set; fix at source |
+| **Date format inconsistency** | Multiple formats in same column | Transform script: try multiple `DateUtil.parse()` patterns |
+
+### Interview Soundbites
+
+> "I migrated 5,000+ court case records from a legacy system. Source data had duplicates, missing emails, and three different date formats. I built separate Import Sets for each source feed, used coalesce on case number to prevent duplicates, wrote transform scripts to standardize dates and phone numbers, and created placeholder records for missing references. Final reconciliation showed zero duplicates and 100% row-count match. The key is treating migration as a project: assess → design → cleanse → load → reconcile → cutover, with validation at each step."
+
+---
+
+## Platform Architecture: Instance Types, Scopes, Cross-Scope Access, ACLs
+
+A mental model of the platform architecture separates senior candidates from junior ones.
+
+### Instance Types & Hierarchy
+
+| Instance | Purpose | Data | Access |
+|----------|---------|------|--------|
+| **Production (Prod)** | Live business operations | Real customer data | Restricted |
+| **Sub-Production (Sub-Prod)** | UAT, performance testing, upgrade validation | Cloned from Prod (scrambled) | QA, Business |
+| **Development (Dev)** | Feature development, unit testing | Synthetic / subset | Developers |
+| **Personal Developer Instance (PDI)** | Learning, proof-of-concept | Empty / sample | Individual |
+
+**Flow:** Dev → Sub-Prod → Prod (via update sets / source control). **Never** Dev → Prod directly.
+
+### Application Scopes
+
+```
+Global (no scope prefix)          ──►  Core platform tables (incident, cmdb_ci, sys_user)
+Scoped App A (x_company_app_a)    ──►  Custom tables, flows, Script Includes
+Scoped App B (x_company_app_b)    ──►  Custom tables, flows, Script Includes
+```
+
+**Scope rules:**
+- Scoped app **cannot** read/write another scope's tables without explicit Cross-Scope Privilege
+- Scoped app **cannot** call another scope's Script Include unless it's `Client Callable` or has explicit access
+- **Callee authorizes** — the target table/Script Include decides who can access it
+
+### Cross-Scope Access Configuration
+
+| To Allow... | Configure On... | Setting |
+|-------------|-----------------|---------|
+| Scoped App A → read Global `incident` | Global `incident` table | Application Access: "Allow access to: All application scopes" + Read ACL |
+| Scoped App A → write Global `task` | Global `task` table | Application Access: "Allow access to: All application scopes" + Write ACL |
+| Scoped App A → call Scoped App B Script Include | Scoped App B Script Include | `Client Callable` = true OR Cross-Scope Privilege record |
+| Scoped App A → create records in Scoped App B table | Scoped App B table | Application Access: "Allow access to: All application scopes" + Create ACL |
+
+### ACL Evaluation Order
+
+1. **Table ACL** (e.g., `incident.read`)
+2. **Field ACL** (e.g., `incident.close_notes.read`)
+3. **Row-level ACL** (scripted: `current.assignment_group == gs.getUser().getGroups()`)
+
+**Rule:** Most restrictive wins. If table ACL denies read, field/row ACLs are never evaluated.
+
+### Interview Soundbites
+
+> "Instance hierarchy is Dev → Sub-Prod → Prod. We never deploy Dev straight to Prod. Scopes isolate apps — a scoped app can't touch another scope's tables unless the callee authorizes via Cross-Scope Privilege or Application Access. For the Court Services app, we needed to create incidents in global scope, so we configured the global `incident` table with 'Allow access to: All application scopes' and added a Create ACL for the scoped app's role. ACL evaluation is table → field → row; most restrictive wins."
+
+---
+
+## Mentoring & Leadership Patterns
+
+Technical leadership in ServiceNow isn't just architecture — it's growing the team's platform fluency.
+
+### Code Review as Teaching Surface
+
+| Pattern | Description |
+|---------|-------------|
+| **Design-first review** | Before build: review table design, flow logic, API contracts. Catch scope/ACL issues early. |
+| **Pair on complex BRs** | Sit with junior dev on their first async Business Rule or GlideAjax. Show logging, error handling. |
+| **Enforce definition of done** | Reviewed + tested (ATF) + documented (README in update set) + deployable (no skipped records). |
+| **Pattern library** | Maintain a Confluence/Git wiki of approved patterns: "How we do GlideAjax", "Async BR template", "Transform Map coalesce pattern". |
+
+### Knowledge Transfer Rituals
+
+| Ritual | Cadence | Purpose |
+|--------|---------|---------|
+| **Platform office hours** | Weekly 30 min | Open Q&A on any platform topic; junior devs bring blockers |
+| **Upgrade retrospective** | Post-upgrade | What broke? What skipped records? What ATF tests caught it? What do we add? |
+| **Incident post-mortem** | After P1/Major Incident | Root cause → prevention → ATF test → pattern update |
+| **New hire platform onboarding** | First 2 weeks | CSA study plan, instance tour, first story with senior pair |
+
+### Growing Platform Fluency
+
+| Level | Focus | Mentoring Action |
+|-------|-------|------------------|
+| **Junior** | Syntax, BR types, UI Policies, basic flows | Pair on first 5 stories; assign CSA path; review every BR |
+| **Mid** | Script Includes, integrations, scoped apps, ATF | Assign integration story; review design doc; co-write ATF tests |
+| **Senior** | Architecture, governance, performance, upgrades | Lead upgrade project; own technical debt register; mentor mid-level |
+
+### Interview Soundbites
+
+> "I mentor through code review and pairing. Before a junior dev builds their first async Business Rule, we pair on it — I show logging, error handling, `setAbortAction`. We have a pattern library: 'How we do GlideAjax', 'Async BR template'. Every story hits definition of done: reviewed, ATF tested, documented in the update set README, no skipped records. Post-upgrade, we do a retrospective: what broke, what skipped records appeared, what ATF tests caught it, what do we add. That's how the team's platform fluency compounds."
 
 ---
 
@@ -503,3 +831,18 @@ A data source can pull from an external database over JDBC through a MID Server 
 
 10. What does ATF (Automated Test Framework) do?
 <details><summary>Answer</summary>Automates UI and server-side tests that run after upgrades/deployments to catch regressions. Rolls back changes by default.</details>
+
+11. What are the four layers of a mature testing strategy?
+<details><summary>Answer</summary>Unit, System, UAT, Regression. Unit = single component (Script Include, BR); System = end-to-end flow; UAT = business-validated; Regression = full suite post-upgrade.</details>
+
+12. What is the correct order of ACL evaluation?
+<details><summary>Answer</summary>Table ACL → Field ACL → Row-level ACL. Most restrictive wins.</details>
+
+13. What is the difference between IDR and e-bonding?
+<details><summary>Answer</summary>IDR replicates data between ServiceNow instances (one-way or bidirectional). E-bonding correlates tickets across systems where both sides edit the ticket (MSP ↔ customer).</details>
+
+14. What are the three MID Server HA patterns?
+<details><summary>Answer</summary>Active-passive (failover), Active-active (load balancer), Per-network-zone (DMZ, internal, cloud VPC each gets dedicated MID).</details>
+
+15. What is the migration phase sequence?
+<details><summary>Answer</summary>Assess → Design → Cleanse → Load → Reconcile → Cutover. Validation at each step.</details>
