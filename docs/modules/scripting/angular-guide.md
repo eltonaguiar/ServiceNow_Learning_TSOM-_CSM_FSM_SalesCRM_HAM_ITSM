@@ -18,6 +18,8 @@
 - [AngularJS in Service Portal](#angularjs-in-service-portal)
 - [Widget Setup Options — Every Option Explained](#widget-setup-options--every-option-explained)
 - [Widget Instance (Placing a Widget on a Page)](#widget-instance--placing-a-widget-on-a-page)
+- [Page Variants vs Page Route Maps (Showing Different Views to Different Users)](#page-variants-vs-page-route-maps--showing-different-views-to-different-users)
+- [Calling Server-Side Code from AngularJS](#calling-server-side-code-from-angularjs)
 - [AngularJS Widget → Scripted REST API Integration](#angularjs-widget--scripted-rest-api-integration)
 - [Modern Angular for Custom Integrations](#modern-angular-for-custom-integrations)
 - [AngularJS vs Modern Angular — Decision Table](#angularjs-vs-modern-angular--decision-table)
@@ -190,6 +192,8 @@ Service Portal widgets use AngularJS 1.x. Each widget has:
 
 ```javascript
 // Client controller (AngularJS)
+// 'c' is shorthand for 'this' — it's the controller object that holds all the
+// data and functions the HTML template will use (widget.title, c.refresh, etc.)
 function($scope, server) {
   var c = this;
   c.refresh = function() {
@@ -197,7 +201,7 @@ function($scope, server) {
       $scope.widget.incidents = response.data;
     });
   };
-  c.refresh();
+  c.refresh();  // Run refresh right away when the widget loads
 }
 ```
 
@@ -500,6 +504,62 @@ function($scope, $http, options) {
 
 ---
 
+## Page Variants vs Page Route Maps (Showing Different Views to Different Users)
+
+When you want different users to see different content on the same page URL, ServiceNow has two main approaches depending on which interface you're using:
+
+---
+
+### 1. Next Experience / UI Builder (Workspaces & Modern Portals) — Page Variants
+
+In ServiceNow UI Builder (used in Workspaces and modern portals), you can create **Page Variants** — multiple versions of the same page URL.
+
+| Concept | What It Is |
+|---|---|
+| **Page Variant** | A different version of the same page URL, shown to specific users |
+| **Audience** | The user roles or criteria that determine who sees this variant |
+| **Order** | The priority order — ServiceNow checks variants in order and serves the first match |
+
+**How it works:** When a user visits a page, ServiceNow checks their roles and conditions against each variant's Audience. The first matching variant is served.
+
+**Breadcrumb:** UI Builder > Pages > [page] > Variants
+
+---
+
+### 2. Classic Service Portal (Widgets) — Page Route Maps & User Criteria
+
+Classic Service Portal uses widgets rather than UI Builder components, so it handles different views differently:
+
+| Approach | What It Is | Where to Configure |
+|---|---|---|
+| **Page Route Maps** (`sp_page_route_map`) | Redirects users from one page ID to a different page ID based on conditions/roles, without changing links across your portal | Service Portal > Route Maps |
+| **User Criteria on Widget Instances** | Shows/hides specific widget instances based on user roles (the "Can View" / "Cannot View" related lists) | Widget instance > Can View / Cannot View related lists |
+| **Widget Instances** | Each placement of a widget on a page is a separate instance (`sp_instance`) with its own options | Service Portal Editor > Pages > drag widget > configure instance |
+
+**Page Route Maps example:**
+- User with role `itil` visits `/$sp/pageA` → redirected to `/$sp/pageA_ITIL`
+- User without `itil` visits `/$sp/pageA` → sees the normal pageA
+
+**User Criteria example:**
+- Widget Instance A (shows P1 incidents): Can View = `itil` role
+- Widget Instance B (shows general incidents): Cannot View = `itil` role
+- Both on the same page — ITIL users see Instance A, everyone else sees Instance B
+
+---
+
+### Which Should You Use?
+
+| Your Situation | Use This |
+|---|---|
+| Using UI Builder / Next Experience / Workspaces | **Page Variants** with Audiences |
+| Using classic Service Portal with widgets | **Page Route Maps** OR **User Criteria on widget instances** |
+| Same widget, different data per page placement | **Widget Instances** with different options |
+| Redirect entire pages based on role | **Page Route Maps** |
+
+**Rule of thumb:** If you're building with widgets (classic Service Portal), use Widget Instances with different options + User Criteria to show different data to different users. If you're building with UI Builder, use Page Variants.
+
+---
+
 ## Calling Server-Side Code from AngularJS
 
 There are two main ways an AngularJS widget can call server-side ServiceNow code:
@@ -751,11 +811,24 @@ function($scope, $http) {
 
 ## Modern Angular for Custom Integrations
 
-Modern Angular (2+) is used for **external** single-page applications that integrate with ServiceNow — not inside Service Portal. Common use cases:
+Modern Angular (2+) is used for **external** single-page applications (SPAs) that integrate with ServiceNow — not inside Service Portal. Common use cases:
 
 - Employee self-service portals hosted outside ServiceNow
 - Customer-facing support portals
 - Internal dashboards pulling data from multiple ServiceNow instances
+
+### What is an Angular SPA? (ELI5)
+
+**Angular** is a popular front-end web development framework maintained by Google for building structured, dynamic user interfaces using TypeScript and HTML.
+
+**SPA (Single-Page Application)** is a type of website that loads a single HTML page initially and dynamically updates only the parts of the screen that change as you click around. Instead of forcing the browser to reload a brand-new page from the server on every click, it fetches raw data (like JSON from ServiceNow) in the background and smoothly swaps out content.
+
+### Why are you seeing a port (`localhost:4200`)?
+
+- **localhost**: A special network name that always points back to your own computer (the local machine).
+- **:4200 (The Port Number)**: Think of your computer's IP address as a building's street address and the port number as a specific apartment or door number. Because your computer runs many networked programs at the same time, each development tool claims its own port so traffic does not collide.
+- **Angular's Default**: When a developer runs the standard command (`ng serve`) to preview an Angular app during development, the Angular CLI automatically spins up a mini local web server on port 4200.
+- **What happens in production**: Once the app is finished and deployed to a real live website for users, the port number disappears behind standard web addresses (which silently use port 80 for HTTP or port 443 for HTTPS).
 
 ### Angular Service for ServiceNow API Calls
 
