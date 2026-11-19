@@ -1096,6 +1096,111 @@ ServiceNow discovers the tags and associates resources with the relevant applica
 
 ---
 
+### Tag Governance — Prerequisites for Successful Tag-Based Mapping
+
+Tag-based mapping only works if tags are **consistent, complete, and governed**. The ITOM Scoping Guide asks: "If yes to above is a standard tagging system already in place?" and "Do you want us to set up the tag governance application?"
+
+#### Tag Taxonomy Requirements
+
+| Tag Dimension | Requirement | Example |
+|---------------|-------------|---------|
+| **Application/Service Tag** | Mandatory — identifies which service owns the resource | `Application = Online Banking` |
+| **Environment Tag** | Mandatory — separates prod/non-prod | `Environment = Production` |
+| **Owner/Team Tag** | Recommended — drives assignment/grouping | `Owner = Platform Team` |
+| **Cost Center Tag** | Optional — for chargeback/showback | `CostCenter = CC-1234` |
+| **Compliance Tag** | Optional — for regulatory scope | `PCI = true` |
+
+**Tag Naming Convention (enforced via policy):**
+- Format: `Key = Value` (case-sensitive in AWS/Azure)
+- Keys: PascalCase (`Application`, `Environment`, `Owner`)
+- Values: Consistent enum where possible (`Production`, `Staging`, `Development`)
+- No spaces in keys; values may contain spaces if quoted
+
+#### Tag Hygiene Prerequisites
+
+Before enabling tag-based mapping, validate:
+
+| Check | How to Validate | Remediation |
+|-------|-----------------|-------------|
+| **Coverage** | % of resources with required tags | Tagging policy + automation (AWS Config, Azure Policy) |
+| **Consistency** | Enum values match taxonomy (no `Prod`, `prod`, `PRODUCTION`) | Tag normalization rules; automated remediation |
+| **Uniqueness** | No duplicate service tags across environments | Namespace tags: `Application:Prod:OnlineBanking` |
+| **Completeness** | All resource types tagged (EC2, RDS, ELB, Lambda, etc.) | CI/CD pipeline enforcement; pre-deployment gates |
+
+#### ServiceNow Tag Governance Application
+
+The **Tag Governance** application (scoped app `com.snc.tag_governance`) provides:
+
+| Feature | Purpose |
+|---------|---------|
+| **Tag Definitions** | Define allowed tag keys, value enums, mandatory/optional status |
+| **Compliance Dashboard** | % of resources compliant per tag definition; drift detection |
+| **Remediation Flows** | IntegrationHub flows to auto-tag non-compliant resources |
+| **Candidate Limit** | `snsmscopedapp.app.svcbytags.maxcandidatesperfamily` — max CIs per tag family (default 1000) to prevent performance issues |
+
+**Configuration Steps:**
+1. **Install Tag Governance App** from ServiceNow Store
+2. **Define Tag Models**: All > Tag Governance > Tag Models > New
+   - Model Name: `AWS Application Tags`
+   - Tag Definitions: `Application` (mandatory, enum), `Environment` (mandatory, enum), `Owner` (optional)
+3. **Connect Cloud Accounts**: Tag Governance > Cloud Accounts — link AWS/Azure accounts
+4. **Run Compliance Scan**: On-demand or scheduled; review dashboard
+5. **Configure Candidate Limit**: System property `snsmscopedapp.app.svcbytags.maxcandidatesperfamily` — adjust based on environment size
+
+**Interview note:** "Tag-based mapping fails silently if tags are messy. The Tag Governance app makes tag quality visible and enforceable. Always run a compliance scan before enabling tag-based service mapping — otherwise you'll map `Application = Online Banking` and `Application = online-banking` as two different services."
+
+---
+
+### Cloud Provider Discovery Scoping
+
+The ITOM Scoping Guide asks: "Are the cloud sources already being discovered? If no, how many out-of-box providers need to be newly discovered? (AWS, Azure, IBM, Google, VMware, Oracle Cloud, Kubernetes, Docker, Nutanix, Open Stack, Pivotal Cloud Foundry)"
+
+#### Cloud Provider Discovery vs Service Mapping
+
+| Aspect | Cloud Discovery (Discovery) | Service Mapping (Cloud) |
+|--------|----------------------------|-------------------------|
+| **What It Finds** | Resources (VMs, storage, network, DB) | Application services + dependencies |
+| **Output** | CIs in CMDB (`cmdb_ci_compute`, `cmdb_ci_database`, etc.) | Service maps (`cmdb_ci_service_discovered` + relationships) |
+| **Input** | Cloud provider APIs (read-only) | Cloud tags + Discovery CIs + patterns |
+| **MID Server** | Optional (API-based) | Optional (uses same Cloud Discovery CIs) |
+
+**Key Point:** Cloud Discovery populates the CMDB with cloud CIs. Service Mapping then uses those CIs (plus tags) to build application service maps. You need Cloud Discovery first (or SGC) before cloud Service Mapping works.
+
+#### Scoping Cloud Provider Discovery
+
+| Provider | Discovery Method | Key Setup |
+|----------|------------------|-----------|
+| **AWS** | Cloud Discovery (API) or SGC | IAM role with `ReadOnlyAccess` + `ResourceGroupsTaggingAPI`; account + regions |
+| **Azure** | Cloud Discovery (API) or SGC | Service Principal with `Reader` role; subscription(s) + resource groups |
+| **GCP** | Cloud Discovery (API) or SGC | Service Account with `Viewer` + `Cloud Asset Viewer`; project(s) |
+| **VMware** | Cloud Discovery (vCenter) or SGC | vCenter credentials; datacenter/folder scope |
+| **Kubernetes** | SGC (Kubernetes) | Service Account with cluster-read; namespace scoping |
+| **Oracle Cloud / Nutanix / OpenStack** | Cloud Discovery (API) | Vendor-specific API credentials |
+
+**Scoping Worksheet (per ITOM Scoping Guide "up to 12 providers"):**
+
+| Decision | Recommendation |
+|----------|----------------|
+| **Primary Provider** | One provider for initial scope (per Discovery "one cloud provider" limit) |
+| **Account/Subscription Scope** | Limit to production accounts first; add non-prod in phase 2 |
+| **Region Scope** | Active workload regions only; exclude DR-only regions initially |
+| **Resource Type Scope** | Compute, Storage, Network, Database — exclude serverless initially |
+| **Tag Strategy** | Ensure target resources have application/service tags before mapping |
+
+#### Cloud-Native Service Mapping Considerations
+
+| Cloud Service | Mapping Approach |
+|---------------|------------------|
+| **Load Balancers (ALB/ELB/Cloud Load Balancing)** | Entry points for tag-based mapping; pattern-based for backend discovery |
+| **Managed Databases (RDS/Cloud SQL/Azure SQL)** | Tag-based membership; pattern-based for connection details (requires DB credentials) |
+| **Serverless (Lambda/Functions/Cloud Run)** | Tag-based only — no OS-level pattern discovery possible |
+| **Containers (EKS/AKS/GKE)** | SGC Kubernetes for pod/service mapping; tag-based for namespace→service |
+| **API Gateway / AppSync / EventBridge** | Tag-based membership; traffic-based for dependency discovery |
+
+**Interview note:** "Cloud Service Mapping doesn't replace Cloud Discovery — it builds on it. You discover the cloud resources first (CIs), then map them to services. For serverless/managed services, tag-based is often the *only* viable mapping approach since there's no OS to pattern-scan."
+
+---
+
 #### C. Traffic-Based Mapping
 
 ServiceNow collects network connection information from sources like `netstat`, `ss`, `lsof`, NetFlow, and VPC flow logs.

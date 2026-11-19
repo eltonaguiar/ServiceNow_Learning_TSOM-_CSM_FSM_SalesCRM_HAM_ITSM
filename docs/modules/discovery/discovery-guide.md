@@ -78,6 +78,28 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: From Files to Licenses — File Signature Normalization](#deep-dive-from-files-to-licenses--file-signature-normalization)
 - [Lab: Run Your First Discovery and File-Based Scan](#lab-run-your-first-discovery-and-file-based-scan)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
+- [Deep Dive: Web Certificate Discovery](#deep-dive-web-certificate-discovery)
+  - [Overview & Use Cases](#overview--use-cases)
+  - [Configuration Steps](#configuration-steps)
+  - [Key Tables & Fields](#key-tables--fields)
+  - [Scheduling & Scoping](#scheduling--scoping)
+  - [Expiry Alerting & Remediation](#expiry-alerting--remediation)
+- [Deep Dive: Firewall Audits & Reporting](#deep-dive-firewall-audits--reporting)
+  - [Overview & Use Cases](#overview--use-cases-1)
+  - [Discovery Scope & Prerequisites](#discovery-scope--prerequisites)
+  - [Configuration Steps](#configuration-steps-1)
+  - [Key Tables & CMDB Classes](#key-tables--cmdb-classes)
+  - [Compliance & Cleanup Use Cases](#compliance--cleanup-use-cases)
+- [Deep Dive: Agent Client Collector (ACC) — Agent vs Agentless Decision](#deep-dive-agent-client-collector-acc--agent-vs-agentless-decision)
+  - [When to Use ACC](#when-to-use-acc)
+  - [ACC Variants](#acc-variants)
+  - [MID Server Requirements for ACC](#mid-server-requirements-for-acc)
+  - [Network/Air-Gapped Use Cases](#networkair-gapped-use-cases)
+- [Scoping Worksheet: Fixed 5-MID Capacity Design](#scoping-worksheet-fixed-5-mid-capacity-design)
+  - [Capacity Math](#capacity-math)
+  - [Thread Budget Per MID](#thread-budget-per-mid)
+  - [Coverage Example](#coverage-example)
+  - [Single Cloud Provider Scoping](#single-cloud-provider-scoping)
   - [SLA Support](#sla-support)
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
@@ -1244,6 +1266,245 @@ The full treatment — plugin (`com.snc.file_signature_normalization`), tables (
 6. **Verify on the instance:** Status record completes; Discovery Log shows the **Windows - File Based Discovery** probe; check `cmdb_sam_sw_install` for new installations on the CI and `cmdb_unidentified_file_set` for unmatched files.
 7. **Verify on the target:** Check `C:\Windows\Temp` for the `snc_tmp_*.tmp` scan file timestamped with your run.
 8. **Write down** which layer of the filtering model explains every file you saw collected — and every one you didn't.
+
+---
+
+## Deep Dive: Web Certificate Discovery
+
+Web Certificate Discovery automatically discovers SSL/TLS certificates from web endpoints and populates them into the CMDB for tracking, expiry monitoring, and compliance reporting.
+
+### Overview & Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| **Certificate Inventory** | Discover all public-facing certificates across your web infrastructure |
+| **Expiry Monitoring** | Track certificate expiration dates; alert before expiry |
+| **Compliance Reporting** | Report on certificate standards (key length, algorithm, CA) |
+| **Vulnerability Management** | Identify weak certificates (SHA-1, short keys, expired) |
+
+**Scoping note:** The ITOM Scoping Guide includes "Web Certificate Discovery" as a configurable option. Typical scope: up to 500 URLs/certificates per engagement.
+
+### Configuration Steps
+
+1. **Activate Plugin**: `com.snc.discovery.web_certificate` (included with Discovery subscription)
+2. **Create Certificate Discovery Schedule**: All > Discovery > Discovery Definition > Schedules > New
+   - Discovery Type: **Web Certificate**
+   - Frequency: Daily/Weekly (recommend daily for public endpoints)
+   - MID Server: Select MID with internet access
+3. **Define Target URLs**: In the schedule, add URLs or URL patterns to scan
+   - Format: `https://example.com`, `https://*.example.com` (wildcard supported)
+   - Can import from CSV for bulk URLs
+4. **Configure MID Server**: Ensure MID has outbound HTTPS (443) to target endpoints
+   - For internal endpoints: MID in same network zone
+   - For external endpoints: MID with internet access (DMZ or cloud MID)
+5. **Run & Verify**: Execute schedule; check `cmdb_ci_certificate` for discovered certificates
+
+### Key Tables & Fields
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `cmdb_ci_certificate` | Certificate CI records | `name`, `subject_dn`, `issuer_dn`, `valid_from`, `valid_to`, `key_algorithm`, `key_length`, `signature_algorithm`, `serial_number`, `fingerprint_sha256` |
+| `discovery_certificate` | Discovery-specific certificate data | `url`, `port`, `certificate` (ref to `cmdb_ci_certificate`), `status`, `error_message` |
+| `cmdb_ci_web_service` | Web service CI (parent of certificates) | `name`, `url`, `status` |
+
+### Scheduling & Scoping
+
+| Parameter | Recommendation | Rationale |
+|-----------|----------------|-----------|
+| **Frequency** | Daily for public/critical; Weekly for internal | Public certs rotate faster (Let's Encrypt = 90 days) |
+| **URL Count per Schedule** | ≤500 URLs per schedule | Performance; large schedules timeout |
+| **MID Selection** | Dedicated MID for cert discovery | Separate from infrastructure scanning threads |
+| **Timeout** | 30 seconds per URL | Prevents hangs on unresponsive endpoints |
+
+### Expiry Alerting & Remediation
+
+**Expiry Alerting Setup:**
+1. Create **Business Rule** on `cmdb_ci_certificate` (After, Insert/Update)
+2. Condition: `valid_to` within 30 days (or configurable threshold)
+3. Action: Create **Event** → Event Management → Alert → Notification
+
+**Remediation Workflow (IntegrationHub):**
+1. Trigger: Certificate expiry alert
+2. Action: Notify certificate owner (from `owned_by` or custom field)
+3. Action: Create **Change Request** for certificate renewal
+4. Action: Track renewal via **Certificate Request** record (`cmdb_certificate_request` if customized)
+
+**Interview note:** "Web Certificate Discovery is passive — it only sees what's exposed on HTTPS endpoints. It won't find internal certs (LDAPS, internal APIs) unless you scan those URLs explicitly. Pair with Firewall Audit for internal certificate visibility."
+
+---
+
+## Deep Dive: Firewall Audits & Reporting
+
+Firewall Audit Discovery discovers firewall rules, objects, and policies from firewall devices and imports them into the CMDB for compliance analysis, rule cleanup, and change impact assessment.
+
+### Overview & Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| **Rule Compliance** | Verify firewall rules match policy (e.g., no `any-any` rules, no unused rules) |
+| **Change Impact** | Before changing a firewall, see which rules/applications are affected |
+| **Rule Cleanup** | Identify unused, shadowed, or redundant rules |
+| **Audit Readiness** | Generate reports for PCI-DSS, SOX, NIST compliance |
+
+**Scoping note:** ITOM Scoping Guide includes "Firewall Audits and Reporting" as a configurable option. Typical scope: up to 5 firewall devices/vendors per engagement.
+
+### Discovery Scope & Prerequisites
+
+| Requirement | Detail |
+|-------------|--------|
+| **Supported Vendors** | Cisco ASA/Firepower, Palo Alto Networks, Fortinet, Check Point, Juniper SRX |
+| **Plugin** | `com.snc.discovery.firewall_audit` (included with Discovery) |
+| **Credentials** | SSH/API credentials with read-only access to firewall config |
+| **MID Server** | Network access to firewall management interface (SSH 22, HTTPS 443) |
+| **Firewall Config** | Running config must be accessible; some vendors require specific API enablement |
+
+### Configuration Steps
+
+1. **Activate Plugin**: `com.snc.discovery.firewall_audit`
+2. **Create Firewall Credential**: All > Discovery > Credentials > New
+   - Type: **SSH** or **REST** (vendor-dependent)
+   - Target: Firewall management IP
+3. **Create Discovery Schedule**: All > Discovery > Discovery Definition > Schedules > New
+   - Discovery Type: **Firewall Audit**
+   - Frequency: Weekly (config changes are less frequent)
+   - MID Server: MID with network access to firewall
+4. **Define Target Firewalls**: Add firewall management IPs to schedule ranges
+5. **Run & Verify**: Execute schedule; check CMDB for firewall CIs and rule records
+
+### Key Tables & CMDB Classes
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `cmdb_ci_firewall` | Firewall device CI | `name`, `model`, `version`, `management_ip`, `vendor` |
+| `cmdb_ci_firewall_rule` | Individual firewall rule | `name`, `source_zone`, `dest_zone`, `source_address`, `dest_address`, `service`, `action`, `enabled`, `hit_count`, `last_hit` |
+| `cmdb_ci_firewall_object` | Address/service objects | `name`, `object_type` (address/service/group), `value` |
+| `cmdb_ci_firewall_policy` | Policy/package grouping rules | `name`, `firewall` (ref), `description` |
+| `cmdb_rel_ci` | Relationships | `parent` (firewall) → `child` (rule/policy); `type`: `Contains::Contained by` |
+
+### Compliance & Cleanup Use Cases
+
+| Use Case | Implementation |
+|----------|----------------|
+| **Unused Rule Detection** | Rules with `hit_count = 0` for > 90 days → flag for review |
+| **Shadowed Rule Detection** | Rules never hit because earlier rule matches same traffic → query rule order + hit counts |
+| **Any-Any Rule Alert** | Rules with `source=any` AND `dest=any` AND `service=any` → create compliance violation |
+| **Change Impact Analysis** | Before modifying rule X, query `cmdb_rel_ci` for CIs dependent on affected zones/addresses |
+| **PCI-DSS Report** | Dashboard: rule count, any-any rules, unused rules, rule changes last 30 days |
+
+**Interview note:** "Firewall Audit is read-only Discovery — it doesn't push changes back to the firewall. For bidirectional sync (e-bonding), you'd need IntegrationHub + firewall vendor spoke + change approval workflow."
+
+---
+
+## Deep Dive: Agent Client Collector (ACC) — Agent vs Agentless Decision
+
+Agent Client Collector (ACC) is a lightweight agent installed on endpoints to collect hardware/software data and push it to ServiceNow, bypassing network scanning requirements.
+
+### When to Use ACC
+
+| Scenario | Agentless Discovery | ACC |
+|----------|---------------------|-----|
+| **Ephemeral VMs** (auto-scale groups) | Missed — IP changes, short-lived | ✅ Agent persists, reports on boot |
+| **Remote/Laptop Users** | Blocked by VPN/firewall | ✅ Works over internet (HTTPS) |
+| **Air-Gapped Networks** | No MID Server access | ✅ If agent can reach MID/instance |
+| **High-Frequency Updates** | Scheduled (daily/weekly) | ✅ Near real-time (configurable interval) |
+| **Credential Management** | Central credentials on MID | ❌ Each endpoint needs agent install |
+
+**Decision Matrix:**
+- Use **Agentless (Discovery)** for: stable servers, network devices, data centers, cloud VMs with static IPs
+- Use **ACC** for: laptops, auto-scale groups, contractor devices, networks without MID access, high-churn environments
+
+### ACC Variants
+
+| Variant | Description | Use Case |
+|---------|-------------|----------|
+| **ACC Standard** | Full hardware + software collection | General endpoint inventory |
+| **ACC Light** | Hardware only (no software scan) | Bandwidth-constrained; laptops |
+| **ACC Virtual** | For VDI/non-persistent desktops | Citrix, VMware Horizon, AVD |
+| **ACC Cloud** | Pre-installed in cloud images (AWS/Azure) | Auto-scale groups, golden images |
+
+### MID Server Requirements for ACC
+
+- **MID Server required** for ACC communication (agents push to MID, MID forwards to instance)
+- **HTTPS 443** from endpoints → MID Server (or instance directly if no MID)
+- **ACC Proxy** (optional): For internet-facing endpoints, place MID in DMZ with ACC proxy enabled
+- **Thread Impact**: ACC traffic uses **Expedited** thread pool on MID — size accordingly
+
+### Network/Air-Gapped Use Cases
+
+| Scenario | Architecture |
+|----------|--------------|
+| **Remote Workers** | Agent → Internet → Cloud MID (DMZ) → Instance |
+| **Air-Gapped DC** | Agent → Local MID (in air-gapped zone) → Instance (via MID) |
+| **Hybrid** | Cloud VMs: Agentless Discovery; Laptops: ACC; Servers: Agentless |
+
+**Scoping note:** ITOM Scoping Guide includes "Agent Client Collector for Discovery" as a configurable option. Typical scope: up to 5,000 endpoints per engagement; requires MID Server for ACC proxy.
+
+---
+
+## Scoping Worksheet: Fixed 5-MID Capacity Design
+
+The ITOM Scoping Guide specifies "Assist with implementation of up to five (5) MID Servers" and "Discover up to five (5) data centers" and "Discover up to five thousand (5,000) servers and network devices." This section translates those constraints into a practical capacity design.
+
+### Capacity Math
+
+| Constraint | Value | Implication |
+|------------|-------|-------------|
+| **Max MIDs** | 5 | Hard limit for scoping engagement |
+| **Max Data Centers** | 5 | One MID per DC minimum for HA |
+| **Max Devices** | 5,000 | Total CI target (servers + network gear) |
+| **MID Threads (Standard)** | 50 (tuned from 25) | 50 concurrent probes per MID |
+| **MID Threads (Expedited)** | 20 | Quick Discovery, Service Mapping |
+| **Scan Window** | 8 hours (overnight) | Typical maintenance window |
+
+**Throughput Calculation:**
+- 5 MIDs × 50 threads = 250 concurrent probes
+- Average probe duration: 30 seconds (Linux SSH) to 120 seconds (Windows WMI)
+- Devices per hour ≈ 250 × (3600 / avg_probe_sec)
+- At 60 sec avg: 15,000 devices/hour theoretical; 5,000 devices in ~20 minutes
+- Real-world with retries, classification, exploration: **5,000 devices in 4–6 hours** fits 8-hour window comfortably
+
+### Thread Budget Per MID
+
+| MID Role | Standard Threads | Expedited Threads | Notes |
+|----------|------------------|-------------------|-------|
+| **Primary (DC1)** | 50 | 20 | Handles largest DC; also runs Service Mapping |
+| **Secondary (DC2)** | 50 | 20 | Failover for DC1; primary for DC2 |
+| **Tertiary (DC3)** | 50 | 20 | Primary for DC3 |
+| **Cloud/Integration** | 40 | 20 | Cloud Discovery + ACC proxy; lower standard threads |
+| **Spare/Failover** | 25 | 10 | Hot spare; minimal threads until failover |
+
+**Total Thread Budget:** 215 Standard + 90 Expedited across 5 MIDs — well within typical host capacity (8 cores / 16 GB RAM per MID).
+
+### Coverage Example
+
+**Scenario:** 4 data centers (DC1–DC4), 1 cloud provider (AWS), 4,200 total devices
+- DC1: 1,500 devices (core) → MID1 (Primary) + MID2 (Failover)
+- DC2: 1,000 devices → MID3 (Primary)
+- DC3: 800 devices → MID3 also covers (same region)
+- DC4: 500 devices → MID4 (Primary)
+- AWS: 400 EC2 + 200 RDS → MID5 (Cloud/Integration) + Cloud Discovery
+
+**Schedule Design:**
+- DC1: 3 schedules (/24 per rack) → MID1 primary, MID2 failover
+- DC2+DC3: 2 schedules each → MID3
+- DC4: 1 schedule → MID4
+- AWS: Cloud Discovery (no MID scan) + 1 IP schedule for EC2 deep scan → MID5
+
+### Single Cloud Provider Scoping
+
+The scoping guide limits to **"one (1) cloud provider"** for Discovery implementation.
+
+| Decision Point | Recommendation |
+|----------------|----------------|
+| **Provider Selection** | Choose the provider with the largest footprint (most accounts/subscriptions/VPCs) |
+| **Account Scoping** | Single master payer account + linked accounts (AWS); single tenant + subscriptions (Azure); single organization + projects (GCP) |
+| **Region Scoping** | Limit to regions with active workloads; exclude DR-only regions from initial scope |
+| **Service Scoping** | Focus on compute (EC2/VM/Instance), storage (EBS/Disk), network (VPC/VNet), database (RDS/Cloud SQL) — exclude serverless (Lambda/Functions) unless specifically required |
+| **Cloud Discovery vs SGC** | Use **Cloud Discovery** for API-based resource inventory; use **Service Graph Connector** for the same provider if deeper integration (tags, cost, governance) needed — but not both for same resources to avoid duplicates |
+
+**Interview note:** "The 'one cloud provider' constraint means you pick the primary cloud. If the customer is multi-cloud (AWS + Azure), you implement Discovery for the primary and use SGC for the secondary — or phase the second cloud into a follow-up engagement."
+
+---
 
 ## SLAs, Dashboards & Workspaces
 

@@ -145,6 +145,193 @@ Once an event lands in `em_event`, Event Rules filter, transform, enrich, and as
 
 ---
 
+### Event Rule Types — Transform, Ignore, Threshold
+
+The ITOM Scoping Guide specifies three rule types: **Transform Rules**, **Ignore Rules**, and **Threshold Rules**. Each serves a distinct noise-reduction purpose and runs in a specific order.
+
+| Rule Type | Purpose | When It Runs | Key Configuration Fields | Output |
+|-----------|---------|--------------|--------------------------|--------|
+| **Transform Rule** | Parse, enrich, map fields; normalize vendor-specific event data into standard `em_event` fields | **First** — on event create (before ignore/threshold) | Source, Event Class, Event Type, Match Field/Value, Transform Script (map `source_field` → `target_field`), CI Lookup (map to `cmdb_ci`), Severity Mapping | Enriched event with standardized fields, CI reference, normalized severity |
+| **Ignore Rule** | Drop known-noise events that never require action (e.g., heartbeat traps, informational syslogs) | **Second** — after transform, before threshold | Source, Event Class, Event Type, Match Field/Value, Condition Script | Event marked `state = ignored`; never becomes alert; logged for audit |
+| **Threshold Rule** | Suppress flapping; only create alert after N occurrences in time window; auto-close on clear | **Third** — after ignore, on event create/update | Source, Event Class, Event Type, Threshold Count, Time Window (minutes), Reset Count, Clear Event Match (auto-close), Alert Severity | Alert created only when threshold met; flapping suppressed; auto-close on clear event |
+
+**Execution Order:** Transform → Ignore → Threshold. This order matters: transform first so ignore/threshold match on *normalized* fields; ignore before threshold so noise never consumes threshold counters.
+
+---
+
+### Transform Rules — Deep Dive
+
+**Typical Transform Actions:**
+- **Field Mapping**: Map vendor field `alarmSeverity` → `em_event.severity` (Critical/Major/Minor/Warning/Info)
+- **CI Binding**: Look up `cmdb_ci` by `node`/`host`/`IP` field; populate `em_event.node` (CI reference)
+- **Classification**: Set `event_class` (e.g., `Network`, `Server`, `Application`, `Storage`), `event_type` (e.g., `Interface Down`, `CPU High`, `Disk Full`)
+- **Enrichment**: Add location, environment, business service from CI; populate `u_business_service`, `u_environment`
+
+**Transform Script Example (JavaScript in rule):**
+```javascript
+// Map vendor severity (1-5) to ServiceNow severity (1-5, reversed)
+var severityMap = { '1': 5, '2': 4, '3': 3, '4': 2, '5': 1 };
+current.severity = severityMap[current.getValue('u_vendor_severity')] || 3;
+
+// Look up CI by IP in source field
+var ip = current.getValue('u_source_ip');
+if (ip) {
+    var ci = new GlideRecord('cmdb_ci');
+    ci.addQuery('ip_address', ip);
+    ci.query();
+    if (ci.next()) {
+        current.node = ci.sys_id;
+    }
+}
+```
+
+---
+
+### Ignore Rules — Deep Dive
+
+**Common Ignore Patterns:**
+| Pattern | Example | Why Ignore |
+|---------|---------|------------|
+| **Heartbeat/Keepalive** | `event_type = Heartbeat`, `description contains "keepalive"` | Expected periodic signal; no action needed |
+| **Informational Syslogs** | `severity = Info (5)`, `event_class = Syslog` | Volume noise; not actionable |
+| **Clear Events (if threshold handles)** | `event_type = Clear`, `threshold rule exists` | Threshold rule auto-closes; clear event redundant |
+| **Vendor-Specific Noise** | `source = SolarWinds`, `event_type = Polling Failed` (transient) | Known false positive; documented in vendor KB |
+
+**Ignore Rule Condition Script:**
+```javascript
+// Ignore if this is a known transient polling failure
+if (current.source == 'SolarWinds' && current.event_type == 'Polling Failed') {
+    // Check if it recovered within 5 minutes
+    var recent = new GlideRecord('em_event');
+    recent.addQuery('source', 'SolarWinds');
+    recent.addQuery('node', current.node);
+    recent.addQuery('event_type', 'Polling Restored');
+    recent.addQuery('sys_created_on', '>', gs.minutesAgo(5));
+    recent.query();
+    if (recent.hasNext()) {
+        current.state = 3; // Ignored
+        current.u_ignore_reason = 'Transient polling failure - auto-recovered';
+    }
+}
+```
+
+---
+
+### Threshold Rules — Deep Dive
+
+**Threshold Logic:**
+```
+Event fires → Count occurrences in Time Window
+    If Count >= Threshold Count → Create/Update Alert (parent)
+    If Count < Threshold Count → Suppress (child event, no alert)
+    If Clear Event matches → Close Alert (reset counter)
+```
+
+**Configuration Fields:**
+| Field | Description | Typical Value |
+|-------|-------------|---------------|
+| **Threshold Count** | Occurrences needed to trigger alert | 3–5 (flap suppression) |
+| **Time Window (min)** | Rolling window for counting | 15–60 minutes |
+| **Reset Count** | Occurrences of clear event to auto-close | 1 (immediate) or 2–3 (confirm) |
+| **Clear Event Match** | Field(s) to match clear event to original | `node`, `event_class`, `event_type` |
+
+**Example: Interface Flap Suppression**
+- Source: Network devices (SNMP traps)
+- Event Class: `Network`, Event Type: `Interface Down`
+- Threshold Count: 3, Time Window: 15 min
+- Clear Event Match: `node` + `event_type = Interface Up`
+- Result: Single alert after 3 flaps in 15 min; auto-closes on Interface Up
+
+---
+
+### Alert Rules (Alert Management Rules)
+
+Separate from Event Rules, **Alert Rules** operate on `em_alert` (after event → alert promotion) for aggregation, suppression, and auto-resolution.
+
+| Alert Rule Type | Purpose | Configuration |
+|-----------------|---------|---------------|
+| **Alert Suppression** | Suppress alerts during maintenance windows or known outages | Maintenance Schedule (CMDB CI), Alert Filter (source/class/type), Suppression Action (delay/close) |
+| **Alert Aggregation** | Combine similar alerts into parent (rule-based grouping) | Group By Fields (node, event_class, metric_name), Time Window, Max Children |
+| **Auto-Resolution** | Auto-close alerts when clear event received or condition clears | Clear Condition (event match, metric threshold), Close Action |
+| **Notification/Assignment** | Route alerts to teams based on CI/service ownership | Assignment Group (from CI `support_group`), Escalation Rules |
+
+**Alert Rule Execution:** Runs on `em_alert` create/update via Business Rules (`Alert Management Rule` engine). Complements Event Rules — Event Rules clean the event stream; Alert Rules manage the alert lifecycle.
+
+---
+
+### SNMP Trap Listener — Setup & Scoping
+
+SNMP traps are a primary ingestion path for network infrastructure. The ITOM Scoping Guide asks: "How many of the above Event sources are SNMP data sources OR are bi-directional?"
+
+#### MID Server SNMP Trap Listener
+
+| Component | Configuration |
+|-----------|---------------|
+| **MID Server** | Dedicated MID for trap reception (UDP 162) — separate from Discovery MIDs |
+| **Port** | UDP 162 (standard SNMP trap port); ensure firewall allows from network devices |
+| **SNMP Version** | v2c (community string) or v3 (auth/priv) — match device config |
+| **Community String** | Configured on MID: `mid.snmp.trap.community` (v2c) or user profiles (v3) |
+| **Trap Processing** | MID parses trap → maps to `em_event` via `snmp_trap_map` table → sends to instance via ECC Queue |
+
+**MID Server Setup Steps:**
+1. **Dedicated MID**: Install MID in network zone with device access (not same as Discovery MID)
+2. **Enable Trap Listener**: `mid.snmp.trap.listener=true` in `config.xml`
+3. **Configure Port**: `mid.snmp.trap.port=162` (default)
+4. **Trap Mappings**: All > Event Management > SNMP Trap Mappings — define OID → Event Class/Type/Severity mapping
+5. **Test**: Send test trap (`snmptrap -v 2c -c public localhost 1.3.6.1.4.1.8072.2.3.0.1`)
+
+#### Trap-to-Event Mapping (`snmp_trap_map`)
+
+| Field | Purpose |
+|-------|---------|
+| `oid` | SNMP OID of the trap (e.g., `1.3.6.1.6.3.1.1.5.3` = linkDown) |
+| `event_class` | Mapped class (e.g., `Network`) |
+| `event_type` | Mapped type (e.g., `Interface Down`) |
+| `severity` | Mapped severity (1=Critical ... 5=Info) |
+| `node_field` | Which varbind contains the node identifier (IP/hostname) |
+| `ci_lookup` | Whether to look up CI by node field |
+
+**Common Trap OIDs to Map:**
+| OID | Trap Name | Typical Mapping |
+|-----|-----------|-----------------|
+| `1.3.6.1.6.3.1.1.5.3` | linkDown | Network / Interface Down / Critical |
+| `1.3.6.1.6.3.1.1.5.4` | linkUp | Network / Interface Up / Info (clear) |
+| `1.3.6.1.4.1.9.9.43.2.0.1` | Cisco configChange | Network / Config Change / Warning |
+| `1.3.6.1.4.1.2021.13.1` | UCD-SNMP-MIB diskFull | Storage / Disk Full / Major |
+
+#### Bi-Directional Sources
+
+| Source | Bidirectional? | How |
+|--------|----------------|-----|
+| **SNMP Traps** | No (push only) | Device → MID → Instance |
+| **Kafka Stream Connect** | Yes | Instance ↔ Kafka topics |
+| **TMF 642/688** | Yes | RESTful CRUD + callbacks |
+| **Webhooks** | Typically outbound | Instance → External; inbound via separate REST endpoint |
+| **SCOM/SCCM** | Via IntegrationHub | Scheduled pull + webhook push |
+
+---
+
+### Correlation Rules — Configuration
+
+Correlation Rules (Alert Correlation) create **parent alerts** from child alerts based on CMDB relationships, time windows, and content similarity. Distinct from Grouping (which is automated/scheduled).
+
+| Correlation Rule Type | Trigger | Configuration |
+|----------------------|---------|---------------|
+| **CMDB Relationship** | Alert on CI with relationships | Traverse `cmdb_rel_ci` (Depends on, Runs on, Hosted on); group alerts on related CIs |
+| **Service Model** | Alert on service CI | Traverse `svc_ci_assoc` → service → customers; group by impacted service |
+| **Rule-Based (Manual)** | Specific alert patterns | Custom condition script: `alert.source == 'SolarWinds' && alert.metric_name == 'CPU'` |
+| **Temporal** | Alerts within time window | Rolling window (e.g., 10 min); group if same CI type + metric |
+
+**Correlation Rule Fields:**
+- **Name**, **Active**, **Order** (priority)
+- **Condition**: Filter on child alert fields (source, class, type, CI, metric)
+- **Correlation Type**: `CMDB Relationship`, `Service Impact`, `Custom`
+- **Parent Alert Template**: Severity (max of children), Description (concatenated), Assignment Group
+
+**Scoping Note (from ITOM Scoping Guide):** "Up to one (1) Correlation Rules per monitoring source using Standard ServiceNow filters by source." — Start with one correlation rule per major monitoring source (e.g., one for SolarWinds, one for SNMP, one for CloudWatch) using standard filters before custom scripts.
+
+---
+
 ## Alert Management — Grouping vs Correlation
 
 A regional fibre cut produces thousands of downstream alarms. Untriaged, that is **alert fatigue** — operators dismiss alerts wholesale and miss the one that mattered. ServiceNow publishes *up to ~98–99% event noise reduction* with proper alert management.

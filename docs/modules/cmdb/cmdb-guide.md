@@ -16,6 +16,16 @@
 - [Where to Find It](#where-to-find-it)
 - [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
 - [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
+- [CSDM Framework Adoption Levels (Crawl → Walk → Run → Fly)](#csdm-framework-adoption-levels--crawl--walk--run--fly)
+  - [Crawl: Basic CMDB Hygiene](#crawl-basic-cmdb-hygiene)
+  - [Walk: Service-Aware CMDB](#walk-service-aware-cmdb)
+  - [Run: Domain Expansion](#run-domain-expansion)
+  - [Fly: Automation & AI](#fly-automation--ai)
+- [CI Subscription / Consumption Model](#ci-subscription--consumption-model)
+  - [How ITSM, ITOM, SAM, HAM, TSOM Consume CMDB Data](#how-itsm-itom-sam-ham-tsom-consume-cmdb-data)
+  - [Service-Aware Data Consumption](#service-aware-data-consumption)
+  - [Ownership and Domain Separation](#ownership-and-domain-separation)
+  - [Data Quality Expectations per Consumer](#data-quality-expectations-per-consumer)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
   - [CI Status (cmdb_ci.install_status)](#ci-status-cmdb_ciinstall_status)
   - [CI Class Hierarchy (OOB)](#ci-class-hierarchy-oob)
@@ -404,6 +414,167 @@ flowchart TD
 **Processing Order:** Identification → (if match) Reconciliation → Update/Create. If identification fails, no reconciliation and no update occur.
 
 **Exam focus:** Identification Rules, Reconciliation Rules, Datasource Precedence Rules, CMDB De-duplication (25% of exam).
+
+---
+
+## CSDM Framework Adoption Levels (Crawl → Walk → Run → Fly)
+
+The Common Service Data Model (CSDM) provides a structured framework for organizing CMDB data around services rather than just infrastructure. Adoption is progressive — most organizations start at Crawl and advance as maturity grows.
+
+```mermaid
+flowchart TD
+    subgraph "CSDM Adoption Journey"
+        Crawl[Crawl<br/>Basic CMDB Hygiene] --> Walk[Walk<br/>Service-Aware CMDB]
+        Walk --> Run[Run<br/>Domain Expansion]
+        Run --> Fly[Fly<br/>Automation & AI]
+    end
+    
+    Crawl -.-> CI[CI Accuracy<br/>Relationships<br/>IRE Rules]
+    Walk -.-> Svc[Technical/Application<br/>Services<br/>CSDM Foundation]
+    Run -.-> Dom[Design/Build/Consume<br/>Domains<br/>Portfolio Mgmt]
+    Fly -.-> AI[Self-Healing CMDB<br/>Predictive<br/>Now Assist]
+    
+    style Crawl fill:#e8f5e9,stroke:#2e7d32
+    style Walk fill:#fff3e0,stroke:#ef6c00
+    style Run fill:#e3f2fd,stroke:#1565c0
+    style Fly fill:#f3e5f5,stroke:#7b1fa2
+```
+
+### Crawl: Basic CMDB Hygiene
+
+| Focus Area | Key Activities | Success Indicators |
+|------------|----------------|-------------------|
+| **CI Data Quality** | Populate CIs from Discovery, SGC, imports; enforce mandatory fields (name, serial_number, install_status) | ≥95% CI completeness; <2% duplicate rate |
+| **Relationships** | Establish core relationships (Runs on, Depends on, Hosted on, Contains) | Every application CI has Runs on server; every server has location |
+| **IRE Rules** | Activate and tune OOB identification/reconciliation rules; set data source precedence (Discovery > SGC > Import > Manual) | Zero duplicate CIs from same source; cross-source merges work correctly |
+| **Health Dashboards** | Enable CMDB Health; baseline completeness, correctness, compliance scores | Health scores tracked weekly; remediation backlog declining |
+
+**Interview note:** "Crawl is about trust — can you trust the CI data? If you can't answer 'what servers run this app?' accurately, you're not ready for Walk."
+
+### Walk: Service-Aware CMDB
+
+| Focus Area | Key Activities | Success Indicators |
+|------------|----------------|-------------------|
+| **CSDM Foundation Domain** | Define Technical Services (`cmdb_ci_service_auto`/`cmdb_ci_service_discovered`) and Application Services; map CIs to services via `svc_ci_assoc` | Every critical business service has a Technical Service CI with upstream/downstream dependencies |
+| **Service Mapping** | Run Service Mapping for top 10–20 business services; validate maps with application owners | Service maps reviewed quarterly; incident impact analysis uses service maps |
+| **Portfolio Integration** | Link Business Applications (`cmdb_ci_business_app`) to Application Services; enable Application Portfolio Management (APM) basics | Business ↔ Technical service traceability exists |
+| **Data Governance** | Assign CI owners, data stewards; define CI class ownership (e.g., server team owns `cmdb_ci_server`) | 100% of CIs have an owner; ownership drives data quality SLAs |
+
+**CSDM Foundation Domain Classes:** `cmdb_ci_service` (business service), `cmdb_ci_service_auto` (technical service), `cmdb_ci_service_discovered` (mapped service), `cmdb_ci_business_app` (business application), `svc_ci_assoc` (service-CI association).
+
+### Run: Domain Expansion
+
+| CSDM Domain | Scope | Key Classes | Typical Timeline |
+|-------------|-------|-------------|------------------|
+| **Foundation** | Core services & infrastructure | Technical Service, Application Service, Business App, CIs | Walk phase |
+| **Design** | Service portfolio, offerings, SLAs | Service Offering, Service Portfolio, SLA, Catalog Item | Run phase |
+| **Build** | Projects, releases, change | Project, Release, Change, Environment | Run phase |
+| **Consume** | Demand, consumption, cost | Demand, Resource Plan, Cost Center, Contract | Run phase |
+
+**Key Shift:** Move from "what CIs exist" to "what services are delivered, at what cost, with what risk." Service Portfolio Management (SPM) and APM become active. Change/Release/Project data connects to services via CSDM relationship types.
+
+### Fly: Automation & AI
+
+| Capability | Description | Enabler |
+|------------|-------------|---------|
+| **Self-Healing CMDB** | Automated duplicate detection/merge, stale CI retirement, relationship inference from traffic/logs | Now Assist for CMDB, CMDB Health automation rules |
+| **Predictive Impact** | AI-driven blast radius prediction before changes; anomaly-based CI health scoring | Now Assist for ITOM, Predictive AIOps |
+| **Continuous Compliance** | Real-time drift detection against desired state (GitOps, IaC) | IntegrationHub, Policy/Compliance, Terraform/Ansible spokes |
+| **Conversational CMDB** | Natural language queries: "What services depend on DB01?" | Now Assist, GenAI |
+
+**Interview note:** "Fly isn't a destination — it's a capability layer. Most orgs are Crawl/Walk with pockets of Run. Fly capabilities (Now Assist) can be adopted incrementally without full Run maturity."
+
+---
+
+## CI Subscription / Consumption Model
+
+The CMDB is not a passive database — it's a **service** with multiple consumers. Each consumer has different data needs, freshness requirements, and quality thresholds. Understanding this model is critical for scoping CMDB investments and setting governance.
+
+### How ITSM, ITOM, SAM, HAM, TSOM Consume CMDB Data
+
+| Consumer | Primary CI Classes | Relationship Needs | Freshness SLA | Quality Threshold |
+|----------|-------------------|-------------------|---------------|-------------------|
+| **ITSM (Incident/Problem/Change)** | `cmdb_ci_server`, `cmdb_ci_appl`, `cmdb_ci_database`, `cmdb_ci_service` | Upstream/downstream for impact analysis; `Depends on`, `Runs on`, `Hosted on` | Near-real-time for active incidents; daily for change risk | Completeness ≥95% for CIs in scope; relationship accuracy ≥90% |
+| **ITOM Discovery** | All infrastructure classes | Source of truth for identification; feeds IRE | Continuous (per schedule) | Identification rules must resolve to single CI; reconciliation priority configured |
+| **ITOM Service Mapping** | Application + infrastructure | Connection sections trace dependencies; tag-based membership | Per mapping schedule (daily/weekly) | CIs must exist and be classified correctly before mapping |
+| **SAM/HAM** | `cmdb_ci_appl`, `cmdb_ci_server`, `cmdb_ci_computer`, `cmdb_sam_sw_install` | Installation → CI (`Installed on::Installs`); asset ↔ CI (`Corresponds to`) | Daily (reconciliation jobs) | Normalized software installs match CIs; asset-CI correspondence ≥98% |
+| **TSOM** | Network, circuit, service CIs (`cmdb_ci_network`, `cmdb_ci_circuit`, `cmdb_ci_service_discovered`) | Topology relationships (`Connects to`, `Hosted on`); discrepancy detection | Event-driven (Event Management) + scheduled | Network topology completeness ≥90%; service-CI mapping accuracy |
+
+```mermaid
+flowchart LR
+    subgraph "CMDB Producers"
+        DISC[Discovery]
+        SGC[Service Graph Connectors]
+        IMP[Import Sets]
+        MAN[Manual Entry]
+    end
+    
+    CMDB[(CMDB<br/>cmdb_ci + cmdb_rel_ci)]
+    
+    subgraph "CMDB Consumers"
+        ITSM[ITSM<br/>Impact, Change Risk]
+        SM[Service Mapping<br/>Top-down Maps]
+        EVT[Event Management<br/>Alert Correlation]
+        SAM[SAM/HAM<br/>License, Asset]
+        TSOM[TSOM<br/>Network, Service Health]
+        PA[Perf Analytics<br/>Reporting]
+    end
+    
+    DISC --> CMDB
+    SGC --> CMDB
+    IMP --> CMDB
+    MAN --> CMDB
+    
+    CMDB --> ITSM
+    CMDB --> SM
+    CMDB --> EVT
+    CMDB --> SAM
+    CMDB --> TSOM
+    CMDB --> PA
+    
+    style CMDB fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
+```
+
+### Service-Aware Data Consumption
+
+**Domain-based access** (CSDM-aligned):
+- **Foundation domain consumers** (ITSM, ITOM, SAM): Need infrastructure + service CIs + core relationships
+- **Design domain consumers** (Service Portfolio, APM): Need service offerings, SLAs, catalog items linked to services
+- **Build domain consumers** (Change, Release, Project): Need environment CIs, change calendars, release pipelines
+- **Consume domain consumers** (Demand, Finance, Vendor): Need cost allocation, contract-CI links, consumption metrics
+
+**Data consumption patterns:**
+- **Pull (query):** Reports, dashboards, schema map, dependency views — read `cmdb_ci`/`cmdb_rel_ci` directly
+- **Push (event-driven):** Event Management listens for CI changes; Change Management evaluates affected CIs on change request
+- **Subscription (scheduled):** SAM reconciliation jobs, CMDB Health scorecards, TSOM discrepancy checks run on cadence
+
+### Ownership and Domain Separation
+
+| Ownership Layer | Responsible Team | Scope | Governance Mechanism |
+|-----------------|------------------|-------|---------------------|
+| **Technical Ownership** | Infrastructure teams (server, network, DB) | CI attributes (specs, location, OS, patch level) | CI owner field; data quality dashboards per owner |
+| **Service Ownership** | Application/Service owners | Service composition, SLAs, business criticality | `cmdb_ci_service.owned_by`; service review cadence |
+| **Data Stewardship** | CMDB/Configuration team | Class model, IRE rules, relationship types, health scores | CMDB Health; Data Manager; change advisory board |
+| **Domain Governance** | Enterprise Architecture | CSDM compliance, cross-domain relationships | CSDM maturity assessment; architecture review board |
+
+**Key principle:** A CI can have multiple "owners" for different attributes. The server team owns `cpu_count`/`memory`; the app team owns `install_status` for the app CI; the CMDB team owns the class hierarchy and IRE rules.
+
+### Data Quality Expectations per Consumer
+
+| Quality Dimension | ITSM | ITOM Discovery | Service Mapping | SAM/HAM | TSOM |
+|-------------------|------|----------------|-----------------|---------|------|
+| **Completeness** | CIs in scope of incidents/changes | All discovered devices | CIs in mapped services | Licensed software CIs | Network/service CIs in scope |
+| **Correctness** | Relationship accuracy for impact | Identification rule accuracy | Classification accuracy | Normalization accuracy | Topology accuracy |
+| **Timeliness** | Real-time for active incidents | Per schedule | Per mapping schedule | Daily reconciliation | Event-driven + daily |
+| **Consistency** | Single CI per device | IRE prevents duplicates | Single service map per app | Single asset-CI link | Single service topology |
+
+**Scoping implication:** When scoping a CMDB implementation, don't just ask "how many CIs?" — ask:
+- Which consumers are in scope? (ITSM? Service Mapping? TSOM? All?)
+- What are their freshness/quality SLAs?
+- What CI classes and relationships do they actually need?
+- Who owns data quality for each class?
+
+This drives the CMDB class model, IRE rules, health dashboards, and remediation prioritization — far more than a raw CI count.
 
 ---
 
