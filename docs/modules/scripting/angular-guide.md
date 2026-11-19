@@ -16,6 +16,7 @@
 - [Goals / Benefits / Metrics](#goals--benefits--metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [AngularJS in Service Portal](#angularjs-in-service-portal)
+- [AngularJS Widget → Scripted REST API Integration](#angularjs-widget--scripted-rest-api-integration)
 - [Modern Angular for Custom Integrations](#modern-angular-for-custom-integrations)
 - [AngularJS vs Modern Angular — Decision Table](#angularjs-vs-modern-angular--decision-table)
 - [Common Mistakes](#common-mistakes)
@@ -242,6 +243,136 @@ server.get('myApiMethod', { sys_id: $scope.widget.sys_id }, function(response) {
   });
 });
 ```
+
+---
+
+## AngularJS Widget → Scripted REST API Integration
+
+A **Scripted REST API** gives a Service Portal widget a custom web endpoint to send or receive data over HTTP. Usually, a widget talks to the ServiceNow server using its own built-in Server Script (`server.get` / `server.update`). However, connecting a widget's AngularJS Client Controller directly to a Scripted REST API is useful in specific situations.
+
+### How They Work Together
+
+| Step | What Happens | Technology |
+|---|---|---|
+| 1 | **Client Controller Makes the Request** | Inside the widget's client script, use Angular's `$http` service to call your custom REST endpoint (e.g., `/api/x_company/my_custom_api`). |
+| 2 | **Scripted REST Runs Server Logic** | The API receives the request, runs server-side JavaScript (querying tables, calling external systems, etc.), and sends back a JSON response. |
+| 3 | **Widget Updates the View** | The widget receives that JSON data and updates what the user sees on the page — without reloading. |
+
+### Why Use a Scripted REST API Instead of a Normal Widget Server Script?
+
+| Reason | Explanation |
+|---|---|
+| **Reusability Across Apps** | A normal widget server script is locked inside that one widget. A Scripted REST API can be shared by multiple widgets, mobile apps, and external websites at the same time. |
+| **Asynchronous Background Loading** | Calling a REST API via `$http` lets parts of a heavy widget load independently. The page renders immediately while slower data fetches in the background. |
+| **Custom Security & Headers** | Scripted REST APIs give fine-grained control over HTTP status codes, custom headers, and API-specific authentication or rate limits. |
+| **Decoupled Architecture** | Separating your data logic into an API keeps your widget lightweight and focused strictly on the user interface. |
+
+### Minimal Example: Widget Calling Scripted REST via $http
+
+**Step 1 — Create the Scripted REST API**
+
+```javascript
+// Scripted REST API: /api/x_company/incident_summary
+(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+  var gr = new GlideRecord('incident');
+  gr.addQuery('active', 'true');
+  gr.setLimit(request.queryParams?.limit || 10);
+  gr.query();
+  var data = [];
+  while (gr.next()) {
+    data.push({
+      number: gr.number,
+      short_description: gr.short_description,
+      priority: gr.priority,
+      state: gr.state
+    });
+  }
+  response.setBody({ success: true, data: data, count: data.length });
+  response.setStatus(200);
+})(request, response);
+```
+
+**Step 2 — AngularJS Client Controller Using $http**
+
+```javascript
+// Widget Client Controller
+function($scope, $http) {
+  var c = this;
+  c.loading = false;
+  c.incidents = [];
+  c.error = null;
+
+  c.loadIncidents = function() {
+    c.loading = true;
+    c.error = null;
+
+    $http.get('/api/x_company/incident_summary?limit=25', {
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+      // Success — update the view via $scope
+      $scope.$apply(function() {
+        c.incidents = response.data.data;
+        c.loading = false;
+      });
+    })
+    .catch(function(error) {
+      $scope.$apply(function() {
+        c.error = 'Failed to load incidents: ' + (error.status || 'unknown');
+        c.loading = false;
+      });
+    });
+  };
+
+  c.loadIncidents();
+}
+```
+
+**Step 3 — Widget HTML Template**
+
+```html
+<div>
+  <h2>Recent Incidents</h2>
+  
+  <div ng-if="c.loading">Loading...</div>
+  <div ng-if="c.error" class="error">{{ c.error }}</div>
+  
+  <table ng-if="!c.loading && !c.error">
+    <thead>
+      <tr><th>Number</th><th>Description</th><th>Priority</th><th>State</th></tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="inc in c.incidents">
+        <td>{{ inc.number }}</td>
+        <td>{{ inc.short_description }}</td>
+        <td>{{ inc.priority }}</td>
+        <td>{{ inc.state }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### When to Use Each Approach
+
+| Scenario | Recommended Approach |
+|---|---|
+| Widget-only data, no reuse | Widget server script (`server.get` / `server.update`) |
+| Data shared across multiple widgets | Scripted REST API + `$http` |
+| Data needed by mobile app or external site | Scripted REST API |
+| Background/async loading within a heavy widget | Scripted REST API + `$http` |
+| Need custom HTTP status codes or headers | Scripted REST API |
+| Simple CRUD on a single table | Table API (`/api/now/table/{table}`) |
+
+### Common Pitfalls
+
+| Pitfall | Fix |
+|---|---|
+| Forgetting `$scope.$apply()` after `$http` response | Wrap view updates in `$scope.$apply()` so AngularJS re-renders |
+| Calling API on every digest cycle | Debounce user input, load once on controller init |
+| Not handling HTTP error codes | Always add `.catch()` / error callback to `$http` calls |
+| Exposing sensitive data via API | Add ACLs on the Scripted REST API; filter fields in server logic |
+| Hardcoding the API path | Use a widget option or system property for the endpoint URL |
 
 ---
 
