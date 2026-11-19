@@ -21,6 +21,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/csm/csm-guide/">Open the CSM guide</a></p>
   </div>
   <div class="card">
+    <h3>Sales CRM</h3>
+    <p>ServiceNow Sales — leads, opportunities, quotes, orders, pipeline forecasting, and the Lead-to-Cash-to-Service loop.</p>
+    <p class="meta"><a href="./docs/modules/sales-crm/sales-crm-guide/">Open the Sales CRM guide</a></p>
+  </div>
+  <div class="card">
     <h3>CMDB</h3>
     <p>Configuration Management Database — CI classes, Identification & Reconciliation (IRE), CMDB Health, relationships, and integrations.</p>
     <p class="meta"><a href="./docs/modules/cmdb/cmdb-guide/">Open the CMDB guide</a></p>
