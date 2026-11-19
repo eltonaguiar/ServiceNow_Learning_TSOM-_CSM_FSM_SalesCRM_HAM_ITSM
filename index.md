@@ -74,6 +74,7 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>Other - Video Library</h3>
     <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
+<<<<<<< HEAD
   </div>
   <div class="card">
     <h3>Other - Learning Paths</h3>
@@ -89,11 +90,6 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>Other - Cross-Cutting Skills</h3>
     <p>Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer.</p>
     <p class="meta"><a href="./docs/cross-cutting/">Open the Cross-Cutting guide</a></p>
-  </div>
-  <div class="card">
-    <h3>ITOM</h3>
-    <p>IT Operations Management — Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management for proactive infrastructure operations.</p>
-    <p class="meta"><a href="./docs/modules/itom/itom-guide/">Open the ITOM guide</a></p>
   </div>
   <div class="card">
     <h3>TSOM</h3>
