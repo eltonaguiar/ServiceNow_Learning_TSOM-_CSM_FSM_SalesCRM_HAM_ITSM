@@ -286,33 +286,99 @@ server.get('myApiMethod', { sys_id: $scope.widget.sys_id }, function(response) {
 
 ---
 
-## How the Flow Works — Client → Server → HTML (ELI5)
+## How the Flow Works — Server → HTML → Client → Link (ELI5)
 
-Here is the order of events when a user loads your widget:
+Here is the order of events when ServiceNow loads your AngularJS widget:
 
-### Step 1 — Client Runs First (Browser)
-When the page loads, the **Client Controller** runs inside the user's browser. It sets up initial data (`c.loading = false`, `c.incidents = []`) and may immediately call `$http.get()` or `server.get()` to fetch data. The HTML template shows placeholder text or a "Loading..." spinner.
+---
 
-### Step 2 — Server (ServiceNow)
-The client's request travels to the ServiceNow server. Depending on your approach:
-- **`server.get`** → calls the widget's own Server Script
-- **GlideAjax** → calls a client-callable Script Include
-- **`$http`** → calls your Scripted REST API endpoint
+### Step 1 — Server Script Runs First (ServiceNow Server)
+The **Server Script** executes first on the ServiceNow server. It queries tables using GlideRecord, handles initial business logic, and populates the `data` object that will be sent to the browser.
 
-The server runs its JavaScript (GlideRecord queries, etc.), builds a JSON or XML response, and sends it back.
+```javascript
+// Server Script — runs FIRST on the server
+(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+  var gr = new GlideRecord('incident');
+  gr.addQuery('active', 'true');
+  gr.query();
+  var data = [];
+  while (gr.next()) {
+    data.push({ number: gr.number, short_description: gr.short_description });
+  }
+  response.setBody({ data: data });  // This data goes to the HTML template
+})(request, response);
+```
 
-### Step 3 — HTML Template Updates
-When the response comes back, the client controller updates `$scope` variables (e.g., `$scope.widget.incidents = response.data`). AngularJS automatically re-renders the HTML template — the table rows appear, the "Loading..." spinner disappears, and the user sees the data.
+---
 
-**The cycle repeats** whenever the user clicks a button (like "Refresh") or when a `$watch` detects a data change.
+### Step 2 — HTML Template Renders (Browser)
+The **HTML Template** renders next in the browser. It uses the initial values from the server's `data` object. AngularJS directives like `ng-if` and `ng-repeat` evaluate against this initial data — so if the server sent 5 incidents, the table immediately shows 5 rows.
+
+```html
+<!-- HTML Template — renders SECOND using server data -->
+<div>
+  <h2>{{ widget.title }}</h2>
+  <p ng-repeat="inc in widget.incidents">{{ inc.number }} - {{ inc.short_description }}</p>
+</div>
+```
+
+---
+
+### Step 3 — Client Controller Executes (Browser)
+The **Client Controller** runs in the browser once the widget is initialized. It manages user interactions (button clicks, form changes), manipulates the data object, and calls `c.server.update()` or `c.server.get()` to send data back to the server when needed.
+
+```javascript
+// Client Controller — runs THIRD in the browser
+function($scope, server) {
+  var c = this;
+  c.refresh = function() {
+    server.get('getIncidents', {}, function(response) {
+      $scope.widget.incidents = response.data;
+    });
+  };
+  c.refresh();  // Optional: refresh after initial load
+}
+```
+
+---
+
+### Step 4 — Link Function (Optional)
+The **Link Function** runs after the template is compiled and linked to the scope. It is primarily used for direct DOM manipulation (e.g., initializing jQuery plugins, setting up third-party charts). Not all widgets need this.
+
+| Step | What Runs | Where | Purpose |
+|---|---|---|---|
+| 1 | **Server Script** | ServiceNow Server | Query tables, populate initial data |
+| 2 | **HTML Template** | Browser | Render UI using server data |
+| 3 | **Client Controller** | Browser | Handle user interactions, call server |
+| 4 | **Link Function** | Browser | Direct DOM manipulation (optional) |
+
+---
+
+### Why This Order Matters
+
+- **Server first** means the user sees data immediately when the page loads — no blank screen waiting for an API call.
+- **Template second** means AngularJS can render `{{ }}` expressions and `ng-repeat` against real data right away.
+- **Client third** means user interactions (clicking "Refresh", changing a dropdown) happen after the initial render.
+
+---
+
+### The Refresh Cycle
+
+After the initial load, clicking a button like "Refresh" triggers a **mini-cycle**:
+
+1. User clicks "Refresh" in the HTML template
+2. Client Controller calls `server.get()` or `$http.get()`
+3. Server runs its script and returns new data
+4. Client Controller updates `$scope`
+5. HTML Template re-renders with the new data
 
 ```text
-Browser (Client)              ServiceNow (Server)              Browser (Client)
------------                   ----------------                 ------------
-1. Controller loads           4. Request arrives               8. Response received
-2. $http.get() / server.get() 5. GlideRecord query runs        9. $scope updated
-3. Shows "Loading..."         6. JSON/XML built                10. HTML re-renders
-                              7. Response sent                 11. User sees data
+Step 1: Server Script         Step 2: HTML Template        Step 3: Client Controller        Step 4: Link Function
+-----------                   ----------------             -------------------------        ---------------------
+Runs FIRST                    Renders SECOND               Runs THIRD                     Runs FOURTH (optional)
+Queries GlideRecord           Shows {{ widget.title }}     Handles button clicks            DOM manipulation
+Populates data object         ng-repeat evaluates          Calls server.get() / $http.get() | Optional — not all widgets
+                              against initial data         Updates $scope                   have this
 ```
 
 
