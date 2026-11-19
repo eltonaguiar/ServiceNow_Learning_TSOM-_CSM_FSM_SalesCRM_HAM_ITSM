@@ -208,11 +208,9 @@ function($scope, server) {
 
 ```javascript
 // Server script — runs server-side on ServiceNow
-// 'request' — contains data sent from the client (URL parameters, body, headers).
-// Use it when the client needs to pass information to the server (e.g., a record number to look up).
-// 'response' — the object you use to send data back to the client.
-// Use response.setBody({...}) to return JSON, and response.setStatus(200) for success.
-(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+// Declares getIncidents() — the client calls it via server.get('getIncidents', ...).
+// The name MUST match between client and server.
+function getIncidents() {
   var gr = new GlideRecord('incident');
   gr.addQuery('active', 'true');
   gr.setLimit(10);
@@ -221,9 +219,42 @@ function($scope, server) {
   while (gr.next()) {
     data.push({ number: gr.number, short_description: gr.short_description });
   }
-  response.setBody({ data: data });
-})(request, response);
+  return data;  // becomes response.data on the client
+}
 ```
+
+### Where is `getIncidents` declared? (Important)
+
+`getIncidents` is **not a variable you can invent on the client**. It is the **name of a function that must exist in the widget's Server Script**. The string you pass to `server.get(...)` is the bridge that tells ServiceNow *which* server-side function to run.
+
+**Client script:**
+```javascript
+server.get('getIncidents', {}, function(response) {
+  $scope.widget.incidents = response.data;
+});
+```
+
+**Server script — this is where it is declared:**
+```javascript
+function getIncidents() {
+  // ... query tables ...
+  return data;   // what you return becomes response.data on the client
+}
+```
+
+| Question | Answer |
+|---|---|
+| Where is `getIncidents` declared? | In the widget's **Server Script** tab, as a function: `function getIncidents() { ... }` |
+| Can I name it anything? | Yes — **but the client string and the server function name must match exactly**. Call it `fetchFooBar` on both sides if you prefer. |
+| What if the name doesn't match? | The call fails — the server has no function with that name, so nothing runs and `response.data` is empty/undefined. |
+| Is it a variable? | No — it's a **method name** resolved at runtime by the Service Portal `server` bridge. |
+
+**Two supported patterns:**
+
+1. **Named function** (simplest) — server declares `function getIncidents() {...}` and returns data; client calls `server.get('getIncidents', {}, cb)`.
+2. **Routed method** — server declares the `process(request, response)` wrapper and branches on a method name in `request`; client passes that method name inside the parameters object instead of as the first argument.
+
+Use pattern 1 unless your widget already has a `process()`-style server script.
 
 ### Key AngularJS Concepts in Service Portal
 
@@ -277,6 +308,8 @@ $scope.$watch('widget.state', function(newVal, oldVal) {
 });
 
 // Calling server from controller
+// 'myApiMethod' must be declared as a function in the widget's Server Script:
+//   function myApiMethod() { ... return something; }
 server.get('myApiMethod', { sys_id: $scope.widget.sys_id }, function(response) {
   $scope.$apply(function() {
     $scope.widget.result = response.data;
@@ -297,16 +330,20 @@ The **Server Script** executes first on the ServiceNow server. It queries tables
 
 ```javascript
 // Server Script — runs FIRST on the server
-(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+// Declares getIncidents() so later server.get('getIncidents', ...) calls can reach it.
+// Any top-level 'data' variable is also passed to the client on initial load.
+var data = {};   // optional initial payload for the first HTML render
+
+function getIncidents() {
   var gr = new GlideRecord('incident');
   gr.addQuery('active', 'true');
   gr.query();
-  var data = [];
+  var rows = [];
   while (gr.next()) {
-    data.push({ number: gr.number, short_description: gr.short_description });
+    rows.push({ number: gr.number, short_description: gr.short_description });
   }
-  response.setBody({ data: data });  // This data goes to the HTML template
-})(request, response);
+  return rows;   // becomes response.data when the client calls server.get('getIncidents')
+}
 ```
 
 ---
@@ -421,15 +458,15 @@ The **`data`** parameter is passed from the server script to the client controll
 **Server script** (runs server-side):
 ```javascript
 // Server script (runs server-side)
-// 'request' — contains data sent from the client (URL parameters, body, headers).
-// 'response' — the object you use to send data back to the client.
-// Use response.setBody({...}) to return JSON.
-(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+// Server script (runs server-side)
+// Declares getData() — the client calls it via server.get('getData', ...).
+// The name must match exactly on both sides.
+function getData() {
   var data = {};
   data.incidentCount = 5;
   data.userName = 'John Doe';
-  response.setBody(data);
-})(request, response);
+  return data;   // becomes response.data on the client
+}
 ```
 
 **Client controller** (runs client-side):
@@ -437,14 +474,14 @@ The **`data`** parameter is passed from the server script to the client controll
 function($scope, server) {
   var c = this;
   server.get('getData', {}, function(response) {
-    // response.data contains what the server script put in data{}
+    // response.data contains whatever getData() returned on the server
     c.incidentCount = response.data.incidentCount;
     c.userName = response.data.userName;
   });
 }
 ```
 
-**Key point:** `response.data` in the client controller matches the object you passed to `response.setBody()` on the server.
+**Key point:** `response.data` in the client controller matches the object `getData()` returned on the server. The string `'getData'` in `server.get(...)` must be the exact function name declared in the server script.
 
 ---
 
