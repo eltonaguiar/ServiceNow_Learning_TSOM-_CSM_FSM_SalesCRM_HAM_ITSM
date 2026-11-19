@@ -20,6 +20,7 @@
 - [Widget Instance (Placing a Widget on a Page)](#widget-instance--placing-a-widget-on-a-page)
 - [Page Variants vs Page Route Maps (Showing Different Views to Different Users)](#page-variants-vs-page-route-maps--showing-different-views-to-different-users)
 - [Calling Server-Side Code from AngularJS](#calling-server-side-code-from-angularjs)
+- [How the Flow Works — Client → Server → HTML (ELI5)](#how-the-flow-works--client--server--html-eli5)
 - [AngularJS Widget → Scripted REST API Integration](#angularjs-widget--scripted-rest-api-integration)
 - [Modern Angular for Custom Integrations](#modern-angular-for-custom-integrations)
 - [AngularJS vs Modern Angular — Decision Table](#angularjs-vs-modern-angular--decision-table)
@@ -206,7 +207,11 @@ function($scope, server) {
 ```
 
 ```javascript
-// Server script
+// Server script — runs server-side on ServiceNow
+// 'request' — contains data sent from the client (URL parameters, body, headers).
+// Use it when the client needs to pass information to the server (e.g., a record number to look up).
+// 'response' — the object you use to send data back to the client.
+// Use response.setBody({...}) to return JSON, and response.setStatus(200) for success.
 (function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
   var gr = new GlideRecord('incident');
   gr.addQuery('active', 'true');
@@ -281,6 +286,36 @@ server.get('myApiMethod', { sys_id: $scope.widget.sys_id }, function(response) {
 
 ---
 
+## How the Flow Works — Client → Server → HTML (ELI5)
+
+Here is the order of events when a user loads your widget:
+
+### Step 1 — Client Runs First (Browser)
+When the page loads, the **Client Controller** runs inside the user's browser. It sets up initial data (`c.loading = false`, `c.incidents = []`) and may immediately call `$http.get()` or `server.get()` to fetch data. The HTML template shows placeholder text or a "Loading..." spinner.
+
+### Step 2 — Server (ServiceNow)
+The client's request travels to the ServiceNow server. Depending on your approach:
+- **`server.get`** → calls the widget's own Server Script
+- **GlideAjax** → calls a client-callable Script Include
+- **`$http`** → calls your Scripted REST API endpoint
+
+The server runs its JavaScript (GlideRecord queries, etc.), builds a JSON or XML response, and sends it back.
+
+### Step 3 — HTML Template Updates
+When the response comes back, the client controller updates `$scope` variables (e.g., `$scope.widget.incidents = response.data`). AngularJS automatically re-renders the HTML template — the table rows appear, the "Loading..." spinner disappears, and the user sees the data.
+
+**The cycle repeats** whenever the user clicks a button (like "Refresh") or when a `$watch` detects a data change.
+
+```text
+Browser (Client)              ServiceNow (Server)              Browser (Client)
+-----------                   ----------------                 ------------
+1. Controller loads           4. Request arrives               8. Response received
+2. $http.get() / server.get() 5. GlideRecord query runs        9. $scope updated
+3. Shows "Loading..."         6. JSON/XML built                10. HTML re-renders
+                              7. Response sent                 11. User sees data
+```
+
+
 ## Widget Setup Options — Every Option Explained
 
 When you create or edit a widget in Service Portal (**Service Portal > Widgets > [widget]**), you configure several setup options. Here is what each one means and how to use it.
@@ -319,6 +354,10 @@ The **`data`** parameter is passed from the server script to the client controll
 
 **Server script** (runs server-side):
 ```javascript
+// Server script (runs server-side)
+// 'request' — contains data sent from the client (URL parameters, body, headers).
+// 'response' — the object you use to send data back to the client.
+// Use response.setBody({...}) to return JSON.
 (function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
   var data = {};
   data.incidentCount = 5;
@@ -621,29 +660,32 @@ In your widget's **client script** tab:
 
 ```javascript
 function($scope) {
+  // $scope — the data model shared between this controller and the HTML template.
+  // Use it to expose data that AngularJS should auto-update in the UI.
   var c = this;
   c.incidentCount = 0;
   c.incidentDesc = '';
 
   // GlideAjax is the messenger that calls the server-side Script Include
   var ga = new GlideAjax('x_company_incident_utils');
-  
-  // Tell GlideAjax which method to run on the server
+
+  // Tell GlideAjax which server-side method to run (must match a method name in the Script Include)
   ga.addParam('sysparm_name', 'getActiveIncidentCount');
-  
-  // Send the request and handle the response
+
+  // Send the request; when the server replies, the callback runs
   ga.getXML(function(response) {
-    // The server's answer comes back as text inside <result> tags
+    // response — the XML document returned from the server
+    // Read the text answer using documentElement.getAttribute('answer')
     var answer = response.documentElement.getAttribute('answer');
     $scope.$apply(function() {
       c.incidentCount = answer;
     });
   });
 
-  // Example: call with a parameter
+  // Example: call with a parameter (passing data TO the server)
   var ga2 = new GlideAjax('x_company_incident_utils');
   ga2.addParam('sysparm_name', 'getIncidentByNumber');
-  ga2.addParam('sysparm_number', 'INC0010001');
+  ga2.addParam('sysparm_number', 'INC0010001');  // extra data sent to the server
   ga2.getXML(function(response) {
     var answer = response.documentElement.getAttribute('answer');
     $scope.$apply(function() {
