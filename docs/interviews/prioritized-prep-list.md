@@ -1,151 +1,150 @@
-# ServiceNow Interview Prep — Prioritized by Interview Order
+# ServiceNow Interview Prep — Generic Role-Based Guidelines
 
-**Agent:** opencode  
-**Date:** 2026-11-10  
-**Purpose:** Interview preparation roadmap  
-**Confidence:** high  
+**Date:** 2026-11-19  
+**Purpose:** Anonymized interview preparation framework for ServiceNow roles  
+**Status:** All original interviews completed; this is now a reusable prep guide
 
 ---
 
 ## Contents
 
-- [How to Use This List](#how-to-use-this-list)
-- [Cross-Cutting Core (Do First)](#cross-cutting-core-do-first)
-- [Interview 1 — Tomorrow Morning (ITSM + HAM focus)](#interview-1--tomorrow-morning)
-- [Interview 2 — Same Day Afternoon (ITSM + HRSD + ITOM focus)](#interview-2--same-day-afternoon)
-- [Interview 3 — Next Day (Platform Architecture & Governance focus)](#interview-3--next-day)
-- [Interview 4 — Following Day (Technical Lead, CMDB + ITOM focus)](#interview-4--following-day)
-- [Interview 5 — Court Services / City of Toronto (Systems Integrator 1, ServiceNow Developer)](#interview-5--court-services--city-of-toronto-systems-integrator-1-servicenow-developer)
-- [STAR Story Bank](#star-story-bank)
+- [How to Use This Guide](#how-to-use-this-guide)
+- [Cross-Cutting Core (Essential for Every Role)](#cross-cutting-core-essential-for-every-role)
+- [Role Type 1: ServiceNow Developer / Configurator](#role-type-1-servicenow-developer--configurator)
+- [Role Type 2: ServiceNow Developer with Integration Focus](#role-type-2-servicenow-developer-with-integration-focus)
+- [Role Type 3: Platform Architect / Technical Specialist](#role-type-3-platform-architect--technical-specialist)
+- [Role Type 4: Technical Lead / Senior Developer](#role-type-4-technical-lead--senior-developer)
+- [Role Type 5: Public Sector / Legacy Integration Specialist](#role-type-5-public-sector--legacy-integration-specialist)
+- [STAR Story Bank (Reusable Across All Roles)](#star-story-bank-reusable-across-all-roles)
 - [Certification Talking Points](#certification-talking-points)
+- [Guide Cross-Reference Matrix](#guide-cross-reference-matrix)
 - [Official Learning Resources](#official-learning-resources)
 
 ---
 
-## How to Use This List
+## How to Use This Guide
 
-This list is ordered by interview date and priority within each interview. Cross-cutting themes appear in nearly every JD, so they are tackled first. Each interview section lists the modules, core concepts, and the specific stories you should be ready to tell.
+This guide is organized by **role archetype** rather than specific interview dates. Each role type maps to common ServiceNow job descriptions. Identify which role type(s) match your target position, then follow the corresponding section.
 
-**Suggested order of attack:**
-1. Cross-Cutting Core (today)
-2. Interview 1 prep (tonight / tomorrow morning)
-3. Interview 2 prep (same day, between interviews)
-4. Interview 3 prep (next day)
-5. Interview 4 prep (following day)
-
----
-
-## Cross-Cutting Core (Do First)
-
-These appear in nearly every JD. Master them before module-specific deep dives.
-
-| Theme | What to Know | Interview Angle |
-|-------|-------------|-----------------|
-| **ITSM core processes** | Incident → Problem → Change → Request → Knowledge lifecycle; SLA/OLA; assignment groups; priority matrix | "Restore service" vs "root cause" distinction; speed vs thoroughness |
-| **Integrations** | REST/SOAP outbound; inbound REST; MID Server; IntegrationHub spokes; Flow Designer | Real integration examples (Teams, Salesforce) — not mocks |
-| **Scripting fundamentals** | Business Rules, Client Scripts, UI Policies, UI Actions, GlideRecord, GlideAjax, GlideSystem | When to use each; server-side vs client-side; performance implications |
-| **Flow Designer / Workflow** | No-code/low-code automation; triggers, actions, subflows, conditions | Preference for low-code where possible; when to script instead |
-| **CMDB + HAM/SAM + Discovery** | cmdb_ci, cmdb_rel_ci, asset lifecycle, Discovery schedules, MID Server | Your existing strength — lead with this |
-| **Update sets, testing, documentation** | 3 types of update sets; source control/Git; unit/system/UAT testing; technical documentation | Deployment hygiene; clone post-tasks |
-| **CSA/CAD + ITIL/Agile** | CSA/CAD talking points; ITIL process awareness; Agile/Scrum ceremonies | Certification credibility; process discipline |
+**Suggested prep order:**
+1. Cross-Cutting Core (do first — appears in every JD)
+2. Your target role type section
+3. STAR Story Bank (prepare 4-6 stories)
+4. Certification Talking Points
+5. Use the Guide Cross-Reference Matrix to deep-dive specific modules
 
 ---
 
-## Interview 1 — Tomorrow Morning
+## Cross-Cutting Core (Essential for Every Role)
 
-**Role:** ServiceNow Developer, 6-month contract, hybrid  
-**Key modules (priority order):**
-1. ITSM (Incident, Problem, Change, Request, Knowledge)
-2. HAM (Hardware Asset Management) + asset lifecycle
-3. CSM (Customer Service Management)
-4. FSM (Field Service Management)
-5. Sales CRM and TSOM — OOTB config + light customization
+These themes appear in nearly every ServiceNow job description. Master them before role-specific deep dives.
 
-### Core Concepts to Brush Up
-- ServiceNow Studio + Workflow Studio / Flow Designer (no-code/low-code workflows)
+| Theme | What to Know | Key Guides to Review |
+|-------|-------------|---------------------|
+| **ITSM Core Processes** | Incident → Problem → Change → Request → Knowledge lifecycle; SLA/OLA; assignment groups; priority matrix | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| **Integrations** | REST/SOAP outbound; inbound REST; MID Server; IntegrationHub spokes; Flow Designer | [Integration Guide](../cross-cutting/#integrations) |
+| **Scripting Fundamentals** | Business Rules, Client Scripts, UI Policies, UI Actions, GlideRecord, GlideAjax, GlideSystem; server-side vs client-side; performance | [JavaScript Reference](../modules/ai/javascript-reference/) |
+| **Flow Designer / Workflow** | No-code/low-code automation; triggers, actions, subflows, conditions; when to script vs configure | [AI Guide](../modules/ai/ai-guide/#flow-designer) |
+| **CMDB + HAM/SAM + Discovery** | `cmdb_ci`, `cmdb_rel_ci`, asset lifecycle, Discovery schedules, MID Server, IRE rules | [CMDB Guide](../modules/cmdb/cmdb-guide/), [Discovery Guide](../modules/discovery/discovery-guide/) |
+| **Update Sets, Testing, Documentation** | 3 types of update sets; source control/Git; unit/system/UAT testing; technical documentation | [Cross-Cutting Skills](../cross-cutting/#update-sets--source-control) |
+| **CSA/CAD + ITIL/Agile** | Certification talking points; ITIL process awareness; Agile/Scrum ceremonies | [Certification Talking Points](#certification-talking-points) |
+
+---
+
+## Role Type 1: ServiceNow Developer / Configurator
+
+**Typical JD Keywords:** OOTB configuration, ITSM/CSM/FSM/HAM, Flow Designer, Service Portal, light scripting, CSA/CAD
+
+### Key Modules (Priority Order)
+1. **ITSM** — Incident, Problem, Change, Request, Knowledge
+2. **HAM/SAM** — Asset lifecycle, procurement → retirement
+3. **CSM** — Cases, accounts, entitlements, customer-facing SLAs
+4. **FSM** — Work orders, territories, scheduling, mobile
+5. **Sales CRM / TSOM** — OOTB config + light customization
+
+### Core Concepts to Master
+- ServiceNow Studio + Workflow Studio / Flow Designer
 - Forms, UI Actions, Business Rules, Client Scripts, scheduled jobs
 - Reports & dashboards
 - REST/SOAP integrations + MID Server basics
 - Unit / system / UAT testing + technical documentation
-- CSA + CAD talking points
 
 ### Prep Focus
-Be ready to walk through how you've **configured or extended ITSM + HAM** with a mix of OOTB and light scripting. They care about **practical delivery** on those specific modules.
+Walk through how you've **configured or extended ITSM + HAM** with a mix of OOTB and light scripting. Emphasize **practical delivery** on specific modules.
 
-### Module Prep Checklist
+### Module Checklist
 
-| Module | Key Tables | Key Flows | Story to Tell |
-|--------|-----------|-----------|---------------|
-| ITSM | `incident`, `problem`, `change_request`, `task_sla`, `kb_knowledge` | Incident creation → resolution → problem → change | How you reduced incident volume or improved resolution time |
-| HAM | `alm_asset`, `alm_hardware`, `ast_contract`, `alm_asset_model` | Procurement → assignment → retirement | Asset lifecycle you managed; discovery-to-asset reconciliation |
-| CSM | `sn_customerservice_case`, `customer_account`, `sn_customerservice_entitlement` | Case creation → entitlement check → resolution | Customer-facing case workflow |
-| FSM | `wm_order`, `wm_task`, `wm_agent`, `wm_territory` | Work order creation → dispatch → completion | Technician dispatch and parts management |
-| Sales CRM | `sn_sales_opportunity`, `sn_sales_account`, `sn_sales_quote` | Lead → opportunity → quote → order | Sales pipeline automation |
+| Module | Key Tables | Key Flows | Story to Tell | Relevant Guide |
+|--------|-----------|-----------|---------------|----------------|
+| ITSM | `incident`, `problem`, `change_request`, `task_sla`, `kb_knowledge` | Incident → resolution → problem → change | Reduced incident volume or improved resolution time | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| HAM | `alm_asset`, `alm_hardware`, `ast_contract`, `alm_asset_model` | Procurement → assignment → retirement | Asset lifecycle managed; discovery-to-asset reconciliation | [HAM Guide](../modules/ham/ham-guide/) |
+| CSM | `sn_customerservice_case`, `customer_account`, `sn_customerservice_entitlement` | Case → entitlement check → resolution | Customer-facing case workflow | [CSM Guide](../modules/csm/csm-guide/) |
+| FSM | `wm_order`, `wm_task`, `wm_agent`, `wm_territory` | Work order → dispatch → completion | Technician dispatch and parts management | [FSM Guide](../modules/fsm/fsm-guide/) |
+| Sales CRM | `sn_sales_opportunity`, `sn_sales_account`, `sn_sales_quote` | Lead → opportunity → quote → order | Sales pipeline automation | [Sales CRM Guide](../modules/sales-crm/sales-crm-guide/) |
 
 ---
 
-## Interview 2 — Same Day Afternoon
+## Role Type 2: ServiceNow Developer with Integration Focus
 
-**Role:** ServiceNow Developer, HR pre-screen  
-**Key modules:**
-1. ITSM
-2. HRSD (HR Service Delivery)
-3. ITOM (Discovery, Event Management, or related operational modules)
+**Typical JD Keywords:** 80% development / 20% admin, integrations, legacy systems, Boomi/UKG, platform upgrades, CAD/CIS required
+
+### Key Modules
+1. **ITSM** — Core processes
+2. **HRSD** — HR case management, employee center
+3. **ITOM** — Discovery, Event Management, operational modules
 
 ### Core Concepts
 - Flow Designer + IntegrationHub + Service Portal
-- Custom apps: GlideScript / JavaScript, Business Rules, Client Scripts, UI Policies, UI Actions
-- Secure REST/SOAP integrations (especially linking legacy systems)
-- Platform admin (update sets, cloning, instance health, upgrades/patches, regression testing) — ~20% of the role
+- Custom apps: GlideScript/JavaScript, Business Rules, Client Scripts, UI Policies, UI Actions
+- Secure REST/SOAP integrations (especially legacy systems)
+- Platform admin: update sets, cloning, instance health, upgrades/patches, regression testing
 - CAD or CIS knowledge (required); CSA is a plus
-- Boomi / UKG / retail-legacy experience (assets)
+- iPaaS tools (Boomi, MuleSoft), workforce management (UKG)
 
 ### Prep Focus
-Emphasize **development-heavy work (80%) with light admin**, plus how you handle integrations and upgrades. HR screen will test **communication of technical concepts** and basic fit.
+Emphasize **development-heavy work with light admin**, plus how you handle integrations and upgrades. Be ready to **communicate technical concepts** clearly.
 
-### Module Prep Checklist
+### Module Checklist
 
-| Module | Key Tables | Key Flows | Story to Tell |
-|--------|-----------|-----------|---------------|
-| ITSM | `incident`, `problem`, `change_request` | Incident → problem → change | Technical resolution of recurring incidents |
-| HRSD | `sn_hr_core_case`, `sn_hr_core_task`, `sn_hr_core_profile` | HR case → knowledge article → resolution | Employee case workflow; confidentiality handling |
-| ITOM | `em_event`, `em_alert`, `cmdb_ci`, `sys_mid_server` | Event → alert → correlation → incident | Noise reduction; alarm correlation |
+| Module | Key Tables | Key Flows | Story to Tell | Relevant Guide |
+|--------|-----------|-----------|---------------|----------------|
+| ITSM | `incident`, `problem`, `change_request` | Incident → problem → change | Technical resolution of recurring incidents | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| HRSD | `sn_hr_core_case`, `sn_hr_core_task`, `sn_hr_core_profile` | HR case → knowledge → resolution | Employee case workflow; confidentiality handling | [HRSD Guide](../modules/hrsd/hrsd-guide/) |
+| ITOM | `em_event`, `em_alert`, `cmdb_ci`, `sys_mid_server` | Event → alert → correlation → incident | Noise reduction; alarm correlation | [ITOM Guide](../modules/itom/itom-guide/), [Discovery Guide](../modules/discovery/discovery-guide/) |
 
 ---
 
-## Interview 3 — Next Day
+## Role Type 3: Platform Architect / Technical Specialist
 
-**Role:** Intermediate Technology Specialist, ServiceNow Developer  
-**Focus:** Enterprise ServiceNow platform design, management & support (more platform-oriented than module-specific)
+**Typical JD Keywords:** Enterprise platform design, governance, architecture, troubleshooting, upgrades, capacity monitoring, solution design
 
 ### Key Concepts
 - Enterprise ServiceNow platform design, management & support
-- Scripting: JavaScript + Glide API (Jelly mentioned)
-- Integrations: REST/SOAP + Mid Server connectivity
+- Scripting: JavaScript + Glide API
+- Integrations: REST/SOAP + MID Server connectivity
 - Architecture, governance, policies/standards, quality management
 - Troubleshooting, upgrades, capacity/performance monitoring
-- Solution design, documentation, and continuous improvement
+- Solution design, documentation, continuous improvement
 
 ### Prep Focus
-Be ready to discuss how you approach **shared infrastructure applications**, maintain **quality/compliance artifacts**, and balance **hands-on configuration with process/governance**. Less about one specific module and more about **solid platform ownership**.
+Discuss how you approach **shared infrastructure applications**, maintain **quality/compliance artifacts**, and balance **hands-on configuration with process/governance**. Focus on **solid platform ownership**.
 
-### Platform Topics to Review
+### Platform Topics
 
-| Topic | What to Know |
-|-------|-------------|
-| Platform architecture | Instance types (PDI, dev, test, prod), nodes, clusters, mid servers |
-| Governance | Update set standards, naming conventions, change advisory board (CAB) process |
-| Quality management | Unit testing, system testing, UAT, regression testing, documentation standards |
-| Troubleshooting | System logs, transaction logs, node health, performance monitoring |
-| Upgrades | Upgrade paths, regression testing before/after, instance health checks |
-| Capacity monitoring | Disk usage, transaction volume, concurrent users, response times |
+| Topic | What to Know | Relevant Guide |
+|-------|-------------|----------------|
+| Platform Architecture | Instance types (PDI, dev, test, prod), nodes, clusters, MID Servers | [Cross-Cutting](../cross-cutting/#platform-architecture) |
+| Governance | Update set standards, naming conventions, CAB process | [Cross-Cutting](../cross-cutting/#governance) |
+| Quality Management | Unit/system/UAT/regression testing, documentation standards | [Cross-Cutting](../cross-cutting/#testing) |
+| Troubleshooting | System logs, transaction logs, node health, performance monitoring | [Cross-Cutting](../cross-cutting/#troubleshooting) |
+| Upgrades | Upgrade paths, regression testing, instance health checks | [Cross-Cutting](../cross-cutting/#upgrades) |
+| Capacity Monitoring | Disk usage, transaction volume, concurrent users, response times | [Cross-Cutting](../cross-cutting/#monitoring) |
 
 ---
 
-## Interview 4 — Following Day
+## Role Type 4: Technical Lead / Senior Developer
 
-**Role:** ServiceNow Technical Lead  
-**Key modules:** ITSM, ITOM, CMDB, App Engine
+**Typical JD Keywords:** End-to-end delivery, stakeholder management, architecture, mentoring, strategic roadmap, CSA required + CIS/CAD preferred
 
 ### Core Concepts (Leadership + Technical)
 - End-to-end project delivery (requirements → deployment → support)
@@ -157,73 +156,65 @@ Be ready to discuss how you approach **shared infrastructure applications**, mai
 - CSA required; CIS/CAD preferred; strong ITIL + Agile/Scrum
 
 ### Prep Focus
-Shift into **technical leadership stories** — how you've guided design decisions, mentored others, run workshops, and driven upgrades or CMDB/ITOM improvements. They want someone who can **own delivery and influence direction**.
+Shift into **technical leadership stories** — how you've guided design decisions, mentored others, run workshops, and driven upgrades or CMDB/ITOM improvements. Show you can **own delivery and influence direction**.
 
-### Leadership Story Bank
+### Leadership Story Topics
 
-| Topic | Story Elements | Example Angle |
-|-------|---------------|---------------|
-| Architecture decisions | Requirements → options → recommendation → outcome | Why you chose CMDB-based grouping over manual assignment |
-| Mentoring | Junior developer → code review → skill growth → delivery impact | How you helped a junior dev write their first Business Rule |
-| Workshop facilitation | Stakeholders → requirements → design → sign-off | How you ran a CMDB data model workshop with business owners |
-| Upgrade leadership | Planning → regression testing → cutover → post-implementation review | How you led a Zurich→Yokohama upgrade with zero downtime |
-| CMDB/ITOM improvement | Discovery gaps → reconciliation rules → data quality → impact analysis | How you reduced duplicate CIs by X% |
+| Topic | Story Elements | Example Angle | Relevant Guide |
+|-------|---------------|---------------|----------------|
+| Architecture Decisions | Requirements → options → recommendation → outcome | CMDB-based grouping vs manual assignment | [CMDB Guide](../modules/cmdb/cmdb-guide/) |
+| Mentoring | Junior dev → code review → skill growth → delivery impact | Helped junior write first Business Rule | [Cross-Cutting](../cross-cutting/#mentoring) |
+| Workshop Facilitation | Stakeholders → requirements → design → sign-off | CMDB data model workshop with business owners | [CMDB Guide](../modules/cmdb/cmdb-guide/) |
+| Upgrade Leadership | Planning → regression testing → cutover → post-review | Led major upgrade with zero downtime | [Cross-Cutting](../cross-cutting/#upgrades) |
+| CMDB/ITOM Improvement | Discovery gaps → reconciliation rules → data quality → impact | Reduced duplicate CIs by X% | [CMDB Guide](../modules/cmdb/cmdb-guide/), [Discovery Guide](../modules/discovery/discovery-guide/) |
 
 ---
 
-## Interview 5 — Court Services / City of Toronto (Systems Integrator 1, ServiceNow Developer)
+## Role Type 5: Public Sector / Legacy Integration Specialist
 
-**Role:** Systems Integrator 1 (ServiceNow Developer), Mid-Level  
-**Organization:** Court Services / City of Toronto (public sector)  
-**Location:** Toronto South Court, 92 Front Street East — Hybrid Mon–Fri, 35 hrs/week  
-**Duration:** 12-month full-time temporary vacancy  
-**Salary:** $52.38 – $57.39/hr  
-**Posted:** Oct 5 – Oct 20, 2026  
-**Certification required:** ServiceNow Certified System Administrator (CSA) or equivalent
+**Typical JD Keywords:** Custom scoped applications, legacy integration (MID Server, JDBC/ODBC, SOAP), data migration, CSA required, government/public sector experience
 
 ### Key Modules & Concepts (Priority Order)
 
-| Priority | Focus | Details |
-|----------|-------|---------|
-| 1 | **Custom Scoped Applications** | Data models, tables, forms, UI Policies, Business Rules, Scripting, JavaScript, GlideRecord, GlideAjax |
-| 2 | **Legacy Integration** | MID Server, JDBC/ODBC, SOAP web services, legacy authentication (basic auth, VPN), flat-file transfers |
-| 3 | **Data Management** | Import Sets, Transform Maps, data cleansing, reconciliation, legacy data migration |
-| 4 | **Platform Architecture** | Scope management, cross-scope access, scope protection policies, roles, ACLs, ServiceNow Studio, Flow Designer |
-| 5 | **Environment Management** | Update sets, version control, releases, upgrades, environment management, upgrade impact assessment |
-| 6 | **ITSM Foundation** | Incident, Problem, Change, Request, Knowledge (supporting role) |
+| Priority | Focus | Details | Relevant Guide |
+|----------|-------|---------|----------------|
+| 1 | **Custom Scoped Applications** | Data models, tables, forms, UI Policies, Business Rules, Scripting, JavaScript, GlideRecord, GlideAjax | [Cross-Cutting](../cross-cutting/#scoped-apps), [JavaScript Reference](../modules/ai/javascript-reference/) |
+| 2 | **Legacy Integration** | MID Server, JDBC/ODBC, SOAP web services, legacy auth (basic auth, VPN), flat-file transfers | [Integration Guide](../cross-cutting/#integrations), [Discovery Guide](../modules/discovery/discovery-guide/#mid-server) |
+| 3 | **Data Management** | Import Sets, Transform Maps, data cleansing, reconciliation, legacy data migration | [Cross-Cutting](../cross-cutting/#data-management) |
+| 4 | **Platform Architecture** | Scope management, cross-scope access, scope protection policies, roles, ACLs, ServiceNow Studio, Flow Designer | [Cross-Cutting](../cross-cutting/#platform-architecture), [JavaScript Reference](../modules/ai/javascript-reference/#acls) |
+| 5 | **Environment Management** | Update sets, version control, releases, upgrades, environment management, upgrade impact assessment | [Cross-Cutting](../cross-cutting/#update-sets--source-control) |
+| 6 | **ITSM Foundation** | Incident, Problem, Change, Request, Knowledge (supporting role) | [ITSM Guide](../modules/itsm/itsm-guide/) |
 
 ### Prep Focus
+Walk through **custom scoped application development** (end-to-end from data model to business logic), **legacy system integration** (MID Server, JDBC, SOAP), and **legacy data migration** (Import Sets, Transform Maps, data cleansing). CSA certification talking points are essential.
 
-Be ready to walk through **custom scoped application development** (end-to-end from data model to business logic), **legacy system integration** (MID Server, JDBC, SOAP), and **legacy data migration** (Import Sets, Transform Maps, data cleansing). CSA certification talking points are essential — this is a hard requirement.
+### Module Checklist
 
-### Module Prep Checklist
-
-| Area | Key Concepts | Story to Tell |
-|------|-------------|---------------|
-| Scoped Apps | Table design, forms, UI Policies, Business Rules, Client Scripts, GlideRecord, GlideAjax | Custom app you built from data model to deployment |
-| Legacy Integration | MID Server, JDBC/ODBC, SOAP, basic auth, VPN, flat-file | Integration you built between ServiceNow and a legacy/on-prem system |
-| Data Migration | Import Sets, Transform Maps, coalesce, data cleansing, reconciliation | Legacy data you migrated into ServiceNow, how you handled duplicates and bad data |
-| Platform Architecture | Scope management, cross-scope access, ACLs, scope protection | How you secured a scoped app and controlled cross-scope access |
-| Environment Mgmt | Update sets, version control, releases, upgrades | How you moved changes from dev → test → prod safely |
+| Area | Key Concepts | Story to Tell | Relevant Guide |
+|------|-------------|---------------|----------------|
+| Scoped Apps | Table design, forms, UI Policies, Business Rules, Client Scripts, GlideRecord, GlideAjax | Custom app built from data model to deployment | [Cross-Cutting](../cross-cutting/#scoped-apps) |
+| Legacy Integration | MID Server, JDBC/ODBC, SOAP, basic auth, VPN, flat-file | Integration between ServiceNow and legacy/on-prem system | [Discovery Guide](../modules/discovery/discovery-guide/#mid-server) |
+| Data Migration | Import Sets, Transform Maps, coalesce, data cleansing, reconciliation | Legacy data migrated; handling duplicates and bad data | [Cross-Cutting](../cross-cutting/#data-management) |
+| Platform Architecture | Scope management, cross-scope access, ACLs, scope protection | Secured scoped app; controlled cross-scope access | [Cross-Cutting](../cross-cutting/#platform-architecture) |
+| Environment Mgmt | Update sets, version control, releases, upgrades | Moved changes dev → test → prod safely | [Cross-Cutting](../cross-cutting/#update-sets--source-control) |
 
 ---
 
-## STAR Story Bank
+## STAR Story Bank (Reusable Across All Roles)
 
+Prepare 4–6 STAR (Situation, Task, Action, Result) stories that map across role types:
 
-Prepare 4–6 STAR (Situation, Task, Action, Result) stories that map across interviews:
-
-| Story | Situation | Task | Action | Result | Relevant Interviews |
-|-------|-----------|------|--------|--------|-------------------|
-| ITSM delivery | High incident volume from email | Reduce noise | Built inbound email → incident Flow with auto-categorization | 40% fewer manual incidents | Interview 1, 2 |
-| HAM asset lifecycle | Assets not tracked from procurement | Lifecycle visibility | Configured HAM states, Discovery reconciliation, retirement workflow | 95% asset accuracy | Interview 1, 4 |
-| Integration | Legacy system needed incident data | Secure REST integration | Built OAuth 2.0 REST Message + MID Server for on-prem DB | Real-time sync, no mocks | Interview 1, 2, 3 |
-| Update sets/Git | Multiple devs overwriting each other | Source control | Set up Git source control, PR review, remote update sets | Zero deployment collisions | Interview 2, 3, 4 |
-| CMDB improvement | Duplicate CIs from Discovery | Data quality | Tuned IRE rules, created Dynamic CI Groups | 60% fewer duplicates | Interview 4, 5 |
-| Mentoring | Junior dev struggling with GlideRecord | Skill gap | Code review sessions, pairing, documented patterns | Dev shipped first BR independently | Interview 4, 5 |
-| Scoped App Development | Business needed a custom case tracking app | Build end-to-end scoped app | Designed table model, forms, UI Policies, Business Rules, GlideAjax lookup; deployed via update set | App in production, 50+ active users | Interview 3, 5 |
-| Legacy Data Migration | Legacy court system data needed importing | Cleanse and import 5,000+ records | Built Import Sets + Transform Maps with coalesce, transform scripts for data standardization, prevented duplicates | Zero duplicate records, clean data in ServiceNow | Interview 2, 5 |
-| Platform Architecture / Scopes | Needed to secure custom app data from other scopes | Scope management + ACLs | Configured application scope, cross-scope access rules, table and field ACLs, scope protection policies | Secure multi-tenant app, passed security review | Interview 3, 5 |
+| Story | Situation | Task | Action | Result | Relevant Role Types |
+|-------|-----------|------|--------|--------|---------------------|
+| ITSM Delivery | High incident volume from email | Reduce noise | Built inbound email → incident Flow with auto-categorization | 40% fewer manual incidents | 1, 2 |
+| HAM Asset Lifecycle | Assets not tracked from procurement | Lifecycle visibility | Configured HAM states, Discovery reconciliation, retirement workflow | 95% asset accuracy | 1, 4 |
+| Integration | Legacy system needed incident data | Secure REST integration | Built OAuth 2.0 REST Message + MID Server for on-prem DB | Real-time sync, no mocks | 1, 2, 3, 5 |
+| Update Sets/Git | Multiple devs overwriting each other | Source control | Set up Git source control, PR review, remote update sets | Zero deployment collisions | 2, 3, 4, 5 |
+| CMDB Improvement | Duplicate CIs from Discovery | Data quality | Tuned IRE rules, created Dynamic CI Groups | 60% fewer duplicates | 3, 4, 5 |
+| Mentoring | Junior dev struggling with GlideRecord | Skill gap | Code review sessions, pairing, documented patterns | Dev shipped first BR independently | 4, 5 |
+| Scoped App Development | Business needed custom case tracking app | Build end-to-end scoped app | Designed table model, forms, UI Policies, Business Rules, GlideAjax lookup; deployed via update set | App in production, 50+ active users | 3, 5 |
+| Legacy Data Migration | Legacy system data needed importing | Cleanse and import 5,000+ records | Built Import Sets + Transform Maps with coalesce, transform scripts for standardization | Zero duplicate records, clean data | 2, 5 |
+| Platform Architecture / Scopes | Needed to secure custom app data from other scopes | Scope management + ACLs | Configured application scope, cross-scope access rules, table/field ACLs, scope protection policies | Secure multi-tenant app, passed security review | 3, 5 |
 
 ---
 
@@ -235,7 +226,38 @@ Prepare 4–6 STAR (Situation, Task, Action, Result) stories that map across int
 | **CAD** (Certified Application Developer) | Application creation, table design, forms, client scripts, business rules, UI policies, workflow, App Engine Studio |
 | **CIS** (Certified Implementation Specialist) | Module-specific implementation (ITSM, ITOM, CSM, etc.) |
 
-**How to weave them in:** "My CSA gives me the platform foundation — I know how update sets, cloning, and instance health work. My CAD means I can build applications end-to-end in Studio. I'm pursuing CIS for [ITSM/ITOM] to deepen implementation expertise."
+**How to weave them in:** *"My CSA gives me the platform foundation — I know how update sets, cloning, and instance health work. My CAD means I can build applications end-to-end in Studio. I'm pursuing CIS for [ITSM/ITOM] to deepen implementation expertise."*
+
+---
+
+## Guide Cross-Reference Matrix
+
+Use this matrix to find the relevant guide for each topic. All guides are in this repository.
+
+| Topic Area | Primary Guide | Supporting Guides |
+|------------|--------------|-------------------|
+| **ITSM** | [ITSM Guide](../modules/itsm/itsm-guide/) | [Cross-Cutting](../cross-cutting/) |
+| **CSM** | [CSM Guide](../modules/csm/csm-guide/) | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| **FSM** | [FSM Guide](../modules/fsm/fsm-guide/) | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| **HAM** | [HAM Guide](../modules/ham/ham-guide/) | [CMDB Guide](../modules/cmdb/cmdb-guide/), [Discovery Guide](../modules/discovery/discovery-guide/) |
+| **SAM** | [SAM Guide](../modules/sam/sam-guide/) | [CMDB Guide](../modules/cmdb/cmdb-guide/) |
+| **HRSD** | [HRSD Guide](../modules/hrsd/hrsd-guide/) | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| **ITOM** | [ITOM Guide](../modules/itom/itom-guide/) | [Discovery](../modules/discovery/), [Event Mgmt](../modules/eventmanagement/), [Service Mapping](../modules/servicemapping/) |
+| **Discovery** | [Discovery Guide](../modules/discovery/discovery-guide/) | [MID Server](../modules/midserver/), [CMDB](../modules/cmdb/cmdb-guide/) |
+| **Service Mapping** | [Service Mapping Guide](../modules/servicemapping/servicemapping-guide/) | [CMDB](../modules/cmdb/cmdb-guide/), [ITOM](../modules/itom/itom-guide/) |
+| **Event Management** | [Event Management Guide](../modules/eventmanagement/eventmanagement-guide/) | [ITOM](../modules/itom/itom-guide/), [Metric Intelligence](../modules/metric-intelligence-hla/) |
+| **CMDB** | [CMDB Guide](../modules/cmdb/cmdb-guide/) | [Discovery](../modules/discovery/), [HAM](../modules/ham/ham-guide/), [IRE](../cross-cutting/#cmdb) |
+| **Integrations** | [Cross-Cutting: Integrations](../cross-cutting/#integrations) | [MID Server](../modules/midserver/), [JavaScript Reference](../modules/ai/javascript-reference/) |
+| **Scripting** | [JavaScript Reference](../modules/ai/javascript-reference/) | [Cross-Cutting: Scripting](../cross-cutting/#scripting) |
+| **Flow Designer** | [AI Guide: Flow Designer](../modules/ai/ai-guide/#flow-designer) | [Cross-Cutting: Workflows](../cross-cutting/#workflows) |
+| **Service Catalog** | [Service Catalog Guide](../modules/catalog/catalog-guide/) | [ITSM Guide](../modules/itsm/itsm-guide/) |
+| **Scoped Apps** | [Cross-Cutting: Scoped Apps](../cross-cutting/#scoped-apps) | [JavaScript Reference](../modules/ai/javascript-reference/) |
+| **Platform Architecture** | [Cross-Cutting: Platform Architecture](../cross-cutting/#platform-architecture) | [Getting Started: Foundation](../getting-started/foundation/) |
+| **Update Sets / Git** | [Cross-Cutting: Update Sets & Source Control](../cross-cutting/#update-sets--source-control) | [Getting Started: Foundation](../getting-started/foundation/) |
+| **Testing** | [Cross-Cutting: Testing](../cross-cutting/#testing) | — |
+| **Upgrades** | [Cross-Cutting: Upgrades](../cross-cutting/#upgrades) | — |
+| **Governance** | [Cross-Cutting: Governance](../cross-cutting/#governance) | — |
+| **AI / Now Assist** | [AI Guide](../modules/ai/ai-guide/) | [JavaScript Reference](../modules/ai/javascript-reference/) |
 
 ---
 
@@ -255,11 +277,43 @@ Prepare 4–6 STAR (Situation, Task, Action, Result) stories that map across int
 - [ServiceNow Product Documentation — CMDB](https://docs.servicenow.com/) → Search "CMDB", "identification reconciliation"
 - [ServiceNow Product Documentation — HAM](https://docs.servicenow.com/) → Search "Hardware Asset Management"
 - [ServiceNow Product Documentation — HRSD](https://docs.servicenow.com/) → Search "HR Service Delivery"
+- [ServiceNow Product Documentation — ITOM](https://docs.servicenow.com/) → Search "IT Operations Management", "Discovery", "Event Management"
 
 ### Official Videos & Playlists
 - [ServiceNow YouTube Channel](https://www.youtube.com/c/ServiceNow) — Search "ServiceNow update sets", "ServiceNow cloning", "ServiceNow MID Server", "ServiceNow Flow Designer"
 - [CSA exam prep](https://www.youtube.com/results?search_query=servicenow+CSA+exam+prep)
 - [CAD exam prep](https://www.youtube.com/results?search_query=servicenow+CAD+exam+prep)
 - [ITSM demos](https://www.youtube.com/results?search_query=servicenow+ITSM+demo)
+- [ITOM demos](https://www.youtube.com/results?search_query=servicenow+ITOM+demo)
 
 ---
+
+## Gap-Fill Notes: Sections Added to Guides
+
+Based on the interview themes above, the following sections should be verified/added to the relevant guides:
+
+| Guide | Section to Verify/Add | Status |
+|-------|----------------------|--------|
+| [Cross-Cutting](../cross-cutting/) | Scoped Applications deep-dive | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Legacy Integration patterns (MID Server, JDBC/ODBC, SOAP, flat-file) | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Data Migration: Import Sets, Transform Maps, coalesce, data cleansing | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Platform Architecture: instance types, scopes, cross-scope access, ACLs | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Update Sets & Git: remote update sets, PR workflow, deployment hygiene | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Testing: unit/system/UAT/regression, test frameworks | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Upgrades: paths, regression testing, health checks, clone post-tasks | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Governance: naming conventions, CAB, change advisory | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Troubleshooting: logs, transaction logs, performance | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Capacity Monitoring | ⏳ Needs review |
+| [Cross-Cutting](../cross-cutting/) | Mentoring/Leadership patterns | ⏳ Needs review |
+| [Discovery Guide](../modules/discovery/discovery-guide/) | MID Server deep-dive for legacy integration | ⏳ Needs review |
+| [JavaScript Reference](../modules/ai/javascript-reference/) | ACLs and cross-scope access patterns | ⏳ Needs review |
+| [CMDB Guide](../modules/cmdb/cmdb-guide/) | IRE rules tuning, Dynamic CI Groups, duplicate reduction | ⏳ Needs review |
+| [ITSM Guide](../modules/itsm/itsm-guide/) | Email-to-incident Flow patterns, auto-categorization | ⏳ Needs review |
+| [HAM Guide](../modules/ham/ham-guide/) | Discovery reconciliation to asset lifecycle | ⏳ Needs review |
+| [ITOM Guide](../modules/itom/itom-guide/) | Event correlation, noise reduction, alert-to-incident | ⏳ Needs review |
+
+> **Next Steps:** Review each "⏳ Needs review" item above and add missing content to the linked guides. Use the interview themes as a checklist for completeness.
+
+---
+
+*This guide replaces the previous date-specific interview schedule. All original interviews have been completed. Use the role-type framework above for future preparation.*

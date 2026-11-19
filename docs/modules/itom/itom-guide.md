@@ -4,15 +4,15 @@
 **Date:** 2026-11-10  
 **Module:** ITOM (IT Operations Management)  
 **App:** IT Operations Management  
-**Confidence:** high  
+**Confidence:** high
 
 ---
 
 ## Contents
 
-
 - [Purpose](#purpose)
 - [Where to Find It](#where-to-find-it)
+- [ITOM Three Pillars Framework](#itom-three-pillars-framework)
 - [Official Exam Alignment — CIS-Discovery & CIS-Event Management](#official-exam-alignment--cis-discovery--cis-event-management)
   - [CIS-Discovery (KB0011545)](#cis-discovery-kb0011545)
   - [CIS-Event Management (KB0011604)](#cis-event-management-kb0011604)
@@ -43,6 +43,17 @@
   - [SLA Support](#sla-support)
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
+- [AIOps Capabilities Deep-Dive](#aiops-capabilities-deep-dive)
+  - [Event Correlation & Noise Reduction](#event-correlation--noise-reduction)
+  - [Health Log Analysis (HLA)](#health-log-analysis-hla)
+  - [Agent Client Collector](#agent-client-collector)
+  - [Now Assist for ITOM](#now-assist-for-itom)
+  - [Metric Intelligence & Anomaly Detection](#metric-intelligence--anomaly-detection)
+  - [Service Observability & Reliability](#service-observability--reliability)
+- [ITOM Optimization / Cloud Accelerate](#itom-optimization--cloud-accelerate)
+  - [Cloud Services Catalog](#cloud-services-catalog)
+  - [Cloud Governance](#cloud-governance)
+  - [Cloud Cost Management](#cloud-cost-management)
 - [Quiz](#quiz)
 - [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
@@ -59,7 +70,6 @@
   - [Now Learning (Structured Training)](#now-learning-structured-training)
   - [Product Documentation (Technical Reference)](#product-documentation-technical-reference)
   - [Official Videos & Playlists](#official-videos--playlists)
-
 
 ---
 
@@ -87,11 +97,105 @@ ITOM sits on top of the CMDB. Discovery populates CIs; Event Management consumes
 
 ---
 
+## ITOM Three Pillars Framework
+
+ServiceNow IT Operations Management (ITOM) is built around three core pillars — **ITOM Visibility**, **ITOM AIOps (Health)**, and **ITOM Optimization / Cloud Accelerate** — all connected through the ServiceNow CMDB.
+
+```mermaid
+graph TD
+    subgraph "CMDB — Single Source of Truth"
+        CMDB[(cmdb_ci<br/>cmdb_rel_ci<br/>alm_asset)]
+    end
+
+    subgraph "Pillar 1: ITOM Visibility"
+        V1[Discovery<br/>MID Server<br/>Patterns & Schedules]
+        V2[Service Mapping<br/>Application Services<br/>Top-Down Mapping]
+        V3[Certificate &<br/>Firewall Audits]
+        V4[Service Graph<br/>Connectors]
+    end
+
+    subgraph "Pillar 2: ITOM AIOps (Health)"
+        H1[Event Management<br/>Alert Correlation<br/>CI Binding]
+        H2[Metric Intelligence<br/>& Health Log Analysis]
+        H3[Agent Client<br/>Collector]
+        H4[Service Observability<br/>& Reliability]
+        H5[Now Assist<br/>for ITOM]
+    end
+
+    subgraph "Pillar 3: ITOM Optimization / Cloud Accelerate"
+        O1[Cloud Services<br/>Catalog]
+        O2[Cloud<br/>Governance]
+        O3[Cloud Cost<br/>Management]
+    end
+
+    V1 --> CMDB
+    V2 --> CMDB
+    V3 --> CMDB
+    V4 --> CMDB
+
+    CMDB --> H1
+    CMDB --> H2
+    CMDB --> H3
+    CMDB --> H4
+    CMDB --> H5
+
+    CMDB --> O1
+    CMDB --> O2
+    CMDB --> O3
+
+    style CMDB fill:#f9f,stroke:#333,stroke-width:3px
+    style V1 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style V2 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style V3 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style V4 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style H1 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style H2 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style H3 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style H4 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style H5 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style O1 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style O2 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style O3 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+```
+
+### Pillar 1: ITOM Visibility
+**Finds infrastructure and maps service dependencies across on-premises and cloud environments** using tools like Discovery and Service Mapping to populate the CMDB and support impact and root-cause analysis.
+
+| Capability | Purpose | Key Tables | Breadcrumbs |
+|------------|---------|------------|-------------|
+| **Discovery** | Auto-discovers servers, network devices, applications; populates CMDB | `cmdb_ci`, `discovery_schedule`, `sys_mid_server` | All > Discovery > Discovery Schedules |
+| **Service Mapping** | Pattern-based top-down mapping of CIs to business services | `cmdb_ci_service`, `cmdb_rel_ci` | All > Service Mapping > Application Services |
+| **Certificate & Firewall Audits** | Discovers SSL certificates, firewall rules, network policies | `cmdb_ci_certificate`, `cmdb_ci_firewall` | All > Discovery > Certificate Audits |
+| **Service Graph Connectors** | Syncs CMDB with external sources (AWS, Azure, GCP, SCCM, etc.) | `cmdb_ci`, `sys_import_set` | All > Service Graph > Connectors |
+
+### Pillar 2: ITOM AIOps (Health)
+**Monitors infrastructure and service health in real time, reduces alert noise, detects anomalies, and automates remediation** using capabilities such as Event Management, Health Log Analysis, Agent Client Collector, and Now Assist.
+
+| Capability | Purpose | Key Tables | Breadcrumbs |
+|------------|---------|------------|-------------|
+| **Event Management** | Ingests events from monitoring tools, creates alerts, correlates | `em_event`, `em_alert`, `em_correlation_rule` | All > Event Management > Events > All |
+| **Metric Intelligence & HLA** | Anomaly detection on time-series metrics; log pattern analysis | `em_metric`, `em_metric_type`, `em_log` | All > Event Management > Metric Intelligence |
+| **Agent Client Collector** | Lightweight agent for endpoint telemetry (CPU, memory, disk, processes) | `cmdb_ci_computer`, `em_metric` | All > Agent Client Collector > ... |
+| **Service Observability & Reliability** | SLO/SLI tracking, error budgets, service health scores | `em_slo`, `em_sli`, `cmdb_ci_service` | All > Service Observability > ... |
+| **Now Assist for ITOM** | GenAI-powered alert summarization, remediation suggestions | `em_alert`, `incident` | All > Now Assist > ITOM |
+
+### Pillar 3: ITOM Optimization / Cloud Accelerate
+**Standardizes multi-cloud provisioning, governance, and cost/resource efficiency** through self-service catalogs, policy-controlled workflows, and cloud configuration management.
+
+| Capability | Purpose | Key Tables | Breadcrumbs |
+|------------|---------|------------|-------------|
+| **Cloud Services Catalog** | Self-service provisioning of cloud resources (VMs, databases, storage) | `sc_cat_item`, `cloud_api_instance` | All > Cloud Management > Cloud Services Catalog |
+| **Cloud Governance** | Policy-as-code for cloud resources (tagging, sizing, compliance) | `cloud_policy`, `cloud_resource` | All > Cloud Management > Cloud Governance |
+| **Cloud Cost Management** | Cost allocation, anomaly detection, optimization recommendations | `cloud_cost`, `cloud_budget` | All > Cloud Management > Cloud Cost Management |
+
+---
+
 ## Official Exam Alignment — CIS-Discovery & CIS-Event Management
 
 This guide maps to two official exam blueprints:
 
 ### CIS-Discovery (KB0011545)
+
 | Guide Section | CIS-DISCO Domain | Exam Weight | What's Covered |
 |---------------|-----------------|-------------|----------------|
 | **Discovery Configuration** | Domain 2: Discovery Configuration — Discovery Setup, Process Flow, Troubleshooting | 35% | Behaviors, clusters, IP services, schedules, PCIE phases, ECC Queue, credentials |
@@ -99,8 +203,9 @@ This guide maps to two official exam blueprints:
 | **Discovery Pattern Design** | Domain 1: Discovery Pattern Design | 35% | Pattern Designer, operations, application identification and connection sections |
 
 ### CIS-Event Management (KB0011604)
+
 | Guide Section | CIS-EM Domain | Exam Weight | What's Covered |
-|---------------|-----------------|-------------|----------------|
+|---------------|----------------|-------------|----------------|
 | **Event Management → Incident** | Domain 3: Event Configuration and Use — Event setup, process flow, CI binding | 27% | Event rules, thresholds, CI binding, alert management rules |
 | **Alerts and Tasks** | Domain 4: Alerts and Tasks — Alert process flow, correlation rules, alert intelligence | 30% | Alert grouping, correlation, priority scores, incident creation |
 
@@ -152,7 +257,6 @@ flowchart LR
     D
     E
     end
-
 ```
 
 **Exam focus:** PCIE phases, ECC Queue, Discovery errors, credentials, CI identifiers (35% of CIS-Discovery exam).
@@ -187,7 +291,6 @@ flowchart TD
     G
     H
     end
-
 ```
 
 **Exam focus:** Event rules, CI binding, alert correlation, alert management rules, incident creation (27% + 30% of CIS-EM exam).
@@ -199,6 +302,7 @@ flowchart TD
 ServiceNow ships with predefined event/alert states and Discovery configurations. Verify against your instance.
 
 ### Event Severity (em_event.severity / em_alert.severity)
+
 | Value | Label | Incident Priority |
 |-------|-------|-------------------|
 | `1` | Critical | P1 |
@@ -208,6 +312,7 @@ ServiceNow ships with predefined event/alert states and Discovery configurations
 | `5` | Clear | Auto-close |
 
 ### Alert State (em_alert.state)
+
 | State | When to Use |
 |-------|-------------|
 | `New` | Alert created, not yet processed |
@@ -216,6 +321,7 @@ ServiceNow ships with predefined event/alert states and Discovery configurations
 | `Closed` | Alert closed |
 
 ### Discovery PCIE Phases
+
 | Phase | Purpose |
 |-------|---------|
 | `Probe` | Sends request to target (IP address) |
@@ -225,6 +331,7 @@ ServiceNow ships with predefined event/alert states and Discovery configurations
 | `Processor/Sensor` | Parses data and maps to CMDB |
 
 ### MID Server Status (sys_mid_server.status)
+
 | Status | Meaning |
 |--------|---------|
 | `Up` | MID Server is running and reachable |
@@ -539,25 +646,130 @@ Use `task_sla` to:
 
 ---
 
-## Quiz
+## AIOps Capabilities Deep-Dive
 
-1. What is the difference between an event and an alert?
-   <details><summary>Answer</summary>Event = raw data from a monitoring tool; Alert = processed, de-duplicated event ready for human action</details>
+### Event Correlation & Noise Reduction
 
-2. What table stores raw events?  
-   <details><summary>Answer</summary>`em_event`</details>
+| Feature | Description | Configuration |
+|---------|-------------|---------------|
+| **Alert Correlation Rules** | Group related alerts by time, node, CI, or custom logic | All > Event Management > Alert Correlation |
+| **Temporal Correlation** | Group alerts occurring within a time window | Correlation Rule > Temporal tab |
+| **Topological Correlation** | Group alerts based on CMDB relationships (parent/child CIs) | Correlation Rule > Topological tab |
+| **Custom Correlation** | Script-based grouping using `CorrelationRuleScriptable` | Correlation Rule > Advanced tab |
 
-3. What does a MID Server do in ITOM?  
-   <details><summary>Answer</summary>Runs Discovery and Orchestration inside the customer's network, bridging cloud ServiceNow to on-prem systems</details>
+**Key metrics:** Correlation rate (% of alerts grouped), noise reduction ratio, MTTD improvement.
 
-4. Name three monitoring tools that can send events to ServiceNow.  
-   <details><summary>Answer</summary>SolarWinds, Datadog, Nagios (also SNMP traps, email, REST)</details>
+### Health Log Analysis (HLA)
 
-5. What severity value means Critical in Event Management?  
-   <details><summary>Answer</summary>`1`</details>
+| Capability | Purpose | Where |
+|------------|---------|-------|
+| **Log Ingestion** | Collect logs from MID Server, Agent Client Collector, or syslog | All > Event Management > Log Ingestion |
+| **Pattern Detection** | Identify recurring error patterns, anomalies | All > Event Management > Health Log Analysis > Patterns |
+| **Log-to-Alert** | Convert log patterns to `em_event` → `em_alert` | HLA Pattern > Create Alert action |
+| **Baseline Learning** | Learn normal log patterns over time | HLA > Baseline Configuration |
+
+### Agent Client Collector
+
+| Component | Purpose | Configuration |
+|-----------|---------|---------------|
+| **Agent** | Lightweight endpoint agent (Windows/Linux/Mac) | All > Agent Client Collector > Agent Download |
+| **Collector** | Receives telemetry, forwards to Event Management | MID Server with Agent Client Collector capability |
+| **Metrics Collected** | CPU, memory, disk, network, processes, services | Agent Configuration > Metric Selection |
+| **Health Scores** | Per-device health score based on metric thresholds | All > Agent Client Collector > Health Scores |
+
+### Now Assist for ITOM
+
+| Feature | Description | Availability |
+|---------|-------------|--------------|
+| **Alert Summarization** | GenAI summarizes alert details for NOC agents | Now Assist for ITOM plugin |
+| **Remediation Suggestions** | AI suggests runbooks, KB articles, or Orchestration flows | Now Assist for ITOM plugin |
+| **Incident Auto-Classification** | Categorizes incidents from alerts automatically | Now Assist for ITOM plugin |
+| **Root Cause Analysis Assist** | AI correlates alerts, changes, and CMDB for probable cause | Now Assist for ITOM plugin |
+
+### Metric Intelligence & Anomaly Detection
+
+| Capability | Purpose | Configuration |
+|------------|---------|---------------|
+| **Metric Types** | Define metrics to collect (CPU, memory, custom) | All > Event Management > Metric Types |
+| **Thresholds** | Static or dynamic thresholds per metric | Metric Type > Thresholds tab |
+| **Anomaly Detection** | ML-based anomaly detection on time-series data | All > Event Management > Metric Intelligence > Anomaly Detection |
+| **Seasonal Baselines** | Learn daily/weekly patterns for smarter alerting | Metric Intelligence > Baseline Learning |
+
+### Service Observability & Reliability
+
+| Capability | Purpose | Where |
+|------------|---------|-------|
+| **SLO/SLI Definition** | Define Service Level Objectives and Indicators | All > Service Observability > SLOs |
+| **Error Budgets** | Track error budget consumption per service | All > Service Observability > Error Budgets |
+| **Service Health Scores** | Composite health score from metrics, alerts, SLOs | All > Service Observability > Service Health |
+| **Reliability Dashboards** | SLO compliance, error budget burn rate, incident impact | All > Service Observability > Dashboards |
 
 ---
 
+## ITOM Optimization / Cloud Accelerate
+
+### Cloud Services Catalog
+
+| Feature | Description | Where |
+|---------|-------------|-------|
+| **Self-Service Catalog** | Order cloud resources (VMs, DBs, storage) via Service Catalog | All > Cloud Management > Cloud Services Catalog |
+| **Blueprint Designer** | Drag-and-drop cloud architecture templates | All > Cloud Management > Blueprints |
+| **Policy Enforcement** | Apply governance policies at provisioning time | Blueprint > Policies tab |
+| **Multi-Cloud Support** | AWS, Azure, GCP, VMware, OpenStack | All > Cloud Management > Cloud Providers |
+
+### Cloud Governance
+
+| Capability | Purpose | Where |
+|------------|---------|-------|
+| **Policy-as-Code** | Define tagging, sizing, encryption, compliance policies | All > Cloud Management > Cloud Governance > Policies |
+| **Compliance Scanning** | Continuous scan of cloud resources against policies | Cloud Governance > Compliance Results |
+| **Remediation** | Auto-remediate or create tasks for policy violations | Policy > Remediation Action |
+| **Guardrails** | Prevent non-compliant deployments at request time | Cloud Services Catalog > Guardrails |
+
+### Cloud Cost Management
+
+| Capability | Purpose | Where |
+|------------|---------|-------|
+| **Cost Allocation** | Attribute cloud spend to business units, projects, apps | All > Cloud Management > Cloud Cost Management > Allocation |
+| **Anomaly Detection** | Detect unusual spend spikes | Cloud Cost Management > Anomalies |
+| **Optimization Recommendations** | Rightsizing, reserved instances, idle resources | Cloud Cost Management > Recommendations |
+| **Budget Tracking** | Set budgets, track burn rate, alert on thresholds | Cloud Cost Management > Budgets |
+
+---
+
+## Quiz
+
+1. What is the difference between an event and an alert?
+    <details><summary>Answer</summary>Event = raw data from a monitoring tool; Alert = processed, de-duplicated event ready for human action</details>
+
+2. What table stores raw events?  
+    <details><summary>Answer</summary>`em_event`</details>
+
+3. What does a MID Server do in ITOM?  
+    <details><summary>Answer</summary>Runs Discovery and Orchestration inside the customer's network, bridging cloud ServiceNow to on-prem systems</details>
+
+4. Name three monitoring tools that can send events to ServiceNow.  
+    <details><summary>Answer</summary>SolarWinds, Datadog, Nagios (also SNMP traps, email, REST)</details>
+
+5. What severity value means Critical in Event Management?  
+    <details><summary>Answer</summary>`1`</details>
+
+6. What are the three ITOM pillars?
+    <details><summary>Answer</summary>ITOM Visibility, ITOM AIOps (Health), ITOM Optimization / Cloud Accelerate — all connected through the CMDB</details>
+
+7. What is the difference between temporal and topological correlation?
+    <details><summary>Answer</summary>Temporal = group by time window; Topological = group by CMDB relationships (parent/child CIs)</details>
+
+8. What does Health Log Analysis (HLA) do?
+    <details><summary>Answer</summary>Ingests logs, detects patterns/anomalies, converts log patterns to alerts</details>
+
+9. What is the Cloud Services Catalog?
+    <details><summary>Answer</summary>Self-service provisioning of cloud resources (VMs, databases, storage) via Service Catalog with policy enforcement</details>
+
+10. What metrics does Cloud Cost Management surface?
+    <details><summary>Answer</summary>Cost allocation by business unit, anomaly detection, optimization recommendations (rightsizing, reserved instances), budget tracking</details>
+
+---
 
 ## 💡 Memory Aids & Mnemonics
 
@@ -565,6 +777,7 @@ Use `task_sla` to:
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA
+
 | Mnemonic | Type | When It Runs | Use Case |
 |----------|------|--------------|----------|
 | **B**efore | before | Before DB write | Validate/modify data, cancel save (`abort = true`) |
@@ -576,6 +789,7 @@ Use `task_sla` to:
 ---
 
 ### Client Script Types — LOCS
+
 | Mnemonic | Type | When It Runs | Use Case |
 |----------|------|--------------|----------|
 | **L**oad | onLoad | Form opens | Set defaults, show/hide fields, UI initialization |
@@ -588,6 +802,7 @@ Use `task_sla` to:
 ---
 
 ### UI Policy vs Data Policy vs Client Script
+
 | Mnemonic | What | Where It Runs | Scope |
 |----------|------|---------------|-------|
 | **U**I | UI Policy | Browser (form load/change) | UI behavior only — mandatory, read-only, visible |
@@ -599,6 +814,7 @@ Use `task_sla` to:
 ---
 
 ### IRE — Identification Before Reconciliation
+
 **Mnemonic:** **I before R**
 
 1. **I**dentification = "Does this CI already exist?" → match existing CI or create new
@@ -609,6 +825,7 @@ Use `task_sla` to:
 ---
 
 ### Update Set Conflicts — ARM
+
 | Mnemonic | Option | What It Does | When to Use |
 |----------|--------|--------------|-------------|
 | **A**ccept | Accept Remote | Update Set version overwrites target | Update Set version is newer/correct |
@@ -620,6 +837,7 @@ Use `task_sla` to:
 ---
 
 ### CMDB — Retire Before Delete
+
 **Mnemonic:** **R before D**
 
 - **R**etire: Set `install_status = retired` — keeps `cmdb_rel_ci` relationships intact for historical impact analysis
@@ -630,6 +848,7 @@ Use `task_sla` to:
 ---
 
 ### Order vs Priority — Lower = First
+
 | Feature | Ordering Field | Lower Number = |
 |---------|---------------|----------------|
 | Business Rule | `Order` | Runs first |
@@ -644,6 +863,7 @@ Use `task_sla` to:
 ---
 
 ### Transform Script — Coalesce = Match
+
 | Mnemonic | Setting | Result |
 |----------|---------|--------|
 | **C**oalesce | `coalesce = true` | Update existing CI (match on key fields) |
@@ -654,6 +874,7 @@ Use `task_sla` to:
 ---
 
 ### Debugging — Log First, Then Debug
+
 | Context | Primary Tool | Command |
 |---------|-------------|---------|
 | **S**erver | System Log (`sys_log`) | `gs.print()`, `gs.error()`, `gs.info()` |
@@ -685,15 +906,18 @@ Use `task_sla` to:
 - [ITOM Fundamentals](https://nowlearning.com/) — Search "IT Operations Management" on Now Learning Portal
 - [Event Management Fundamentals](https://nowlearning.com/) — Search "Event Management" on Now Learning Portal
 - [Discovery Fundamentals](https://nowlearning.com/) — Search "Discovery" on Now Learning Portal
+- [Cloud Management Fundamentals](https://nowlearning.com/) — Search "Cloud Management" on Now Learning Portal
+- [Now Assist for ITOM](https://nowlearning.com/) — Search "Now Assist ITOM" on Now Learning Portal
 
 ### Product Documentation (Technical Reference)
 - [ServiceNow Product Documentation — ITOM](https://docs.servicenow.com/) → Search "IT Operations Management", "Event Management", "Discovery"
 - [ServiceNow Product Documentation — Event Management](https://docs.servicenow.com/) → Search "event rules", "alert correlation"
 - [ServiceNow Product Documentation — MID Server](https://docs.servicenow.com/) → Search "MID Server"
+- [ServiceNow Product Documentation — Cloud Management](https://docs.servicenow.com/) → Search "Cloud Management", "Cloud Cost Management"
+- [ServiceNow Product Documentation — Now Assist](https://docs.servicenow.com/) → Search "Now Assist for ITOM"
 
 ### Official Videos & Playlists
 - [ServiceNow YouTube Channel](https://www.youtube.com/c/ServiceNow) — Search "ServiceNow ITOM", "ServiceNow Event Management", "ServiceNow Discovery", "ServiceNow MID Server"
 - [Event Management demo](https://www.youtube.com/results?search_query=servicenow+event+management+demo)
 - [Discovery demo](https://www.youtube.com/results?search_query=servicenow+discovery+demo)
-
----
+- [Cloud Management demo](https://www.youtube.com/results?search_query=servicenow+cloud+management+demo)
