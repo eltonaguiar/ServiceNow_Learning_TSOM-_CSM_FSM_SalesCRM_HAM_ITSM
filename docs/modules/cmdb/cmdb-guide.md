@@ -12,6 +12,7 @@
 
 
 - [Purpose](#purpose)
+- [The Blueprint vs. The Actual: Model vs. CI Instance](#the-blueprint-vs-the-actual-model-vs-ci-instance)
 - [CMDB CI Class Hierarchy](#cmdb-ci-class-hierarchy)
 - [Where to Find It](#where-to-find-it)
 - [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
