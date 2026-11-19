@@ -29,6 +29,19 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Deep Dive: Discovery Affinities — Credential, IP Service, and MID Server](#deep-dive-discovery-affinities--credential-ip-service-and-mid-server)
+  - [1. Credential Affinity (dscy_credentials_affinity)](#1-credential-affinity-dscy_credentials_affinity)
+  - [2. IP Service Affinity (dscy_ip_service_affinity)](#2-ip-service-affinity-dscy_ip_service_affinity)
+  - [3. MID Server Affinity (Top-Down Discovery / Service Mapping)](#3-mid-server-affinity-top-down-discovery--service-mapping)
+  - [Affinity Comparison Table](#affinity-comparison-table)
+  - [Common Affinity Mistakes](#common-affinity-mistakes)
+  - [Debugging Affinities](#debugging-affinities)
+- [Deep Dive: Discovery End-to-End Implementation — Architecture, Coverage, and Rollout](#deep-dive-discovery-end-to-end-implementation--architecture-coverage-and-rollout)
+  - [Phase 1: Architecture & MID Server Strategy](#phase-1-architecture--mid-server-strategy)
+  - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
+  - [Phase 3: Capturing All IP Ranges](#phase-3-capturing-all-ip-ranges)
+  - [Phase 4: Step-by-Step Implementation Rollout](#phase-4-step-by-step-implementation-rollout)
+  - [Phase 5: Ongoing Governance](#phase-5-ongoing-governance)
 - [Appendix: IntegrationHub & e-Bonding — connecting discovered data out](#appendix-integrationhub--e-bonding--connecting-discovered-data-out)
   - [What is IntegrationHub?](#what-is-integrationhub)
   - [What is e-bonding?](#what-is-e-bonding)
@@ -336,6 +349,8 @@ Beyond scripts, Discovery is built from configuration records you define **once*
 | **Discovery Behaviours** | A "WMI-only" behaviour attached to ranges where firewall policy blocks SSH | A dress code for a venue: whichever event is held there, the same rules apply to everyone entering. | A `discovery_behavior` record grouping functionality definitions (which probes/patterns may run) that a schedule applies to specified ranges. | Define the behaviour once, attach it to many schedules and ranges. A policy change ("no SNMP v2 in PCI ranges") is edited in one behaviour, not in every schedule. | All > Discovery > Discovery Definition > **Behaviours** |
 | **Credentials & credential aliases** | Schedules reference the alias "Windows Domain Cred"; the credential record behind it is rotated quarterly | A name in your contacts. You tap "Mom" — if her number changes, you update the contact once, not every message thread you ever sent her. | Credential records (`discovery_credentials`) tried per target type; aliases decouple the reference from the record, so patterns and schedules point at the alias. | Rotate or replace the credential in one record; every schedule and pattern using the alias keeps working unchanged. | All > Discovery > **Credentials** · **Connections & Credential Aliases** |
 | **Credential affinities** | After MID-TOR-01 logs into 10.20.4.15 with the domain credential, the next run tries that credential first for that host | Remembering which key opened which door, so next time you don't try the whole keyring. | `dscy_credentials_affinity` rows (IP + MID + credential) written on each successful authentication and consulted before the general credential order. | The system builds this reuse itself — every successful login makes the next run faster, with zero configuration from you. | `dscy_credentials_affinity.list` (system-maintained) |
+| **IP Service Affinity** | After 10.20.4.15 is classified via SSH on port 22, future runs try SSH first instead of cycling WMI, SNMP, etc. | Remembering which door lock worked, so you don't try the wrong keyhole next time. | Controlled by `glide.discovery.ip_service_affinity` property; stores successful IP service (port/protocol + classification path) per target IP in `dscy_ip_service_affinity`. | Enabled by default — Discovery skips failed classification paths on subsequent runs, reducing scan time. | `dscy_ip_service_affinity.list` (system-maintained) |
+| **MID Server Affinity (Top-Down / Service Mapping)** | In Service Mapping or top-down discovery, the MID Server associated with a network location or prior run is preferred for subsequent discovery. | The same delivery driver knows the route — faster, avoids network zone mismatches. | Used in top-down discovery and Service Mapping (`sa_pattern` connection sections); MID Server selected by network proximity or prior association. | Configured via MID Server IP ranges and capabilities; critical for multi-zone environments to avoid cross-firewall scan attempts. | All > MID Server > **Servers** > **IP Ranges** + **Capabilities** |
 | **Identification rules (IRE identifiers)** | Windows servers are matched on `name` + `serial_number` — so the SCCM connector cannot create a second CI for a laptop Discovery already found | A bouncer checking two pieces of ID: if they match the list, you are already inside — no second entry gets created. | IRE identifier records (`cmdb_identifier` and its entries), per CI class, defining the attribute sets used to match an incoming payload to an existing CI. | One rule per class serves *every* source — Discovery, Service Graph Connectors, import sets. Change the matching once; deduplication changes everywhere, consistently. | All > Configuration > **Identification/Reconciliation** (CI Identifiers) |
 | **Discovery properties** | One timeout property governs how long every schedule waits on an unresponsive host | One thermostat for the whole house instead of a separate dial in every room. | Engine-level settings (`discovery_private_properties` and `glide.discovery.*` properties) read at run time by all schedules. | Tune once, centrally — no schedule carries its own copy of the setting to drift out of sync with the others. | All > Discovery > **Properties** · `discovery_private_properties.list` |
 
@@ -358,6 +373,7 @@ The pattern to notice: **schedules are the *when and where*, everything above is
 | `discovery_schedule` | When Discovery runs, against which ranges |
 | `discovery_range_item` | The IP ranges attached to a schedule |
 | `dscy_credentials_affinity` | Learned credential affinities (IP + MID → the credential that worked) |
+| `dscy_ip_service_affinity` | Learned IP service affinities (IP → successful port/protocol + classification path) |
 | `cmdb_identifier` | IRE identification rules — how a discovered device matches an existing CI |
 | `sa_pattern` | Discovery patterns (out-of-box and custom copies) |
 | `discovery_behavior` | Behaviours: which functionality runs against which ranges |
@@ -403,6 +419,138 @@ The pattern to notice: **schedules are the *when and where*, everything above is
 - **Enabling FBD before CDS sync finishes** — File-Based Discovery does not trigger until the initial Content Data Service synchronization completes (~24h).
 - **Scanning a whole drive by accident** — setting Folders To Scan to `C:/` scans *everything*; combined with a high Maximum Files cap it can hammer the target.
 - **Debugging in the CMDB** — when a run looks wrong, read the ECC Queue and Discovery Log first; the CI is the *result*, not the evidence.
+
+---
+
+## Deep Dive: Discovery Affinities — Credential, IP Service, and MID Server
+
+Discovery uses **three types of affinity** to accelerate subsequent scans and avoid repeated failed attempts. These are system-maintained tables that Discovery populates automatically during successful runs.
+
+```mermaid
+flowchart TD
+    subgraph "Discovery Affinity Types"
+        A[Credential Affinity<br/>dscy_credentials_affinity]
+        B[IP Service Affinity<br/>dscy_ip_service_affinity]
+        C[MID Server Affinity<br/>Top-Down / Service Mapping]
+    end
+
+    Scan[Discovery Scan] --> A
+    Scan --> B
+    Scan --> C
+
+    A --> Faster[Next run tries<br/>successful credential first]
+    B --> SkipFail[Skips failed<br/>ports/protocols]
+    C --> RightMID[Routes work to<br/>correct MID Server]
+
+    style A fill:#e3f2fd,stroke:#1565c0
+    style B fill:#f3e5f5,stroke:#7b1fa2
+    style C fill:#e8f5e9,stroke:#2e7d32
+```
+
+### 1. Credential Affinity (`dscy_credentials_affinity`)
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Remembers which credential successfully authenticated a target IP on a specific MID Server |
+| **Table** | `dscy_credentials_affinity` |
+| **Key fields** | `ip_address`, `mid_server` (reference to `ecc_agent`), `credential_id` (reference to `discovery_credentials`), `last_used` |
+| **Trigger** | Written on every **successful authentication** during the Identification/Exploration phase |
+| **Consulted** | Before trying the general credential order — Discovery tries the affinity credential first for that IP+MID combination |
+| **Property** | None (always active) |
+| **Retention** | Rows persist until manually deleted or the credential is rotated/removed |
+| **Debugging** | `dscy_credentials_affinity.list` — shows IP, MID, credential, and last successful use timestamp |
+
+**Interview note:** "Credential affinity is built automatically — every successful login writes a row. The next scan for that IP on that MID tries that credential first, skipping the credential order. This is why rotating credentials can temporarily slow Discovery until new affinities form."
+
+### 2. IP Service Affinity (`dscy_ip_service_affinity`)
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Remembers the successful IP service (port/protocol + classification path) for a target IP, so Discovery skips failed classification attempts on subsequent runs |
+| **Table** | `dscy_ip_service_affinity` |
+| **Key fields** | `ip_address`, `ip_service` (reference to `discovery_ip_service`), `classification_path`, `last_used` |
+| **Trigger** | Written when a probe successfully classifies a device (e.g., SSH on port 22 → Linux classifier → pattern) |
+| **Consulted** | Before the Shazzam/Classification phase — Discovery tries the known IP service first |
+| **Property** | `glide.discovery.ip_service_affinity` (default: `true`) |
+| **Retention** | Rows persist; updated when a different service succeeds |
+| **Debugging** | `dscy_ip_service_affinity.list` — shows IP, service (SSH/WMI/SNMP), classification path, last used |
+
+**How it works:** On the first scan of `10.20.4.15`, Discovery tries all open ports (22/SSH, 135/WMI, 161/SNMP, etc.) and their classifiers. When SSH + Linux classifier succeeds, it writes an affinity row. On the next run, Discovery tries SSH first — if it works, it skips WMI/SNMP probes entirely for that IP.
+
+**Interview note:** "IP Service Affinity is controlled by `glide.discovery.ip_service_affinity=true`. It stores the *successful classification path*, not just the port. So it remembers 'port 22 → SSH probe → Linux classifier → Windows OS pattern' as a chain. This is why a device that changes OS (Linux → Windows) can get stuck — the affinity remembers the old path until it fails and gets overwritten."
+
+### 3. MID Server Affinity (Top-Down Discovery / Service Mapping)
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | In top-down discovery and Service Mapping, prefers the MID Server associated with a network location or prior discovery run |
+| **Mechanism** | MID Server selection via **IP Ranges** on the MID Server record (`ecc_agent`) + **Capabilities** |
+| **Tables involved** | `ecc_agent` (MID Server), `ecc_agent_ip_range`, `ecc_agent_capability`, `sa_pattern` connection sections |
+| **Top-Down flow** | Pattern connection sections specify target CI type → system selects MID Server that can reach that target's network zone |
+| **Configuration** | All > MID Server > **Servers** > open MID > **IP Ranges** (define network zones) + **Capabilities** (protocols it can execute) |
+| **Key difference** | Not a learned affinity table like the other two — it's **configured routing** based on network topology |
+
+**How it works in Service Mapping:**
+1. Service Mapping pattern's **connection section** identifies a target CI (e.g., database server behind a firewall)
+2. System looks at the target's IP address
+3. Finds MID Server whose **IP Ranges** cover that IP
+4. Validates MID has required **Capabilities** (SSH, JDBC, etc.)
+5. Routes the probe to that MID Server
+
+**Interview note:** "MID Server Affinity isn't a learned table — it's configured network topology. You define IP ranges on each MID Server so work routes correctly. In multi-zone environments (DMZ, internal, cloud VPC), this prevents cross-firewall scan attempts that would fail anyway."
+
+### Affinity Comparison Table
+
+| Affinity Type | Table | Learned or Configured | Scope | Key Property |
+|---------------|-------|----------------------|-------|--------------|
+| **Credential** | `dscy_credentials_affinity` | Learned (auto-written) | Per IP + MID | None (always on) |
+| **IP Service** | `dscy_ip_service_affinity` | Learned (auto-written) | Per IP | `glide.discovery.ip_service_affinity` |
+| **MID Server** | N/A (uses `ecc_agent` config) | Configured (IP Ranges + Capabilities) | Per network zone | N/A |
+
+### Common Affinity Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| **Credential rotated but affinity not cleared** | Discovery keeps trying old (now-invalid) credential first | Delete rows from `dscy_credentials_affinity` for the rotated credential, or wait for failed attempts to overwrite |
+| **Device OS changed (Linux→Windows) but IP Service Affinity remembers old path** | Classification fails repeatedly until affinity expires | Delete `dscy_ip_service_affinity` row for the IP, or disable property temporarily |
+| **MID Server IP ranges not defined** | Top-down/Service Mapping sends work to wrong MID; scans fail or timeout | Define IP ranges on every MID Server; match network zones exactly |
+| **MID Server missing capability** | Service Mapping pattern can't find a MID that supports the protocol | Add capability to MID (e.g., SSH, JDBC, PowerShell) or install MID in correct zone |
+| **Assuming affinities are shared across MIDs** | Credential affinity is MID-specific — same IP on different MID = new affinity | Each MID builds its own affinities; don't expect cross-MID sharing |
+
+### Debugging Affinities
+
+```javascript
+// Check credential affinity for a specific IP
+var ca = new GlideRecord('dscy_credentials_affinity');
+ca.addQuery('ip_address', '10.20.4.15');
+ca.query();
+while (ca.next()) {
+    gs.info('IP: ' + ca.ip_address +
+            ' | MID: ' + ca.mid_server.name +
+            ' | Credential: ' + ca.credential_id.name +
+            ' | Last used: ' + ca.last_used);
+}
+
+// Check IP service affinity for a specific IP
+var isa = new GlideRecord('dscy_ip_service_affinity');
+isa.addQuery('ip_address', '10.20.4.15');
+isa.query();
+while (isa.next()) {
+    gs.info('IP: ' + isa.ip_address +
+            ' | Service: ' + isa.ip_service.name +
+            ' | Classification: ' + isa.classification_path +
+            ' | Last used: ' + isa.last_used);
+}
+
+// Clear affinities for an IP (run in Background Script / Fix Script)
+var ca2 = new GlideRecord('dscy_credentials_affinity');
+ca2.addQuery('ip_address', '10.20.4.15');
+ca2.deleteMultiple();
+
+var isa2 = new GlideRecord('dscy_ip_service_affinity');
+isa2.addQuery('ip_address', '10.20.4.15');
+isa2.deleteMultiple();
+```
 
 ---
 
@@ -668,6 +816,87 @@ For a device or application nothing ships for:
 | 1. Duplicate & own | You must change the original's core logic | Your copy is frozen — re-base after upgrades |
 | 2. Extension section | You only need to *add* collection steps | Base pattern keeps updating; extension survives |
 | 3. New pattern | No shipped pattern exists for the target | Entirely yours to maintain |
+
+---
+
+## Deep Dive: Discovery End-to-End Implementation — Architecture, Coverage, and Rollout
+
+Setting up ServiceNow Discovery end-to-end requires careful planning across network architecture, credential management, and MID Server placement to ensure complete visibility across both on-premises and cloud environments.
+
+### Phase 1: Architecture & MID Server Strategy
+
+The MID (Management, Instrumentation, and Discovery) Server acts as the bridge between your ServiceNow instance and your internal network.
+
+| Decision Point | Recommendation | Rationale |
+|----------------|---------------|-----------|
+| **OS Selection** | Use **Linux** (RHEL, Ubuntu) as primary MID Server OS | Lower resource overhead, easier automation, better stability for high-volume scanning. Windows MIDs only when strictly required for WMI/PowerShell/SCCM that can't run via SSH. |
+| **Sizing & Placement** | Place MIDs **close to target infrastructure** (same VLAN/datacenter) | Minimizes latency, avoids restrictive firewalls. For large environments: dedicate separate MIDs for Discovery vs Integrations/Orchestration to prevent thread starvation. |
+| **High Availability** | Group MIDs into **MID Server Clusters** | Configure **Failover (active/passive)** for continuity if a server goes down, or **Load Balancing (active/active)** to distribute workload across massive IP ranges. |
+| **Network Zones** | One MID Server per network zone (DMZ, Internal, Cloud VPC) | Prevents cross-firewall scan attempts. Each MID's IP Ranges define its territory. |
+
+**MID Server Capability Mapping:**
+| Capability | Required For | Add to MID When... |
+|------------|--------------|-------------------|
+| `SSH` | Linux/UNIX discovery | Scanning Linux servers, network devices via SSH |
+| `WMI` / `WinRM` | Windows discovery | Scanning Windows servers (WinRM preferred over WMI) |
+| `SNMP` | Network devices | Scanning switches, routers, load balancers, printers |
+| `JDBC` | Database discovery | Connecting to Oracle, SQL Server, MySQL, PostgreSQL |
+| `PowerShell` | Windows Orchestration | Running PowerShell activities on targets |
+| `AWS` / `Azure` / `GCP` | Cloud Discovery | API-based cloud resource discovery |
+
+### Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)
+
+A hybrid environment requires distinct approaches because on-premise networks rely on IP scanning, while cloud platforms rely on APIs.
+
+| Discovery Method | Target Environment | How It Works | Key Setup |
+|------------------|-------------------|--------------|-----------|
+| **Horizontal Discovery** | On-Premises & Cloud VMs | Scans IP ranges using protocols (SSH, WMI, SNMP) to find devices, classify them, and map installed software | MID Server + credentials + IP ranges |
+| **Cloud Discovery** | AWS, Azure, GCP, OCI | Connects directly to cloud provider APIs using service accounts to pull VMs, storage, databases, VPCs | Cloud provider service account + IAM roles |
+| **Service Graph Connectors** | AWS, Azure, Jamf, Intune, SCCM | Pre-built API integrations to ingest asset data from third-party management tools | Connector plugin + auth (OAuth/SAML/API key) |
+| **Agent Client Collector (ACC)** | Ephemeral VMs, Remote Laptops | Lightweight agent installed on endpoints pushes data back, bypassing firewall/VPN | Agent deployment (Intune, SCCM, manual) + MID Server |
+
+**Coverage Strategy:** Run **Cloud Discovery first** — it automatically discovers your cloud subnets (VPCs/VNets) and populates them into ServiceNow. Then generate IP-based discovery schedules for deep OS-level scanning of cloud VMs.
+
+### Phase 3: Capturing All IP Ranges
+
+Missing IP ranges is the most common cause of CMDB blind spots. Use a multi-layered approach:
+
+| Source | What It Gives You | How to Import |
+|--------|------------------|---------------|
+| **IPAM Integration** | Active subnets from Infoblox, BlueCat, SolarWinds | IPAM Spoke (IntegrationHub) or scheduled Import Sets → `discovery_range` |
+| **Network Team Audits** | Routing tables (BGP/OSPF) from core routers/firewalls | Export to CSV → Import Sets → `discovery_range_item` |
+| **Cloud VPC/VNet Sync** | Cloud subnets from AWS VPCs, Azure VNets, GCP VPCs | Cloud Discovery automatically populates `discovery_range` |
+| **CMDB Network Gear** | Subnets from discovered switches/routers | Discovery patterns for network devices create `cmdb_ci_subnet` |
+
+**Schedule Segmentation:** Avoid scanning massive `/8` or `/16` blocks in a single schedule. Break into `/24` subnets grouped by geographic location or data center, linked to the nearest MID Server cluster via IP Ranges.
+
+### Phase 4: Step-by-Step Implementation Rollout
+
+| Step | Action | Verification |
+|------|--------|--------------|
+| **1. Plugin Activation** | Activate `com.snc.discovery` (Discovery), ITOM Discovery License, Cloud Discovery plugins, Service Graph Connectors in sub-production | Check **System Applications > Plugins** — all show "Active" |
+| **2. Firewall & Port Readiness** | Open outbound **HTTPS 443** from MID Servers → ServiceNow instance. Internally: **SSH 22** (Linux), **WinRM 5985/5986** or WMI/RPC 135+dynamic (Windows), **SNMP 161** (network gear) | Test from MID Server host: `curl https://instance.service-now.com`, `nc -zv target 22`, `Test-WSMan target` |
+| **3. Credential Setup** | Configure credentials in **Discovery > Credentials**. Store secrets in external vault (CyberArk, HashiCorp Vault) integrated with ServiceNow. Grant **read-only** privileges (e.g., sudo for specific commands on Linux). | **Test Connection** from Credential record — must succeed from MID Server, not your laptop |
+| **4. Pilot Testing (Quick Discovery)** | Run **Quick Discovery** (All > Discovery > Quick Discovery) against 1 IP per device type: Windows server, Linux server, Cisco switch, vCenter | Status = "Completed", CI created/updated in CMDB, no errors in ECC Queue |
+| **5. IRE Validation** | Verify Identification & Reconciliation rules: no duplicates created, existing CIs updated correctly | Run Discovery against known CI → check `cmdb_ci.last_discovered` updates, no new CI with same serial_number |
+| **6. Scheduled Rollout** | Create staggered **Discovery Schedules** during off-peak hours. Order: Core infra (vCenter, storage, network switches) → Servers → Cloud APIs | Monitor `discovery_status` — success rate ≥98%, CI coverage ≥95% |
+
+### Phase 5: Ongoing Governance
+
+| Governance Activity | Cadence | Tool / Location |
+|---------------------|---------|-----------------|
+| **Monitor Discovery Status** | Daily | Discovery Home dashboard (`discovery_status.list`) — catch auth failures, timeouts, unclassified devices |
+| **Review CI Freshness** | Weekly | `cmdb_ci.last_discovered` > 30 days = stale; report to asset owners |
+| **MID Server Upgrades** | Auto (enable) | MID Server > **Auto Upgrade** = true; stays synced with instance after platform patches |
+| **Credential Rotation** | Quarterly or per policy | Update in Credential record; clear `dscy_credentials_affinity` for rotated creds |
+| **IP Range Audit** | Monthly | Compare `discovery_range` against IPAM source; add missing subnets |
+| **Duplicate CI Review** | Monthly | `cmdb_identifier` match results — investigate IRE blocks/merges |
+| **Capacity Review** | Quarterly | MID Server thread usage, ECC Queue backlog, scan duration trends |
+
+**Key Dashboards for Governance:**
+- **Discovery Home** (All > Discovery > Dashboard) — run success rate, device count, errors
+- **ECC Queue** (`ecc_queue.list` filtered by `agent` + `state=error`) — real-time debugging
+- **CMDB Health** (All > Configuration > CMDB Health) — completeness, correctness, compliance scores
 
 ---
 
