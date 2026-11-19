@@ -101,6 +101,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
   </div>
   <div class="card">
+    <h3>ITOM</h3>
+    <p>IT Operations Management — Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management for proactive infrastructure operations.</p>
+    <p class="meta"><a href="./docs/modules/itom/itom-guide/">Open the ITOM guide</a></p>
+  </div>
+  <div class="card">
     <h3>TSOM</h3>
     <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
     <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
