@@ -14,6 +14,16 @@
 
 
 - [Purpose](#purpose)
+- [Workflow, Orchestration & Platform Capabilities](#workflow-orchestration--platform-capabilities)
+  - [End-to-End Lead-to-Cash & Lifecycle Orchestration](#end-to-end-lead-to-cash--lifecycle-orchestration)
+  - [Workflow Engine & Guided Approval Automation](#workflow-engine--guided-approval-automation)
+  - [Business Rules & Deterministic Automation](#business-rules--deterministic-automation)
+  - [AI Agent & AI Control Tower Orchestration](#ai-agent--ai-control-tower-orchestration)
+  - [IntegrationHub & Connected Systems](#integrationhub--connected-systems)
+  - [Data Model & Workflow Data Fabric](#data-model--workflow-data-fabric)
+  - [Reporting, Dashboards & AI Insights](#reporting-dashboards--ai-insights)
+  - [Portal & UX (Sales Workspace)](#portal--ux-sales-workspace)
+  - [Order & Jeopardy Orchestration](#order--jeopardy-orchestration)
 - [Where to Find It](#where-to-find-it)
 - [Prerequisites & Setup](#prerequisites--setup)
   - [Required Plugins / Scoped Apps](#required-plugins--scoped-apps)
@@ -81,6 +91,48 @@
 ## Purpose
 
 ServiceNow Sales CRM is the platform's customer relationship management application, built on the same ServiceNow platform as ITSM and CSM but optimized for sales pipeline management. Sales CRM tracks leads, opportunities, accounts, contacts, quotes, and orders—giving sales teams a single system of record from prospect to closed deal. Unlike traditional CRMs, ServiceNow Sales CRM integrates natively with ITSM, CSM, and FSM, enabling quote-to-cash-to-service workflows in one platform.
+
+---
+
+## Workflow, Orchestration & Platform Capabilities
+
+ServiceNow Sales CRM inherits its core orchestration capabilities from the underlying ServiceNow platform's workflow-driven architecture, uniting deterministic workflows, agentic AI orchestration, and cross-system automation on a single data model.
+
+### End-to-End Lead-to-Cash & Lifecycle Orchestration
+
+Connects pre-sales (leads, opportunities, territories), CPQ (quoting, pricing, approvals, contracts), order capture and fulfillment, post-sales changes (move, add, change, disconnect, renewals), and RMAs without manual handoffs or separate syncs across disconnected tools. Every stage transition, approval, and fulfillment step is tracked on the same record, so revenue operations sees one continuous lifecycle instead of fragmented toolchains.
+
+### Workflow Engine & Guided Approval Automation
+
+Uses ServiceNow's no-code/low-code workflow engine (such as Flow Designer) to sequence tasks, route multi-step approvals (e.g., quote/pricing exceptions), and coordinate work across front-, middle-, and back-office teams. Approval steps can be chained, escalated, and audited centrally, with guided next-step prompts that keep deals moving.
+
+### Business Rules & Deterministic Automation
+
+Server-side business rules enforce data integrity and deterministic behavior on every write path — form, API, import, or integration. In Sales CRM, business rules auto-create opportunities from qualified leads, validate quote fields, update account last-contact dates, and trigger downstream fulfillment. Rules run before, after, or asynchronously, giving administrators precise control over when logic executes.
+
+### AI Agent & AI Control Tower Orchestration
+
+Allows AI agents and AI specialists to trigger, govern, and sequence actions across workflows — such as qualifying leads, automating follow-ups, assisting with quote configuration, and handling order/invoice cases — under centralized security and risk guardrails. The AI Control Tower provides observability and policy enforcement so agentic actions remain auditable and compliant.
+
+### IntegrationHub & Connected Systems
+
+IntegrationHub spokes connect Sales CRM to external and back-office systems (ERP, billing, fulfillment, e-signature, revenue intelligence tools like Outreach) using reusable, low-code integrations. RESTMessageV2 remains available for custom server-side callouts, while spokes provide operations-team-friendly maintenance and monitoring. Together they form the workflow data fabric that keeps customer and operational data in sync.
+
+### Data Model & Workflow Data Fabric
+
+Unifies customer data with operational data across the enterprise on a single data model. Sales CRM tables (`sn_sales_account`, `sn_sales_contact`, `sn_sales_lead`, `sn_sales_opportunity`, `sn_sales_quote`, `sn_sales_order`) extend the core `task` table and share references with CMDB (`sn_sales_product` extends `cmdb_ci`), so quotes, orders, and service records stay linked. Zero-copy connectors and the shared schema eliminate redundant syncs and preserve one source of truth.
+
+### Reporting, Dashboards & AI Insights
+
+Out-of-box dashboards surface pipeline health, forecast accuracy, quota attainment, win rate, and sales cycle length. Reports can be built on any Sales CRM table, and AI-powered insights (predictive forecasting, next-best-action, anomaly detection) layer on top of the same data model. Performance is measurable at rep, team, and regional levels without exporting data to external BI tools.
+
+### Portal & UX (Sales Workspace)
+
+The Sales Workspace provides a role-based, console-like experience that brings leads, opportunities, quotes, orders, and approvals into one workspace. Portal and UX patterns follow ServiceNow's Next Experience design system, supporting guided navigation, quick-create actions, contextual intelligence, and mobile-friendly layouts so sellers spend time selling rather than searching.
+
+### Order & Jeopardy Orchestration
+
+Automates order fulfillment workflows, tracks order milestones, and flags or manages exceptions ("jeopardy management") and order/invoice cases in a unified workspace. Jeopardy alerts escalate stalled orders, while orchestration plans decompose commercial products into domain orders and tasks, ensuring fulfillment stays aligned with what was sold.
 
 ---
 
