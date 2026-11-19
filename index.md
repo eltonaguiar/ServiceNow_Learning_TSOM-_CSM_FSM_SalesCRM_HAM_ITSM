@@ -76,6 +76,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
   </div>
   <div class="card">
+    <h3>Angular</h3>
+    <p>AngularJS for Service Portal widgets and modern Angular for custom SPA integrations with ServiceNow — controllers, $scope, server.update(), OAuth, Table API, and the AngularJS vs modern Angular decision table.</p>
+    <p class="meta"><a href="./docs/modules/scripting/angular-guide/">Open the Angular guide</a></p>
+  </div>
+  <div class="card">
     <h3>Other - Video Library</h3>
     <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
