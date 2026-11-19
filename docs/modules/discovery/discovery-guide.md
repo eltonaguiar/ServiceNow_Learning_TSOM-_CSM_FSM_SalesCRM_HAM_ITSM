@@ -844,6 +844,205 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 | `PowerShell` | Windows Orchestration | Running PowerShell activities on targets |
 | `AWS` / `Azure` / `GCP` | Cloud Discovery | API-based cloud resource discovery |
 
+---
+
+#### How Many MID Servers Do You Need?
+
+There is no single formula, but ServiceNow provides a useful starting table (from KB2729323 and related guidance) based on environment size:
+
+| Environment Size | Devices | Recommended MID Servers | Typical Host Specs | Notes |
+|------------------|---------|--------------------------|--------------------|-------|
+| Small | <1,000 | 1–2 | 4 cores / 8 GB RAM | Low volume |
+| Medium (mixed) | 1,000–5,000 | 2–4 | 4–8 cores / 8–16 GB | Mixed devices |
+| Medium (mostly Windows) | 1,000–5,000 | 2–4 | 8 cores / 12–16 GB | Higher JVM needs |
+| Large | 5,000–15,000 | 4–8 | 8 cores / 16 GB | Watch runtimes |
+| Enterprise | 15,000+ | 8+ | 8+ cores / 16+ GB | Location-based clusters |
+
+**Key practical rules of thumb used in the field:**
+- Roughly 1 MID Server per ~5,000–10,000 CIs (many teams target the lower end for comfort).
+- Always deploy **at least 2 per critical location/segment** for failover (cluster them).
+- Scale by geography/network segment first (one cluster per data center or major zone), then by volume.
+- Separate Discovery MIDs from high-volume integrations or Event Management when possible.
+- ServiceNow publishes a **MID Server Discovery Estimator/Calculator** (Excel) on Now Create / Community. Use it with your estimated device counts + desired completion window + thread count.
+
+**Monitor actual load** (CPU, queue depth, Discovery runtime) and add capacity horizontally rather than over-sizing a single host.
+
+---
+
+#### Windows Server vs Linux?
+
+- **Windows MID Server is required** for Windows targets that use WMI/WinRM/PowerShell, Nmap credential-less discovery, and certain Active Directory or Windows-specific patterns.
+- A **Windows MID can also scan Linux, network gear, and cloud** (via SSH/SNMP/APIs).
+- **Linux MID is preferred** when you only need Linux, network devices, cloud APIs, or integrations — lower overhead, easier to automate, more stable under load.
+- Best practice for most hybrid environments: Mix both. Use Windows MIDs (or clusters) for Windows-heavy zones and Linux MIDs for the rest. Many production designs still lean Windows for simplicity because one Windows MID covers everything.
+
+---
+
+#### Can / Should They Run on Virtual Machines?
+
+**Yes, they can and usually should** run as VMs (or containers on Linux). ServiceNow fully supports this.
+
+**Recommendations:**
+- Prefer a **dedicated host** (or at least dedicated vCPU/RAM with no noisy neighbors) for production Discovery MIDs. One MID application per host for a given instance is the cleanest model for predictable performance.
+- Avoid extreme over-provisioning (e.g., 20+ vCPUs on a single VM can cause hypervisor scheduling delays).
+- Place them close to the targets (same data center or cloud region) to minimize latency and firewall hops.
+- For non-prod + prod on the same physical/virtual host: This is actually a common and recommended pattern when resource headroom exists, because network/firewall/DNS behavior stays consistent for troubleshooting.
+- Cloud-native MIDs belong in the cloud (Azure/AWS) for cloud discovery; keep on-prem MIDs on-prem for local infrastructure.
+
+---
+
+#### How to Check a MID Server's Last Discovery / Activity
+
+Several places give this visibility:
+
+- **Discovery > Status** — Each run shows start/complete time, MID Server used (or cluster), probes started/completed, and state (Completed, Canceled, etc.). Filter by schedule or date.
+- **Discovery Admin Workspace** (Workspaces > Discovery Admin Workspace) — Home page and Diagnostics give active schedules, errors, and health.
+- On the **MID Server record** (MID Server > Servers): Status (Up/Validated), last heartbeat, related ECC Queue activity, and threads.
+- **ECC Queue** (System Logs > ECC Queue) filtered by agent = your MID name — shows recent input/output traffic and processing times.
+- **Discovery Result** / performance metrics tables and the Discovery Timeline (on smaller runs) for deeper probe-level timing.
+- MID Server logs on the host (`agent/logs`) if you need host-side confirmation.
+
+---
+
+#### Are We in the Right Ballpark on Number of Discovered CIs?
+
+Do not rely solely on "Discovery finished." Use these cross-checks:
+
+- Compare discovered server/network counts against independent sources: vCenter/ESXi inventory, cloud consoles (AWS/Azure/GCP), IPAM (Infoblox, etc.), SCCM/Intune/Jamf, or network device inventories.
+- **CMDB Health Dashboard** and **CMDB Data Foundations Dashboard** — Look at completeness, correctness (duplicates/orphans/staleness), and coverage. Set staleness rules aligned to your schedule (e.g., 7 days for servers).
+- **CMDB 360** (in CMDB Workspace) — Shows multi-source coverage, gaps, and which sources are reporting. Excellent for spotting "we have the CI but Discovery isn't updating it" or missing ranges.
+- Discovery Home / Admin Workspace — Track alive vs dead IPs, authentication failures, unclassified devices, and new CI rates over time. High ongoing "new CI" rates after the initial population often signal duplicates or incomplete IRE rules.
+- License-related views (ITOM Licensable CIs) and simple reports on `cmdb_ci` filtered by `discovery_source` and `last_discovered`.
+- Sample high-value classes (Windows servers, Linux servers, network gear) and verify key attributes (serial, OS, IP) against the source of truth.
+
+A healthy mature environment typically shows high completeness on critical classes, low duplicates, and most CIs refreshed within one or two schedule cycles.
+
+---
+
+### MID Server Threads & JVM Tuning — Exact Files, Safe Starting Values, and How to Validate
+
+Understanding what a thread and the JVM actually are is the first step to tuning them correctly.
+
+#### What a Thread and the JVM Actually Are
+
+- **JVM (Java Virtual Machine)** = the Java process that *is* the MID Server. All MID Server code runs inside this single Java process. It has a memory limit called the **heap**.
+- **Thread** = a worker slot inside that JVM. Each thread can run one probe/pattern (or part of one) at a time.  
+  Default **Standard** pool = 25 threads. That means the MID can actively work on at most 25 Discovery probes simultaneously. Everything else waits in a queue.
+
+There are three pools:
+- **Standard** (`threads.max`) – normal scheduled Discovery (default 25)
+- **Expedited** (`threads.expedited.max`) – Quick Discovery, Service Mapping, higher priority (default 20)
+- **Interactive** (`threads.interactive.max`) – heartbeats, admin commands (default 10) — leave this alone
+
+---
+
+#### Where to Change Them (Exact Locations)
+
+**1. Threads (the number of concurrent workers)**
+
+File on the MID host:  
+`<MID_install_folder>/agent/config.xml`
+
+Look for:
+```xml
+<parameter name="threads.max" value="25"/>
+```
+
+Change the value, save, then restart the MID Server service.
+
+You can also set it from the instance (preferred for consistency):
+- Navigate to **MID Server > Properties** (or Configuration Parameters)
+- Create/edit a property named `threads.max` (and optionally `threads.expedited.max`)
+- Or open the individual MID Server record → related list of configuration parameters
+
+**2. JVM Heap (memory the Java process is allowed to use)**
+
+File on the MID host:  
+`<MID_install_folder>/agent/conf/wrapper-override.conf`  
+(Never edit `wrapper.conf` — upgrades overwrite it.)
+
+Add or change this line (remove the `#` if it is commented):
+```
+wrapper.java.maxmemory=2048
+```
+Values are in MB. Common safe starting points: 2048 (2 GB) or 4096 (4 GB).
+
+Restart the MID Server service after saving.
+
+---
+
+#### Safe Starting Values
+
+| Workload | threads.max | JVM heap | Notes |
+|----------|-------------|----------|-------|
+| Default / light | 25 | 1024 MB | Out-of-box |
+| Typical production Discovery | 50 | 2048–4096 MB | Most common increase |
+| Heavy Windows Discovery | 40–50 max | 4096 MB | PowerShell is heavy — higher threads often just thrash CPU |
+| Large Linux / network / cloud | 75–100 | 4096 MB | Usually safer to go higher |
+
+**Important Windows note**: PowerShell processes sit *outside* the JVM. Going above ~50 threads on a Windows MID often saturates the host even if the JVM looks fine.
+
+---
+
+#### How to Raise Them Safely (Step-by-Step)
+
+1. **Baseline first**  
+   - Note current Discovery duration and host CPU/memory.  
+   - On the MID Server record check the **Threads** related list and **Statistics (3 hours)** related list.
+
+2. **Raise JVM first (safer)**  
+   - Set `wrapper.java.maxmemory=2048` (or 4096 if the host has plenty of RAM).  
+   - Restart MID.  
+   - Confirm in `agent/logs/wrapper.log` you see something like `max memory = ... 2048MB`.
+
+3. **Raise threads in small steps**  
+   - Change `threads.max` from 25 → 50.  
+   - Restart MID.  
+   - Run a representative Discovery schedule and watch for 30–60 minutes.
+
+4. **Watch these signals while testing:**
+   - **Host CPU** (Task Manager / `top` / `htop`) — sustained 95–100% for long periods is bad; short spikes during Discovery are normal.
+   - **Host memory** — leave headroom for the OS + PowerShell (Windows).
+   - MID Server form → **Threads** related list — how many `Worker-Standard` are busy vs Idle.
+   - **ECC Queue** filtered to that MID — growing backlog of Ready/Processing records means you still don't have enough capacity (or the instance is the bottleneck).
+   - Discovery Status duration — did it actually get faster?
+
+5. **Only go higher if the host still has free CPU and the queue is still backing up.**
+
+---
+
+#### Where to Watch Host CPU and Instance Worker Load
+
+**On the MID host**
+- Windows: Task Manager or Resource Monitor → look at the `java.exe` process and any `powershell.exe` processes.
+- Linux: `top`, `htop`, or `ps`.
+- MID Server Dashboard (MID Server > Dashboards) shows CPU and memory charts.
+- MID Server record → **Statistics (3 hours)** related list.
+
+**On the ServiceNow instance**
+- Discovery Status records — duration and probe counts.
+- ECC Queue — age of unprocessed records for that MID.
+- For deeper instance pressure: `stats.do` or Instance Observer (if you have it). Sensor processing happens on instance worker threads; if those are saturated, more MID threads just create a bigger queue.
+
+---
+
+#### Practical Rule of Thumb
+
+- Start with **threads.max = 50** and **JVM = 2–4 GB**.
+- On Windows MIDs doing heavy Windows Discovery, stop at 50 threads and give the host more cores/RAM instead of raising threads further.
+- If you still need more throughput after that, add another MID Server to the cluster rather than pushing one host harder.
+
+That gives you the exact files, the order to change things, and the places to look while you tune.
+
+---
+
+### Other Gaps Worth Addressing Early
+
+- **Credentials & vaults**: External vault integration (CyberArk, etc.) plus least-privilege accounts is essential. Test with Quick Discovery on representative devices before full schedules.
+- **IP range hygiene**: Prefer smaller, location-aligned schedules over giant blocks. Use MID Server IP range auto-assignment or IPAM sync where possible.
+- **Cloud-specific**: Cloud Discovery / Service Graph Connectors often need less (or no) traditional MID scanning for pure API data, but still benefit from MID placement inside the cloud for any deep OS-level scans of VMs.
+- **Ongoing operations**: Auto-upgrade MID Servers, monitor Resource Threshold alerts, review Discovery Status regularly, and keep IRE rules clean so you do not create duplicates.
+
 ### Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)
 
 A hybrid environment requires distinct approaches because on-premise networks rely on IP scanning, while cloud platforms rely on APIs.

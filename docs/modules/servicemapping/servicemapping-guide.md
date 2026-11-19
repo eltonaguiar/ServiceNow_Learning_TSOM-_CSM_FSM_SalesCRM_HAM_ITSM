@@ -1202,6 +1202,37 @@ IRE → CMDB (identify, reconcile, store CIs and relationships)
 
 ---
 
+### Service Mapping Level — Resources, Relationships, and Readiness
+
+Horizontal Discovery gives you the inventory ("what exists"). Service Mapping (and the broader Service Graph) gives you the dependency view ("what supports this business service").
+
+**Critical points the earlier guidance missed:**
+
+#### Prerequisites
+The underlying CIs must already exist, be in the correct class, be marked operational/live, and preferably have good horizontal Discovery data (including software, processes, and network connections). Mapping on incomplete or stale CIs produces incomplete or wrong maps.
+
+#### Relationship quality matters more than volume
+Look for proper `cmdb_rel_ci` types (Runs on, Depends on, Hosted on, etc.) aligned with CSDM. Orphaned CIs or missing expected relationships are flagged in CMDB Health.
+
+#### Mapping approaches (choose by environment)
+
+| Approach | Best For | How It Works |
+|----------|----------|--------------|
+| **Top-down (pattern + connection sections)** | Traditional app stacks with credential access | Service Mapping pattern's connection sections trace from entry point (web server, load balancer) through application layers to databases |
+| **Tag-based** | Cloud/virtualized/containerized environments | Uses existing resource tags (AWS tags, Azure tags, Kubernetes labels) to associate CIs with application services |
+| **Traffic-based / ML-assisted** | Environments where deep credential access is restricted | Analyzes network traffic flows (NetFlow, firewall logs) or uses ML to infer dependencies |
+| **Dynamic CI groups and manual/dynamic application services** | Non-discoverable components or starting points | Manual grouping of CIs into dynamic CI groups; manual application services as a baseline |
+
+Multi-source mapping can combine these. Validate maps with application owners; a map that has never been challenged is often incomplete.
+
+#### MID Server considerations
+Service Mapping also benefits from the same MID Server clusters (it is considered a "standard" workload alongside Discovery), but heavy mapping runs can still contend for threads — cluster and schedule accordingly.
+
+#### Governance
+Define which relationship types and CI classes are in scope for your CSDM stage (Crawl/Walk/Run). Use suggested relationships and traversal rules so maps stay consistent and consumable by Incident/Change/Event Management.
+
+---
+
 ### Interview Cheat Sheet
 
 | Question | Answer |
