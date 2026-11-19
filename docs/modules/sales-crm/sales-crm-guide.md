@@ -22,6 +22,7 @@
   - [Cross-Module Dependencies](#cross-module-dependencies)
   - [ACLs Related to Core Tables](#acls-related-to-core-tables)
   - [Breadcrumbs — Enable First](#breadcrumbs--enable-first)
+  - [Installing Sales CRM in a PDI](#installing-sales-crm-in-a-pdi)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Meta Data Patterns](#meta-data-patterns)
@@ -166,6 +167,58 @@ Sales CRM does **not** ship a dedicated Guided Setup wizard. Configuration is do
 3. **Verify Module Visibility**: Impersonate a sales user > All > Sales > verify Accounts, Contacts, Leads, Opportunities, Quotes, Orders appear.
 4. **Configure Email** (if using lead-from-email): System Mailboxes > New > configure inbound for lead creation.
 5. **Set Up Price Lists**: All > Sales > Administration > Price Lists > create at least one active price list.
+
+### Installing Sales CRM in a PDI
+
+<details><summary>Click to expand — how to install Sales CRM modules in a free Personal Developer Instance (PDI)</summary>
+
+You can install plugins/apps on a ServiceNow PDI in two places: directly inside your PDI via Application Manager, or from the ServiceNow Developer Portal if a plugin does not appear inside the instance.
+
+**Method 1 — Inside Your PDI (Application Manager)**
+
+Use this method first for standard platform plugins and available applications.
+
+1. **Open Plugins:** log in as admin, open the All menu → **System Applications > All Available Applications > All** (or type `Plugins` into the filter navigator).
+2. **Search by name or ID:** enter the app name or ID (e.g. `sn_ind_tmt_orm` for Order Management, or search Lead Management / Opportunity Management / Quote Management).
+3. **Install with demo data:** click **Install** (or **Activate**) on the plugin card, check **Load demo data** if you want sample records, and confirm.
+4. **Refresh your menu:** once installation finishes, refresh the browser so the new Sales CRM modules appear in the All menu.
+
+**Method 2 — From the Developer Portal (for missing plugins)**
+
+If a plugin is hidden in Application Manager or prompts you to visit the ServiceNow Store:
+
+1. **Go to Manage My Instance:** sign in to the ServiceNow Developer Site → **Manage my Instance** (top-right), or profile icon → **Activate Plugin**, then scroll to **Plugins for your Instance**.
+2. **Filter and activate:** search the plugin name, open the card, click **Activate** (choose *Activate with demo data* if offered).
+3. **Wait for email confirmation:** activation runs in the background and emails you when done, then reload your PDI.
+
+**Exact Store app names / IDs for Sales & Order Management (SOM)**
+
+ServiceNow does not package Sales CRM as a single Store app — it is modular. Search these exact names/IDs in Application Manager or the Developer Portal:
+
+| Functional area | Store app name | Application/Plugin ID |
+|---|---|---|
+| Foundation | CRM Core (Lead to Cash Core) | `sn_l2c_core` |
+| Leads | Lead Management | `sn_lead_mgmt` (+ Lead Management Data Model) |
+| Opportunities | Opportunity Management | `sn_opty_mgmt` |
+| Opportunity data | Opportunity Management Data Model | `sn_opty_mgmt_core` |
+| Quotes (CPQ) | Quote Management | `sn_quote_mgmt` (+ Data Model `sn_quote_mgmt_core`) |
+| Orders | Order Management | `sn_ind_tmt_orm` |
+| Catalog & pricing | Product Catalog Management Core | `sn_prd_pm` |
+| Catalog advanced | Product Catalog Advanced | `sn_prd_pm_adv` |
+| Pricing engine | Price Management | `sn_csm_pricing` |
+
+**Recommended install order / tips**
+
+- Start with **Order Management** (`sn_ind_tmt_orm`) or **Opportunity Management** (`sn_opty_mgmt`) — Order Management pulls shared dependencies (CRM Core `sn_l2c_core`, Price Management `sn_csm_pricing`, Product Catalog Core `sn_prd_pm`).
+- **Install data models first if prompted:** if an app fails to activate, install its corresponding data-model plugin (e.g. `sn_opty_mgmt_core`, `sn_quote_mgmt_core`) first.
+- **Check both locations:** Lead and Opportunity Management are distributed as Store apps; if an ID does not show in Application Manager or Developer Portal → Activate Plugin, it is restricted from free PDIs.
+
+**Important PDI caveats**
+
+- There is **no single "Sales CRM" switch** — Sales and Order Management (SOM) must be installed piece by piece (Lead, Opportunity, Quote, Order, Product Catalog) plus their required data models.
+- If an app does not appear in either Application Manager or the Developer Portal plugin list, it is a **paid / Store-entitled** app that cannot be installed on a free PDI.
+
+</details>
 
 ---
 
