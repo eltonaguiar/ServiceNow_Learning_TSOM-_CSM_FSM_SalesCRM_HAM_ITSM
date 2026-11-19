@@ -118,9 +118,9 @@ graph TD
     A[Service Portal Page] --> B[Widget]
     B --> C[AngularJS Controller]
     C --> D[$scope]
-    C --> E[server.update() / GlideAjax]
+    C --> E["server.update() / GlideAjax / $http"]
     E --> F[ServiceNow Server]
-    F --> G[GlideRecord / Table API]
+    F --> G[GlideRecord / Table API / Scripted REST]
     G --> H[JSON Response]
     H --> E
     E --> C
@@ -156,10 +156,10 @@ graph TD
 ```mermaid
 graph TD
     A[Portal Page] --> B[Widget Instance]
-    B --> C[AngularJS Module<br/>angular.module()]
-    C --> D[Controller<br/>function($scope, server)]
-    C --> E[Service<br/>factory / service]
-    C --> F[Directive<br/>custom element]
+    B --> C[AngularJS Module]
+    C --> D["Controller: function($scope, $http, server)"]
+    C --> E["Service: factory / service"]
+    C --> F[Directive: custom element]
     D --> G[$scope data]
     E --> G
     F --> G
