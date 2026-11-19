@@ -11,14 +11,14 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
 
 <div class="card-grid">
   <div class="card">
+    <h3>ITSM</h3>
+    <p>IT Service Management — incident, problem, change, knowledge, and the CMDB patterns every other module follows.</p>
+    <p class="meta"><a href="./docs/modules/itsm/itsm-guide/">Open the ITSM guide</a></p>
+  </div>
+  <div class="card">
     <h3>CSM</h3>
     <p>Customer Service Management — cases, accounts, entitlements, and customer-facing SLAs.</p>
     <p class="meta"><a href="./docs/modules/csm/csm-guide/">Open the CSM guide</a></p>
-  </div>
-  <div class="card">
-    <h3>FSM</h3>
-    <p>Field Service Management — work orders, territories, scheduling constraints, and mobile work.</p>
-    <p class="meta"><a href="./docs/modules/fsm/fsm-guide/">Open the FSM guide</a></p>
   </div>
   <div class="card">
     <h3>CMDB</h3>
@@ -26,14 +26,9 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/cmdb/cmdb-guide/">Open the CMDB guide</a></p>
   </div>
   <div class="card">
-    <h3>Sales CRM</h3>
-    <p>Sales CRM — leads, opportunities, quotes, and orders on the Now Platform.</p>
-    <p class="meta"><a href="./docs/modules/sales-crm/sales-crm-guide/">Open the Sales CRM guide</a></p>
-  </div>
-  <div class="card">
-    <h3>HAM</h3>
-    <p>Hardware Asset Management — the hardware lifecycle from procurement through disposal.</p>
-    <p class="meta"><a href="./docs/modules/ham/ham-guide/">Open the HAM guide</a></p>
+    <h3>ITOM</h3>
+    <p>IT Operations Management — Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management for proactive infrastructure operations.</p>
+    <p class="meta"><a href="./docs/modules/itom/itom-guide/">Open the ITOM guide</a></p>
   </div>
   <div class="card">
     <h3>Discovery</h3>
@@ -41,14 +36,14 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/discovery/discovery-guide/">Open the Discovery guide</a></p>
   </div>
   <div class="card">
-    <h3>ITSM</h3>
-    <p>IT Service Management — incident, problem, change, knowledge, and the CMDB patterns every other module follows.</p>
-    <p class="meta"><a href="./docs/modules/itsm/itsm-guide/">Open the ITSM guide</a></p>
+    <h3>Service Mapping</h3>
+    <p>Application service discovery — pattern-based top-down mapping of CIs to business services, CMDB relationships, and service impact analysis.</p>
+    <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
   </div>
   <div class="card">
-    <h3>HRSD</h3>
-    <p>Human Resources Service Delivery — case management, lifecycle events, and employee center portals for HR services.</p>
-    <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide/">Open the HRSD guide</a></p>
+    <h3>HAM</h3>
+    <p>Hardware Asset Management — the hardware lifecycle from procurement through disposal.</p>
+    <p class="meta"><a href="./docs/modules/ham/ham-guide/">Open the HAM guide</a></p>
   </div>
   <div class="card">
     <h3>SAM</h3>
@@ -56,9 +51,9 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/sam/sam-guide/">Open the SAM guide</a></p>
   </div>
   <div class="card">
-    <h3>Service Mapping</h3>
-    <p>Application service discovery — pattern-based top-down mapping of CIs to business services, CMDB relationships, and service impact analysis.</p>
-    <p class="meta"><a href="./docs/modules/servicemapping/servicemapping-guide/">Open the Service Mapping guide</a></p>
+    <h3>HRSD</h3>
+    <p>Human Resources Service Delivery — case management, lifecycle events, and employee center portals for HR services.</p>
+    <p class="meta"><a href="./docs/modules/hrsd/hrsd-guide/">Open the HRSD guide</a></p>
   </div>
   <div class="card">
     <h3>AI</h3>
@@ -66,44 +61,34 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/ai/ai-guide/">Open the AI guide</a></p>
   </div>
   <div class="card">
-    <h3>JavaScript Reference</h3>
-    <p>Platform scripting reference — GlideRecord, GlideSystem, GlideAjax, GlideForm, GlideAggregate, GlideDateTime, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns.</p>
-    <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
-  </div>
-  <div class="card">
-    <h3>GlideRecord & Server-Side Data</h3>
-    <p>The query engine in depth — the four query forms, encoded queries and every operator, setWorkflow(false) and what it actually suppresses, GlideAggregate for counts and sums, the loop trap, pagination, and the seven mistakes that cause governor-limit failures.</p>
-    <p class="meta"><a href="./docs/modules/scripting/gliderecord-guide/">Open the GlideRecord guide</a></p>
-  </div>
-  <div class="card">
     <h3>Service Catalog</h3>
     <p>Catalog items vs record producers, variables and variable sets, catalog client scripts and g_form, UI policies, fulfilment flows, and the retail/high-volume self-service pattern for store and pharmacy requests.</p>
     <p class="meta"><a href="./docs/modules/catalog/catalog-guide/">Open the Service Catalog guide</a></p>
   </div>
   <div class="card">
-    <h3>Cross-Cutting Skills</h3>
-    <p>Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer.</p>
-    <p class="meta"><a href="./docs/cross-cutting/">Open the Cross-Cutting guide</a></p>
+    <h3>JavaScript Reference</h3>
+    <p>Platform scripting reference — GlideRecord, GlideSystem, GlideAjax, GlideForm, GlideAggregate, GlideDateTime, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns.</p>
+    <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
   </div>
   <div class="card">
-    <h3>Interview Prep</h3>
-    <p>Prioritized by interview order — what to review for each upcoming interview, STAR story bank, certification talking points.</p>
-    <p class="meta"><a href="./docs/interviews/prioritized-prep-list/">Open the Interview Prep guide</a></p>
-  </div>
-  <div class="card">
-    <h3>Learning Paths</h3>
-    <p>Official courses & certifications — Now Learning paths for CSA, CAD, CIS-ITSM, CIS-SAM, and more.</p>
-    <p class="meta"><a href="./docs/learning/">Open the Learning Paths guide</a></p>
-  </div>
-  <div class="card">
-    <h3>Video Library</h3>
+    <h3>Other - Video Library</h3>
     <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
   </div>
   <div class="card">
-    <h3>ITOM</h3>
-    <p>IT Operations Management — Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management for proactive infrastructure operations.</p>
-    <p class="meta"><a href="./docs/modules/itom/itom-guide/">Open the ITOM guide</a></p>
+    <h3>Other - Learning Paths</h3>
+    <p>Official courses & certifications — Now Learning paths for CSA, CAD, CIS-ITSM, CIS-SAM, and more.</p>
+    <p class="meta"><a href="./docs/learning/">Open the Learning Paths guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Other - Interview Prep</h3>
+    <p>Prioritized by interview order — what to review for each upcoming interview, STAR story bank, certification talking points.</p>
+    <p class="meta"><a href="./docs/interviews/prioritized-prep-list/">Open the Interview Prep guide</a></p>
+  </div>
+  <div class="card">
+    <h3>Other - Cross-Cutting Skills</h3>
+    <p>Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer.</p>
+    <p class="meta"><a href="./docs/cross-cutting/">Open the Cross-Cutting guide</a></p>
   </div>
   <div class="card">
     <h3>TSOM</h3>
@@ -187,7 +172,9 @@ Every module guide follows the same repeatable process:
 
 ## Additional Resources
 
-- **[Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
-- **[Interview Prep Guide](docs/interviews/prioritized-prep-list.md)** — Prioritized by interview order
-- **[Learning Paths](docs/learning.md)** — Official courses & certifications
-- **[Video Library](docs/youtube.md)** — Official channels & playlists
+- **[Other - Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
+- **[Other - Interview Prep Guide](docs/interviews/prioritized-prep-list.md)** — Prioritized by interview order
+- **[Other - Learning Paths](docs/learning.md)** — Official courses & certifications
+- **[Other - Video Library](docs/youtube.md)** — Official channels & playlists
+
+ServiceNow Module Guides — a working notebook, not product documentation. Verify behaviour against your own instance and the official ServiceNow docs.
