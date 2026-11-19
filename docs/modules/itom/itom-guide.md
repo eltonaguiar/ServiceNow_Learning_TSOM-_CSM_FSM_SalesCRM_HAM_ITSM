@@ -33,10 +33,22 @@
 - [Integrations](#integrations)
 - [Key Fields](#key-fields)
 - [Common Mistakes](#common-mistakes)
+- [Automatic Issue Resolution with ITOM](#automatic-issue-resolution-with-itom)
+  - [Resolution Patterns](#resolution-patterns)
+  - [Event Management Acceleration Techniques](#event-management-acceleration-techniques)
+  - [Orchestration Activities for Common Remediation](#orchestration-activities-for-common-remediation)
+  - [Example: End-to-End Auto-Resolution Flow](#example-end-to-end-auto-resolution-flow)
+  - [Service Mapping Integration for Targeted Remediation](#service-mapping-integration-for-targeted-remediation)
+  - [Configuration Checklist for Auto-Resolution](#configuration-checklist-for-auto-resolution)
+- [ITOM Portfolio Pillars](#itom-portfolio-pillars)
+  - [Pillar 1: ITOM Visibility](#pillar-1:-itom-visibility)
+  - [Pillar 2: ITOM Health (AIOps)](#pillar-2:-itom-health-(aiops))
+  - [Pillar 3: ITOM Cloud Accelerate](#pillar-3:-itom-cloud-accelerate)
 - [Deep Dive: Event Management → Incident](#deep-dive-event-management--incident)
   - [The flow](#the-flow)
   - [Severity mapping](#severity-mapping)
 - [Lab: Create an Event and Watch It Become an Incident](#lab-create-an-event-and-watch-it-become-an-incident)
+- [Lab: Auto-Resolve an Incident via Event Management](#lab:-auto-resolve-an-incident-via-event-management)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
@@ -66,6 +78,8 @@
 ## Purpose
 
 IT Operations Management (ITOM) is the set of ServiceNow applications that help IT monitor, discover, and manage infrastructure and services. It includes Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management. ITOM's goal is proactive operations — detecting issues before users report them, and automating routine infrastructure tasks.
+
+ServiceNow organizes ITOM into three core pillars: **ITOM Visibility** (Discovery, Service Mapping, Certificate & Firewall Audits, Service Graph Connectors), **ITOM Health / AIOps** (Event Management, Metric Intelligence, Service Observability, Now Assist), and **ITOM Cloud Accelerate** (Cloud Services Catalog, Cloud Configuration Governance, Cloud Account Management, Cloud Action Library). All three pillars share the CMDB as their data foundation.
 
 ITOM sits on top of the CMDB. Discovery populates CIs; Event Management consumes alerts from monitoring tools; Service Mapping connects CIs to business services; Orchestration automates remediation.
 
@@ -376,6 +390,95 @@ cmdb_ci
 | Not de-duplicating events | Alert storm during outage | Use event rules with de-duplication (node + resource + type) |
 | Discovery without credentials | Incomplete CI data | Configure Discovery credentials per OS/application |
 | Alerts never become incidents | NOC never sees the alert | Business rule or correlation rule creates incident from critical alerts |
+| No automatic remediation | Issues persist without auto-resolution | Configure Orchestration activities and alert management rules for auto-closure |
+
+---
+
+## Automatic Issue Resolution with ITOM
+
+ITOM enables automatic issue resolution through the combination of **Event Management**, **Orchestration**, **Service Mapping**, and **Discovery**. When configured properly, issues can be detected, diagnosed, and resolved without human intervention.
+
+### Resolution Patterns
+
+| Pattern | Trigger | Action | Speed Advantage |
+|---------|---------|--------|-----------------|
+| **Auto-Closure via Clear Event** | Monitoring tool sends `severity=5` (Clear) event | Alert Management Rule auto-closes alert and linked incident | Seconds — no human action needed |
+| **Orchestration Remediation** | Critical alert matches Alert Management Rule | Orchestration workflow runs (restart service, clear disk, reboot) | Minutes — faster than manual runbook |
+| **Self-Healing via MID Server** | Discovery detects CI change (service down) | MID Server probe triggers Orchestration to restart | Near real-time — proactive before user impact |
+| **Event Correlation + Auto-Resolve** | Multiple related events correlate to single alert | Business rule checks if root cause resolved via subsequent events | Reduces MTTR by grouping related symptoms |
+| **Service-Aware Remediation** | Service Mapping shows impacted business service | Orchestration targets only affected CI, not entire service | Prevents unnecessary disruption to healthy components |
+
+### Event Management Acceleration Techniques
+
+| Technique | How It Works | Time Saved |
+|-----------|--------------|------------|
+| **Pre-configured Event Rules** | OOTB rules for common tools (SolarWinds, Datadog, Nagios) parse events → alerts instantly | Minutes per event type |
+| **CI Binding via Discovery** | Discovery populates `cmdb_ci`; Event Rules auto-bind alerts to CIs using `node` + `resource` | Eliminates manual CI lookup |
+| **Alert Correlation Rules** | Groups related alerts (e.g., "CPU high" + "Memory high" on same host) into one incident | Reduces incident count 50-80% |
+| **Alert Management Rules** | Auto-create incidents from critical alerts; auto-close on clear events; assign to groups via `cmdb_ci.support_group` | Removes manual triage step |
+| **Metric-Based Thresholds** | `em_metric` tables track KPIs; thresholds trigger events before breach | Shifts from reactive to proactive |
+
+### Orchestration Activities for Common Remediation
+
+| Activity Pack | Common Use Cases | Where to Find |
+|---------------|------------------|---------------|
+| **SSH** | Restart Linux service, clear logs, check disk space, run custom scripts | All > Orchestration > Activities > SSH |
+| **PowerShell** | Restart Windows service, IIS app pool recycle, clear Event Viewer, run scripts | All > Orchestration > Activities > PowerShell |
+| **SQL** | Truncate tables, rebuild indexes, check replication status | All > Orchestration > Activities > SQL |
+| **SNMP** | Reboot network device, change port state, poll interface status | All > Orchestration > Activities > SNMP |
+| **REST** | Call external APIs (PagerDuty, Slack, cloud provider), trigger CI/CD pipelines | All > Orchestration > Activities > REST |
+| **Cloud (AWS/Azure/GCP)** | Stop/start instance, resize volume, modify security group, invoke Lambda | All > Orchestration > Activities > Cloud |
+
+### Example: End-to-End Auto-Resolution Flow
+
+```mermaid
+flowchart TD
+    A[Monitoring Tool: Disk 95% full] -->|Event: severity=2| B[em_event]
+    B --> C[Event Rule: Disk threshold]
+    C --> D[em_alert: Major, CI=SERVER01]
+    D --> E[Alert Correlation: groups disk alerts]
+    E --> F[Alert Management Rule: Create Incident P2]
+    F --> G[Incident: SERVER01 - Disk Critical]
+    G --> H[Orchestration Workflow: Cleanup]
+    H --> I[SSH Activity: Find large logs]
+    I --> J[SSH Activity: Truncate/rotate logs]
+    J --> K[SSH Activity: Verify disk < 80%]
+    K --> L[Monitoring Tool: Disk 75%]
+    L -->|Event: severity=5 Clear| M[em_event Clear]
+    M --> N[Event Rule: Clear matches]
+    N --> O[Alert Management Rule: Auto-close alert + incident]
+    
+    style A fill:#e1f5e1,color:#000
+    style G fill:#ffebee,color:#000
+    style H fill:#fff3e0,color:#000
+    style O fill:#4cc38a,color:#fff
+```
+
+**Key acceleration points:**
+1. **Event Rule** processes event → alert in < 30 seconds
+2. **Alert Management Rule** creates incident instantly (no NOC triage)
+3. **Orchestration** runs remediation in parallel with incident creation
+4. **Clear event** auto-closes everything — zero manual steps
+
+### Service Mapping Integration for Targeted Remediation
+
+| Scenario | Without Service Mapping | With Service Mapping |
+|----------|------------------------|----------------------|
+| Database CI alert | Orchestration restarts DB, may impact app tier | Only restart DB; app tier health verified via service map |
+| Web server down | Restart all web servers in cluster | Restart only affected node; load balancer handles failover |
+| Cloud resource spike | Scale all instances in account | Scale only the service's specific instance group |
+
+**Exam focus:** Service Mapping enables **impact analysis** — you know exactly which business services a CI supports, so remediation is surgical, not blanket.
+
+### Configuration Checklist for Auto-Resolution
+
+| Component | Required Setup | Verification |
+|-----------|----------------|--------------|
+| **Discovery** | Credentials for all OS/app types; schedules covering all networks | CI count matches expected inventory |
+| **Event Management** | Event rules per monitoring source; correlation rules by CI/node | Alert volume < 20% of raw event volume |
+| **Alert Management** | Rules for auto-create (severity 1-2), auto-close (severity 5), assignment | > 80% critical alerts auto-create incidents |
+| **Orchestration** | MID Server access to target hosts; activity packs installed; workflows tested | Workflow success rate > 95% in test |
+| **Service Mapping** | Application services defined; CI relationships accurate | Service map shows correct upstream/downstream |
 
 ---
 
@@ -423,6 +526,29 @@ cmdb_ci
 
 ---
 
+## Lab: Auto-Resolve an Incident via Event Management
+
+**Instance requirement:** Event Management + Orchestration (SSH or PowerShell) active.
+
+1. **Navigate** to All > Event Management > Alerts > All
+2. **Find or create** a critical alert (e.g., Disk full on `SERVER01`)
+3. **Check** Alert Management Rule — if it auto-created an incident, verify the incident is linked
+4. **Simulate remediation:**
+   - Navigate to All > Orchestration > Orchestration Workflows
+   - Open "Disk Cleanup" workflow (or create one with SSH activity)
+   - Execute the workflow manually → verify it targets `SERVER01`
+5. **Send a Clear event:**
+   - Navigate to All > Event Management > Events > All > New
+   - Node: `SERVER01`, Resource: `Disk`, Severity: `5 - Clear`
+   - Submit
+6. **Verify auto-closure:**
+   - Navigate to All > Event Management > Alerts > All
+   - Find the original alert → verify it auto-closed (via Alert Management Rule on severity 5)
+   - Navigate to the linked incident → verify it auto-resolved
+7. **Result:** Issue resolved with zero manual steps — only event processing + orchestration + clear event
+
+---
+
 ## Goals, Benefits & Key Metrics
 
 | Goal | Benefit | Key Metric | Example Target |
@@ -433,6 +559,53 @@ cmdb_ci
 | Better infrastructure visibility | All CIs and their health in one view | CMDB coverage % | > 95% |
 | Reduce alert noise | Correlation rules suppress duplicate events | Alert volume | -50% after tuning |
 | Faster change impact assessment | Know which services a CI supports | Change success rate | > 95% |
+
+---
+
+## ITOM Portfolio Pillars
+
+ServiceNow organizes its IT Operations Management (ITOM) portfolio into three core pillars — **ITOM Visibility**, **ITOM Health (AIOps)**, and **ITOM Cloud Accelerate** — all sharing the ServiceNow CMDB as their data foundation.
+
+### Pillar 1: ITOM Visibility
+
+Creates a real-time, accurate map of your on-premises and multi-cloud infrastructure inside the CMDB.
+
+| Capability | What It Does | Where to Find It |
+|------------|--------------|------------------|
+| **Discovery** | Automatically scans networks, cloud accounts, containers, and Kubernetes clusters to identify hardware and software assets without manual data entry | All > Discovery > Discovery Schedules |
+| **Service Mapping** | Maps top-down dependencies between business services and underlying infrastructure so teams immediately see what a server or app outage affects | All > Service Mapping > Application Services |
+| **Certificate & Firewall Audits** | Tracks TLS/SSL certificates to prevent unexpected expirations; audits firewall rules to support security and compliance | All > Discovery > Certificate & Firewall Audit |
+| **Service Graph Connectors** | Integrates third-party monitoring and discovery data cleanly into the CMDB | All > Service Graph > Service Graph Connectors |
+
+**Exam focus:** Discovery PCIE phases, Service Mapping automated vs manual mapping, CMDB relationships (35% of CIS-Discovery exam).
+
+---
+
+### Pillar 2: ITOM Health (AIOps)
+
+Focuses on predicting, detecting, and resolving service issues before users feel the impact.
+
+| Capability | What It Does | Where to Find It |
+|------------|--------------|------------------|
+| **Event Management** | Collects alerts from third-party monitoring tools, deduplicates alert noise, and correlates events into actionable incidents | All > Event Management > Events |
+| **Metric Intelligence & Health Log Analytics (HLA)** | Uses machine learning to spot unusual performance patterns and log anomalies before a full outage happens | All > Event Management > Metric Intelligence |
+| **Service Observability & Reliability** | Tracks SLOs/SLIs and synthetic monitoring for cloud-native apps | All > Observability > ... |
+| **Now Assist for ITOM** | Uses generative AI inside the Service Operations Workspace to summarize alerts and suggest root causes in plain language | Service Operations Workspace |
+
+**Exam focus:** Event rules, alert correlation, alert management rules, incident creation (27% + 30% of CIS-EM exam).
+
+---
+
+### Pillar 3: ITOM Cloud Accelerate
+
+Formerly packaged as ITOM Optimization and Governance; automates cloud provisioning and enforces policy compliance across multi-cloud environments.
+
+| Capability | What It Does | Where to Find It |
+|------------|--------------|------------------|
+| **Cloud Services Catalog (CSC)** | Self-service portal for teams to request and deploy approved cloud resources (AWS, Azure, GCP) with built-in governance | All > Cloud Management > Cloud Services Catalog |
+| **Cloud Configuration Governance (CCG)** | Continuously checks cloud resources against security and compliance policies and automates remediation for violations | All > Cloud Management > Cloud Configuration Governance |
+| **Cloud Account Management (CAM)** | Streamlines onboarding, lifecycle tracking, and access governance for cloud accounts | All > Cloud Management > Cloud Accounts |
+| **Cloud Action Library & Migration Assessment** | Prebuilt workflows for day-two cloud operations and tools to plan cloud migrations | All > Cloud Management > Cloud Action Library |
 
 ---
 
@@ -556,7 +729,36 @@ Use `task_sla` to:
 5. What severity value means Critical in Event Management?  
    <details><summary>Answer</summary>`1`</details>
 
+6. How does ITOM auto-resolve an incident without human action?  
+   <details><summary>Answer</summary>Monitoring tool sends a Clear event (severity 5) → Event Rule processes it → Alert Management Rule auto-closes the linked alert + incident. If Orchestration is configured, remediation runs automatically on critical alerts.</details>
+
+7. What is the main benefit of Service Mapping during automatic remediation?  
+   <details><summary>Answer</summary>It shows which business services a CI supports, so Orchestration can target only the affected component instead of restarting an entire service tier.</details>
+
+8. Name three Orchestration activity packs used for auto-remediation.  
+   <details><summary>Answer</summary>SSH (Linux), PowerShell (Windows), SQL (database), SNMP (network), REST (external APIs), Cloud (AWS/Azure/GCP)</details>
+
+9. What is the fastest path from monitoring alert to closed incident with zero human steps?  
+   <details><summary>Answer</summary>Monitoring tool → Event Rule → em_alert → Alert Management Rule (auto-create incident) → Orchestration workflow (remediation) → Clear event (severity 5) → Alert Management Rule (auto-close alert + incident)</details>
+
+10. What metric tracks time from triggering event to alert creation?  
+    <details><summary>Answer</summary>MTTD (Mean Time to Detect) — target under 5 minutes</details>
+
+11. Into how many core pillars does ServiceNow organize ITOM?  
+    <details><summary>Answer</summary>Three: ITOM Visibility, ITOM Health (AIOps), and ITOM Cloud Accelerate</details>
+
+12. What does the ITOM Visibility pillar use as its shared data foundation?  
+    <details><summary>Answer</summary>The ServiceNow CMDB</details>
+
+13. What capability belongs to ITOM Health / AIOps but not ITOM Visibility?  
+    <details><summary>Answer</summary>Event Management / Metric Intelligence / Service Observability / Now Assist — i.e., the health/monitoring side of the service</details>
+
+14. What capability belongs to ITOM Cloud Accelerate?  
+    <details><summary>Answer</summary>Cloud Services Catalog (CSC), Cloud Configuration Governance (CCG), Cloud Account Management (CAM), or Cloud Action Library & Migration Assessment</details>
+
 ---
+
+
 
 
 ## 💡 Memory Aids & Mnemonics
