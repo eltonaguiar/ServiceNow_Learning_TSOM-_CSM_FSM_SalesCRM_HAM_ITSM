@@ -16,12 +16,16 @@
 - [Goals / Benefits / Metrics](#goals--benefits--metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [AngularJS in Service Portal](#angularjs-in-service-portal)
+- [Widget Setup Options — Every Option Explained](#widget-setup-options--every-option-explained)
+- [Widget Instance (Placing a Widget on a Page)](#widget-instance--placing-a-widget-on-a-page)
 - [AngularJS Widget → Scripted REST API Integration](#angularjs-widget--scripted-rest-api-integration)
 - [Modern Angular for Custom Integrations](#modern-angular-for-custom-integrations)
 - [AngularJS vs Modern Angular — Decision Table](#angularjs-vs-modern-angular--decision-table)
 - [Common Mistakes](#common-mistakes)
+- [How to Test Your Widget & API](#how-to-test-your-widget--api)
 - [Related Guides](#related-guides)
 - [Official Learning Resources](#official-learning-resources)
+- [Where This Is Deployed](#where-this-is-deployed)
 
 ---
 
@@ -219,8 +223,35 @@ function($scope, server) {
 | `$scope` | Data model shared between controller and template |
 | `ng-controller` | Auto-applied by Service Portal widget framework |
 | `server` object | Bridge to call server scripts (`server.get`, `server.update`) |
+| `$http` | Browser messenger that calls web addresses (REST APIs) |
+| `$watch` | Watches a value for changes and runs code when it changes |
 | `options` | Widget instance options (from page editor) |
 | `widget` object | The widget's data model exposed to template |
+
+#### What is an AngularJS Watcher? (ELI5)
+
+A **watcher** is like a **security alarm** that AngularJS sets up to monitor a piece of data. You tell AngularJS "watch this value," and AngularJS keeps checking it over and over. The moment the value changes, AngularJS runs your code automatically.
+
+**Where is it set up?**
+In your widget's **client script** tab, using `$scope.$watch('valueName', function(newVal, oldVal) { ... })`.
+
+**Why set one up?**
+- To react when data changes (e.g., when a user picks a different priority from a dropdown, update other fields)
+- To keep the screen in sync with data that might change from multiple places
+- To trigger calculations or validations when a value changes
+
+Example:
+```javascript
+// Watch the widget's priority field
+$scope.$watch('widget.priority', function(newPriority, oldPriority) {
+  if (newPriority !== oldPriority) {
+    console.log('Priority changed from ' + oldPriority + ' to ' + newPriority);
+    // You could auto-update other fields here
+  }
+});
+```
+
+**Important:** Each watcher runs on every AngularJS "digest cycle" (which happens many times per second). Too many watchers slow down your widget. That's why the metric target is **< 200 watchers per widget**.
 
 ### Common AngularJS Patterns in Widgets
 
@@ -243,6 +274,348 @@ server.get('myApiMethod', { sys_id: $scope.widget.sys_id }, function(response) {
   });
 });
 ```
+
+---
+
+## Widget Setup Options — Every Option Explained
+
+When you create or edit a widget in Service Portal (**Service Portal > Widgets > [widget]**), you configure several setup options. Here is what each one means and how to use it.
+
+---
+
+### Widget Options (Client State Parameters)
+
+Widget Options are key-value pairs stored on the widget record. They act as **client state parameters** — configuration that admins can change without editing code. You access them in your client controller via the `options` parameter.
+
+**Where to configure:** Service Portal > Widgets > [widget] > Options related list > New
+
+| Option Name | What It Stores | Example Value | Use In Client Controller |
+|---|---|---|---|
+| `api_endpoint` | Scripted REST API URL | `/api/x_company/incidents` | `options.api_endpoint` |
+| `default_limit` | Number of records to load | `10` | `options.default_limit` |
+| `show_refresh_button` | Whether to show a refresh button | `true` | `options.show_refresh_button` |
+| `table_name` | Source table for queries | `incident` | `options.table_name` |
+
+**Client controller example:**
+```javascript
+function($scope, $http, options) {
+  var c = this;
+  c.apiUrl = options.api_endpoint || '/api/default';
+  c.limit = options.default_limit || 10;
+}
+```
+
+**Why this matters:** Admins can change the API endpoint or limit on the widget record without touching code. This makes widgets reusable across different portals.
+
+---
+
+### Data Parameter (`data`)
+
+The **`data`** parameter is passed from the server script to the client controller. It's the bridge between server-side and client-side.
+
+**Server script** (runs server-side):
+```javascript
+(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+  var data = {};
+  data.incidentCount = 5;
+  data.userName = 'John Doe';
+  response.setBody(data);
+})(request, response);
+```
+
+**Client controller** (runs client-side):
+```javascript
+function($scope, server) {
+  var c = this;
+  server.get('getData', {}, function(response) {
+    // response.data contains what the server script put in data{}
+    c.incidentCount = response.data.incidentCount;
+    c.userName = response.data.userName;
+  });
+}
+```
+
+**Key point:** `response.data` in the client controller matches the object you passed to `response.setBody()` on the server.
+
+---
+
+### Widget Variables (HTML Template)
+
+Widget variables are values you expose from the client controller to the HTML template using `$scope.widget`. They are **not** the same as Widget Options — variables are runtime data, options are configuration.
+
+**Client controller:**
+```javascript
+function($scope) {
+  var c = this;
+  c.title = 'My Dashboard';
+  c.incidents = [];
+  c.loading = false;
+  
+  // These become available in the HTML template as {{ widget.title }}, etc.
+  $scope.widget.title = c.title;
+  $scope.widget.incidents = c.incidents;
+  $scope.widget.loading = c.loading;
+}
+```
+
+**HTML template:**
+```html
+<div>
+  <h2>{{ widget.title }}</h2>
+  <div ng-if="widget.loading">Loading...</div>
+  <p ng-repeat="inc in widget.incidents">{{ inc.number }}</p>
+</div>
+```
+
+| Concept | Where Set | Where Used | Purpose |
+|---|---|---|---|
+| **Widget Options** | Widget Options list (admin UI) | `options.paramName` in client controller | Admin-configurable settings |
+| **Data Parameter** | `response.setBody()` in server script | `response.data` in client controller | Server → client data bridge |
+| **Widget Variables** | `$scope.widget.xxx` in client controller | `{{ widget.xxx }}` in HTML template | Controller → template data bridge |
+
+---
+
+### Client Script Dependencies
+
+When your widget uses external libraries (like AngularJS modules, jQuery, or custom JS), you declare them in **Client Script Dependencies**.
+
+**Where to configure:** Service Portal > Widgets > [widget] > Client Script Dependencies related list
+
+| Dependency | Purpose | Example |
+|---|---|---|
+| AngularJS | Core framework (auto-loaded) | `angular` |
+| Custom JS library | Third-party code | `moment.js`, `lodash` |
+| ServiceNow modules | Platform APIs | `glide_ajax` |
+
+---
+
+### CSS / Styles
+
+**Where to configure:** Service Portal > Widgets > [widget] > CSS tab
+
+CSS styles the widget's HTML. Use widget-specific class names to avoid conflicts with other widgets on the same page.
+
+```css
+.my-widget-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.my-widget-table th {
+  background-color: #f5f5f5;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+```
+
+**HTML template usage:**
+```html
+<table class="my-widget-table">...</table>
+<div class="loading-spinner" ng-if="widget.loading"></div>
+```
+
+---
+
+### Widget Choice (Choice List / Select Options)
+
+Some widgets present a dropdown of choices. These are configured as widget choice records.
+
+**Where to configure:** Service Portal > Widgets > [widget] > Choice related list
+
+| Field | Purpose | Example |
+|---|---|---|
+| Name | Internal name | `priority_level` |
+| Label | What the user sees | `Priority Level` |
+| Value | The actual value stored | `1`, `2`, `3` |
+| Sequence | Order in dropdown | `10`, `20`, `30` |
+
+**Client controller usage:**
+```javascript
+// Access choice values (usually via server script or options)
+c.priorityChoices = options.priority_choices || ['1', '2', '3'];
+```
+
+---
+
+### Complete Widget Setup Checklist
+
+| Setup Area | Where to Configure | Required? | Purpose |
+|---|---|---|---|
+| Widget record | Service Portal > Widgets > New | Yes | Creates the widget |
+| HTML Template | Template tab | Yes | What the user sees |
+| Client Script | Client Script tab | Yes | Controller logic (`$scope`, `$http`, `server`) |
+| Server Script | Server Script tab | No | Server-side data (`GlideRecord`, `response.setBody`) |
+| Widget Options | Options related list | No | Admin-configurable parameters |
+| Client Script Dependencies | Client Script Dependencies | No | External JS libraries |
+| CSS | CSS tab | No | Styling |
+| Choice List | Choice related list | No | Dropdown options |
+| ACL | System Security > ACL | No | Who can call Scripted REST API |
+
+---
+
+## Widget Instance (Placing a Widget on a Page)
+
+A **widget instance** is what you get when you drag a widget onto a portal page. The widget is the reusable definition; the instance is a specific placement of that widget on a specific page. Each instance can have its own options.
+
+**Where to configure:** Service Portal > Service Portal Editor > [select portal] > Pages > [select page] > drag widget onto canvas
+
+| Concept | What It Is | Example |
+|---|---|---|
+| **Widget** | The reusable definition (template + client script + server script) | "Incidents List" widget |
+| **Widget Instance** | One placement of that widget on a page | Two "Incidents List" instances on the same page — one showing P1 incidents, one showing P2 incidents |
+| **Instance Options** | Options set on this specific instance (overrides widget-level options) | Instance A: `table_name=incident`, `limit=5`; Instance B: `table_name=change_request`, `limit=10` |
+
+**Key point:** Each widget instance gets its own copy of the client controller and `$scope`. If you have two instances of the same widget on a page, they each maintain their own data — changing one doesn't affect the other.
+
+**Breadcrumb:** Service Portal > Service Portal Editor > [portal] > Pages > [page] > click widget instance > configure options
+
+### How Instance Options Work
+
+When you place a widget on a page, you can set instance-specific options:
+
+1. Open the Service Portal Editor
+2. Drag your widget onto the page
+3. Click the widget instance on the canvas
+4. Set options for this specific instance
+
+These instance options are passed to your client controller via the `options` parameter, just like widget-level options — but instance options take precedence.
+
+```javascript
+// Client controller — uses options (which may come from widget OR instance)
+function($scope, $http, options) {
+  var c = this;
+  c.tableName = options.table_name || 'incident';  // instance option overrides widget option
+  c.limit = options.default_limit || 10;
+}
+```
+
+
+---
+
+## Calling Server-Side Code from AngularJS
+
+There are two main ways an AngularJS widget can call server-side ServiceNow code:
+
+1. **`server.get` / `server.update`** — The widget's built-in bridge to its own Server Script
+2. **GlideAjax** — A reusable ServiceNow client-server bridge that can call Script Includes marked "client callable"
+
+### What is GlideAjax? (ELI5)
+
+Think of **GlideAjax** as a **courier service** that runs inside the browser. Your AngularJS Client Controller hands GlideAjax a package (a request with a script include name and parameters), and GlideAjax delivers it to the server. The server runs the logic, puts the result back in the package, and sends it back. Your controller then reads the result and updates the page.
+
+In plain English:
+- **Without GlideAjax**: Your widget can only talk to its own widget server script.
+- **With GlideAjax**: Your widget can call any Script Include that's marked "client callable" — even ones shared across multiple widgets or applications.
+
+---
+
+### Can AngularJS Call a Client-Callable Script Include?
+
+**Yes.** ServiceNow Script Includes have a flag called **"Client callable"**. When checked, that Script Include becomes reachable from client-side code using GlideAjax.
+
+Here is how it works end-to-end:
+
+**Step 1 — Create a Client-Callable Script Include**
+
+Go to: **System Definition > Script Includes > New**
+
+Create a script include with these settings:
+- **Name:** `x_company_incident_utils`
+- **Client callable:** ✅ Checked
+- **Accessible from:** All applications
+
+```javascript
+var x_company_incident_utils = Class.create();
+x_company_incident_utils.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+  getActiveIncidentCount: function() {
+    var gr = new GlideRecord('incident');
+    gr.addQuery('active', 'true');
+    gr.query();
+    return gr.getRowCount();
+  },
+  getIncidentByNumber: function() {
+    var number = this.getParameter('sysparm_number');
+    var gr = new GlideRecord('incident');
+    gr.addQuery('number', number);
+    gr.query();
+    if (gr.next()) {
+      return gr.getValue('short_description');
+    }
+    return 'Not found';
+  },
+  type: 'x_company_incident_utils'
+});
+```
+
+**Step 2 — Call It from AngularJS Using GlideAjax**
+
+In your widget's **client script** tab:
+
+```javascript
+function($scope) {
+  var c = this;
+  c.incidentCount = 0;
+  c.incidentDesc = '';
+
+  // GlideAjax is the messenger that calls the server-side Script Include
+  var ga = new GlideAjax('x_company_incident_utils');
+  
+  // Tell GlideAjax which method to run on the server
+  ga.addParam('sysparm_name', 'getActiveIncidentCount');
+  
+  // Send the request and handle the response
+  ga.getXML(function(response) {
+    // The server's answer comes back as text inside <result> tags
+    var answer = response.documentElement.getAttribute('answer');
+    $scope.$apply(function() {
+      c.incidentCount = answer;
+    });
+  });
+
+  // Example: call with a parameter
+  var ga2 = new GlideAjax('x_company_incident_utils');
+  ga2.addParam('sysparm_name', 'getIncidentByNumber');
+  ga2.addParam('sysparm_number', 'INC0010001');
+  ga2.getXML(function(response) {
+    var answer = response.documentElement.getAttribute('answer');
+    $scope.$apply(function() {
+      c.incidentDesc = answer;
+    });
+  });
+}
+```
+
+---
+
+### GlideAjax vs `server.get` — When to Use Each
+
+| Factor | `server.get` / `server.update` | GlideAjax |
+|---|---|---|
+| **What it calls** | The widget's own Server Script only | Any client-callable Script Include |
+| **Reusable across widgets?** | No — locked inside one widget | Yes — one Script Include, many widgets |
+| **Client-callable flag needed?** | No | Yes — must check "Client callable" on the Script Include |
+| **Response format** | JSON (easy to parse) | XML (needs `getAttribute('answer')`) |
+| **Best for** | Simple widget-specific data | Shared server logic used by multiple widgets |
+
+---
+
+### GlideAjax in Plain English
+
+| Term | What It Means |
+|---|---|
+| `new GlideAjax('script_include_name')` | Creates a courier addressed to your server-side Script Include |
+| `ga.addParam('sysparm_name', 'method_name')` | Tells the server which function to run |
+| `ga.addParam('sysparm_foo', 'bar')` | Sends extra data (like a record number) to the server |
+| `ga.getXML(callback)` | Sends the request; when the server replies, the callback runs |
+| `response.documentElement.getAttribute('answer')` | Reads the text answer the server sent back |
 
 ---
 
@@ -476,5 +849,52 @@ ServiceNow must allow your Angular app's origin:
 | Angular (modern) | angular.io | TypeScript, components, HttpClient, routing |
 | ServiceNow OAuth | docs.servicenow.com | OAuth setup for external API access |
 | ServiceNow Table API | developer.servicenow.com | REST API reference for table operations |
+| ServiceNow Scripted REST API | developer.servicenow.com | Scripted REST API development guide |
+
+---
+
+## How to Test Your Widget & API
+
+### Test the Scripted REST API Directly
+
+1. Open a browser tab and go to your API URL:
+   `https://your-instance.service-now.com/api/x_company/incidents`
+2. You should see JSON output like:
+   ```json
+   { "success": true, "data": [ { "number": "INC0010001", ... } ] }
+   ```
+3. If you see JSON, the API works. If you see an error page, check:
+   - The API is published (not in draft)
+   - Your user has the `rest_api` role or appropriate ACL
+   - The resource path is correct
+
+### Test the Widget Client Controller
+
+1. Open your Service Portal page that contains the widget
+2. Open browser DevTools (F12) and go to the **Network** tab
+3. Refresh the page
+4. You should see a request to `/api/x_company/incidents` with a `200` status
+5. Check the **Console** tab for any AngularJS errors
+6. Verify the widget displays the data in the HTML table
+
+### Common Test Issues
+
+| Problem | Likely Cause | Fix |
+|---|---|---|
+| Widget shows "Loading..." forever | `$http` request failing | Check Network tab for 404/500 errors |
+| Widget shows empty table | API returns no data | Check API script logic and table filters |
+| Browser console shows CORS error | External SPA calling ServiceNow | Configure `glide.webserver.cors.allow_origin` |
+| Widget shows error message | API returned non-200 status | Check API script for exceptions |
+| Data doesn't update after clicking Refresh | Missing `$scope.$apply()` | Wrap `$http` response handling in `$scope.$apply()` |
+
+---
+
+## Where This Is Deployed
+
+This guide is live on **GitHub Pages** at:
+
+**`https://eltonaguiar.github.io/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/scripting/angular-guide/`**
+
+It is part of the **ServiceNow Module Guides** site, under the **Scripting** section, as a standalone page titled "Angular — AngularJS for Service Portal + Modern Angular for ServiceNow Integrations." The Angular card was added to the homepage's Available Guides grid, linking to this page.
 
 ---
