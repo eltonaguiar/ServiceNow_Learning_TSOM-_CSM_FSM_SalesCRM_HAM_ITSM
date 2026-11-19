@@ -11,16 +11,6 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
 
 <div class="card-grid">
   <div class="card">
-    <h3>TSOM</h3>
-    <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
-  </div>
-  <div class="card">
-    <h3>TSOM Assurance</h3>
-    <p>Event Management, AIOps, Service Impact Analysis, and Synthetic Monitoring — the observability stack for telecom and enterprise environments.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-assurance/">Open TSOM Assurance guide</a></p>
-  </div>
-  <div class="card">
     <h3>CSM</h3>
     <p>Customer Service Management — cases, accounts, entitlements, and customer-facing SLAs.</p>
     <p class="meta"><a href="./docs/modules/csm/csm-guide/">Open the CSM guide</a></p>
@@ -109,6 +99,21 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <h3>Video Library</h3>
     <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
+  </div>
+  <div class="card">
+    <h3>ITOM</h3>
+    <p>IT Operations Management — Discovery, Event Management, Service Mapping, Orchestration, and Cloud Management for proactive infrastructure operations.</p>
+    <p class="meta"><a href="./docs/modules/itom/itom-guide/">Open the ITOM guide</a></p>
+  </div>
+  <div class="card">
+    <h3>TSOM</h3>
+    <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
+  </div>
+  <div class="card">
+    <h3>TSOM Assurance</h3>
+    <p>Event Management, AIOps, Service Impact Analysis, and Synthetic Monitoring — the observability stack for telecom and enterprise environments.</p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-assurance/">Open TSOM Assurance guide</a></p>
   </div>
 </div>
 
