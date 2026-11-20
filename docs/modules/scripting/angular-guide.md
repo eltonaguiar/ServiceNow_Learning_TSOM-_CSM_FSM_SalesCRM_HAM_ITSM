@@ -1052,6 +1052,7 @@ ServiceNow must allow your Angular app's origin:
 ## Related Guides
 
 - [JavaScript Reference](/docs/modules/ai/javascript-reference/) — Platform scripting reference (GlideRecord, GlideAjax, GlideForm, Business Rules)
+- [Service Portals & UI Builder](/docs/modules/portal/portal-guide/) — Service Portal vs Next Experience, widget lifecycle context, page variants, Employee Center
 - [GlideRecord & Server-Side Data](/docs/modules/scripting/gliderecord-guide/) — Query engine and server-side data patterns used by Angular widgets
 - [CMDB](/docs/modules/cmdb/cmdb-guide/) — CI data that Angular widgets commonly display
 - [Cross-Cutting Skills](/docs/cross-cutting/) — Integrations, Update Sets, App Engine, Platform Governance

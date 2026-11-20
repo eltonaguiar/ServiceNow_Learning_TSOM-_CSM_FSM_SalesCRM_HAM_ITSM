@@ -71,6 +71,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/catalog/catalog-guide/">Open the Service Catalog guide</a></p>
   </div>
   <div class="card">
+    <h3>Portals &amp; UI Builder</h3>
+    <p>Service Portal (classic, AngularJS) and UI Builder / Next Experience side by side — architecture and tables, widget vs UI Builder component, page variants and audiences, Employee Center, Configurable Workspaces, and the out-of-the-box portals catalog.</p>
+    <p class="meta"><a href="./docs/modules/portal/portal-guide/">Open the Portals guide</a></p>
+  </div>
+  <div class="card">
     <h3>JavaScript Reference</h3>
     <p>Platform scripting reference — GlideRecord, GlideSystem, GlideAjax, GlideForm, GlideAggregate, GlideDateTime, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and common scripting patterns.</p>
     <p class="meta"><a href="./docs/modules/ai/javascript-reference/">Open the JavaScript reference</a></p>
