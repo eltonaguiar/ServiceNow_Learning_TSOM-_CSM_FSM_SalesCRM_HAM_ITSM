@@ -616,7 +616,7 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 
 ## Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

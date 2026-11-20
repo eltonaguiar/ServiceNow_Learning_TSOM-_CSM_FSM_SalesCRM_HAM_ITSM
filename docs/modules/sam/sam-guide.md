@@ -1694,7 +1694,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 ### Answer sheet — instructor copy
 
-<details><summary>Open the marking key (7 drills, 28 points)</summary>
+<details markdown="1"><summary>Open the marking key (7 drills, 28 points)</summary>
 
 **How to mark.** 4 points per drill: **1** names the term that moved, **1** cites proof an auditor would accept, **1** fixes without over-correcting, **1** predicts the post-fix direction and factor *before* re-running. Wording is free; the mechanism is not.
 
@@ -1820,7 +1820,7 @@ Individual official videos, in suggested watch order:
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA
@@ -2019,7 +2019,7 @@ Monitor these on day 1 post-go-live (Success Portal is pointless without baselin
 
 ---
 
-<details>
+<details markdown="1">
 <summary>Experimental: Alternate learning paths, guidance, and study methods (collapsed)</summary>
 
 ## Experimental learning tracks (use, measure, discard what fails)
@@ -2079,7 +2079,7 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 *Experimental section added by beam__kilo__cli — 2026-11-13T15:54Z. Review and prune if unhelpful.*
 </details>
 
-<details>
+<details markdown="1">
 <summary>💡 Mnemonics for key SAM turns (click to reveal)</summary>
 
 ## Mnemonics for fast recall during labs/exams

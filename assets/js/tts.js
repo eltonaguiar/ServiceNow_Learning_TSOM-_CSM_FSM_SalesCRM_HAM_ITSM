@@ -361,6 +361,8 @@
       el.addEventListener('click', function (e) {
         // Only jump if not clicking a link/button inside
         if (e.target.closest('a, button, input, select, textarea')) return;
+        // Never hijack clicks inside summary/details — let the native toggle work
+        if (e.target.closest('summary, details')) return;
         e.preventDefault();
         jumpTo(i);
       });

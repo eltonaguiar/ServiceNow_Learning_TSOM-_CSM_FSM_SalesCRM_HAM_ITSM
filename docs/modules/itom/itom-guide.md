@@ -1404,7 +1404,7 @@ More instances (e.g. adding a separate Sandbox for training) mean more maintenan
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

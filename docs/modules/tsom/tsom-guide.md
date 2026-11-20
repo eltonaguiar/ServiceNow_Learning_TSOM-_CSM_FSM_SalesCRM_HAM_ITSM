@@ -1065,7 +1065,7 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 
 ---
 
-<details>
+<details markdown="1">
 <summary><strong>1. AI Agents — agentic workflows on TSOM/TNI</strong></summary>
 
 **What they are:** AI Agents are generative-AI-powered agents that can reason, plan, and act autonomously within guardrails. In the TSOM context, they sit on the "AI for Telecommunications" layer — the Now Assist / agentic workflows that operate on top of the TSOM/TNI foundation.
@@ -1083,7 +1083,7 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>2. IT Operations Management — the substrate TSOM consumes</strong></summary>
 
 **ITOM** is not a TSOM feature — it's the platform layer that TSOM builds on. TSOM is telecom-specific assurance; ITOM is the general IT operations engine underneath.
@@ -1103,7 +1103,7 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>3. ITOM Health — health scoring for TSOM's CIs and services</strong></summary>
 
 **What it is:** ITOM Health computes health scores for CIs and services based on alerts, events, and metric anomalies. A CI with many critical alerts gets a poor health score, which propagates up through service impact.
@@ -1121,7 +1121,7 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>4. ITOM Visibility — infrastructure discovery vs Telecom Visibility</strong></summary>
 
 **ITOM Visibility** discovers general IT infrastructure (servers, VMs, network devices, cloud resources) and maintains the CMDB. **Telecom Visibility** extends this for telecom providers with real-time physical and logical network components.
@@ -1141,7 +1141,7 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>5. Flow Designer / Flows — guided remediation in TSOM</strong></summary>
 
 **Flow Designer** is ServiceNow's low-code automation builder. In TSOM, flows react to alerts and incidents to execute guided remediation.
@@ -1193,7 +1193,7 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

@@ -2896,7 +2896,7 @@ flowchart TD
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

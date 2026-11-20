@@ -66,7 +66,7 @@ Hands-on lab using only free tiers: a **ServiceNow Personal Developer Instance (
 - Repository: https://github.com/eltonaguiar/EBOND_ServiceNowSalesforce
 - Beginner path (Level 1→4): [lab_levels_beginner_path.md](https://github.com/eltonaguiar/EBOND_ServiceNowSalesforce/blob/main/2026-11-16-SWARM/03_DONE/INTEGRATION/lab_levels_beginner_path.md)
 
-<details>
+<details markdown="1">
 <summary>🚀 Interview Insight: Integration Patterns — Async vs Sync, Queues Explained</summary>
 
 ### Synchronous vs Asynchronous Calls

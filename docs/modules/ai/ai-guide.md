@@ -1074,7 +1074,7 @@ AI does not ship traditional OOTB dashboards — instead, **AI Control Tower** p
 
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

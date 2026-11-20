@@ -222,7 +222,7 @@ Sales CRM does **not** ship a dedicated Guided Setup wizard. Configuration is do
 
 ### Installing Sales CRM in a PDI
 
-<details><summary>Click to expand — how to install Sales CRM modules in a free Personal Developer Instance (PDI)</summary>
+<details markdown="1"><summary>Click to expand — how to install Sales CRM modules in a free Personal Developer Instance (PDI)</summary>
 
 You can install plugins/apps on a ServiceNow PDI in two places: directly inside your PDI via Application Manager, or from the ServiceNow Developer Portal if a plugin does not appear inside the instance.
 

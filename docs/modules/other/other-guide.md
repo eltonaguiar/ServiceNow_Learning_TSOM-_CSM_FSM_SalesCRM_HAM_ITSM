@@ -1036,7 +1036,7 @@ So in lower environments you use **source control + Update Sets + App Repo publi
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab C: Two developers edit the same widget — no diff, last-write-wins</strong></summary>
 
 **Goal:** See exactly what happens when two people modify the same widget via update sets — including whether ServiceNow shows a conflict or diff.
@@ -1112,7 +1112,7 @@ There is no diff view in ServiceNow. You only see the aftermath:
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab D: Two ways to deploy Update Sets — pros and cons</strong></summary>
 
 **Goal:** Compare the two methods for moving an update set from dev to test.
@@ -1161,7 +1161,7 @@ There is no diff view in ServiceNow. You only see the aftermath:
 #
 ## 💡 Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA

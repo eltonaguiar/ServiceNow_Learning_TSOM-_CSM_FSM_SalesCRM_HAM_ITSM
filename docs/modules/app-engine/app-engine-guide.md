@@ -393,7 +393,7 @@ Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/wat
 
 ## Memory Aids & Mnemonics
 
-<details>
+<details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
 
 ### Business Rule Types — BAA
