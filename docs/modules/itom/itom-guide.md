@@ -58,6 +58,7 @@
 - [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
 - [Discovery Debugging — Every Potential Problem](#discovery-debugging--every-potential-problem)
 - [Cloud Discovery](#cloud-discovery)
+- [Mac (macOS) Discovery — Is It Supported?](#mac-macos-discovery--is-it-supported)
 - [CMDB Relationships — How CIs Connect](#cmdb-relationships--how-cis-connect)
 - [CMDB Class Gaps — Store Apps to Consider](#cmdb-class-gaps--store-apps-to-consider)
 - [Upgrade Strategy & Instance Strategy](#upgrade-strategy--instance-strategy)
@@ -804,6 +805,45 @@ The MID Server JVM default heap is **1 GB**. Raise it in `wrapper-override.conf`
 
 **When the rule relaxes:** A single host can run multiple MID Servers only in non-production (sandbox, dev) where load is light and failure carries no consequence. Even then, give each its own folder, service account, and port range so they do not collide.
 
+### Virtual machines, minimum hardware, network, and OS support
+
+**Can a MID Server run on a VM?**
+Yes — explicitly. ServiceNow's system requirements state the MID Server supports Windows Server and Linux "including virtual machines and 64-bit systems." VMs are the standard deployment model in most production environments: you get snapshots, easy cloning, HA through the hypervisor, and clean separation from other workloads. Size the VM like a physical host — one MID Server per VM in production, following the same one-per-host rule.
+
+**Minimum hardware**
+
+| Layer | Minimum specification | Notes |
+|-------|----------------------|-------|
+| CPU | Quad-core, 2+ GHz | One MID Server at 25 concurrent threads (default) |
+| RAM | 8 GB | JVM default heap is 1 GB; raise the heap in `wrapper-override.conf` in step with threads. Production typically runs 16 GB. |
+| Disk | 40 GB | Logs (`agent.log.*`) and wrapper files grow over time; monitor disk usage. |
+| OS | Windows Server 2012/2016/2019/2022/2025 or supported Linux | 64-bit only; 32-bit MID Servers are no longer supported |
+| Java | JRE 17.0.10 minimum; 21.0.7 recommended | Managed via the MID Server installer/upgrader |
+
+Real-world production example: 2 CPUs @ 2.20 GHz, 16 GB RAM, 80 GB disk, Windows Server 2012 R2 x64, JVM heap raised to 4 GB — a common sizing for one active MID Server.
+
+**Minimum network**
+
+| Requirement | Detail |
+|-------------|--------|
+| To the ServiceNow instance | Reliable outbound HTTPS (443) from the MID Server to the instance hostname |
+| To discovery targets | Reachability to target hosts on the scanned protocol ports (WMI 135+, SSH 22, SNMP 161/UDP, vCenter 443, WBEM 5989, LDAP 389) |
+| Proxy | Supported — set proxy host/port; the proxy must use Basic Authentication for MID-to-instance traffic |
+| ECC Queue | The MID Server polls the instance for work; **inbound** connections from the instance to the MID are not required |
+
+Ping proves only L3 reachability — always test the actual service port from the MID host.
+
+**Windows 11 — strongly advised against, and effectively blocked**
+
+A company **can** force a MID Server onto Windows 11 only with a manual ZIP-file install (the `.msi` installer refuses, reporting "This package required minimum OS version: Windows Server 12 or greater"). It is **strongly advised against**:
+
+- **Not a supported OS.** The supported Windows list is Windows Server 2012/2016/2019/2022/2025. Windows 10 and 11 are desktop/client operating systems and are explicitly unsupported — the docs state "Windows 10 is unsupported," and Windows 11 is not on the supported list at all.
+- **It is a server product.** The MID Server is designed to run as an unattended background service 24/7 (discovery, orchestration, Service Mapping). Windows 11's servicing, power management, and update behavior are built for interactive desktop use, not server workloads.
+- **No support path.** If a Windows 11 MID Server fails, ServiceNow support will point you to a supported OS first — you lose the ability to open a meaningful MID-related support case.
+- **Community-confirmed:** installers fail on Windows 10/11 with the server-version requirement error; even the ZIP workaround is officially unsupported.
+
+**Bottom line:** run production MID Servers on Windows Server (or supported Linux), inside a VM if you like — never on Windows 11. If your standard desktop image is Windows 11, that image is not a MID Server host; provision a Windows Server VM instead.
+
 - Prefer a **Windows MID Server** — it can perform Discovery and Automation on both Windows and Unix, whereas a Linux MID Server can only act on Unix.
 - Run under a **dedicated service account**, not SYSTEM or root.
 
@@ -913,6 +953,43 @@ Compute instances, storage buckets/volumes, managed databases, load balancers, v
 | Access denied | Missing IAM actions (`ec2:DescribeInstances`, `tag:GetResources`, etc.) | Grant the required read actions |
 | Private subnet resources missing | MID Server cannot reach route table / API | Place a MID Server in the VPC or use a proxy |
 | Security group blocks MID | NACL/SG rules | Allow MID Server egress to provider endpoints |
+
+---
+
+## Mac (macOS) Discovery — Is It Supported?
+
+Short answer: **the MID Server host cannot run on macOS, but a Windows or Linux MID Server can discover Macs as targets.** These are two different things, and mixing them up is the usual source of confusion.
+
+### Two separate questions
+
+| Question | Answer |
+|----------|--------|
+| Can the **MID Server itself** run on macOS? | **No.** The MID Server host OS is Windows Server or Linux (plus legacy Solaris/HP-UX). macOS is not a supported MID Server host. |
+| Can Discovery **find Macs as target computers**? | **Yes.** Mac (OS/X) is a supported discovery target, discovered over **SSH** exactly like a Unix/Linux host. |
+
+So "Windows is preferable" refers only to *where the agent runs*, not to whether Macs can be discovered. A Windows Server MID Server discovers Macs perfectly well.
+
+### How Mac discovery works
+
+- **Protocol:** SSH (port 22). The same SSH credential type used for Unix/Linux.
+- **Enable SSH on the target Mac:** System Settings → General → Sharing → **Remote Login** (can be automated via MDM).
+- **Credentials:** supply Discover's SSH user; no special privileges are required for the base classification of a Mac.
+- **Data collected** (via `uname`, `system_profiler`, `ps`, `lsof`, `ifconfig`):
+  OS and version, serial number, CPU type/speed/count, RAM, disk volumes and free space, network adapters (IP, MAC, netmask, DHCP), and running processes.
+- **Classification:**
+  - Mac **workstations** (MacBook, iMac, Mac mini, Mac Pro) → `cmdb_ci_computer`
+  - Mac **servers** (OS X Server) → `cmdb_ci_osx_server`
+  - Manufacturer assumed Apple; model/serial from `system_profiler`.
+
+### Caveats
+
+- Macs are **end-user devices**, not servers, for most estates — discovering them via SSH means every Mac must have Remote Login enabled and reachable, which is often blocked by endpoint security or only enabled via MDM.
+- For **large Mac fleets**, agent-based collection is usually the better fit: the **Agent Client Collector (ACC)** supports macOS (Catalina, Big Sur, Monterey, Ventura; x86_64 and Apple Silicon). Horizontal SSH discovery is fine for a handful of Mac servers; ACC scales better across hundreds of laptops.
+- The MID Server does **not** validate SSH host keys, so for Mac targets (as with any SSH target) prefer **key/certificate authentication** over passwords and limit sensitive data on the connection.
+
+### Bottom line
+
+Keep your MID Servers on Windows Server or Linux. Point them at Macs over SSH to discover them; use ACC for large Mac populations. macOS is a discovery *target*, never a MID Server *host*.
 
 ---
 
