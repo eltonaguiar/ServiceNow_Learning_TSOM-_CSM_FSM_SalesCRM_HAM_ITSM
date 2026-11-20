@@ -1094,9 +1094,45 @@ Look for: `Connection timed out`, `Authentication failed`, `No WMI connection`, 
 
 ### Step 6 — Patterns
 
-- Pattern must be **Active** and must include the target CI class.
-- Run the pattern in **Debug** mode from Pattern Designer to see where classification fails.
-- Verify credentials map to the right protocol at the right step.
+**"Pattern must be Active and must include the target CI class" — what that means, and which phase the class is known in**
+
+Horizontal discovery has four phases: **Scanning → Classification → Identification → Exploration**. Patterns only run in the **last two** — Identification and Exploration. Scanning and Classification still use probes as normal.
+
+Where the CI class is decided:
+- **Classification** is where the **CI class is actually determined.** The classification probe returns OS/device detail and *that determines the class of the CI* (e.g. Windows Server vs Linux vs SNMP device). One classification probe runs per discovered device.
+- **Identification** — the classifier selects the pattern (via its trigger probes), and the pattern's **identification section** confirms the CI class, applies the identification rule, and decides **insert vs update**. So yes — by Identification the class is effectively known and being applied.
+- **Exploration** — the pattern's **exploration section** uses that CI class to collect attributes and related CIs (disks, NICs, software, processes). Each related CI has its own class too.
+
+So: the class is **determined at Classification**, then **used/confirmed in Identification and Exploration**. "Active" means the pattern and its classifier are enabled so the class that Classification produced triggers this pattern; "includes the target CI class" means the pattern's identification section targets the correct CI class and its identification rule is defined for it — in **both** the Identification and Exploration sections.
+
+**What running a pattern in Debug Mode actually does**
+
+Debug Mode executes the pattern against **one target**, step by step, in isolation — no full discovery, no CMDB write. It runs the real commands/probes on the target via a MID Server and returns the **raw output of every step**, including the parsed variables each step produced. It is the only way to see the output of the **final step** of a pattern.
+
+**What it shows**
+- Per-step **command output** (the actual SSH/WMI/etc. payload the MID Server ran).
+- The **parsed/assigned variables** produced at each step (values set via `Set Parameter Value` operations).
+- Each step's **status**: success, or **no match** / empty — i.e. exactly where a parse, regex, or command fails.
+- The **input vs output** of the step under test, so you can see the command returned data but the parse didn't extract it.
+- With **Run Again (Debug)** on an ECC input record, the **script debugger** attaches for the pattern's pre/post scripts.
+
+**How to debug with it (exact steps)**
+1. Go to **Pattern Designer → Discovery Patterns**, search/open the pattern.
+2. **Open it from Pattern Designer** by clicking a link in the **Identification** or **Extension/Exploration** section — opening straight from the list view does **not** expose Debug Mode.
+3. Click the **Debug Mode** UI action.
+4. Enter the debug parameters:
+   - **Horizontal (infrastructure) discovery:** just a **PID + IP address** (no entry point).
+   - **Top-down (Service Mapping) application patterns:** requires an **Entry Point** (Debug Type = Application; infrastructure patterns are horizontal-only and don't ask).
+5. Run the steps (or the whole pattern) and read the output panel — find the first step that returns **empty / no match**.
+6. Fix the failing step: correct the command syntax for that OS, the regex/parse, or the credential/protocol mapping. Re-run in Debug Mode until every step returns the expected variable.
+7. For **pre/post scripts**: **Discovery log → ECC Queue → select the `input` record → Run Again (Debug)** attaches the execution context to the script debugger.
+
+**Gotchas that waste hours**
+- If the host CI **State = Absent**, pattern debugging **will not work** for that host. Restore the CI state first.
+- Debug sessions can **time out** on long patterns (known issue KB3143385) — debug the failing section, not the whole pattern.
+- Debug Mode needs a **reachable MID Server** with the right capability, same as real discovery — a debuggable pattern still fails if the network/credential is wrong. Debug Mode proves the *pattern logic*, not the *network path* (that was Step 2).
+
+**The point of Debug Mode vs full discovery:** it isolates pattern logic from everything else. If full discovery fails but Debug Mode returns clean output for the same target, the fault is upstream (network/credential/classifier trigger) or downstream (identification rule/coalesce) — not the pattern's parse steps.
 
 ### Step 7 — CMDB write and duplicates
 
