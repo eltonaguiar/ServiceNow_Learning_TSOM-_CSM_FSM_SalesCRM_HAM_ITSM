@@ -41,6 +41,13 @@
   - [How it works](#how-it-works)
   - [Deflection example](#deflection-example)
   - [Virtual Agent Designer](#virtual-agent-designer)
+- [ServiceNow NLU — Building Blocks, Guardrails, and Workbench](#servicenow-nlu--building-blocks-guardrails-and-workbench)
+  - [Core building blocks](#core-building-blocks)
+  - [Utterance guardrails (ServiceNow-enforced)](#utterance-guardrails-servicenow-enforced)
+  - [Entities — system vs user-defined](#entities--system-vs-user-defined)
+  - [Intent Discovery & Conflict Review](#intent-discovery--conflict-review)
+  - [Traditional NLU vs Now Assist (LLM topic discovery)](#traditional-nlu-vs-now-assist-llm-topic-discovery)
+  - [Building a model — the practical loop](#building-a-model--the-practical-loop)
 - [AI Agents & Agentic Workflows](#ai-agents--agentic-workflows)
 - [Now Assist Panel — “Diagnose a Service Graph Connector”](#now-assist-panel--diagnose-a-service-graph-connector)
 - [Now Assist Skill Kit — Build Your First AI Button](#now-assist-skill-kit--build-your-first-ai-button)
@@ -398,6 +405,85 @@ Virtual Agent is ServiceNow’s chatbot/self-service layer. Employees or custome
 
 ### Virtual Agent Designer
 Build conversation flows visually (drag-and-drop) with controls: Dynamic Choice, Card, Boolean, Decision, Text Input, Record Action. Topics can use **LLM topic discovery** instead of rigid NLU keywords — meaning the bot understands *“my VPN’s broken”* maps to the VPN topic even if the user never says the exact keyword.
+
+---
+
+## ServiceNow NLU — Building Blocks, Guardrails, and Workbench
+
+NLU (Natural Language Understanding) is the engine that turns a user's free-text request into a **topic/intent match**. In ServiceNow, NLU models are built and managed in the **NLU Workbench** (requires the **`nlu_admin`** role) and they power both **Virtual Agent topics** and **AI Search**.
+Sources: [Intents](https://www.servicenow.com/docs/r/intelligent-experiences/nlu-service/intents.html) · [NLU landing](https://www.servicenow.com/docs/r/zurich/intelligent-experiences/nlu-service/nlu-landing.html)
+
+### Core building blocks
+
+| Building block | Table | What it is |
+|----------------|-------|-----------|
+| **NLU Model** | `sys_nlu_model` | A scoped container of intents, utterances, entities, and vocabulary. Models can be grouped **by language** into **Model Groups**, so one Virtual Agent topic works across multiple languages. |
+| **Intent** | `sys_nlu_intent` | The user's **goal**, which maps directly to a Virtual Agent **Topic** (e.g. `ResetPassword`, `SubmitIncident`). |
+| **Utterance** | `sys_nlu_utterance` | Example user phrases under an intent. More, varied utterances = better accuracy. |
+| **Entity** | `sys_nlu_entity` | Annotated words in utterances that capture context and can **skip Virtual Agent prompts via slot-filling** (or act as nodeless NLU entities). |
+| **Vocabulary** | — | Company acronyms/synonyms, plus `@vocabName` links to a table so you don't hardcode records. |
+
+Sources: [NLU model groups / VA NLU](https://www.servicenow.com/docs/r/zurich/conversational-interfaces/virtual-agent/va-NLU.html) · [adding intents/utterances/entities](https://www.servicenow.com/community/virtual-agent-nlu-forum/adding-existing-nlu-model-intents-utterances-entities-vocabulary/m-p/2510668)
+
+### Utterance guardrails (ServiceNow-enforced)
+
+| Rule | Value |
+|------|-------|
+| **Minimum utterances per intent** | **5** (15+ recommended for good accuracy) |
+| **Max length per utterance** | **25 words** or **200 characters** |
+| **Max per model** | **750 intents** / **20,000 utterances** |
+| **Practical performance ceiling** | Noticeably slower above **300 intents / 4,500 utterances** |
+
+Sources: [Intents](https://www.servicenow.com/docs/r/yokohama/intelligent-experiences/nlu-service/intents.html) · [NLU model size guidance](https://www.servicenow.com/community/virtual-agent-nlu-articles/guidance-around-nlu-model-size/ta-p/2309315)
+
+### Entities — system vs user-defined
+
+ServiceNow splits entities into two buckets:
+
+| Bucket | Types |
+|--------|-------|
+| **System entities** (built-in) | **DATE, TIME, LOCATION, NUMBER, EMAIL** |
+| **User-defined entities** (five flavors) | **Simple**, **Mapped**, **Pattern (regex)**, **System-derived**, **Open-ended** |
+
+Entities let the conversation **slot-fill** — if the user says *"reset my password for john@example.com"*, the EMAIL entity captures the address and Virtual Agent can skip the "What's your email?" prompt. This is the difference between a rigid scripted chat and one that feels natural.
+Sources: [VA NLU](https://www.servicenow.com/docs/r/zurich/conversational-interfaces/virtual-agent/va-NLU.html) · [Entities](https://www.servicenow.com/docs/r/zurich/intelligent-experiences/nlu-service/entities.html)
+
+### Vocabulary & Vocabulary Sources (`@` symbol)
+
+- Define **company acronyms and synonyms** — e.g. map *"Outlook"* or *"O365"* to your software list — so users' real words match your catalog.
+- Reference a ServiceNow **table directly** with `@vocabName` inside utterances (e.g. `@cmdb_ci_appl`) so you don't have to hardcode every record; new CIs are matched without retraining.
+Sources: [Intents](https://www.servicenow.com/docs/r/xanadu/intelligent-experiences/nlu-service/intents.html) · [getting started with VA + NLU](https://www.servicenow.com/community/itsm-events/getting-started-with-virtual-agent-capabilities-using-nlu/ev-p/2618264)
+
+### Intent Discovery & Conflict Review
+
+Built-in NLU Workbench tools:
+- **Scan existing incident/case records** to suggest **new intents** you haven't modelled yet — data-driven intent design instead of guessing.
+- **Flag overlapping utterances across intents** via **issue cards**, so two topics don't compete for the same phrasing (a common cause of "the bot picked the wrong topic").
+Sources: [Intents](https://www.servicenow.com/docs/r/yokohama/intelligent-experiences/nlu-service/intents.html) · [max utterances per intent](https://www.servicenow.com/community/virtual-agent-nlu-forum/max-number-of-utterances-per-intent/td-p/260003)
+
+### Traditional NLU vs Now Assist (LLM topic discovery)
+
+| Aspect | Traditional NLU (Workbench) | Now Assist in Virtual Agent |
+|--------|-----------------------------|-----------------------------|
+| Matching | Trained intents + utterances + entities | **LLM-based topic discovery** and **dynamic slot-filling** |
+| Training effort | Curate utterances, entities, vocabulary | Less rigid utterance training; discovers topics |
+| Best for | Deterministic, high-volume, well-understood intents | Long-tail, ambiguous, evolving language |
+| Risk | Misses phrasing not in training | Hallucination/guardrail concerns — govern it |
+
+In newer releases, **Now Assist can supplement or replace** traditional NLU models. The pragmatic architecture is often **hybrid**: keep NLU for stable high-volume intents, let LLM discovery handle the long tail.
+Sources: [NLU landing](https://www.servicenow.com/docs/r/zurich/intelligent-experiences/nlu-service/nlu-landing.html) · [VA NLU](https://www.servicenow.com/docs/r/zurich/conversational-interfaces/virtual-agent/va-NLU.html)
+
+### Building a model — the practical loop
+
+1. **Scope the model** — one model per domain/language; group languages into Model Groups.
+2. **Define intents** that map 1:1 to Virtual Agent topics.
+3. **Write utterances** — start at 5, aim for 15+, vary phrasing, keep under 25 words/200 chars.
+4. **Annotate entities** — system where possible, user-defined (Pattern/Mapped) for custom context; enable slot-filling.
+5. **Add vocabulary** — synonyms/acronyms and `@table` references.
+6. **Train & test** — use the Workbench test panel; check intent confidence and conflicts.
+7. **Publish** and wire intents to topics; monitor and iterate with **Intent Discovery** and **issue cards**.
+
+> For exact steps, see the ServiceNow **NLU Workbench documentation** and the **Virtual Agent NLU guide**.
 
 ---
 
