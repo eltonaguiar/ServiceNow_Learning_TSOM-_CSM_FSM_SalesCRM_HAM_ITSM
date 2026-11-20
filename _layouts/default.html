@@ -121,8 +121,8 @@
 </aside>
 <button type="button" class="toc-show" id="tocShow" aria-label="Show the table of contents">☰ Contents</button>
 
-<script src="{{ '/assets/js/site.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/tts.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/site.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}"></script>
+<script src="{{ '/assets/js/tts.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}"></script>
 <script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js?v=20261110"></script>
 <script>
   mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
