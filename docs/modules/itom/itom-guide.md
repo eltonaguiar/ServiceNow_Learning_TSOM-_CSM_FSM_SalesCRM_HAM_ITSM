@@ -54,6 +54,14 @@
   - [Cloud Services Catalog](#cloud-services-catalog)
   - [Cloud Governance](#cloud-governance)
   - [Cloud Cost Management](#cloud-cost-management)
+- [End-to-End ITOM Design (Real-World)](#end-to-end-itom-design-real-world)
+- [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
+- [Discovery Debugging — Every Potential Problem](#discovery-debugging--every-potential-problem)
+- [Cloud Discovery](#cloud-discovery)
+- [CMDB Relationships — How CIs Connect](#cmdb-relationships--how-cis-connect)
+- [CMDB Class Gaps — Store Apps to Consider](#cmdb-class-gaps--store-apps-to-consider)
+- [Upgrade Strategy & Instance Strategy](#upgrade-strategy--instance-strategy)
+- [Integration & Credential Hygiene](#integration--credential-hygiene)
 - [Quiz](#quiz)
 - [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
@@ -736,6 +744,252 @@ Use `task_sla` to:
 | **Budget Tracking** | Set budgets, track burn rate, alert on thresholds | Cloud Cost Management > Budgets |
 
 ---
+
+## End-to-End ITOM Design (Real-World)
+
+This section is the architecture view: how a production ITOM stack actually fits together, and the design choices that separate a working deployment from a fragile one.
+
+### The layered stack
+
+| Layer | Component | Purpose |
+|-------|-----------|---------|
+| Discovery | MID Server, Patterns, Schedules, Probes/Sensors, ECC Queue | Find CIs and relationships across on-prem, cloud, mainframe |
+| CMDB | CI classes, Relationships, Health, Data Policies | Single source of truth for configuration items |
+| Service Mapping | Patterns, Application Services, Business Services | Map CIs to business services for impact analysis |
+| Event Management | Event Rules, Noise Reduction, Alert Correlation, AIOps | Turn raw monitoring events into actionable alerts |
+| ITOM Health | Health Rules, Dashboards, KPIs | Measure completeness and discovery coverage |
+| MID Server | MID Servers, capabilities, clusters | Executes discovery on target networks |
+
+### Reference topology
+
+- **One MID Server per network segment / data center** — so discovery does not cross a firewall to reach targets.
+- **One MID Server per cloud region** for cloud discovery.
+- **Cluster "like" MID Servers** (groups of 2–4) and use **load-balanced** clusters, not failover — a load-balanced cluster automatically fails over because the surviving member picks up the work, whereas a failover cluster leaves most nodes idle.
+- **Dedicate MID Servers to a single purpose**: keep Discovery and Event Management on separate MID Servers. Service Mapping and Discovery can share a MID Server only if their schedules do not run concurrently.
+- **Stagger discovery schedules** — never let every schedule fire at the same time.
+
+Real-world sizing data point: customers running clusters of 4 MID Servers (4 vCPU @ 2 GHz+, 32 GB RAM, 80–100 GB disk, 25–100 threads at ~0.5 GB/thread) have discovered roughly 5,000 servers in under two hours.
+
+---
+
+## MID Server Configuration & Tuning
+
+The MID Server ships deliberately light. You tune two resources: **threads** and **memory**.
+
+### Threads
+
+| Setting | Where | Default | Tuning |
+|---------|-------|---------|--------|
+| `threads.max` | `<agent_dir>/config.xml` | 25 | Raise to 50 or 100 for heavy Discovery; this is the number of probes that can run at once |
+
+### Memory
+
+The MID Server JVM default heap is **1 GB**. Raise it in `wrapper-override.conf` and increase it in step with threads. Keep CPU and memory at roughly **80% of full** when the MID Server is at peak — that is the sweet spot; higher and you risk OOM or throttling.
+
+### Placement and identity
+
+- Install the MID Server on a local drive in a folder name with **no spaces** (e.g. `C:\ServiceNow\MID_Server_Agent`).
+- In production, install **one MID Server per host**.
+- Prefer a **Windows MID Server** — it can perform Discovery and Automation on both Windows and Unix, whereas a Linux MID Server can only act on Unix.
+- Run under a **dedicated service account**, not SYSTEM or root.
+
+### Capabilities and load balancing
+
+- Give each MID Server **capability tags** (`discovery`, `servicemapping`, `cloud`, `event management`) and point schedules at the matching capability.
+- For capacity, deploy multiple MID Servers and let the platform load-balance across them. Load-balanced clusters beat failover clusters for horizontal discovery: work is shared continuously and a lost node's work is naturally picked up.
+- Monitor with **MID Server → Dashboard** after every tuning change; watch queue depth, ECC queue backlog, and resource utilisation.
+
+### The MID Server estimator
+
+ServiceNow publishes a MID Server planning checklist spreadsheet. Use it to size the number of MID Servers from target count and interaction frequency. Discovery and Service Mapping are "standard" load; Cloud Provisioning and Governance, Event Management, and ACC need more resources.
+
+---
+
+## Discovery Debugging — Every Potential Problem
+
+Debug top-down. Do not change two things at once.
+
+### Step 1 — Is the MID Server healthy?
+
+- **MID Server → Servers**: status must be Up, version must match the instance.
+- Your branch may have a MID Server on one version that fails discovery while another succeeds on a different version — **run the discovery on a different MID Server** to rule that out first.
+- Check the **ECC Queue** (`Discovery > Output and Artifacts > ECC Queue` or `ECC > Queue`). Output records go ready → processing → processed; input records go ready → processing → processed or **error**. ECC processing errors are the primary starting point for a failed discovery.
+
+### Step 2 — Network reachability (from the MID Server host)
+
+Ping proves only L3 reachability. Discovery needs specific service ports:
+
+| Protocol | Port(s) | Test from MID host |
+|----------|---------|--------------------|
+| WMI (Windows) | 135 (+ dynamic RPC) | `Test-NetConnection <ip> -Port 135` |
+| SSH (Linux/Unix) | 22 | `telnet <ip> 22` |
+| vCenter | 443 | `telnet <ip> 443` |
+| WBEM | 5989 | `telnet <ip> 5989` |
+| SNMP | 161/UDP | `snmpwalk -v2c -c <community> <ip> .1.3.6.1.2.1.1` |
+| LDAP | 389 | `telnet <ip> 389` |
+
+Batch reachability: `Test-Connection -ComputerName (Get-Content C:\Data\Computers.txt) -Count 1` in PowerShell. A successful ping with a blocked port still fails discovery — always test the port, not just ping.
+
+### Step 3 — Credentials
+
+- Test outside ServiceNow: RDP to a Windows host validates the credential; PowerShell `gwmi win32_operatingsystem -computer <ip> -credential '<domain>\<user>'` validates WMI directly.
+- Authentication failures → add the correct credential to **Discovery → Credentials**.
+- WMI/impersonation errors → confirm the domain is in the credential, the MID service account has permission, and the firewall allows WMI.
+- Special characters in passwords can break XML parsing — escape them correctly.
+
+### Step 4 — MID Server debug logs
+
+1. **MID Server → Servers → [MID] → Configuration Parameters → New**: set `mid.log.level` = `debug`.
+2. Reproduce the failure.
+3. Set `mid.log.level` back to `info` afterwards (debug logging is heavy).
+4. **Grab MID logs** from the MID Server record to pull the bundle.
+5. On the host, read `~\agent\logs\agent0.log.0` and `wrapper.txt`; the presence of `agent0.log.0.lck` confirms the MID is running.
+
+Look for: `Connection timed out`, `Authentication failed`, `No WMI connection`, `Pattern execution error`.
+
+### Step 5 — Discovery Status detail
+
+- **Discovery → Status → History**: open the run and read the Errors/Warnings per phase (Shazzam/port scan, Horizontal Discovery, Vertical Discovery).
+- Common messages:
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| No WMI connection | Ports/firewall/credentials | Test WMI from MID host; open port 135 + RPC range |
+| No sensor defined | Sensor missing/disabled | Enable the sensor for the active probe |
+| Probe not found | Wrong sys_id / deleted probe | Restore the probe record |
+| Payload size exceeded | Large discovery payload | Set `mid.discovery.maxpayloadsize` to a negative value to disable the limit |
+| SSH errors | Shell support, script transfer, session validity | Verify SSH shell and file permissions |
+| Command timeout | Slow target or wrong command | Check target load and normaliser |
+
+### Step 6 — Patterns
+
+- Pattern must be **Active** and must include the target CI class.
+- Run the pattern in **Debug** mode from Pattern Designer to see where classification fails.
+- Verify credentials map to the right protocol at the right step.
+
+### Step 7 — CMDB write and duplicates
+
+- Discovery writes need ACL permission on `cmdb_ci` and derived tables.
+- Duplicate CIs usually mean **coalesce rules are missing** — coalesce on serial number, MAC, or UUID.
+- The MID Server issue table (`ecc_agent_issue`) and resource-threshold alerts warn before the MID Server falls over.
+
+---
+
+## Cloud Discovery
+
+**Providers:** AWS, Azure, GCP, Oracle Cloud, IBM Cloud.
+
+### Configuration path
+
+1. **System Cloud → Cloud Accounts → New** — create the account.
+2. Credentials: Access/Secret key (AWS), Service Principal (Azure), Service Account JSON (GCP). Prefer IAM roles / workload identity over long-lived keys.
+3. Create a **Cloud Discovery Schedule**, pick regions and resource types (compute, storage, databases, load balancers, VPCs).
+4. Assign a MID Server with network reachability to the provider endpoints.
+
+### What cloud discovery finds
+
+Compute instances, storage buckets/volumes, managed databases, load balancers, virtual networks/subnets, and (with tags) resource grouping. It is **read-only** — it never changes cloud resources.
+
+### Cloud-specific failure modes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Empty inventory | Wrong credentials or region | Re-verify principal and selected regions |
+| Throttling / partial results | API rate limits (AWS especially) | Scan fewer regions, stagger, request limit increases |
+| Access denied | Missing IAM actions (`ec2:DescribeInstances`, `tag:GetResources`, etc.) | Grant the required read actions |
+| Private subnet resources missing | MID Server cannot reach route table / API | Place a MID Server in the VPC or use a proxy |
+| Security group blocks MID | NACL/SG rules | Allow MID Server egress to provider endpoints |
+
+---
+
+## CMDB Relationships — How CIs Connect
+
+### Which method to use
+
+| Method | Use when |
+|--------|----------|
+| Out-of-box CMDB relationships | Standard CI types (Server→OS, Server→Cluster, Service→Server) |
+| CI Relationship Rules | Automate relationship creation from matching CI pairs |
+| Service Mapping | Discover real application dependencies from traffic/config |
+| Manual relationship | One-off gaps not covered by automation |
+| Integration / federation | External CMDB sync |
+
+### Is it common practice to use out-of-box connection types?
+
+**Yes — always start with OOB relationship and connection types.** They are maintained by ServiceNow, understood by OOB reports, health checks, and Dependency Views. Only create custom relationship types when OOB genuinely cannot express the dependency, and document each one in the CMDB governance model. Service Mapping establishes most application-to-infrastructure relationships automatically from discovered traffic and configuration.
+
+### Store apps for relationships
+
+- **CMDB Health** — flags inconsistent or orphaned relationships.
+- **Service Mapping** — pattern-based application service discovery.
+- **Dependency Views** — visualize upstream/downstream dependencies.
+
+---
+
+## CMDB Class Gaps — Store Apps to Consider
+
+When OOB CI classes do not cover your estate, the ServiceNow Store is the usual answer.
+
+| Gap | Store search term | Typical apps |
+|-----|-------------------|--------------|
+| Network devices | "network CMDB", "network device" | Network CMDB, enhanced network discovery |
+| Mainframe / z/OS | "mainframe", "z/OS" | Mainframe CMDB, z/OS discovery packs |
+| Storage arrays / SAN | "storage array", "SAN" | Storage CMDB, SAN discovery |
+| Kubernetes | "Kubernetes", "k8s" | Kubernetes Discovery, container CMDB |
+| Containers | "container", "Docker" | Container Discovery |
+| Multi-cloud | "multi-cloud CMDB", "cloud CMDB" | Cloud CMDB extensions |
+| SaaS applications | "SaaS CMDB" | SaaS CMDB, SaaS discovery |
+
+**Evaluate before installing:** ServiceNow certification, active support, pricing model (per-CI vs flat), whether it **extends** OOB classes (preferable) or forks them, and whether it feeds existing CMDB Health and Relationship Rules.
+
+---
+
+## Upgrade Strategy & Instance Strategy
+
+### When should you upgrade?
+
+- You need CI classes or features only in newer releases (CSDM updates, new ITOM capabilities).
+- Security vulnerabilities are patched in a newer release.
+- Performance problems are fixed upstream.
+- Your release is leaving the supported window.
+
+"Being on the latest" is not a goal by itself — it is a goal **only after your own regression passes**. Stay within roughly one major release of current if you want predictable upgrades, and plan at least one upgrade per year.
+
+### Upgrade order — always Dev first
+
+1. **Dev instance** — upgrade first; run regression against every customization, integration, script and flow.
+2. **Test / QA / UAT** — upgrade next; test with realistic data volume and business acceptance.
+3. **Production** — upgrade last, in a maintenance window, with a rollback plan.
+
+### Clone order ties into upgrades
+
+- Always move customizations **up the stack** (Dev → Test → Prod). Customizations introduced mid-stack get overwritten by the next push from Dev.
+- Before a clone, freeze Dev work and preserve sub-production data you do not want overwritten.
+- Typical production clone: clone Prod down to a sub-production instance with Dev as the target, then rebuild sub-prod data.
+- After any clone, re-check MID Server credentials — the platform flags post-clone MID credential issues automatically.
+
+### How many instances should a customer have at minimum?
+
+| Instance | Purpose | Minimum |
+|----------|---------|---------|
+| Dev | Development, integration testing | 1 |
+| Test / QA / UAT | Testing and business acceptance | 1 |
+| Prod | Production | 1 |
+| **Minimum total** | | **3** |
+
+More instances (e.g. adding a separate Sandbox for training) mean more maintenance, more upgrade work, and more clone coordination — so a 3-instance Dev/Test/Prod model is the common minimum, and 4 (adding UAT or Sandbox) is common in larger organisations.
+
+---
+
+## Integration & Credential Hygiene
+
+- Create a **dedicated integration user** with least-privilege roles — never use a personal admin account.
+- Store OAuth client secrets and API keys in **encrypted storage** (ServiceNow encrypted fields, cloud secret managers, environment variables), never in a repo, ticket or chat.
+- Rotate credentials on a schedule and revoke the old ones.
+- Inventory every external credential (Salesforce OAuth, AWS keys, Azure principal, GCP service account) with its storage location and purpose, so rotation and offboarding are deliberate rather than accidental.
+
+---
+
 
 ## Quiz
 
