@@ -1212,6 +1212,34 @@ Compute instances, storage buckets/volumes, managed databases, load balancers, v
 | Private subnet resources missing | MID Server cannot reach route table / API | Place a MID Server in the VPC or use a proxy |
 | Security group blocks MID | NACL/SG rules | Allow MID Server egress to provider endpoints |
 
+### Cloud Discovery vs Service Graph Connector (e.g. the AWS SGC)
+
+These are two different tools that both put AWS resources into your CMDB, and people constantly confuse them. They differ in **category, mechanism, depth, and governance**.
+
+| Dimension | Cloud Discovery (pattern-based) | Service Graph Connector for AWS |
+|-----------|--------------------------------|--------------------------------|
+| Category | **ITOM Discovery** (part of ITOM Visibility) | **CMDB integration** (Service Graph Connector, a Store app) |
+| Mechanism | Discovery patterns/probes driven by a **MID Server** calling AWS APIs (Describe calls / SSM) | Connector framework that talks **directly to AWS APIs**; pulls multi-account data |
+| MID Server | **Required** (cloud-capable MID Server) | **Not required** — optional only if firewall/proxy policy forces traffic through one |
+| Depth | **Deep host-level** visibility (OS/app detail, via SSM etc.); feeds **Service Mapping** and Event Management tie-in | **Broad service + relationship coverage**, CMDB-first; curated mappings to CSDM |
+| Relationships | Built via patterns / Service Mapping | Ships curated relationship mappings and identification rules |
+| Data source | Discovery data source | SGC data source (processed through **IRE**) |
+| Multi-account | Configure per account/schedule | One ServiceNow service account pulls **all AWS accounts** |
+| Best for | Operational ITOM: host-level visibility, Service Mapping, dependency views | Governed, scalable **CMDB population** from a cloud-first estate; broad service coverage |
+
+**What each one actually does**
+- **Cloud Discovery** is *Discovery*. It scans the cloud account, classifies resources, and runs patterns to record CIs and their attributes — the same engine that discovers your on-prem servers. It is the right choice when you need cloud resources to participate in **Service Mapping, Dependency Views, and Event Management**, or when you need detailed **host-level** data.
+- **Service Graph Connector (SGC)** is an *integration*. It pulls authoritative data from AWS and loads it into the CMDB through IRE with predefined mappings and identification rules. It is the ServiceNow-recommended way to ingest **third-party authoritative CMDB data at scale**, and it covers a broad set of AWS services and relationships without a MID Server in the default path.
+
+**Do they overlap — and can you run both?**
+Yes, they overlap heavily on compute/network/storage, and running both **without aligned IRE rules will create duplicate CIs and reconciliation fights.** Two sane patterns:
+1. **SGC as the CMDB source of truth** for AWS inventory + **Cloud Discovery** only for Service Mapping/operational depth on the hosts you actually map. Align identification rules so both resolve to the same CIs.
+2. **Pick one per resource type** — e.g. SGC for the broad AWS service inventory, Cloud Discovery for the specific application hosts in a business service.
+
+**Rule of thumb:** cloud-first CMDB and broad service coverage → **SGC**. Host-level operations, Service Mapping, alert correlation → **Cloud Discovery**. Don't run both blindly against the same resources.
+
+ServiceNow's own "Choose the Right Cloud Discovery Method" training compares Cloud Discovery, Cloud SGCs, Horizontal Discovery, and ACC — worth referencing when you scope an environment.
+
 ---
 
 ## Mac (macOS) Discovery — Is It Supported?
