@@ -1134,10 +1134,55 @@ Debug Mode executes the pattern against **one target**, step by step, in isolati
 
 **The point of Debug Mode vs full discovery:** it isolates pattern logic from everything else. If full discovery fails but Debug Mode returns clean output for the same target, the fault is upstream (network/credential/classifier trigger) or downstream (identification rule/coalesce) — not the pattern's parse steps.
 
-### Step 7 — CMDB write and duplicates
+### Step 7 — CMDB write, coalesce, and identification rules
 
-- Discovery writes need ACL permission on `cmdb_ci` and derived tables.
-- Duplicate CIs usually mean **coalesce rules are missing** — coalesce on serial number, MAC, or UUID.
+Discovery writes need ACL permission on `cmdb_ci` and derived tables. Duplicates almost always trace to the **identification rules** (the modern replacement for the old "coalesce" concept), so this is where to look.
+
+**"Coalesce" today = the Identification and Reconciliation Engine (IRE).**
+An **identification rule** applies to a CI class and is built from a **single CI identifier** plus **one or more identifier entries**, each with its **own priority**. IRE tries the entries **in priority order** to decide "is this an existing CI or a new one?" This is what people still call "coalescing."
+
+**What a "normal" coalesce looks like**
+Out-of-the-box server classes ship with a sensible precedence, roughly:
+- **Priority 10:** Serial number (or UUID)
+- **Priority 20:** Name
+- **Priority 30:** MAC address
+
+Most-strong-and-stable attribute first, weaker fallbacks after. That precedence — not a single attribute — is the "normal" pattern.
+
+**Multiple attributes: together vs individually (the key distinction)**
+
+| You want… | How to build it | Effect |
+|-----------|------------------|--------|
+| **All must match** (stricter) | Put multiple criterion attributes in **one identifier entry** | They are **ANDed** — the entry only matches when every listed attribute is present and matches |
+| **A fallback chain** ("serial, else name") | Put each attribute in its **own identifier entry**, ordered by **priority** | IRE tries serial first; if serial is **missing**, it falls through to the name entry |
+
+So **serial number + name inside one entry = AND** (both required) — that is *not* a fallback. If you put them in one entry and serial is missing, the entry won't match at all.
+
+**Your example — "serial number, and if missing, a name":**
+Yes, this is legitimate and is **best practice**, but you build it as **two identifier entries**, not one:
+- Entry 1 (priority 10): criterion = **Serial number**
+- Entry 2 (priority 20): criterion = **Name**
+
+IRE tries serial first. If serial is absent from the payload, it uses name. This is exactly what priority-ordered entries are for.
+
+**The gotcha that trips people up:** the fallback fires when the higher-priority attribute is **absent/insufficient**, not simply when it doesn't match. If a serial number **is present** but matches no existing CI, IRE generally **creates a new CI** using that serial rather than falling through to the name entry — which is usually the right outcome (a serial number is authoritative). Design your expectations around "missing → fall through," not "no match → fall through."
+
+**Independent vs dependent identifiers**
+- **Independent** — unique on its own (serial number, UUID, MAC). Correct for servers.
+- **Dependent** — only unique in combination with a related CI (e.g. a network interface identified by MAC **plus** the server it belongs to). Use for child CIs like NICs, disks.
+
+**Other rules that matter**
+- **Inheritance:** a child class inherits the parent's identification rule unless you define its own — check the effective rule, not just the class you're looking at.
+- **Reconciliation rules are separate** from identification: identification answers "same CI?", reconciliation answers "which data source wins when two disagree?" Don't conflate them.
+- **Audit duplicates** with **CMDB Health → Duplicate CIs** / the IRE dedupe tooling, then fix the rule rather than merging by hand.
+
+**Best-practice summary**
+1. Prefer strong, stable, unique attributes — serial number, UUID, MAC — as the top-priority entry.
+2. Use **name only as a fallback**, never as the sole identifier (names duplicate and get renamed).
+3. One attribute-set per identifier entry; use **priority** to express fallback, **AND** to express "all must match."
+4. Use independent identifiers for top-level CIs, dependent for children.
+5. Verify the effective (inherited) rule for the class before blaming detection.
+
 - The MID Server issue table (`ecc_agent_issue`) and resource-threshold alerts warn before the MID Server falls over.
 
 ---
