@@ -56,6 +56,7 @@
   - [Cloud Cost Management](#cloud-cost-management)
 - [End-to-End ITOM Design (Real-World)](#end-to-end-itom-design-real-world)
 - [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
+- [MID Server Load Balancing — Setup, Capacity Math, and Validation](#mid-server-load-balancing--setup-capacity-math-and-validation)
 - [Discovery Debugging — Every Potential Problem](#discovery-debugging--every-potential-problem)
 - [Cloud Discovery](#cloud-discovery)
 - [Mac (macOS) Discovery — Is It Supported?](#mac-macos-discovery--is-it-supported)
@@ -856,6 +857,102 @@ A company **can** force a MID Server onto Windows 11 only with a manual ZIP-file
 ### The MID Server estimator
 
 ServiceNow publishes a MID Server planning checklist spreadsheet. Use it to size the number of MID Servers from target count and interaction frequency. Discovery and Service Mapping are "standard" load; Cloud Provisioning and Governance, Event Management, and ACC need more resources.
+
+---
+
+## MID Server Load Balancing — Setup, Capacity Math, and Validation
+
+This is the operational detail behind "load-balanced clusters beat failover clusters." Here is exactly where it is configured, the arithmetic that decides whether the setup is adequate, and how to prove it on a pilot before committing the full estate.
+
+### 1. How and where to set it up (exact steps)
+
+Load balancing in ServiceNow is delivered through **MID Server clusters**, not through a hardware load balancer in front of the agents. (Discovery is outbound from the MID Server; you are balancing *jobs across agents*, not inbound traffic.)
+
+**Step 1 — Prerequisites**
+- All MID Servers that will share load must have **similar hardware and configuration** (same CPU/RAM/threads). A weak node drags the whole cluster.
+- Each MID Server must be assigned the **capability** the work needs (`discovery`, `servicemapping`, etc.).
+- A MID Server may belong to **only one load-balancing cluster**. Putting one MID in multiple load-balancing clusters causes Discovery authentication/timeout errors (ServiceNow KB0997595) — this is the single most common misconfiguration.
+
+**Step 2 — Create the cluster**
+1. Navigate to **MID Server → Clusters** (table `ecc_agent_cluster`).
+2. Click **New**.
+3. Name the cluster (e.g., `DC1-Discovery-LB`).
+4. Set the cluster **type = Load balancing** (the alternative, *Failover*, uses a fixed order and does **not** share load).
+5. Save.
+
+**Step 3 — Add MID Servers as members**
+- On each MID Server record (**MID Server → Servers**), set its **Cluster** field to the cluster you created (this populates `cluster_id`).
+- Alternatively, use the cluster record's member related list to add MID Servers.
+- Validate each MID Server afterwards (status **Up**, version matching the instance).
+
+**Step 4 — Point work at the cluster / capability**
+- On each **Discovery Schedule** (**Discovery → Discovery Schedules**), the **MID Server** field accepts the cluster (or multiple MID Servers). With a load-balancing cluster, the platform distributes the ECC jobs across members automatically.
+- Use **Discovery behaviors** (`c_DiscoveryBehaviors`) when different network segments must be scanned by different MID Servers — a behavior assigns tasks to specific MID Servers on the same or different IP segments.
+- For Service Mapping, assign the cluster/capability the same way.
+
+**Step 5 — Verify**
+- **MID Server → Dashboards → MID Server Health**: all members **Up**, **Validated**, same version, and each showing **Pending/Processing jobs**.
+- Run a small discovery and confirm the **ECC Queue** jobs are spread across the members (each MID processes a share), not all queued on one.
+
+### 2. The capacity math — how many MID Servers, how many threads
+
+There is no magic formula, but there is a defensible calculation you should run and then confirm empirically.
+
+**A. Establish per-MID throughput from a pilot (do not guess it).**
+Run one MID Server against a representative sample and measure:
+```
+R = targets completed per hour      (from Discovery Status duration + target count)
+P = average concurrent probes       (from Statistics (3h) on the MID form)
+```
+`R` is your throughput per MID Server for that mix of OSes/protocols.
+
+**B. Size the cluster for the window.**
+```
+Required MID Servers = ceil( TotalTargets / (R × DiscoveryWindowHours) / TargetUtilisation )
+```
+- **TargetUtilisation** = the fraction of a MID's capacity you are willing to use, e.g. **0.60–0.70**. Never plan to run a cluster at 100% — a burst, a slow subnet, or a node outage has nowhere to go.
+- Example: 20,000 targets, `R` = 1,000/hr, window = 8 h → raw need = 20,000 / (1,000 × 8) = 2.5 MIDs. At 0.65 utilisation → 2.5 / 0.65 ≈ **3.8 → 4 MIDs**.
+
+**C. Size threads and memory per MID.**
+```
+Concurrent probes needed = (TotalTargets / DiscoveryWindowSeconds) × AvgProbesPerTarget
+Per-MID threads        = Concurrent probes needed / NumberOfMIDs
+```
+- `threads.max` (config.xml) caps concurrent probes per MID. Default **25**.
+- Frequent/continuous discovery at 25 threads → ServiceNow guidance is to **start at 8 CPU cores** per MID.
+- JVM heap: **2–4 GB recommended** (raise in `wrapper-override.conf`); keep RAM and CPU at **≤80%** at peak.
+
+**D. Threshold targets to design against (ServiceNow guidance)**
+
+| Metric | Target | Where to read it |
+|--------|--------|------------------|
+| CPU | **<90% average, <95% peak** (frequent discovery: <70% avg, <90% peak) — brief 100% spikes are normal | MID Server Health / Performance tab |
+| Memory | **<80% of host RAM** and **<80% of max JVM heap** | MID Server Health (`Max memory used %`) |
+| ECC Queue depth | **Clears between discovery runs** | MID Server → ECC Queue |
+| Discovery duration | Stable trend, not creeping up run-over-run | Discovery → Status |
+| Thread activity | No sustained saturation of `threads.max` | Statistics (3 hours) on MID form |
+
+### 3. Reports and dashboards that tell you if the setup is fine
+
+- **MID Server → Dashboards → MID Server Health** — the primary panel. Columns: **Mean CPU used %**, **Max memory used %**, **Pending jobs**, **Processing jobs**, version/validation. The **Performance** tab trends CPU and memory over 30 days; two built-in reports — *Avg Percentage of CPU Used* and *Avg Percentage of Max Memory Used* — quantify drift.
+- **MID Server → ECC Queue** — input/output depth and **age**. Look for a rising **ready** count without matching **processing/processed** (a read-side problem), or steady growth that never drains (a capacity bottleneck).
+- **Discovery → Status** — per-run duration, errors, warnings; the throughput and quality record.
+- **Statistics (3 hours)** related list on the MID Server form — live thread usage.
+- **MID Server Resource Threshold Alerts** — enable the system properties; the platform samples every 10 minutes, compares averages to thresholds, writes breaches to `ecc_agent_issue`, and can email/notify. (Default is **disabled** — turn it on or you fly blind.)
+- **Application Insights → Overview** — ECC queue graphs (ready/processing/processed) for load-handling and efficiency.
+
+**Go/no-go rule:** the cluster is "fine" when, across several real runs, CPU stays <90% avg / <95% peak, memory <80% of RAM and heap, **the ECC queue clears between runs**, discovery duration is stable, and no member is consistently idle or saturated. If any of these fail, add a MID Server or increase threads/heap — in that order.
+
+### 4. Pilot on a subset first — never run the full batch cold
+
+**Test on a small, representative subset first.** The ServiceNow checklist itself says "test discovery against sample devices." Concretely:
+
+1. **Sample ~20–50 targets** spanning every OS and protocol in the estate (Windows/WMI, Linux/SSH, network/SNMP, cloud, one Mac if present) — not just the easy ones.
+2. Run the cluster against that sample and capture `R`, CPU, memory, queue depth, and duration.
+3. **Extrapolate** with the formula in §2 and compare to thresholds in §2D.
+4. Only if it passes, **scale up in stages** (e.g., 10% → 25% → 50% → 100% of targets), re-checking the dashboard at each stage.
+
+Why not the full batch: a cold full run on an undersized cluster produces timeouts, partial CIs, and an ECC backlog that can take hours to drain — and it is much harder to diagnose than a failed pilot. The pilot is cheap; the failed full run is not.
 
 ---
 
