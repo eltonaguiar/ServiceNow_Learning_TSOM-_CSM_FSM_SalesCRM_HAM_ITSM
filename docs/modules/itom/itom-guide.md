@@ -790,6 +790,20 @@ The MID Server JVM default heap is **1 GB**. Raise it in `wrapper-override.conf`
 
 - Install the MID Server on a local drive in a folder name with **no spaces** (e.g. `C:\ServiceNow\MID_Server_Agent`).
 - In production, install **one MID Server per host**.
+
+**Why one MID Server per host in production**
+
+| Reason | What happens if you co-locate |
+|--------|------------------------------|
+| **Resource contention** | Two MID Servers on one host share CPU, memory, and disk I/O. Discovery jobs are probe-heavy and bursty; one server's GC pauses or thread spikes starve the other. You get slower scans, timeouts, and intermittent failures that are hard to attribute. |
+| **Scheduling collisions** | Discovery schedules fire independently. Two servers on one host can launch heavy jobs at the same moment, doubling I/O and network load on the host exactly when capacity is least available. |
+| **Maintenance windows** | Patching or rebooting one MID Server now takes down discovery for all the targets assigned to *both* servers on that host. One-per-host means you can restart or upgrade one MID without affecting the other. |
+| **Failure isolation** | If a misbehaving discovery leaks memory or pegs CPU on one MID, a co-located MID suffers collateral damage. One-per-host contains the blast radius to a single MID's target set. |
+| **Log clarity** | `agent0.log.0`, `wrapper.txt`, and ECC Queue entries mix when two agents write from the same host. Debugging becomes guesswork about which log line belongs to which MID. |
+| **Capacity planning** | The MID Server estimator sizes threads and heap per MID. With one-per-host you know exactly what each box can take. With co-located agents you're guessing at split-half allocations. |
+
+**When the rule relaxes:** A single host can run multiple MID Servers only in non-production (sandbox, dev) where load is light and failure carries no consequence. Even then, give each its own folder, service account, and port range so they do not collide.
+
 - Prefer a **Windows MID Server** — it can perform Discovery and Automation on both Windows and Unix, whereas a Linux MID Server can only act on Unix.
 - Run under a **dedicated service account**, not SYSTEM or root.
 
