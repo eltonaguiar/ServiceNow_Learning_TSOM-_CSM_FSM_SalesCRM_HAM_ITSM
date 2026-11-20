@@ -57,6 +57,7 @@
 - [End-to-End ITOM Design (Real-World)](#end-to-end-itom-design-real-world)
 - [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
 - [MID Server Load Balancing — Setup, Capacity Math, and Validation](#mid-server-load-balancing--setup-capacity-math-and-validation)
+- [MID Server Versions & Instance Upgrades](#mid-server-versions--instance-upgrades)
 - [Discovery Debugging — Every Potential Problem](#discovery-debugging--every-potential-problem)
 - [Cloud Discovery](#cloud-discovery)
 - [Mac (macOS) Discovery — Is It Supported?](#mac-macos-discovery--is-it-supported)
@@ -953,6 +954,71 @@ Per-MID threads        = Concurrent probes needed / NumberOfMIDs
 4. Only if it passes, **scale up in stages** (e.g., 10% → 25% → 50% → 100% of targets), re-checking the dashboard at each stage.
 
 Why not the full batch: a cold full run on an undersized cluster produces timeouts, partial CIs, and an ECC backlog that can take hours to drain — and it is much harder to diagnose than a failed pilot. The pilot is cheap; the failed full run is not.
+
+---
+
+## MID Server Versions & Instance Upgrades
+
+### Yes — MID Servers have their own version
+
+The MID Server ships on a release cycle independent of your ServiceNow instance. You'll see the version on **MID Server → Servers** (table `ecc_agent`) in the **Version** column, next to the **Validated** flag. The instance and the MID Server share much of the same Glide Java code, so a version mismatch can break discovery, orchestration, and Service Mapping — not just cosmetically, but functionally:
+
+- The MID Server may fail to **validate** against the instance.
+- Commands sent from the instance to the MID Server may not be processed.
+- Data coming back from the MID Server may be rejected.
+- Validation and encryption **keychain** APIs may not match.
+
+So version alignment is a real operational concern, not a vanity number.
+
+### Auto-upgrade: the default path
+
+**MID Servers upgrade themselves automatically.** When the instance upgrades and a MID Server no longer matches the instance version, automatic upgrade is triggered:
+
+1. The MID Server downloads the new package from **install.service-now.com**.
+2. It replaces the old files in-place.
+3. It restarts with the new version.
+
+This happens at the **end of every instance upgrade**. So in the normal case, you do **not** manually patch each MID Server when the instance upgrades — the platform handles it.
+
+**What you must confirm:** auto-upgrade only works if the MID Server can reach `install.service-now.com` (outbound HTTPS 443). Air-gapped or proxy-locked MIDs can't download the package and will stay on the old version after the instance moves ahead.
+
+### Manual patching: when auto-upgrade can't run
+
+If a MID Server can't reach `install.service-now.com`, you upgrade it manually:
+
+1. Download the MID Server package (`mid.zip`) from **install.service-now.com** for the target version.
+2. On the MID Server host, stop the MID Server service.
+3. Back up `config.xml`, `wrapper-override.conf`, and any custom parameters/scripts.
+4. Extract the new package over the existing installation (preserving your config files).
+5. Restart the MID Server service.
+6. Verify on **MID Server → Servers**: Version matches the instance, **Validated = yes**, status **Up**.
+
+There is also a **manual upgrade via the MID Server record** on the instance for some paths — check **MID Server → Servers → [MID]** for an upgrade option where available.
+
+### Instance upgrade procedure — where MIDs fit
+
+| Phase | Action |
+|-------|--------|
+| Before instance upgrade | Note current MID Server versions; confirm all MIDs are **Validated** and **Up**. Freeze new MID installs. |
+| Instance upgrade | The instance upgrades first. Auto-upgrade triggers for each MID that can reach `install.service-now.com`. |
+| After instance upgrade | Verify every MID Server's version matches the new instance version and **Validated = yes**. Investigate any that didn't auto-upgrade (network, proxy, disk space). |
+| Remediation | Manually patch any lagging MIDs; re-validate. Do not run discovery against a version-mismatched MID. |
+
+**Don't run production discovery during the version-mismatch window.** Wait until every MID Server reports the matching version and is validated.
+
+### Go/no-go checklist for instance upgrades
+
+- [ ] All MID Servers **Validated** and **Up** before the instance upgrade begins.
+- [ ] Auto-upgrade reachable: each MID host can reach `install.service-now.com:443` (or a configured proxy).
+- [ ] After the instance upgrade, every MID version matches the instance version.
+- [ ] **Validated = yes** on every MID Server record.
+- [ ] No discovery schedules running until the above are true.
+
+### Bottom line
+
+- **Yes, MID Servers have versions** — tracked independently of the instance.
+- **You do not normally patch them manually** on instance upgrade: auto-upgrade handles it.
+- **But you must verify** — auto-upgrade fails silently on air-gapped or proxy-blocked MIDs, leaving a version mismatch that breaks discovery. Treat "every MID validated after upgrade" as a hard gate, not an assumption.
 
 ---
 
