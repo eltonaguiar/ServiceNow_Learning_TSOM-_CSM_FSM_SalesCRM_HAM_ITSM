@@ -1032,20 +1032,34 @@ Debug top-down. Do not change two things at once.
 - Your branch may have a MID Server on one version that fails discovery while another succeeds on a different version — **run the discovery on a different MID Server** to rule that out first.
 - Check the **ECC Queue** (`Discovery > Output and Artifacts > ECC Queue` or `ECC > Queue`). Output records go ready → processing → processed; input records go ready → processing → processed or **error**. ECC processing errors are the primary starting point for a failed discovery.
 
-### Step 2 — Network reachability (from the MID Server host)
+### Step 2 — Network reachability (run the test FROM the MID Server)
 
-Ping proves only L3 reachability. Discovery needs specific service ports:
+**What this step is — and is not.** You run these checks **on the MID Server host itself** (or on a machine on the same network segment as the MID Server), **pointed at the target endpoint you expect it to discover**. You are proving that *the MID Server can reach that target on that port*. It is a **manual, out-of-band network diagnostic** — nothing gets "entered into ServiceNow," and it does not configure the MID Server. The MID Server's own Shazzam port-scanner does this during discovery; you are doing it by hand first so you can see the result with your own eyes and rule the network in or out before blaming credentials or patterns.
 
-| Protocol | Port(s) | Test from MID host |
-|----------|---------|--------------------|
-| WMI (Windows) | 135 (+ dynamic RPC) | `Test-NetConnection <ip> -Port 135` |
-| SSH (Linux/Unix) | 22 | `telnet <ip> 22` |
-| vCenter | 443 | `telnet <ip> 443` |
-| WBEM | 5989 | `telnet <ip> 5989` |
-| SNMP | 161/UDP | `snmpwalk -v2c -c <community> <ip> .1.3.6.1.2.1.1` |
-| LDAP | 389 | `telnet <ip> 389` |
+**Where to run each command:**
+- If your MID Server runs on **Windows Server** → open PowerShell/RDP on that host and use `Test-NetConnection` (native) or download **psPing**.
+- If your MID Server runs on **Linux** → SSH into that host and use `nc -zv` / `telnet` / `nmap`.
+- The `<ip>` is the **target** (the machine you want discovered), never the MID Server's own IP.
 
-Batch reachability: `Test-Connection -ComputerName (Get-Content C:\Data\Computers.txt) -Count 1` in PowerShell. A successful ping with a blocked port still fails discovery — always test the port, not just ping.
+**A failed test here means discovery will fail for that target regardless of credentials** — fix the network first.
+
+| Protocol | Port(s) | Run on the MID host, toward the target |
+|----------|---------|----------------------------------------|
+| WMI (Windows) | TCP 135 (+ dynamic RPC range) | Windows: `Test-NetConnection <target-ip> -Port 135` · Linux: `nc -zv <target-ip> 135` |
+| SSH (Linux/Unix/Mac) | TCP 22 | `nc -zv <target-ip> 22` or `telnet <target-ip> 22` |
+| vCenter | TCP 443 | `nc -zv <vcenter-ip> 443` or `telnet <vcenter-ip> 443` |
+| WBEM (ESXi) | TCP 5989 | `nc -zv <esxi-ip> 5989` |
+| SNMP | UDP 161 | `snmpwalk -v2c -c <community> <target-ip> .1.3.6.1.2.1.1` (TCP `nc` won't test UDP) |
+| LDAP | TCP 389 | `nc -zv <dc-ip> 389` |
+
+**Tool notes:**
+- `Test-NetConnection` (PowerShell) tests **TCP** only — it cannot check **SNMP/UDP 161**; use `snmpwalk` for that.
+- `telnet` is fine for a quick TCP check but is often not installed; `nc -zv` (netcat) or `nmap -p 22,135,443,5989 <target>` is more reliable and can sweep several ports at once.
+- WMI needs more than 135: after the initial handshake Windows picks a **dynamic RPC port** (or the RPC range fixed in `mid.wmi` config). Opening 135 alone with the dynamic range firewalled still breaks WMI — the classic "ping works, discovery fails" case.
+
+**Batch ping (L3 only):** `Test-Connection -ComputerName (Get-Content C:\Data\Computers.txt) -Count 1` proves the host is up — but a successful ping with a blocked port still fails discovery. **Always test the actual service port, not just ping.**
+
+**Then re-run discovery for just that target** (Debug mode on the schedule, single-IP scope) and compare: if the manual port test passes but discovery still fails, the problem is past the network — move to Step 3 (credentials) or Step 6 (patterns). That is exactly how this step earns its place: it splits "network problem" from "everything else."
 
 ### Step 3 — Credentials
 
