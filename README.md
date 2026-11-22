@@ -71,43 +71,30 @@ model pages. The longer walkthroughs below remain the deep reference.
 ```
 ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/
 ├── README.md                          # This file
+├── index.md                           # GitHub Pages landing page (guide cards)
 ├── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy (opencode)
 ├── SUCCESS_PACK_HERMES.MD             # ServiceNow 2026 role landing strategy (hermes)
+├── _config.yml, _layouts/             # Jekyll site config + layout (nav, sidebar, mermaid, TTS)
+├── assets/                            # Site CSS/JS
 ├── docs/
-│   ├── modules/
-│   │   ├── tsom/tsom-guide.md         # Telecom Service Operations Management
-│   │   ├── csm/csm-guide.md           # Customer Service Management
-│   │   ├── fsm/fsm-guide.md           # Field Service Management
-│   │   ├── sales-crm/sales-crm-guide.md # Sales CRM
-│   │   ├── ham/ham-guide.md           # Hardware Asset Management
-│   │   ├── itsm/itsm-guide.md         # IT Service Management
-│   │   └── servicemapping/servicemapping-guide.md  # Service Mapping
-│   ├── methodology/rapid-learning-methodology.md
-│   ├── concepts/servicenow-concepts-eli5.md
-│   ├── fields/mandatory-vs-critical-fields.md
-│   ├── navigation/breadcrumbs-cheatsheet.md
-│   ├── common-mistakes/mistakes-to-avoid.md
-│   ├── out-of-box/out-of-box-workflows-integrations.md
-│   └── success-packs/success-pack-prerequisites.md
-│   ├── interviews/
-│   │   ├── integrations.md                  # REST/SOAP/MID Server/IntegrationHub deep dive
-│   │   ├── code-deployment.md               # Cloning, update sets, source control, Git
-│   │   ├── custom-application-development.md # Scoped apps, GlideRecord, GlideAjax, ACLs
-│   │   ├── data-management-migration.md     # Import Sets, Transform Maps, IRE, data cleansing
-│   │   └── prioritized-prep-list.md         # Interview-by-interview prep roadmap (5 interviews)
-├── labs/
-│   ├── rest-message-integration/
-│   └── remote-table/
-├── scripts/
-│   ├── creative_search_scan.py        # Tavily/Firecrawl web search scraper
-│   └── process_cached_jobs.py         # Cached job data processor
-├── data/
-│   └── modules.json                   # Machine-readable module metadata
-├── .github/
-│   └── workflows/
-│       └── pages.yml                  # GitHub Actions for GitHub Pages
-└── SUCCESS_PACK_OPENCODE.MD           # 90-day ServiceNow career landing strategy (opencode)
-├── SUCCESS_PACK_HERMES.MD             # ServiceNow 2026 role landing strategy (hermes)
+│   ├── modules/                       # Full module guides (one folder per module)
+│   │   ├── itom/itom-guide.md         # ITOM — MID Server, Discovery, Event Mgmt, cloud, upgrades
+│   │   ├── discovery/discovery-guide.md
+│   │   ├── cmdb/cmdb-guide.md
+│   │   ├── servicemapping/servicemapping-guide.md
+│   │   ├── tsom/                      # tsom-guide, tsom-capabilities, tsom-assurance, tsom-diagrams
+│   │   ├── itsm/, csm/, fsm/, ham/, sam/, hrsd/, sales-crm/, catalog/
+│   │   └── ai/, app-engine/, portal/, scripting/, other/
+│   ├── cross-cutting.md               # Integrations, scripting, update sets, CMDB health, CAB, governance
+│   ├── interviews/                    # integrations, code-deployment, custom-app-dev, data-migration, prep list
+│   ├── learning.md, youtube.md        # Study paths and video index
+│   ├── infographics/                  # Rendered infographic assets used by guides
+│   └── salesforce/labs-design.md      # Salesforce labs & design track
+├── getting-started/                   # Short interview-prep pages, one per module
+├── updates/                           # Dated change notes for guide revisions
+├── data/modules.json                  # Machine-readable module metadata
+├── scripts/                           # Site/scraping and helper utilities
+└── .github/workflows/pages.yml        # GitHub Actions → GitHub Pages deploy
 ```
 
 ---
@@ -130,11 +117,11 @@ Every module guide follows the same repeatable process:
 
 ## How to Use This Repo
 
-1. **New to ServiceNow?** Start with `docs/concepts/servicenow-concepts-eli5.md` (ELI5 glossary).
-2. **Learning a specific module?** Pick a module from `docs/modules/`, follow the 5-step loop.
-3. **Building an integration?** Start at `labs/rest-message-integration/` or `labs/remote-table/`.
-4. **Need a quick reference?** Use `docs/navigation/breadcrumbs-cheatsheet.md` and `scripts/rapid-learning-checklist.md`.
-5. **Stuck?** Check `docs/common-mistakes/mistakes-to-avoid.md` first.
+1. **New to ServiceNow?** Start with `getting-started/foundation.md`, then the ELI5 sections at the top of each module guide.
+2. **Learning a specific module?** Pick a module from `docs/modules/`, follow the 5-step loop; the matching `getting-started/<module>.md` is the short version.
+3. **Building an integration?** Start at `docs/cross-cutting.md` (Integrations → Legacy Integration Patterns) and `docs/interviews/integrations.md`.
+4. **Need a quick reference?** Use `docs/interviews/prioritized-prep-list.md` for sequencing and `getting-started/` for one-page summaries.
+5. **Stuck?** Check the `## Common Mistakes` table in the relevant module guide first.
 
 ---
 

@@ -37,6 +37,7 @@
   - [The flow](#the-flow)
   - [Severity mapping](#severity-mapping)
 - [Lab: Create an Event and Watch It Become an Incident](#lab-create-an-event-and-watch-it-become-an-incident)
+- [Lab: End-to-End ITOM — Discover → CMDB → Service Map → Cloud → Governance](#lab-end-to-end-itom--discover--cmdb--service-map--cloud--governance)
 - [Goals, Benefits & Key Metrics](#goals-benefits--key-metrics)
 - [Core Concept Diagrams](#core-concept-diagrams)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
@@ -59,6 +60,7 @@
   - [Reference topology](#reference-topology)
   - [MID Server placement — network zones, not subnets](#mid-server-placement--network-zones-not-subnets)
 - [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
+  - [Parameters that actually exist — and the ones study guides invent](#parameters-that-actually-exist--and-the-ones-study-guides-invent)
 - [MID Server Load Balancing — Setup, Capacity Math, and Validation](#mid-server-load-balancing--setup-capacity-math-and-validation)
 - [MID Server Versions & Instance Upgrades](#mid-server-versions--instance-upgrades)
 - [Discovery Debugging — Every Potential Problem](#discovery-debugging--every-potential-problem)
@@ -816,11 +818,26 @@ The MID Server ships deliberately light. You tune two resources: **threads** and
 
 | Setting | Where | Default | Tuning |
 |---------|-------|---------|--------|
-| `threads.max` | `<agent_dir>/config.xml` | 25 | Raise to 50 or 100 for heavy Discovery; this is the number of probes that can run at once |
+| `threads.max` | `<agent_dir>/config.xml` (or the `threads.max` connection parameter) | 25 | Standard worker pool — the probes. Raise to 50 or 100 for heavy Discovery on a big host; settable up to 200, but a Windows MID spends a PowerShell process per thread, so 50 can already saturate 4 cores. See ServiceNow's *Set MID Server thread use* |
+| `threads.interactive.max` | `<agent_dir>/config.xml` | 10 | Interactive pool (system commands, heartbeats). Lightweight — rarely worth changing |
+| `threads.expedited.max` | `<agent_dir>/config.xml` | 20 | Expedited pool — priority between standard and interactive. Change only if an app floods it |
 
 ### Memory
 
 The MID Server JVM default heap is **1 GB**. Raise it in `wrapper-override.conf` and increase it in step with threads. Keep CPU and memory at roughly **80% of full** when the MID Server is at peak — that is the sweet spot; higher and you risk OOM or throttling.
+
+### Parameters that actually exist — and the ones study guides invent
+
+MID Server **parameters** live on the MID Server record (**MID Server → Servers → [MID] → Configuration Parameters**) or in `config.xml`. They apply **only after the MID Server service restarts**, and they have *lower* precedence than MID Server properties.
+
+| Parameter | Default | Purpose |
+|---|---|---|
+| `mid.log.level` | `info` | Logging verbosity (`debug`, `info`, `warn`, `error` — case-insensitive). Set `debug` while troubleshooting, then reset to `info`; debug logging fills the disk |
+| `mid.ssh.debug` | `false` | SSH debug output for the SNCSSH/J2SSH clients only. For the Maverick client use `mid.log.level = debug,com.maverick=debug` instead |
+| `mid.http.idle_connection_monitor.debug` | `false` | Debug logging for the Idle Connection Monitor |
+| `mid.cim.debug` | `false` | Debug for CIM/WBEM/SLP (SMI-S) collection |
+
+> **Myth check.** Widely-circulated names — `mid.server.max_concurrent_jobs`, `mid.server.max_threads`, `mid.server.timeout`, `mid.discover.max_concurrent_devices`, `mid.discovery.threads` — do **not** appear in ServiceNow's *MID Server parameters* reference. Concurrency is governed by the three thread pools plus how many schedules/clusters point at the MID; there is no per-MID "maximum concurrent discovery jobs" setting. Confirm any parameter name on the instance before planning capacity around it.
 
 ### Placement and identity
 
@@ -908,6 +925,8 @@ Load balancing in ServiceNow is delivered through **MID Server clusters**, not t
 - Each MID Server must be assigned the **capability** the work needs (`discovery`, `servicemapping`, etc.).
 - A MID Server may belong to **only one load-balancing cluster**. Putting one MID in multiple load-balancing clusters causes Discovery authentication/timeout errors (ServiceNow KB0997595) — this is the single most common misconfiguration.
 - **Do not cluster LDAP, export sets, or JDBC data sources.** The docs direct these to dedicated, non-clustered MIDs: on failover the surviving member restarts the ECC job from the beginning, which can return duplicate rows.
+
+**Two things that are not load balancing.** Capabilities (`discovery`, `servicemapping`) only *select* which MIDs are eligible for a job — they do not distribute work. A hardware/software load balancer in front of the agents does not help either: Discovery traffic is **outbound** from the MID to targets, so there are no inbound connections to balance. Distribution happens through the cluster record and the platform's MID Server Cluster Management business rule.
 
 **Step 2 — Create the cluster**
 1. Navigate to **MID Server → Clusters** (table `ecc_agent_cluster`).
@@ -1224,11 +1243,11 @@ IRE tries serial first. If serial is absent from the payload, it uses name. This
 
 ## Cloud Discovery
 
-**Providers:** AWS, Azure, GCP, Oracle Cloud, IBM Cloud.
+**Providers:** AWS, Azure, GCP, Oracle Cloud (OCI), Alibaba Cloud, IBM Cloud — per ServiceNow's *Discovery for cloud environment* page. Continuous/event-driven visibility is limited to AWS, Azure and GCP.
 
 ### Configuration path
 
-1. **System Cloud → Cloud Accounts → New** — create the account.
+1. **All > Cloud Provisioning and Governance > Cloud Accounts → New** — create the cloud account (the account is the logical container; service accounts carry the credentials per provider/datacenter). Cloud Discovery without CPG can also be configured from the cloud setup in the Discovery Admin Workspace.
 2. Credentials: Access/Secret key (AWS), Service Principal (Azure), Service Account JSON (GCP). Prefer IAM roles / workload identity over long-lived keys.
 3. Create a **Cloud Discovery Schedule**, pick regions and resource types (compute, storage, databases, load balancers, VPCs).
 4. Assign a MID Server with network reachability to the provider endpoints.
@@ -1401,6 +1420,65 @@ More instances (e.g. adding a separate Sandbox for training) mean more maintenan
 - Inventory every external credential (Salesforce OAuth, AWS keys, Azure principal, GCP service account) with its storage location and purpose, so rotation and offboarding are deliberate rather than accidental.
 
 ---
+
+
+## Lab: End-to-End ITOM — Discover → CMDB → Service Map → Cloud → Governance
+
+This is the capstone lab for the module: prove the whole chain, not one widget. Budget 3–4 hours on a sub-production instance; every step has an observable artifact you can screenshot for an interview portfolio.
+
+**Prerequisites:** a validated MID Server (or cluster) with network reach to at least one target; Discovery (`com.snc.discovery`), CMDB, Service Mapping (`com.snc.servicemapping`), Event Management, and Cloud Provisioning and Governance plugins active; admin on a non-production instance.
+
+### Phase 1 — MID Server, done the right way
+
+| # | Action | Exact path | Proof it worked |
+|---|---|---|---|
+| 1.1 | Confirm a MID Server cluster (2+ members) exists per zone | **MID Server → Clusters** (`ecc_agent_cluster`), type = Load balancing | Cluster record lists ≥2 members; each member's **Cluster** field is this cluster and no other |
+| 1.2 | Give members identical reach | **MID Server → Servers → [MID]** | Same **Supported Applications**, **IP Ranges**, **Capabilities** on every member — required for clustering |
+| 1.3 | Tune one setting | **MID Server → Servers → [MID] → Configuration Parameters** | Set `mid.log.level = debug`, restart the service, confirm `agent0.log.0` grows; reset to `info` |
+| 1.4 | Prove the thread model | `<agent_dir>/config.xml` | `threads.max` present (default 25); note that `threads.interactive.max`=10 and `threads.expedited.max`=20 — and that no `mid.server.max_concurrent_jobs` parameter exists |
+
+### Phase 2 — Discovery that actually lands in the CMDB
+
+| # | Action | Exact path | Proof it worked |
+|---|---|---|---|
+| 2.1 | Create credentials for each OS in scope | **Discovery → Credentials** | "Test credential" succeeds from the MID's network path (test the protocol directly from the MID host too) |
+| 2.2 | Build a range set, not a copy per schedule | **Discovery → Discovery Ranges** | One range set referenced by every schedule |
+| 2.3 | Schedule against the cluster | **Discovery → Discovery Schedules** | **MID Server** field = the cluster, schedule Active, run once |
+| 2.4 | Read the run top-down | **Discovery → Status** → History | Status record with probes started/completed; **Discovery Log** related list (`discovery_log`) shows per-target messages; ECC Queue clears |
+| 2.5 | Verify the CI, not just "completed" | **Configuration → CIs** (`cmdb_ci_win_server` / `cmdb_ci_linux_server`) | CI exists with `last_discovered` set, `discovery_source` = Discovery, serial + MAC populated |
+| 2.6 | Prove identification, not luck | **CMDB → Identification & Reconciliation → Identification Rules** | Re-running discovery produces **no duplicate** — the match is by serial/UUID via IRE, not by "coalesce" on a transform map |
+
+### Phase 3 — Relationships and a business service
+
+| # | Action | Exact path | Proof it worked |
+|---|---|---|---|
+| 3.1 | Confirm OOB relationship types before inventing any | **Configuration → CI Relationship Types** (`cmdb_rel_type`) | Relationships use shipped types (e.g. `Runs on::Runs`, `Depends on::Used by`) |
+| 3.2 | Map an application service | **Service Mapping → Application Services → New**, give it an entry point | Map shows entry point → app tier → database → hosting server, with `cmdb_rel_ci` rows behind it |
+| 3.3 | Validate direction | CI form → **Show Relations in Split Layout** | Upstream = what this CI needs; downstream = what breaks if it fails |
+| 3.4 | Add governance, not new types | **CI Class Manager → [class] → Relationship Rules** (`cmdb_ci_rel_rule`) | A rule flags a missing mandatory relationship in **CMDB Health → Correctness**. Rules *validate* relationships; patterns, Service Mapping and manual entry *create* them |
+
+### Phase 4 — Cloud, side by side with on-prem
+
+| # | Action | Exact path | Proof it worked |
+|---|---|---|---|
+| 4.1 | Create a cloud account | **Cloud Provisioning and Governance → Cloud Accounts → New** | Account + service account for one provider (AWS/Azure/GCP) |
+| 4.2 | Run cloud discovery | **Cloud Discovery Workspace** or a cloud Discovery schedule | Compute/storage/network CIs in CMDB, tagged for grouping |
+| 4.3 | Prove no duplicate estate | CI list filtered by cloud class | Cloud CIs carry the cloud data source — **not** a second copy of the same host discovered by IP |
+| 4.4 | Confirm read-only behaviour | Provider console | No resource was created, modified or deleted by discovery |
+
+### Phase 5 — Governance close-out
+
+| # | Action | Proof it worked |
+|---|---|---|
+| 5.1 | Dedicated integration user (`svc_itom_integration`), least-privilege roles, `web_service_access_only = true` | Never a personal admin account; OAuth client created at **System OAuth → Application Registry** (not "OAuth Providers") |
+| 5.2 | Credential inventory table (system, owner, storage location, rotation date) with **no secret values in the repo** | Secrets in ServiceNow encrypted fields / cloud secret manager; only the *reference* is documented |
+| 5.3 | Upgrade plan written: Dev → Test/UAT → Prod, with regression scope | Matches the [Upgrade Strategy & Instance Strategy](#upgrade-strategy--instance-strategy) section, and MID auto-upgrade checked post-upgrade (**Version** matches instance on every member) |
+| 5.4 | Store-app gap analysis for classes you cannot model OOTB | Each candidate judged on: certified, extends OOB classes (vs forks them), respects existing health and identification rules |
+| 5.5 | Debug runbook | MID health → port test from the MID host → credential test → `mid.log.level=debug` + `agent0.log.0` → Discovery Status errors per phase → pattern Debug Mode → CMDB write |
+
+### Completion criteria
+
+You are done when, on one instance, you can show: **one server discovered** (CI created, no duplicate on re-run) → **one service mapped** over it → **one cloud account discovered** without duplicating the estate → **one relationship-governance rule** reporting on correctness → and a written upgrade + credential-rotation plan. That is the chain the interview question "tell me about an ITOM implementation" is actually asking about.
 
 
 ## Quiz
