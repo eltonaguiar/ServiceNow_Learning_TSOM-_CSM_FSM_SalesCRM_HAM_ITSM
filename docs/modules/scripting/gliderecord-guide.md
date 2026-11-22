@@ -172,7 +172,7 @@ while (ga.next()) {
 
 | Method | Purpose |
 |---|---|
-| `addAggregate('COUNT'\|'SUM'\|'AVG'\|'MIN'\|'MAX', field)` | What to compute |
+| `addAggregate(type, field)` | What to compute — one of `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` |
 | `groupBy(field)` | Group the aggregate |
 | `getAggregate(type, field)` | Read the result |
 | `addHaving(...)` | Filter on the aggregate result |

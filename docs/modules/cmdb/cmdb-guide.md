@@ -2412,7 +2412,7 @@ ServiceNow uses **Access Control (ACL)** rules to determine who can read, write,
 | Target | Condition Example | Purpose |
 |--------|------------------|---------|
 | `cmdb_ci.read` | `gs.hasRole('cmdb_admin')` | Only CMDB admins can read base CI table |
-| `cmdb_ci.write` | `gs.hasRole('cmdb_admin') \|\| gs.hasRole('sn_importer')` | CMDB admins and importers can write CIs |
+| `cmdb_ci.write` | `gs.hasRole('cmdb_admin')` OR `gs.hasRole('sn_importer')` | CMDB admins and importers can write CIs |
 | `cmdb_ci.create` | `false` | Block manual CI creation entirely — force IRE-driven creation |
 | `cmdb_ci.delete` | `false` | Block CI deletion; force retirement (`install_status = retired`) |
 | `cmdb_ci.serial_number.write` | `gs.hasRole('cmdb_admin')` | Only admins can change serial numbers (prevents accidental duplicates) |

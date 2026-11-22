@@ -124,8 +124,10 @@ flowchart TD
 .slide-nav { display: flex; justify-content: space-between; align-items: center; padding: 0.75em 1em; border-bottom: 1px solid var(--border-color, #333); }
 .slide-nav button { background: var(--btn-bg, #333); color: var(--btn-fg, #fff); border: 1px solid var(--border-color, #555); padding: 0.4em 0.8em; border-radius: 4px; cursor: pointer; font-size: 1.2em; }
 .slide-nav button:hover { background: var(--btn-hover, #555); }
-.slide { padding: 1.5em; display: none; }
-.slide.visible { display: block; }
+.slide { padding: 1.5em; display: block; visibility: hidden; height: 0; overflow: hidden; }
+.slide.visible { visibility: visible; height: auto; overflow: visible; }
+/* Hidden slides must stay in layout: Mermaid measures the container width at
+   first paint, and display:none renders the diagram empty (or as an error bubble). */
 .slide h3 { margin-top: 0; color: var(--accent, #4cc38a); }
 .slide-caption { margin-top: 1em; font-size: 0.95em; color: var(--muted, #aaa); font-style: italic; }
 .mermaid { margin: 1em 0; }
