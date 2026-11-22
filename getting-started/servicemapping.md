@@ -122,6 +122,6 @@ ServiceMappingHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 |---------|---------|-----|
 | No entry point defined | Map stays empty | Always set a URL, hostname, or IP |
 | Credentials not configured | MID Server can't authenticate | Set Discovery credentials per OS/application |
-| MID Server can't reach the network segment | No CIs discovered | Place a MID Server in each network zone |
+| MID Server can't reach the network segment | No CIs discovered | Place a MID Server cluster (2+ nodes) in each network zone — per firewall boundary, not per subnet |
 | Treating it as one-time task | Map goes stale after changes | Schedule recurring Discovery |
 | Creating every CI manually | Doesn't scale; defeats the purpose | Use patterns first; manual only for exceptions |

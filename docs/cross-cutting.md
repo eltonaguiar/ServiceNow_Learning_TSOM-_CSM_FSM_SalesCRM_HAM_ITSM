@@ -671,9 +671,10 @@ Public sector and enterprise roles often require integrating with legacy systems
 | **Windows Services / WMI** | Built-in probes for service status, event logs, registry |
 
 **MID Server Sizing:**
-- 1 MID Server per network zone (DMZ, internal, cloud VPC)
-- 2+ for HA (active-passive or active-active with load balancer)
-- Monitor `ecc_queue` processing latency — if > 5 min, scale MID Servers
+- 1 MID Server **cluster** per network zone (DMZ, internal, cloud VPC) — **2+ nodes**, not one standalone MID per subnet
+- Cluster members need identical IP Ranges, Capabilities and Supported Applications; a MID can belong to only one cluster
+- Keep JDBC, LDAP and export-set integrations on dedicated non-clustered MIDs (failover restarts the job and can duplicate data)
+- Monitor `ecc_queue` processing latency — if > 5 min, scale the cluster instead of pushing one host harder
 
 ### Interview Soundbites
 

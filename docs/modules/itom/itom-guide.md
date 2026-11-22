@@ -55,6 +55,9 @@
   - [Cloud Governance](#cloud-governance)
   - [Cloud Cost Management](#cloud-cost-management)
 - [End-to-End ITOM Design (Real-World)](#end-to-end-itom-design-real-world)
+  - [The layered stack](#the-layered-stack)
+  - [Reference topology](#reference-topology)
+  - [MID Server placement — network zones, not subnets](#mid-server-placement--network-zones-not-subnets)
 - [MID Server Configuration & Tuning](#mid-server-configuration--tuning)
 - [MID Server Load Balancing — Setup, Capacity Math, and Validation](#mid-server-load-balancing--setup-capacity-math-and-validation)
 - [MID Server Versions & Instance Upgrades](#mid-server-versions--instance-upgrades)
@@ -490,7 +493,8 @@ cmdb_ci
 |---------|---------|-----|
 | No event rules configured | Events arrive but never become alerts | Create event rules for each monitoring tool |
 | No correlation rules | Hundreds of alerts for one outage | Configure alert correlation by node or CI |
-| MID Server can't reach network | Discovery returns no CIs | Place MID Server in each network segment |
+| MID Server can't reach network | Discovery returns no CIs | Place a MID Server **cluster** in each network zone (per firewall boundary, not per subnet) |
+| One standalone MID per subnet | Many under-used VMs, no HA, config drift across IP ranges | Two or more MIDs per zone in a load-balancing cluster with identical ranges/capabilities |
 | Not de-duplicating events | Alert storm during outage | Use event rules with de-duplication (node + resource + type) |
 | Discovery without credentials | Incomplete CI data | Configure Discovery credentials per OS/application |
 | Alerts never become incidents | NOC never sees the alert | Business rule or correlation rule creates incident from critical alerts |
@@ -765,13 +769,42 @@ This section is the architecture view: how a production ITOM stack actually fits
 
 ### Reference topology
 
-- **One MID Server per network segment / data center** — so discovery does not cross a firewall to reach targets.
-- **One MID Server per cloud region** for cloud discovery.
-- **Cluster "like" MID Servers** (groups of 2–4) and use **load-balanced** clusters, not failover — a load-balanced cluster automatically fails over because the surviving member picks up the work, whereas a failover cluster leaves most nodes idle.
+- **One MID Server *cluster* per network zone** — place them per routed, firewall-isolated zone (data center core, DMZ, cloud VPC/VNet, restricted PCI segment), not per subnet. Discovery should not cross a firewall to reach targets; a routed subnet inside a zone does not need its own MID Server.
+- **One MID Server cluster per cloud region** for cloud discovery.
+- **Cluster "like" MID Servers** (groups of 2–4, identical capabilities and IP ranges) and prefer **load-balanced** clusters for Discovery — work is shared continuously, so a lost member's jobs are picked up without a manual step. A *failover* cluster works too, but its members sit mostly idle until needed.
 - **Dedicate MID Servers to a single purpose**: keep Discovery and Event Management on separate MID Servers. Service Mapping and Discovery can share a MID Server only if their schedules do not run concurrently.
+- **Keep LDAP, export sets, and JDBC data sources off clusters entirely** — ServiceNow's own cluster documentation says these should use dedicated, non-clustered MIDs, because a failover restarts the ECC job from the beginning and can duplicate data.
 - **Stagger discovery schedules** — never let every schedule fire at the same time.
 
 Real-world sizing data point: customers running clusters of 4 MID Servers (4 vCPU @ 2 GHz+, 32 GB RAM, 80–100 GB disk, 25–100 threads at ~0.5 GB/thread) have discovered roughly 5,000 servers in under two hours.
+
+### MID Server placement — network zones, not subnets
+
+A very common design mistake is reading the platform's *IP range* selection mechanism as an instruction to deploy **one MID Server per individual subnet**. It is not. ServiceNow's guidance is a cluster per **network zone / security boundary**, with **at least two members** per zone.
+
+#### What "1 MID Server per subnet" gets wrong
+
+| Architectural dimension | 1 MID per subnet | ServiceNow best practice | Impact of the subnet model |
+|---|---|---|---|
+| **Network placement** | One host in every subnet | One cluster per isolated network zone (data center, DMZ, cloud VPC, firewalled segment), placed close to targets | **Over-provisioned.** If internal subnets can route to a shared zone, per-subnet MIDs are infrastructure with no discovery benefit |
+| **High availability** | Single node per subnet — a 100% single point of failure | At least 2 MIDs per zone in a load-balancing cluster | **High risk.** Patching, an upgrade, or a host crash stops all ServiceNow activity in that subnet; if every member of a cluster is down, the discovery is cancelled |
+| **Workload separation** | One MID carries Discovery, integrations, and events for its subnet | Separate clusters by workload (dedicated Discovery vs Integration/Event) | **Contention.** A heavy scan starves time-sensitive integrations or trap/event traffic on a shared agent |
+| **Host and resource sizing** | Many small, under-utilised VMs in quiet subnets | One MID per dedicated host, tuned past OOTB defaults (threads, 4–6 GB heap) | **Operational overhead.** Dozens of individual VMs means dozens of OS patch cycles, monitoring targets, and upgrade windows |
+| **IP ranges, capabilities, applications** | Manually or auto-assigned, mapped 1:1 to each subnet | **Identical** Supported Applications, IP Ranges, and Capabilities on every member of a cluster | **Configuration drift.** Unique range/capability rules on many single servers is the most common source of "work went to the wrong MID" tickets |
+
+#### The recommended architecture
+
+1. **Group subnets by security zone.** Identify which subnets share firewall rules and routing — standard internal LAN/VLANs, a restricted DMZ, an AWS/Azure VPC.
+2. **Deploy a cluster of 2+ per zone.** Minimum two members on separate hosts (or separate availability zones). Configure **identical IP ranges, capabilities, and supported applications** on each member — that is the documented prerequisite for a cluster, and it is what lets the platform hand any job to any member.
+3. **Split heavy workloads.** In busy zones, run separate clusters for Discovery/Service Mapping and for Integrations/Event Management so a scheduled scan never blocks real-time API or alert traffic.
+4. **Reserve a standalone MID for exceptions only.** An air-gapped or strictly firewalled subnet that cannot route to a zone cluster gets its own MID Server — and if the assets there are business-critical, pair it with a second node anyway.
+
+#### Two configuration rules people trip over
+
+- **A MID Server may belong to only one cluster.** Membership in multiple load-balancing clusters produces Discovery authentication/timeout errors (KB0997595) — the single most common MID cluster misconfiguration.
+- **IP range auto-assignment is a *selection* mechanism, not a sizing mandate.** ServiceNow's "MID Server IP range auto-assignment" feature assigns a qualified MID Server to a subnet by that subnet's IP address range — it exists so the platform can route a scan to an agent that can reach the target. One cluster covering a whole zone's ranges satisfies it just as well as one MID per `/24`, and it keeps the range table maintainable.
+
+**Interview framing:** "I don't put a MID in every subnet. I place a load-balanced cluster of two or more per network zone — DMZ, internal, each cloud VPC — with identical capabilities and IP ranges on every member, and separate clusters for Discovery versus integrations so scans never starve real-time traffic. A standalone MID only survives as an exception for genuinely air-gapped segments."
 
 ---
 
@@ -871,8 +904,10 @@ Load balancing in ServiceNow is delivered through **MID Server clusters**, not t
 
 **Step 1 — Prerequisites**
 - All MID Servers that will share load must have **similar hardware and configuration** (same CPU/RAM/threads). A weak node drags the whole cluster.
+- All members must carry the **same Supported Applications, IP Ranges, and Capabilities** — ServiceNow's documented prerequisite for a cluster ("Ensure that all MID Servers in the cluster have the same capabilities"). A member with a narrower IP range silently excludes its targets from the pool.
 - Each MID Server must be assigned the **capability** the work needs (`discovery`, `servicemapping`, etc.).
 - A MID Server may belong to **only one load-balancing cluster**. Putting one MID in multiple load-balancing clusters causes Discovery authentication/timeout errors (ServiceNow KB0997595) — this is the single most common misconfiguration.
+- **Do not cluster LDAP, export sets, or JDBC data sources.** The docs direct these to dedicated, non-clustered MIDs: on failover the surviving member restarts the ECC job from the beginning, which can return duplicate rows.
 
 **Step 2 — Create the cluster**
 1. Navigate to **MID Server → Clusters** (table `ecc_agent_cluster`).

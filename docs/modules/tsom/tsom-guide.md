@@ -200,7 +200,7 @@ for the full map before you go hunting in Telecom Service Operations.
 ### Guided Setup Requirements
 1. **Install TSOM apps** — Work with your ServiceNow account team to activate the TSOM subscription and install `sn_tsom_core`
 2. **Install TNI separately** — Install `sn_ni_adv` (TNI Advanced), then load TNI Core demo data manually if you want it
-3. **Install and configure MID Server** — Place a MID Server in each network zone; assign capabilities (SNMP, SSH, WMI) as needed
+3. **Install and configure MID Server** — Place a MID Server **cluster (2+ nodes)** in each network zone — DMZ, core, each cloud VPC — not one per subnet; assign capabilities (SNMP, SSH, WMI) identically to every member
 4. **Configure Discovery** — Set up Discovery schedules with telecom patterns; ensure horizontal discovery is operational
 5. **Configure Service Graph Connectors** — Set up per-vendor connectors (Nokia Altiplano, Cisco Meraki SD-WAN, etc.) with API access and MID Server
 6. **Configure Event Management** — Create event rules, alert correlation rules, and maintenance windows (All > Event Management > Event Rules)

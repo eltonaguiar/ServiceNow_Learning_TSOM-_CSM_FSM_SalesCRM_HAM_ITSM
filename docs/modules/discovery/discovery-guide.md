@@ -527,7 +527,7 @@ flowchart TD
 |---------------|-------|----------------------|-------|--------------|
 | **Credential** | `dscy_credentials_affinity` | Learned (auto-written) | Per IP + MID | None (always on) |
 | **IP Service** | `dscy_ip_service_affinity` | Learned (auto-written) | Per IP | `glide.discovery.ip_service_affinity` |
-| **MID Server** | N/A (uses `ecc_agent` config) | Configured (IP Ranges + Capabilities) | Per network zone | N/A |
+| **MID Server** | N/A (uses `ecc_agent` config) | Configured (IP Ranges + Capabilities) | Per network zone — every cluster member shares the same ranges | N/A |
 
 ### Common Affinity Mistakes
 
@@ -853,8 +853,8 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 |----------------|---------------|-----------|
 | **OS Selection** | Use **Linux** (RHEL, Ubuntu) as primary MID Server OS | Lower resource overhead, easier automation, better stability for high-volume scanning. Windows MIDs only when strictly required for WMI/PowerShell/SCCM that can't run via SSH. |
 | **Sizing & Placement** | Place MIDs **close to target infrastructure** (same VLAN/datacenter) | Minimizes latency, avoids restrictive firewalls. For large environments: dedicate separate MIDs for Discovery vs Integrations/Orchestration to prevent thread starvation. |
-| **High Availability** | Group MIDs into **MID Server Clusters** | Configure **Failover (active/passive)** for continuity if a server goes down, or **Load Balancing (active/active)** to distribute workload across massive IP ranges. |
-| **Network Zones** | One MID Server per network zone (DMZ, Internal, Cloud VPC) | Prevents cross-firewall scan attempts. Each MID's IP Ranges define its territory. |
+| **High Availability** | Group MIDs into **MID Server Clusters**, minimum 2 per zone | **Load Balancing (active/active)** is the default choice for Discovery — work is shared continuously and a failed member's jobs are simply handled by the survivors. **Failover (active/passive)** keeps a fixed order instead; use it where a job must have one owner. Keep LDAP, export-set and JDBC integrations on dedicated non-clustered MIDs (a failover restarts the ECC job from the start and can duplicate data). |
+| **Network Zones** | **One MID Server *cluster* (2+ nodes) per network zone** (DMZ, Internal, Cloud VPC) — not one MID per subnet | Prevents cross-firewall scan attempts. Every member of a cluster carries the **same** IP Ranges, Capabilities and Supported Applications so any member can take any job. |
 
 **MID Server Capability Mapping:**
 | Capability | Required For | Add to MID When... |
@@ -888,6 +888,30 @@ There is no single formula, but ServiceNow provides a useful starting table (fro
 - ServiceNow publishes a **MID Server Discovery Estimator/Calculator** (Excel) on Now Create / Community. Use it with your estimated device counts + desired completion window + thread count.
 
 **Monitor actual load** (CPU, queue depth, Discovery runtime) and add capacity horizontally rather than over-sizing a single host.
+
+---
+
+#### Placement: one cluster per network zone, not one MID per subnet
+
+The most common misreading of MID placement is turning "each MID needs IP ranges" into **one MID Server per subnet**. That model conflicts with ServiceNow's guidance on every dimension that matters:
+
+| Dimension | 1 MID per subnet | Zone-based clustered design |
+|---|---|---|
+| **Placement** | A host in every individual subnet | A cluster per routed, firewall-isolated zone (DC core, DMZ, cloud VPC), close to targets |
+| **Availability** | Single node = single point of failure; patching stops all work there | 2+ members per zone in a load-balancing cluster; if every member is down the discovery is cancelled, so ≥2 is the floor |
+| **Workload** | Discovery, integrations and events share one agent | Dedicated Discovery cluster vs Integration/Event cluster in busy zones |
+| **Config** | Unique IP ranges/capabilities per host | **Identical** IP Ranges, Capabilities and Supported Applications on every cluster member |
+| **Overhead** | Dozens of VMs to patch, monitor and upgrade | A handful of hosts per zone, sized properly |
+
+**The rule in practice:**
+
+1. Map subnets to **zones** by firewall rules and routing — not by `/24` boundary.
+2. Stand up a **load-balancing cluster of at least 2** MIDs in each zone; give every member the same ranges, capabilities and supported applications (documented prerequisite for clustering).
+3. **Split the workload** where a zone is busy: Discovery/Service Mapping on one cluster, Integrations/Event Management on another.
+4. Only an **air-gapped or unroutable subnet** earns its own standalone MID — and pair it with a second node if the assets are critical.
+5. Never put one MID in **two** clusters (KB0997595 → Discovery authentication/timeout errors).
+
+IP range auto-assignment (assigning a qualified MID to a subnet by the subnet's IP address range) is a **selection** mechanism — one cluster covering a zone's ranges satisfies it exactly as well as dozens of single-subnet agents, and leaves a maintainable range table. Full architectural treatment: [ITOM guide → MID Server placement](../itom/itom-guide.md#mid-server-placement--network-zones-not-subnets).
 
 ---
 
