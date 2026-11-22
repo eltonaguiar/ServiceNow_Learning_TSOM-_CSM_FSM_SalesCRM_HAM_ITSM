@@ -306,7 +306,7 @@ If your app `com.court.casemanagement` has a table `x_court_case` and you want `
 
 ## Collapsible Labs
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 1: Create a Scoped Application with a Custom Table</strong></summary>
 
 **Goal:** Build a scoped application with a custom table, form, and basic business logic.
@@ -329,7 +329,7 @@ If your app `com.court.casemanagement` has a table `x_court_case` and you want `
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 2: GlideRecord + GlideAjax Integration</strong></summary>
 
 **Goal:** Build a server-side lookup that a client script calls via GlideAjax.
@@ -367,7 +367,7 @@ If your app `com.court.casemanagement` has a table `x_court_case` and you want `
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 3: ACLs & Cross-Scope Access</strong></summary>
 
 **Goal:** Configure table access control and cross-scope permissions.

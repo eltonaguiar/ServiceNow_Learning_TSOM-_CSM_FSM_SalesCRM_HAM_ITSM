@@ -1487,7 +1487,7 @@ You are done when, on one instance, you can show: **one server discovered** (CI 
     <details><summary>Answer</summary>Event = raw data from a monitoring tool; Alert = processed, de-duplicated event ready for human action</details>
 
 2. What table stores raw events?  
-    <details><summary>Answer</summary>`em_event`</details>
+    <details markdown="1"><summary>Answer</summary>`em_event`</details>
 
 3. What does a MID Server do in ITOM?  
     <details><summary>Answer</summary>Runs Discovery and Orchestration inside the customer's network, bridging cloud ServiceNow to on-prem systems</details>
@@ -1496,7 +1496,7 @@ You are done when, on one instance, you can show: **one server discovered** (CI 
     <details><summary>Answer</summary>SolarWinds, Datadog, Nagios (also SNMP traps, email, REST)</details>
 
 5. What severity value means Critical in Event Management?  
-    <details><summary>Answer</summary>`1`</details>
+    <details markdown="1"><summary>Answer</summary>`1`</details>
 
 6. What are the three ITOM pillars?
     <details><summary>Answer</summary>ITOM Visibility, ITOM AIOps (Health), ITOM Optimization / Cloud Accelerate — all connected through the CMDB</details>

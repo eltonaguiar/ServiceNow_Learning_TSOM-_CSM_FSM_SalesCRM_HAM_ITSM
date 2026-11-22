@@ -150,17 +150,6 @@ stateDiagram-v2
     Retired --> [*]
     InMaintenance --> Retired : Beyond economical repair
 
-    note right of Procurement: Purchase order, receipt
-    note right of Received: Asset tag assigned, CI created
-    note right of InUse: Assigned to user, location tracked
-    note right of Retired: Disposal, data wipe, asset state = Retired
-
-    classDef proc fill:#e5b567,color:#000
-    classDef live fill:#4cc38a,color:#000
-    classDef gone fill:#e58a8a,color:#fff
-    class Procurement,Received proc
-    class InUse,InMaintenance live
-    class Retired,LostStolen gone
 ```
 
 **Exam focus:** Hardware asset lifecycle, stages, components, asset states, retirement workflows (20% + 30% of CIS-HAM exam).
@@ -574,29 +563,16 @@ flowchart TD
     style ITAM fill:#4cc38a,color:#000
     style CMDB fill:#4d96ff,color:#fff
     
-    note right of HAM
-        HAM tracks:
-        - Physical hardware assets
-        - Procurement → retirement lifecycle
-        - Financial ownership & depreciation
-        - Assignment to users/locations
-    end note
     
-    note right of CMDB
-        CMDB tracks:
-        - Technical configuration items
-        - OS, network, relationships
-        - Business service dependencies
-        - CSDM framework alignment
-    end note
     
-    note right of ITAM
-        ITAM unifies:
-        - HAM (hardware) + SAM (software)
-        - Financial + technical views
-        - Cost optimization & compliance
-    end note
 ```
+
+**What the diagram leaves out (annotations):**
+
+- **HAM — HAM tracks:** Physical hardware assets; Procurement → retirement lifecycle; Financial ownership & depreciation; Assignment to users/locations
+- **CMDB — CMDB tracks:** Technical configuration items; OS, network, relationships; Business service dependencies; CSDM framework alignment
+- **ITAM — ITAM unifies:** HAM (hardware) + SAM (software); Financial + technical views; Cost optimization & compliance
+
 
 ---
 
@@ -637,14 +613,12 @@ flowchart LR
     style ACTIVE fill:#ffd93d,color:#000
     style DISPOSAL fill:#ff6b6b,color:#fff
     
-    note right of DISCOVER
-        Discovery integration:
-        - MID Server scans device
-        - Serial number captured
-        - CI normalized to asset
-        - Relationships discovered
-    end note
 ```
+
+**What the diagram leaves out (annotations):**
+
+- **DISCOVER — Discovery integration:** MID Server scans device; Serial number captured; CI normalized to asset; Relationships discovered
+
 
 ---
 
@@ -672,23 +646,8 @@ stateDiagram-v2
     DisposalDataWipe --> [*]: Asset retired
     WriteOff --> [*]: Asset written off
     
-    note right of InStock
-        Available for assignment
-        Stored in stockroom
-        Not yet deployed
-    end note
     
-    note right of InUseAssigned
-        Active deployment
-        User has device
-        SLA monitoring active
-    end note
     
-    note right of RetiredEndOfLife
-        End of useful life
-        Replacement procured
-        Depreciation complete
-    end note
 ```
 ## Common Mistakes
 
@@ -900,7 +859,7 @@ The lab above builds a correct asset. This one builds the three defects that fil
 
 **Predict, then look:** open the form. Fields you expected are absent.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Cause:** `category` drives which fields the form shows — it is not a label. **Proof:** `alm_asset.category` is empty; add a category and the fields appear with no other change. **Fix:** set the category at creation; make it a mandatory form field if your estate keeps repeating this. **Reset:** clear the category, or retire the test asset.
 </details>
@@ -911,7 +870,7 @@ The lab above builds a correct asset. This one builds the three defects that fil
 
 **Predict, then look:** how many records represent one physical device, and what breaks first downstream.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Cause:** re-creation instead of transfer; the record was never the problem, the process was. **Proof:** `asset_tag` is the identity sticker — two records sharing one tag, or an untagged duplicate beside a tagged original, means one device and two objects. **Fix:** retire the duplicate with an honest substate, keep the record carrying the history (assignments, contracts, CI link). **Reset:** retire both test records.
 </details>
@@ -922,7 +881,7 @@ The lab above builds a correct asset. This one builds the three defects that fil
 
 **Predict, then look:** which report is wrong first, and which record is telling the truth.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Cause:** the retirement was recorded but the *linkage* never moved; contract and CI still point at the dead record. **Proof:** the retired asset's Contracts related list versus the replacement's empty one — `ast_contract.renewal_date` now has no live asset behind it. **Fix:** link the contract to the replacement and confirm the CI is the surviving one. **Reset:** unlink, restore the states.
 </details>

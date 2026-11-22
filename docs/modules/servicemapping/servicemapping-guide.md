@@ -911,10 +911,10 @@ Use `task_sla` to:
    <details><summary>Answer</summary>Horizontal Discovery finds what devices and applications exist (creates CIs). Top-down Service Mapping identifies which of those CIs support a specific business service and how they connect (creates relationships).</details>
 
 3. What table stores mapped application services?  
-   <details><summary>Answer</summary>`cmdb_ci_service_discovered`</details>
+   <details markdown="1"><summary>Answer</summary>`cmdb_ci_service_discovered`</details>
 
 4. What table stores CI-to-CI relationships?  
-   <details><summary>Answer</summary>`cmdb_rel_ci`</details>
+   <details markdown="1"><summary>Answer</summary>`cmdb_rel_ci`</details>
 
 5. Name three Service Mapping methods other than top-down pattern-based.  
    <details><summary>Answer</summary>Traffic-based, tag-based, manual mapping, dynamic CI groups, Predictive Intelligence.</details>
@@ -976,16 +976,16 @@ These are illustrative relationships, not a mandatory one-to-one hierarchy. In S
 ```mermaid
 flowchart TD
     subgraph BusinessArch["Business Architecture"]
-        BA[BA<br/>Business Application<br/>Online Banking]
+        BA["BA<br/>Business Application<br/>Online Banking"]
     end
 
     subgraph ServiceArch["Service Architecture"]
-        BS[BS<br/>Business Service<br/>Online Banking Service]
-        TS[TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting]
+        BS["BS<br/>Business Service<br/>Online Banking Service"]
+        TS["TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting"]
     end
 
     subgraph AppService["Application Service (AS)"]
-        AS[AS<br/>Application Service<br/>Online Banking – Production]
+        AS["AS<br/>Application Service<br/>Online Banking – Production"]
     end
 
     subgraph CMDB["Service Mapping / CMDB (Technical Layer)"]

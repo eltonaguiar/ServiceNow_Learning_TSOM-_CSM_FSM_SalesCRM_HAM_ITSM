@@ -182,7 +182,7 @@ Production instance pulls after UAT sign-off
 
 ## Collapsible Labs
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 1: Create and complete a local update set</strong></summary>
 
 **Goal:** Move a Business Rule from one instance to another using an update set.
@@ -204,7 +204,7 @@ Production instance pulls after UAT sign-off
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 2: Developer update set in App Engine Studio</strong></summary>
 
 **Goal:** See how Studio auto-creates a developer update set during app development.
@@ -222,7 +222,7 @@ Production instance pulls after UAT sign-off
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 3: Connect ServiceNow to Git (Source Control)</strong></summary>
 
 **Goal:** Link your instance to a GitHub repo and sync a remote update set.
@@ -252,7 +252,7 @@ Production instance pulls after UAT sign-off
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 4: Clone post-tasks checklist</strong></summary>
 
 **Goal:** Safely prepare a cloned instance for development use.

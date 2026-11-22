@@ -190,7 +190,7 @@ Discovery/Import → Identification Rule → Match Found?
 
 ## Collapsible Labs
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 1: Import Set + Transform Map (CSV to Incident)</strong></summary>
 
 **Goal:** Import a CSV file of incidents into ServiceNow using Import Set and Transform Map.
@@ -219,7 +219,7 @@ Discovery/Import → Identification Rule → Match Found?
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 2: Transform Script for Data Cleansing</strong></summary>
 
 **Goal:** Use a transform script to cleanse imperfect legacy data during import.
@@ -251,7 +251,7 @@ Discovery/Import → Identification Rule → Match Found?
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 3: Identification Rule for Duplicate Prevention</strong></summary>
 
 **Goal:** Create an identification rule that prevents duplicate CIs by serial number.

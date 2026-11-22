@@ -236,6 +236,13 @@ body {
 }
 .content tbody tr + tr td { border-top: 1px solid var(--line-soft); }
 
+/* wide tables: give the table its own horizontal scroll box so the last column
+   is reachable instead of being clipped by the page width */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll > table { margin: 16px 0 24px; }
+.table-scroll::-webkit-scrollbar { height: 8px; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
 /* code */
 .content code {
   font-family: "IBM Plex Mono", monospace; font-size: 0.85em;

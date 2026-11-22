@@ -379,7 +379,7 @@ flowchart LR
 <details><summary>Answer</summary>Center of Excellence. It separates data into specific tables (e.g., Payroll, Benefits) to enable strict security and specific fields per category.</details>
 
 2. What is the difference between an HR Profile and a User record?
-<details><summary>Answer</summary>The User record (`sys_user`) is global and used for login/IT; the HR Profile is private and contains sensitive employment data.</details>
+<details markdown="1"><summary>Answer</summary>The User record (`sys_user`) is global and used for login/IT; the HR Profile is private and contains sensitive employment data.</details>
 
 3. How does a Lifecycle Event differ from a standard HR Case?
 <details><summary>Answer</summary>An HR Case is a single request; a Lifecycle Event is a journey consisting of multiple cases and tasks across different departments.</details>

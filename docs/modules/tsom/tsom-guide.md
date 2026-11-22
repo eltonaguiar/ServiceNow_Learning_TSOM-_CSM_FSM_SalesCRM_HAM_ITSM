@@ -360,16 +360,9 @@ The model the whole solution writes into. It extends the core CMDB CI model to r
 
 ### Telecom Visibility — and how it differs from ITOM Visibility
 
-Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its five capabilities (per the docs): Telecom Discovery with patterns (SNMP/CLI, predefined telecom patterns) · SGC integration (EMS/NMS/controller imports via API, scheduled or o
+Telecom Visibility extends ITOM Visibility for telecom providers: where ITOM Visibility discovers IT infrastructure, Telecom Visibility discovers **real-time physical and logical network components**, reconciles discrepancies between discovered and inventoried data, and maintains the telecom model across **both the CMDB and TNI**. Its capabilities are Telecom Discovery with telecom-specific patterns over SNMP/CLI, Service Graph Connector integrations that import from EMS/NMS/controllers on a schedule or on demand, the telecom CMDB data model (network elements, interfaces, circuits, services), topology and alarm context surfaced through TNI, and impact traceability from network element to service to customer.
 
-... [OUTPUT TRUNCATED - 158 chars omitted out of 50,088 total] ...
-
-.
-
- handling time from the swivel-chair improvement; increase in agent utilization |
-| Walk → Run | Visible increase in first contact resolution; case deflection due to self-service; reduction in case volume due to self-service; identification of the customer's preferred contact channel; decrease in case resolution time |
-| Run → Fly | Visible increase in agent productivity from reduced manual tasks; increase in case deflections due to Virtual Agent; reduction in ongoing case assignments; standardization in customer support; decrease in agent onboarding time |
-| Fly (steady state) | Automation of improvement initiatives (agent, customer); higher % of AI-driven decisions than non-AI; greater transparency for customers; same customer experience from in-sourced support as outsourced |
+Because the model is shared rather than duplicated, a discrepancy found either way — inventory that disagrees with discovery, or a circuit termination that disagrees with the modelled path — is corrected once and is then visible to both the assurance (TSOM) side and every other consumer of the CMDB.
 
 ### Success measures, by phase
 

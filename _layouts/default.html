@@ -241,5 +241,29 @@
   .mm-stage svg { max-width: none; height: auto; }
   .mm-stage .mermaid { margin: 0; }
 </style>
+<script>
+  // Wide tables: wrap each content table in a horizontal scroll box so the final
+  // column stays reachable instead of being clipped at the page edge.
+  (function () {
+    function wrapTables() {
+      var tables = document.querySelectorAll('.content table');
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        var p = t.parentElement;
+        if (p && p.classList && p.classList.contains('table-scroll')) continue;
+        var wrap = document.createElement('div');
+        wrap.className = 'table-scroll';
+        p.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wrapTables);
+    } else {
+      wrapTables();
+    }
+    window.addEventListener('load', wrapTables);
+  })();
+</script>
 </body>
 </html>

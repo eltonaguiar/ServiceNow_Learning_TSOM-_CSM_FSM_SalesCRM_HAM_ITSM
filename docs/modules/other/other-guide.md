@@ -691,7 +691,7 @@ ITIL (Information Technology Infrastructure Library) is a playbook for how a com
 2. What does Change Enablement replace in ITIL 4 terminology?
 3. Name two ServiceNow tables that map to ITIL practices.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 1. Incident = unplanned interruption; restore service fast. Problem = root cause behind one or more incidents; prevent recurrence.<br>
 2. Change Management (renamed to Change Enablement in ITIL 4).<br>
 3. `incident` (Incident Management), `problem` (Problem Management), `change_request` (Change Enablement), `cmdb_ci` (Service Asset & Configuration Management).
@@ -871,7 +871,7 @@ if (SNUtils.String.isBlank(current.short_description)) {
 2. What does the DRY principle mean in the context of SNUtils?
 3. Name two utility categories you might put in SNUtils.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 1. `sys_script_include` table (System Definition → Script Includes)<br>
 2. Don't Repeat Yourself — write common logic once, reuse everywhere instead of duplicating code<br>
 3. String manipulation, date/time handling, GlideRecord helpers, logging, array operations (any two)
@@ -993,7 +993,7 @@ So in lower environments you use **source control + Update Sets + App Repo publi
 
 ### Collapsible Mini Labs: Deployment Scenarios
 
-<details>
+<details markdown="1">
 <summary><strong>Lab A: Single developer — Update Sets on one widget</strong></summary>
 
 **Goal:** One developer builds a Service Portal widget and moves it dev → test using Update Sets.
@@ -1015,7 +1015,7 @@ So in lower environments you use **source control + Update Sets + App Repo publi
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab B: Multiple developers, different features — parallel update sets</strong></summary>
 
 **Goal:** Two developers build separate features on the same scoped app, each in their own update set, then both move to test.
@@ -1395,47 +1395,47 @@ stateDiagram-v2
     In_Test --> Backlog : QA fails / scope change
     Done --> [*] : sprint ends
     Done --> Retrospective : velocity measured
-        Retrospective --> Next_Sprint : plan next
-        Next_Sprint --> Sprint_Planning
-    ```
+    Retrospective --> Next_Sprint : plan next
+    Next_Sprint --> Sprint_Planning
+```
 
-    ### Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression
+### Diagram 6: Flow Designer + IntegrationHub + Platform Upgrade Regression
 
-    ```mermaid
-    flowchart TD
-        subgraph "User Layer"
-            SP[Service Portal<br/>Catalog Items]
-        end
-        subgraph "Automation Layer"
-            FD[Flow Designer<br/>Trigger → Actions → Subflows]
-            IH[IntegrationHub<br/>REST/SOAP Spokes]
-        end
-        subgraph "Platform Ops"
-            US[Update Sets]
-            CLONE[Clone Prod → Sub-Prod]
-            REG[Regression Suite<br/>ITSM + HRSD + Integrations]
-            PROMOTE[Promote to Prod]
-        end
-        SP -->|Submit| FD
-        FD -->|Call| IH
-        IH -->|Transform| BR[Business Rules]
-        US --> CLONE
-        CLONE --> REG
-        REG -->|Pass| PROMOTE
-        REG -->|Fail| FIX[Fix & Re-test]
-        FIX --> REG
-        PROMOTE --> SMOKE[Post-Prod Smoke]
-        SMOKE --> HEALTH[Instance Health Checks]
-        style FD fill:#4cc38a,color:#000
-        style IH fill:#4cc38a,color:#000
-        style REG fill:#e5b567,color:#000
-    ```
+```mermaid
+flowchart TD
+    subgraph "User Layer"
+        SP[Service Portal<br/>Catalog Items]
+    end
+    subgraph "Automation Layer"
+        FD[Flow Designer<br/>Trigger → Actions → Subflows]
+        IH[IntegrationHub<br/>REST/SOAP Spokes]
+    end
+    subgraph "Platform Ops"
+        US[Update Sets]
+        CLONE[Clone Prod → Sub-Prod]
+        REG[Regression Suite<br/>ITSM + HRSD + Integrations]
+        PROMOTE[Promote to Prod]
+    end
+    SP -->|Submit| FD
+    FD -->|Call| IH
+    IH -->|Transform| BR[Business Rules]
+    US --> CLONE
+    CLONE --> REG
+    REG -->|Pass| PROMOTE
+    REG -->|Fail| FIX[Fix & Re-test]
+    FIX --> REG
+    PROMOTE --> SMOKE[Post-Prod Smoke]
+    SMOKE --> HEALTH[Instance Health Checks]
+    style FD fill:#4cc38a,color:#000
+    style IH fill:#4cc38a,color:#000
+    style REG fill:#e5b567,color:#000
+```
 
-    **Retail/pharmacy regression checklist:** Catalog item → approval → task creation; Employee onboarding (HRSD); UKG/Boomi inbound sync; Service Portal widgets; Role separation (pharmacy vs corporate).
+**Retail/pharmacy regression checklist:** Catalog item → approval → task creation; Employee onboarding (HRSD); UKG/Boomi inbound sync; Service Portal widgets; Role separation (pharmacy vs corporate).
 
-    ---
+---
 
-    ## How These Fit With ServiceNow
+## How These Fit With ServiceNow
 
 | "Other" item | ServiceNow connection point | Typical integration direction |
 |--------------|----------------------------|------------------------------|
@@ -1447,7 +1447,6 @@ stateDiagram-v2
 
 ---
 
-```
 ## 6. ServiceNow Integration Breadcrumbs — REST/SOAP APIs & MID Server
 
 ### ELI5
@@ -1641,7 +1640,7 @@ JDBC Probe | Queries a database (e.g., DB2 for i, SQL Server) via MID Server | U
 2. What does the ECC Queue show?
 3. Why do you need a MID Server for on-prem systems?
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 1. **System Web Services → REST Messages**.<br>
 2. Commands sent to / received from MID Servers (probe/sensor state, input/output).<br>
 3. ServiceNow is cloud; a MID Server runs inside your network so it can reach databases, mainframes, and APIs behind your firewall.
@@ -1741,7 +1740,7 @@ Here's a simple Jelly snippet used inside a **UI Page** to greet the logged-in u
 2. What is Jelly primarily used for in ServiceNow today?
 3. Name one object available in Jelly/server scripts.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 1. No — Workspaces use Vue.js/JSON config, not Jelly.<br>
 2. UI Pages, legacy CMS, and some email templates. Modern Service Portal uses HTML + client/server scripts.<br>
 3. `g_user` (current user), `gs` (GlideSystem), `current` (current record), or `glide` (Glide object).

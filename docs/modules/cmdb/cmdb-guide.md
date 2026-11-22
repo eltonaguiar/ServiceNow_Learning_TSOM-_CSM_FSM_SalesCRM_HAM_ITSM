@@ -767,7 +767,7 @@ Authentication is configured at the **REST Message** level (not per call). All c
 
 ### End-to-end example — push a new CI to an external system via RESTMessageV2
 
-<details>
+<details markdown="1">
 <summary>Example: Business Rule on cmdb_ci_server insert that POSTs the CI to an external CMDB</summary>
 
 **Scenario:** When a new Server CI is inserted, push `name`, `serial_number`, and `ip_address` to an external REST endpoint that owns the authoritative asset record.
@@ -2244,16 +2244,16 @@ In a telecom service provider environment, the CMDB must reconcile network inven
 ## Quiz
 
 1. What is the base table for all CIs?
-   <details><summary>Answer</summary>`cmdb_ci`</details>
+   <details markdown="1"><summary>Answer</summary>`cmdb_ci`</details>
 
 2. What table stores CI-to-CI relationships?  
-   <details><summary>Answer</summary>`cmdb_rel_ci`</details>
+   <details markdown="1"><summary>Answer</summary>`cmdb_rel_ci`</details>
 
 3. What does IRE stand for, and what does it do?  
    <details><summary>Answer</summary>Identification and Reconciliation Engine — prevents duplicate CIs and resolves data conflicts between sources</details>
 
 4. What field on `cmdb_ci` tracks where a CI came from?  
-   <details><summary>Answer</summary>`data_source`</details>
+   <details markdown="1"><summary>Answer</summary>`data_source`</details>
 
 5. Name two relationship types used in CMDB.  
    <details><summary>Answer</summary>Runs on::Runs, Depends on::Used by</details>

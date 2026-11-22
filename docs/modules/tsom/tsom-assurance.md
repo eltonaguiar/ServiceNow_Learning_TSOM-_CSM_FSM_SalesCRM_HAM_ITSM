@@ -566,7 +566,7 @@ flowchart TD
    <details><summary>Answer</summary>Forwards it as an event to Event Management, where it is correlated with alarms and metric anomalies.</details>
 
 4. Which capability proactively tests HTTP endpoints before subscribers complain?  
-   <details><summary>Answer</summary>Synthetic Monitoring (ITOM → Synthetic monitoring, plugin `com.snc.uib.sow_synthetics`).</details>
+   <details markdown="1"><summary>Answer</summary>Synthetic Monitoring (ITOM → Synthetic monitoring, plugin `com.snc.uib.sow_synthetics`).</details>
 
 5. What does Service Impact Analysis use to calculate blast radius?  
    <details><summary>Answer</summary>The CMDB service model — services, service offerings, CIs, and their relationships.</details>

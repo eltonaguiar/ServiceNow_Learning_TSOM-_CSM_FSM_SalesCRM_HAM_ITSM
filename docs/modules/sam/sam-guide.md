@@ -755,22 +755,22 @@ gs.info('[SAM] license_metric_type usage: ' + JSON.stringify(seen));
 
 ### Check yourself
 
-<details><summary>Why is a Microsoft SQL Server "Per Core" count higher than the VM's vCPU count?</summary>
+<details markdown="1"><summary>Why is a Microsoft SQL Server "Per Core" count higher than the VM's vCPU count?</summary>
 
 `Per Core` licenses physical cores *and* the virtual cores supporting the VMs. Without Software Assurance and licence mobility, licensing only the VM's vCPUs understates the entitlement — and the 4-cores-per-socket minimum applies on top.
 </details>
 
-<details><summary>Which pack gives you Red Hat metrics, and why do people miss it?</summary>
+<details markdown="1"><summary>Which pack gives you Red Hat metrics, and why do people miss it?</summary>
 
 The **IBM** pack — it covers both IBM and Red Hat. Shops with no IBM titles often skip the pack and then find `Per Socket-pair` / `Per Core` missing from the RHEL entitlement's metric picker.
 </details>
 
-<details><summary>A pack is not installed. Can you model the entitlement with a Common metric instead?</summary>
+<details markdown="1"><summary>A pack is not installed. Can you model the entitlement with a Common metric instead?</summary>
 
 The platform allows it — the metric group need not match the publisher — but the counting rule follows the metric, so you get a plausible number that means nothing in an audit. Install the pack or record the entitlement as out of scope, do not fake the metric.
 </details>
 
-<details><summary>Why do VMware per-core numbers look inflated by design?</summary>
+<details markdown="1"><summary>Why do VMware per-core numbers look inflated by design?</summary>
 
 Subscription VMware products (VVS, VVEP) require a minimum of **16 cores per processor**, just as SQL Server requires 4 per socket. The floor is contractual.
 </details>
@@ -1615,7 +1615,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** a position that computes and looks calm. `Required` is far below the core count visible on the host.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** `required`. **Proof:** the entitlement's metric group reads **Common**, and Common `Per Core` uses a 1-core floor where Microsoft uses 4. **Fix:** switch to the Microsoft `Per Core` — or `Per Core (with CAL)` if the contract is CAL-based — and re-run. **Reset:** revert the metric, re-run, confirm the old number returns. **Why it catches people:** nothing errors. A Common metric is legal on a Microsoft model; it just prices the estate with the wrong rule.
 </details>
@@ -1626,7 +1626,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** the CMDB and the installation list both show machines; `demand` on the model did not move.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** `demand`. **Proof:** count installations where `software_model = your model` against installations for the product family — the gap is your unnormalized set. **Fix:** normalize the discovery models to the software model, re-run. **Reset:** un-normalize one record. **Why it catches people:** "the software is installed" and "the model is counted" are different statements; only the second is demand.
 </details>
@@ -1637,7 +1637,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** the position move toward **Unlicensed** although the quantity is adequate.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** `active_rights` — not `demand`, not `required`. **Proof:** entitlement start/end dates and state; `active_rights` is 0, or short by exactly the expired quantity. **Fix:** correct the end date (or take it out of On Order) and re-run. **Reset:** restore the date, re-run. **Why it catches people:** everyone stares at the install count. Rights are a date-bounded fact, not a stored number.
 </details>
@@ -1648,7 +1648,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** `required` fall toward the raw core count — on a low-core socket, up to 4× lower than before.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** `required`. **Proof:** the model's metric attribute value next to the socket and core counts. **Fix:** restore **4** and re-run — and if procurement is genuinely short, fix the quantity, not the attribute. **Reset:** attribute back to 4. **Why it catches people:** a lowered floor makes the position *better*, which feels like progress. This is the most dangerous "fix" in the product.
 </details>
@@ -1659,7 +1659,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** `required` does not move.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** nothing. **Proof:** `Maximum active OSEs per server` = **2** on the model. **Fix:** this is a cap, not a bug — confirm the contract permits the extra OSEs, then raise the attribute deliberately and record why. **Reset:** remove the third OSE. **Why it catches people:** the cap is silent and the number looks stable, so it reads as "reconciliation didn't notice".
 </details>
@@ -1670,7 +1670,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** `demand` = 0 despite real, assigned users.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** `demand`. **Proof:** allocation count for the model is 0 while user assignments exist. **Fix:** allocate the rights — allocation is the act that turns "someone uses it" into "a right is consumed". **Reset:** remove the allocations. **Why it catches people:** assignment and allocation sound like the same verb; only one of them is demand.
 </details>
@@ -1681,7 +1681,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 
 **You should see:** **Compliant. Zero deltas. Nothing to do.** The most dangerous screen in SAM.
 
-<details><summary>Answer</summary>
+<details markdown="1"><summary>Answer</summary>
 
 **Moved:** all three at once — `demand` down (exclusion plus unnormalized model), `active_rights` down (expiry) — so the subtraction lands on compliant. **Proof:** the exclusion list, the discovery model's normalization state and the entitlement dates, read together. **Fix:** remove the exclusion, normalize, restore the date; re-run and watch the position move twice. **Reset:** undo in reverse order. **Why it catches people:** compliance is a subtraction, and two errors can cancel. A clean result is evidence of nothing until you have read the three inputs.
 </details>
@@ -1762,7 +1762,7 @@ Write five sentences covering: what a software model is, what an entitlement is,
 7. Why is a 60–90 day inactivity window required before reclaiming a license?
 8. Name two publisher-specific rules that commonly cause audit findings.
 
-<details><summary>Answers</summary>
+<details markdown="1"><summary>Answers</summary>
 
 1. Software model = normalized canonical product; discovery model = raw observed fingerprint needing mapping; installation = one concrete install on one device.
 2. Entitlement quantity, normalized install demand, and usage evidence (plus publisher rules).

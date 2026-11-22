@@ -363,9 +363,6 @@ stateDiagram-v2
     New --> Canceled : Duplicate / invalid
     Canceled --> [*]
     
-    note right of New: Priority = Impact × Urgency
-    note right of Resolved: Requires Close Code + Close Notes
-    note right of Closed: SLA stops
 ```
 
 **Major Incident Management (MIM):** A separate process for high-impact outages. Includes a "Communication Plan" to update stakeholders.
@@ -500,19 +497,14 @@ flowchart TD
     style M5 fill:#ff6b6b,color:#fff
     style M8 fill:#ff6b6b,color:#fff
     
-    note right of N1
-        Standard workflow
-        SLA: P1-P5 targets
-        Owner: Incident Manager
-    end note
     
-    note right of M3
-        Declaration triggers:
-        - Business impact threshold
-        - Executive notification required
-        - Public-facing outage
-    end note
 ```
+
+**What the diagram leaves out (annotations):**
+
+- **N1 — Standard workflow:** SLA: P1-P5 targets; Owner: Incident Manager
+- **M3 — Declaration triggers:** Business impact threshold; Executive notification required; Public-facing outage
+
 
 ---
 
@@ -535,7 +527,7 @@ flowchart TD
     CAB_DECISION -->|Yes| NORM_EXEC[Implement with approval]
     CAB_DECISION -->|No| REJECT[Rejected / Return for revision]
     
-    EMRG --> ECAB[ECAB (on-call subset)]
+    EMRG --> ECAB["ECAB (on-call subset)"]
     ECAB --> EMRG_DECISION{Expedited approval?}
     EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately → Retro review]
     EMRG_DECISION -->|No| REJECT
@@ -551,30 +543,16 @@ flowchart TD
     style EMRG fill:#ff6b6b,color:#fff
     style ECAB fill:#ff6b6b,color:#fff
     
-    note right of STD
-        Standard changes:
-        - Pre-approved
-        - Low risk
-        - No CAB needed
-        - Examples: password reset, routine patching
-    end note
     
-    note right of NORM
-        Normal changes:
-        - CAB-reviewed
-        - Higher risk
-        - Requires approval
-        - Examples: new deployment, infra change
-    end note
     
-    note right of EMRG
-        Emergency changes:
-        - ECAB-approved
-        - Production outage fix
-        - Retro review mandatory
-        - Blackout window exceptions
-    end note
 ```
+
+**What the diagram leaves out (annotations):**
+
+- **STD — Standard changes:** Pre-approved; Low risk; No CAB needed; Examples: password reset, routine patching
+- **NORM — Normal changes:** CAB-reviewed; Higher risk; Requires approval; Examples: new deployment, infra change
+- **EMRG — Emergency changes:** ECAB-approved; Production outage fix; Retro review mandatory; Blackout window exceptions
+
 
 ---
 
@@ -595,28 +573,21 @@ flowchart TD
     CHECK3 -->|Yes → BLOCKED| BLOCK
     CHECK3 -->|No → OK| ALLOW[Allow implementation]
     
-    BLOCK --> NOTIF[Notify requester: "Change blocked due to blackout/collision/dependency"]
+    BLOCK --> NOTIF["Notify requester: change blocked (blackout / collision / dependency)"]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
     RESOLVE --> CHECK1
     
     style BLOCK fill:#ff6b6b,color:#fff
     style ALLOW fill:#6bcb77,color:#fff
     
-    note right of CHECK1
-        Blackout windows:
-        - Month-end close
-        - Holiday periods
-        - Scheduled maintenance
-        - Business-critical events
-    end note
     
-    note right of CHECK2
-        Collision detection:
-        - Same CI affected
-        - Time windows overlap
-        - Prevents conflicting changes
-    end note
 ```
+
+**What the diagram leaves out (annotations):**
+
+- **CHECK1 — Blackout windows:** Month-end close; Holiday periods; Scheduled maintenance; Business-critical events
+- **CHECK2 — Collision detection:** Same CI affected; Time windows overlap; Prevents conflicting changes
+
 ### 📦 Request Fulfillment
 - **Catalog Item:** The "Product" the user sees.
 - **Record Producer:** A simple form that creates a record (Incident or Case).
@@ -837,9 +808,6 @@ stateDiagram-v2
     New --> Canceled : Duplicate / invalid
     Canceled --> [*]
 
-    note right of New: Priority = Impact × Urgency
-    note right of Resolved: Requires Close Code + Close Notes
-    note right of Closed: SLA stops
 ```
 
 ### Incident, Problem, Change — what links to what
@@ -1175,7 +1143,7 @@ Repair SLAs replays history after you change a definition or a schedule. The SLA
 <details><summary>Answer</summary>Impact and Urgency; defined in the Priority Lookup table.</details>
 
 2. Which table is the SLA definition, which table is the running clock, and what makes it attach to an incident but not a task?
-<details><summary>Answer</summary>`contract_sla` is the definition. `task_sla` is the clock. There is no `sla_definition` table. Table = `incident` plus a matching start condition attaches to incidents only. Table = `task` attaches to incidents and every other task child.</details>
+<details markdown="1"><summary>Answer</summary>`contract_sla` is the definition. `task_sla` is the clock. There is no `sla_definition` table. Table = `incident` plus a matching start condition attaches to incidents only. Table = `task` attaches to incidents and every other task child.</details>
 
 3. Name three things that break if you reorder state values.
 <details><summary>Answer</summary>Workflows, Reporting, State-based scripts.</details>
@@ -1184,7 +1152,7 @@ Repair SLAs replays history after you change a definition or a schedule. The SLA
 <details><summary>Answer</summary>Incident restores service. Problem stops recurrence and can sit behind many incidents. Known Error means the cause is known and the workaround is published; the problem stays open. A problem task is RCA or fix work under the problem, not another incident.</details>
 
 5. When does the vendor underpinning contract start, and what happens to the customer incident SLA in that same window?
-<details><summary>Answer</summary>The vendor clock starts when the incident is On Hold / Awaiting Vendor. The customer resolution SLA pauses for that window. They are two `contract_sla` rows, not one.</details>
+<details markdown="1"><summary>Answer</summary>The vendor clock starts when the incident is On Hold / Awaiting Vendor. The customer resolution SLA pauses for that window. They are two `contract_sla` rows, not one.</details>
 
 6. What field determines which assignment group gets the incident?
 <details><summary>Answer</summary>Assignment Group field.</details>

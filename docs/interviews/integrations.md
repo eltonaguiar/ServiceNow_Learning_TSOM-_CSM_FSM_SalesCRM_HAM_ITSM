@@ -188,7 +188,7 @@ Prebuilt and custom spokes that wrap external APIs into Flow Designer actions.
 
 ## Collapsible Labs
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 1: ServiceNow → Microsoft Teams (free, no mock)</strong></summary>
 
 **Goal:** Post a message to a Teams channel when a high-priority incident is created.
@@ -239,7 +239,7 @@ Prebuilt and custom spokes that wrap external APIs into Flow Designer actions.
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 2: ServiceNow → Salesforce (free developer org)</strong></summary>
 
 **Goal:** Create a Salesforce Case when a ServiceNow incident is resolved.
@@ -292,7 +292,7 @@ Prebuilt and custom spokes that wrap external APIs into Flow Designer actions.
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 3: ServiceNow → Slack (free, alternative to Teams)</strong></summary>
 
 **Goal:** Send a Slack message when a change request is approved.
@@ -312,7 +312,7 @@ Prebuilt and custom spokes that wrap external APIs into Flow Designer actions.
 
 </details>
 
-<details>
+<details markdown="1">
 <summary><strong>Lab 4: Inbound REST — External system creates an Incident</strong></summary>
 
 **Goal:** Allow an external monitoring tool to create incidents in ServiceNow via REST.
