@@ -38,6 +38,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Debugging Affinities](#debugging-affinities)
 - [Deep Dive: Discovery End-to-End Implementation — Architecture, Coverage, and Rollout](#deep-dive-discovery-end-to-end-implementation--architecture-coverage-and-rollout)
   - [Phase 1: Architecture & MID Server Strategy](#phase-1-architecture--mid-server-strategy)
+    - [Network & Firewall Prerequisites](#network--firewall-prerequisites)
   - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
   - [Phase 3: Capturing All IP Ranges](#phase-3-capturing-all-ip-ranges)
   - [Phase 4: Step-by-Step Implementation Rollout](#phase-4-step-by-step-implementation-rollout)
@@ -103,6 +104,10 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [SLA Support](#sla-support)
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
+- [Deep Dive: IRE + CMDB Data Quality + Stale CI Lifecycle — Implementation Lab [NEW-Nov242026]](#deep-dive-ire--cmdb-data-quality--stale-ci-lifecycle--implementation-lab-new-nov242026)
+- [Deep Dive: Troubleshooting Playbook — Symptom to Evidence [NEW-Nov242026]](#deep-dive-troubleshooting-playbook---symptom-to-evidence-new-nov242026)
+- [Deep Dive: Credential Lifecycle & External Vaults [NEW-Nov242026]](#deep-dive-credential-lifecycle--external-vaults-new-nov242026)
+- [Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]](#deep-dive-scan-safety---exclusions--discovery-behaviors--and-scan-impact-new-nov242026)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#-official-learning-resources)
   - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
@@ -300,24 +305,39 @@ flowchart LR
 
 ### Pattern → Probe → Sensor Flow
 
+**Modern Discovery is Pattern-based.** Patterns replaced most legacy Probe/Sensor pairs. A Pattern is a self-contained set of steps that run **on the MID Server**, transported by a single generic `HorizontalDiscoveryProbe`. The probe collects from the target, builds a JSON payload, and returns it to the instance, where the `HorizontalDiscoverySensor` parses it and hands it straight to IRE. Legacy Probes and Sensors still exist (e.g. Shazzam for scanning, some older classifiers), but a modern Pattern does **not** call individual legacy probes to do its exploration.
+
 ```mermaid
 flowchart TD
-    Pattern[Discovery Pattern sa_pattern steps and operations]
-    Probe[Probe discovery_probe runs on the MID Server]
-    Sensor[Sensor instance-side parser]
-    CI[(CMDB CI cmdb_ci_*)]
+    Pattern[Discovery Pattern (sa_pattern)<br/>steps execute ON the MID Server]
+    HDP[HorizontalDiscoveryProbe<br/>single generic probe — transports the pattern<br/>to the target and returns a JSON payload]
+    HDS[HorizontalDiscoverySensor<br/>instance-side parser<br/>hands the payload straight to IRE]
+    IRE[(IRE — identify or create CI)]
+    CI[(CMDB cmdb_ci_*)]
 
-    Pattern -->|calls| Probe
-    Probe -->|collects from| Target[Target device files · registry · WMI · SNMP]
-    Target -->|raw output| Probe
-    Probe -->|returns payload| Sensor
-    Sensor -->|maps onto CI fields| CI
+    Pattern -->|runs via| HDP
+    HDP -->|collects from| Target[Target device files · registry · WMI · SNMP]
+    Target -->|raw output| HDP
+    HDP -->|returns JSON payload| HDS
+    HDS -->|maps to CI fields via| IRE
+    IRE -->|create or update| CI
+
+    subgraph MIDServer [MID Server side]
+        Pattern
+        HDP
+        Target
+    end
+    subgraph Instance [Instance side]
+        HDS
+        IRE
+        CI
+    end
 
     style Pattern fill:#e5b567,color:#000
-    style Probe fill:#4cc38a,color:#000
-    style Sensor fill:#0a0d10,stroke:#e5b567
+    style HDP fill:#4cc38a,color:#000
+    style HDS fill:#4cc38a,color:#000
+    style IRE fill:#e5b567,color:#000
     style CI fill:#10141a
-
 
 ```
 
@@ -325,20 +345,27 @@ flowchart TD
 
 ## Re-usable Code / Metadata
 
-Check the latest Discovery status for a CI from a script or background job:
+Check the latest Discovery outcome for a CI from a script or background job:
 
 ```javascript
-// Most recent Discovery status that touched a given CI
-var st = new GlideRecord('discovery_status');
-st.addQuery('cmdb_ci', current.sys_id); // or a sys_id string
-st.orderByDesc('sys_created_on');
-st.setLimit(1);
-st.query();
-if (st.next()) {
-  gs.info('Last run: ' + st.getValue('sys_id') +
-          ' | State: ' + st.getDisplayValue('state') +
-          ' | Created: ' + st.getValue('sys_created_on'));
+// discovery_status is a per-run record (schedule, started, state) — it does NOT have a cmdb_ci field.
+// Query discovery_device_history instead, which links each CI (cmdb_ci) to its Discovery run (status).
+var dh = new GlideRecord('discovery_device_history');
+dh.addQuery('cmdb_ci', current.sys_id); // or a sys_id string
+dh.orderByDesc('sys_created_on');
+dh.setLimit(1);
+dh.query();
+if (dh.next()) {
+  gs.info('Last device-history row: ' + dh.getValue('sys_id') +
+          ' | State: ' + dh.getDisplayValue('status') +
+          ' | Created: ' + dh.getValue('sys_created_on'));
 }
+
+// Equivalent read straight off the CI (simplest, most reliable):
+var ci = new GlideRecord('cmdb_ci');
+ci.get(current.sys_id);
+gs.info('CI last_discovered: ' + ci.getValue('last_discovered') +
+        ' | most_recent_discovery: ' + ci.getValue('most_recent_discovery'));
 ```
 
 Navigator shortcuts worth memorizing (type in the filter box):
@@ -865,6 +892,26 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 | `JDBC` | Database discovery | Connecting to Oracle, SQL Server, MySQL, PostgreSQL |
 | `PowerShell` | Windows Orchestration | Running PowerShell activities on targets |
 | `AWS` / `Azure` / `GCP` | Cloud Discovery | API-based cloud resource discovery |
+
+### Network & Firewall Prerequisites
+
+A MID Server only initiates outbound connections — it never listens for inbound from targets. The instance-side connection is always outbound HTTPS 443 (MID → instance). Target-side ports depend on the protocol being scanned. Share this matrix with the network team before the pilot:
+
+| Direction | Port | Protocol | Required For | Notes |
+|-----------|------|----------|--------------|-------|
+| MID → ServiceNow instance | 443 | HTTPS / TLS | All Discovery | Outbound from the MID to your instance URL. Configure a proxy here if your network requires one. |
+| MID → Windows target | 135 | TCP / RPC | WMI (classic Windows discovery) | Plus the dynamic RPC port range (1024–65535) unless you restrict it. WinRM avoids this. |
+| MID → Windows target | 5985 | HTTP | WinRM (Windows discovery) | Preferred over WMI. Requires WinRM enabled and configured on the target. |
+| MID → Windows target | 5986 | HTTPS | WinRM (Windows discovery, encrypted) | Use when targets require encrypted WinRM. |
+| MID → Linux/UNIX target | 22 | TCP | SSH | Requires SSHd running and credential with shell access. |
+| MID → Network device | 161 | UDP | SNMP | SNMP v2c/v3. Devices must expose the requested MIBs. |
+| MID → Network device | 162 | UDP | SNMP traps | Optional; only if you consume SNMP traps. |
+| MID → Database | 1433/3306/5432/1521 | TCP | JDBC discovery | SQL Server / MySQL / PostgreSQL / Oracle respectively. |
+| Target → MID | (varies) | — | ACC | ACC agents push to the MID over HTTPS 443 (agent → MID). |
+
+**Service account design:** Windows discovery via WMI/WinRM depends on the MID's own service account as much as on the supplied target credentials. The MID service account needs "Log on as a service" and, for WMI, domain-level read access. A credential that works in Quick Discovery from your laptop can still fail on the MID because the MID runs under a different service account. Test credentials *from the MID Server host*, not your laptop.
+
+**Shazzam tuning:** Shazzam (the scanning probe) sends batch-sized probe bursts. If you scan a fragile or OT/IoT segment, lower the Shazzam batch size and the MID `threads.max` so you don't DoS the segment or overwhelm the MID. See MID Server Threads & JVM Tuning below for `threads.max`.
 
 ---
 
@@ -1728,6 +1775,119 @@ Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?
 ---
 
 </details>
+
+---
+
+## Deep Dive: IRE + CMDB Data Quality + Stale CI Lifecycle — Implementation Lab [NEW-Nov242026]
+
+Discovery running is not the same as a trustworthy CMDB. This lab walks through the controls that make Discovery safe to operate at scale: IRE identification/reconciliation, CI data quality, duplicate and stale CI detection, and the decommissioning lifecycle.
+
+### Why this lab exists
+
+"Discovery ran" does not mean "the CMDB is healthy." Discovery only creates and updates CIs — it never deletes or retires them. Without explicit data-quality controls, the CMDB fills with duplicates, stale CIs, and wrong-class assets, and every downstream consumer (ITSM impact, SAM licenses, HAM assets, TSOM inventory) inherits the noise.
+
+### Part 1: IRE — identification and reconciliation in practice
+
+**Identification** answers "does this CI already exist?" using IRE identifier rules (`cmdb_identifier`) per CI class. **Reconciliation** answers "whose data wins for each field?" using reconciliation rules with data-source precedence. Identification runs first; reconciliation only runs on matched CIs.
+
+Practical checks:
+- **Verify the same target updates the same CI across repeated scans.** Run Discovery against a known CI twice. Check `cmdb_ci.last_discovered` advances and no new CI with the same `serial_number` or `name` is created.
+- **Investigate duplicate CI updates.** Query `discovery_device_history` linked to `discovery_status` to see which runs touched a CI and their outcome. A CI that keeps spawning new records means the identification rule isn't matching — check the identifier's key attributes (e.g. Windows servers on `name` + `serial_number`).
+- **Investigate rejected CI updates.** IRE Data Source rules can block a source from inserting new CIs. If a legitimate new device never appears, check whether a Data Source rule with higher precedence is blocking inserts from Discovery.
+
+**Reconciliation rule hygiene:** Lower `Priority` runs first. Use data-source precedence to protect authoritative fields (e.g. SCCM wins on `serial_number`, Discovery wins on `ip_address`). Never let two sources write the same field with conflicting precedence or you'll get field-level flip-flopping.
+
+### Part 2: CMDB data quality — completeness, correctness, duplicates, staleness
+
+| Dimension | What to check | Where | Target |
+|-----------|---------------|-------|--------|
+| Completeness | % of expected in-scope devices with a CI | `discovery_range` vs `cmdb_ci` | ≥95% |
+| Correctness / duplicates | Duplicate CI rate by serial number | `cmdb_identifier` match results | <1% |
+| Staleness | % of CIs discovered in last 30 days | `cmdb_ci.last_discovered` | ≥90% |
+| Class accuracy | CIs in the wrong class (e.g. server vs network device) | `cmdb_ci.sys_class_name` vs source of truth | Investigate outliers |
+| Required attributes | CIs missing `serial_number`, `os`, `ip_address` | `cmdb_ci` null checks | Asset-owner review |
+
+**Stale CI handling:** A CI is stale when `last_discovered` exceeds your staleness window (align to schedule frequency — e.g. 7 days for servers, 30 days for workstations). Do not delete stale CIs — retire them (`install_status = retired`) to keep `cmdb_rel_ci` relationships intact for historical impact analysis. Deletion breaks parent/child references and orphans incidents.
+
+**Ownership:** Define who owns cleanup and exception handling. Discovery admins run the scans; CMDB/data owners approve retirements; the network team owns IP-range exclusions.
+
+### Part 3: Decommissioning lifecycle
+
+When a device is decommissioned, renamed, moved, or no longer reachable:
+1. Discovery stops updating it → `last_discovered` ages → CI goes stale.
+2. Review before retiring: confirm the device is truly gone (check CMDB 360, asset records, change requests).
+3. Retire: set `install_status = retired`. Keep relationships.
+4. Delete only as a last resort, and only after confirming no `cmdb_rel_ci`, incident, or change dependencies exist.
+
+**Discovery never deletes.** If your CMDB is full of ghost CIs, the fix is a retirement/archival policy (CMDB Data Manager or a scheduled fix script), not expecting Discovery to clean up.
+
+### Lab acceptance criteria
+- [ ] Repeated scans of one target update the same CI (no duplicates).
+- [ ] Duplicate CI rate <1% and trending down.
+- [ ] Stale-CI report reviewed weekly; retirements approved by asset owner.
+- [ ] Reconciliation rules documented with data-source precedence per field.
+- [ ] One decommissioned device walked through retire (not delete) end to end.
+
+---
+
+## Deep Dive: Troubleshooting Playbook — Symptom to Evidence [NEW-Nov242026]
+
+A single end-to-end diagnostic path turns "Discovery is broken" into a specific, fixable cause. Work top-down; the CI is the *result*, not the evidence.
+
+| Symptom | First place to look | What confirms it | Next evidence |
+|---------|---------------------|------------------|---------------|
+| **Target not reached** | ECC Queue (`ecc_queue`), filter `state = error` | Output record stuck in `error` / `timeout` | MID Server log (`agent/logs`), firewall port test (`nc -zv target port`) |
+| **Classification failed** | Device History (`discovery_device_history`) | Row shows "Active, couldn't classify" | Shazzam probe output; IP Service Affinity row for that IP |
+| **Authentication failed** | Discovery Log (`discovery_log`) + credential test | Credential "Test Connection" fails | Test from MID Server host; check `dscy_credentials_affinity` for stale credential |
+| **Identification failed** | `discovery_device_history` + IRE logs | CI created as new when it should match | Check `cmdb_identifier` key attributes for that class |
+| **Update rejected** | Reconciliation / Data Source rule logs | Field not updated despite successful scan | Check reconciliation rule priority and data-source precedence |
+| **CI in wrong class** | Classifier + CI `sys_class_name` | Device classified as wrong type | Classification criteria (port, banner, sysObjectID) |
+
+**Distinguish the failure domain:**
+- "Target not reached" = network/credential/MID problem (instance never got a response).
+- "Classification failed" = the device answered but its type wasn't recognized (no CI class assigned).
+- "Identification failed" = a CI class was assigned but no existing CI matched (new CI or duplicate).
+- "Update rejected" = CI matched but IRE blocked the field write (data-source precedence).
+- "CI created in wrong class" = classification/identification rule mapped it to the wrong `sys_class_name`.
+
+**Standard evidence chain:** Discovery Status → Discovery Log → Device History → ECC Queue input/output → credential test → target-side verification (can you SSH/WMI/SNMP from the MID host?) → IRE/CMDB result. If you can't reach the target from the MID Server host, no instance-side change will fix it.
+
+---
+
+## Deep Dive: Credential Lifecycle & External Vaults [NEW-Nov242026]
+
+Credential problems are the #1 cause of "Discovery found nothing." Treat credentials as an operating model, not a one-time setup.
+
+### Credential lifecycle
+1. **Least-privilege accounts:** Windows — local admin or a delegated account with WMI/WinRM rights (Domain Admin is convenient but security will reject it). Linux — a sudo-enabled account for the specific commands Discovery needs (e.g. `dmidecode`, `lsof`, package queries). Document what breaks without elevation (serial numbers, FBD on restricted directories) so you don't get false "Discovery is broken" escalations.
+2. **Approved credential types:** Windows, SSH (key-based preferred over password), SNMP v2c/v3, VMware, JDBC, cloud service accounts (AWS access key/role, Azure service principal, GCP service account).
+3. **External credential storage:** Mature enterprises do not store static passwords in `discovery_credentials`. Integrate with CyberArk, HashiCorp Vault, or Azure Key Vault via MID Server External Credential Storage so secrets rotate outside ServiceNow.
+4. **Credential tags & aliases:** Use credential aliases on schedules to pin specific credentials to specific environments, and credential tags to limit which credentials a schedule tries — critical when you have hundreds of credentials and account-lockout policies.
+5. **Rotation:** Rotate on policy cadence (quarterly). When you rotate a credential, clear `dscy_credentials_affinity` rows for that credential (or Discovery keeps trying the old one first until affinities reform).
+6. **Failure monitoring:** Alert on credential authentication failures; a spike means a rotation was missed or a password expired.
+
+**Safe pre-rollout test:** Use Quick Discovery against one representative device per type (Windows server, Linux server, switch) from the MID Server host. Confirm credentials work before wiring up full schedules.
+
+---
+
+## Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]
+
+One of the first things you configure in a real rollout is what **not** to scan.
+
+### Exclude lists
+Define exclusion ranges up front: fragile OT/IoT devices, medical equipment, honeypots, printers you don't want credited, non-routable ranges, and sensitive segments. Exclusions live on the schedule (Discovery Ranges) and via Discovery Behaviors. Review exclusions monthly with the network and asset teams.
+
+### Discovery Behaviors
+A behavior groups functionality definitions (which probes/patterns may run) that a schedule applies to specified ranges. Use behaviors to restrict a schedule to only specific protocols — e.g. an SNMP-only network scan, or a WMI-only server scan where firewall policy blocks SSH. This prevents Discovery from attempting protocols that will fail and generate noise.
+
+### Scan impact & frequency
+- **Scan windows:** Run heavy schedules in off-hours / maintenance windows. Coordinate weekday vs weekend scans with the network team.
+- **Range sizing:** Avoid scanning massive `/8` or `/16` blocks in a single schedule. Break into `/24` subnets grouped by location and tied to the nearest MID Server cluster via IP Ranges.
+- **Frequency:** Don't over-scan. Align FBD frequency to Monthly (default) unless software changes often; every FBD walk of a filesystem has a real cost on the target.
+- **Reduce scope when slow/disruptive:** If a scan is slow or disruptive, shrink the IP range, lower MID `threads.max`, add exclusions, or move the schedule off-hours — before adding more MIDs.
+
+### Shazzam tuning
+Shazzam sends batch-sized probe bursts. For fragile network segments, lower Shazzam batch size and MID `threads.max` to avoid DoSing the segment. See MID Server Threads & JVM Tuning for `threads.max`.
 
 ---
 
