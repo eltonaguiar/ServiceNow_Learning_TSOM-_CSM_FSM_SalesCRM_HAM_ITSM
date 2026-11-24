@@ -549,7 +549,48 @@ ServiceNow releases two family upgrades per year (e.g., Washington → Xanadu �
 | **Clone-Down (2 weeks out)** | Clone Prod → Sub-Prod; run ATF regression suite on clone; review skipped records from Upgrade History; remediate | Platform Lead + Devs |
 | **Upgrade Window** | ServiceNow applies upgrade; instance unavailable for 4–8 hours | ServiceNow |
 | **Post-Upgrade (Immediate)** | Smoke test critical flows (login, Incident create, key integrations); verify Instance Health; check error logs | Platform Lead |
-| **Post-Upgrade (1–2 weeks)** | Full ATF regression suite; performance comparison (slow queries, transaction times); user acceptance sign-off | Platform Lead + Business |
+### Skipped Changes — What Gets Logged, How to Resolve, How to Audit
+
+When you upgrade your instance (or install an application update), ServiceNow compares your current configuration/customization against the new base system version. Any object you customized that the base system is *also* trying to change becomes a **skipped change** (skipped update) — the platform will **not** overwrite your customization. Instead it creates a skipped-change record for you to review.
+
+**What gets skipped** (typical examples):
+- `sys_ui_form_section`, `sys_ui_related_list`, `sys_choice_set`
+- Any table with at least one field of type **HTML, XML, script, or script_plain** (business rules, script includes, form layouts, UI policies, etc.)
+
+#### Where skipped changes are logged
+
+| Table | Purpose |
+|-------|---------|
+| **`sys_upgrade_history_log`** | The **skipped-change log**. One record per skipped object, with the disposition and resolution action. |
+| `sys_update_xml` | **Customer Updates** — tracks every object you've customized (the current version). The upgrade process skips changes to objects that have a current version here. |
+| `sys_upgrade_history` / Upgrade History record | The upgrade run itself; its **"Skipped Changes to Review"** related list lists all skipped records for that upgrade. |
+
+#### How to review and resolve (post-upgrade)
+
+1. Navigate to **All → Upgrade Center → Upgrade History** (or select **Review Skipped Updates** in the Upgrade Monitor after the upgrade completes).
+2. Open the upgrade record for your recent release.
+3. Open the **Skipped Changes to Review** related list and select a skipped record.
+4. Review the base-system version vs. your customized version (diff).
+5. Choose a resolution from the **Resolution** list:
+   - **Not Reviewed** — defer the decision (still counts as open).
+   - **Retain** — keep your customization; ignore the base change.
+   - **Retain by merging** — click **Resolve Conflicts** to compare base vs. customized and merge fields into your version.
+   - **Revert** — overwrite your customization with the updated base version.
+6. Add **comments** explaining why you retained/merged/reverted — this is your audit trail for future upgrades.
+7. Capture resolutions in an update set (make a local update set current before resolving) so the decisions propagate to Test/Prod and you don't re-review the same records next release.
+
+**Important caveat:** The `update_synch` attribute is **not** set on `sys_upgrade_history_log` by default, so changes to this table (your resolutions/comments) are **not** captured in update sets — they live on the instance where you made them. Propagate the actual configuration decisions (merged/reverted records) via update sets, not the log itself.
+
+**If you ignore a skipped change:** your customization is retained. It will only reappear as skipped in a *future* release if ServiceNow modifies that same record again.
+
+#### Audit trail — what you can prove
+
+- **`sys_upgrade_history_log`** — every skipped object, its disposition (Not Reviewed / Skipped / Skipped Error / Skipped Manual Merge / Retrieved), resolution action, and your comments.
+- **Upgrade History record → Skipped Changes to Review** — per-release view of all conflicts and their status.
+- **`sys_update_xml`** — proof of what you customized (baseline for why a record was skipped).
+- For cross-instance audit, export the skipped-change log + your comments; note that the log itself doesn't travel in update sets.
+
+---
 
 ### Clone Post-Tasks (After Prod → Sub-Prod Clone)
 

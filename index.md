@@ -86,6 +86,11 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
     <p class="meta"><a href="./docs/modules/scripting/angular-guide/">Open the Angular guide</a></p>
   </div>
   <div class="card">
+    <h3>Events</h3>
+    <p>ServiceNow events — `em_event`, Event Registry (`sysevent_register`), `gs.eventQueue()`, event-based email notifications, when to use events vs business rules, and the event → alert → notification chain.</p>
+    <p class="meta"><a href="./docs/modules/events/events-guide/">Open the Events guide</a></p>
+  </div>
+  <div class="card">
     <h3>Other - Video Library</h3>
     <p>Official channels & playlists — ServiceNow YouTube, community playlists, and exam prep videos.</p>
     <p class="meta"><a href="./docs/youtube/">Open the Video Library</a></p>
