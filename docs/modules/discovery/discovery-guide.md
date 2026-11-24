@@ -1,6 +1,16 @@
 # Discovery — ITOM Discovery
 
-Discovery is how ServiceNow finds out what actually exists on the network. It logs into servers, network devices, and cloud accounts through a MID Server, identifies each device, and creates or updates its Configuration Item (CI) in the CMDB — including the software installed on it. Everything downstream (ITSM impact analysis, SAM license counts, TSOM inventory reconciliation) is only as good as what Discovery put in the CMDB.
+> **Validated on:** ServiceNow ITOM Discovery (Xanadu / Washington DC family), plugin `com.snc.discovery.core` active. UI breadcrumbs reference the **Discovery Configuration Console**, which is newer-family; classic list paths apply to older releases. Verify navigation against your instance before following.
+
+Discovery is how ServiceNow finds out what actually exists. It reaches targets through three different mechanisms, each with its own prerequisites, credentials, and CI classes:
+
+| Mechanism | Transport | Credentials | Typical schedule |
+|-----------|-----------|-------------|------------------|
+| Agentless IP Discovery | WMI / WinRM / SSH / SNMP over the network | OS or device credentials | IP ranges |
+| Cloud Discovery | HTTPS to provider APIs | Cloud service account / IAM role | Cloud schedule by region |
+| Agent-based (ACC) | Agent → MID Server → instance | Often credential-less | Agent-driven |
+
+All three land in the CMDB through the same Identification and Reconciliation Engine (IRE), so data-source precedence — not the collection method — decides who wins each attribute. Everything downstream (ITSM impact analysis, SAM license counts, TSOM inventory reconciliation) is only as good as what Discovery put in the CMDB.
 
 This guide covers classic Discovery end to end, with a deep focus on **File-Based Discovery (FBD)**: how to reach the Discovery Configuration Console, how to configure it area by area, how filtering really works, and how to run an FBD scan and prove it executed — on the instance *and* on the target device.
 
@@ -110,6 +120,11 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: Credential Lifecycle & External Vaults [NEW-Nov242026]](#deep-dive-credential-lifecycle--external-vaults-new-nov242026)
 - [Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]](#deep-dive-scan-safety---exclusions--discovery-behaviors--and-scan-impact-new-nov242026)
   - [Name resolution and duplicate CIs](#name-resolution-and-duplicate-cis)
+- [Deep Dive: Discovery Strategy — Agentless vs Agent vs Connector vs Cloud [NEW-Nov242026]](#deep-dive-discovery-strategy---agentless-vs-agent-vs-connector-vs-cloud-new-nov242026)
+- [Deep Dive: CSDM Alignment & Cross-Module Contracts [NEW-Nov242026]](#deep-dive-csdm-alignment--cross-module-contracts-new-nov242026)
+- [Deep Dive: Troubleshooting Decision Table — Symptom to Phase to Cause [NEW-Nov242026]](#deep-dive-troubleshooting-decision-table---symptom-to-phase-to-cause-new-nov242026)
+- [Deep Dive: Readiness Gate — Before You Scan Anything [NEW-Nov242026]](#deep-dive-readiness-gate---before-you-scan-anything-new-nov242026)
+- [Deep Dive: Day 2 Operations [NEW-Nov242026]](#deep-dive-day-2-operations-new-nov242026)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#-official-learning-resources)
   - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
@@ -200,40 +215,40 @@ Roles that matter: **discovery_admin** (configure and run Discovery), **admin**,
 
 A Discovery run moves through four phases, all coordinated through the **ECC Queue** (`ecc_queue`) between the instance and a **MID Server** sitting inside the network:
 
-1. **Scanning** — port probes (Shazzam) find live IPs and open ports.
+1. **Scanning** — Shazzam is a TCP port sweep driven by active port probes (not an ICMP ping sweep). A host that is up but blocks every probed port is invisible; non-standard ports require editing the port probe.
 2. **Classification** — classifiers decide what kind of device answered (Windows server, Linux, switch, …).
 3. **Identification** — identification rules and the Identification and Reconciliation Engine (IRE) match the device to an existing CI or create a new one — this is what prevents duplicates.
 4. **Exploration** — probes and patterns gather the detail: OS, CPU, memory, running processes, installed software — and this is the phase where **File-Based Discovery runs**.
 
 Work is sent to the MID Server as ECC Queue **output** records; results come back as **input** records, where sensors/pattern steps process them into the CMDB.
 
-The **Identification** phase (step 3) is where the CMDB's de-duplication controls live. Four IRE rule
-families decide whether a discovered device becomes a **new CI** or **updates an existing one** — see the
-[CMDB guide](../cmdb/cmdb-guide/) for the full deep dive (scope, parameters, and worked examples):
+The **Identification** phase (step 3) is where the CMDB's de-duplication controls live. IRE decides whether a discovered device becomes a **new CI**, **updates an existing CI**, or creates a **de-duplication task** — see the [CMDB guide](../cmdb/cmdb-guide/) for the full deep dive (scope, parameters, and worked examples):
 
-| Rule family | Insert (new CI)? | Update (existing CI)? |
-|---|---|---|
-| Identification rules | yes — no match → create | yes — match → update |
-| Reconciliation rules | no | yes |
-| IRE Data Source rules | yes — **blocks insert** | no |
-| Data Refresh rules | no | yes (stale → lower-priority source may update) |
+| Rule family | What it decides | Insert new CI? | Update existing CI? |
+|-------------|-----------------|----------------|---------------------|
+| Identification rules | Does this payload match an existing CI? | yes — no match → create | yes — match → update |
+| Reconciliation rules | Whose data wins per attribute (data source precedence)? | no | yes — winning source updates fields |
+| Data Refresh rules | Is the incumbent value too stale to protect? | no | yes — stale value may be replaced |
+| De-duplication tasks | Multiple matches — which CI is the survivor? | no — flagged for review | no — blocked until resolved |
+
+**Common misconception:** data source precedence governs *which source wins an attribute write*, not whether a source is "allowed to insert a CI." Insert permission is controlled by identification rules and class-level settings, not by reconciliation precedence alone. If you see "match but no update," check reconciliation priority first; if you see "no match but also no CI," check de-duplication tasks and identifier criteria.
 
 ```mermaid
 flowchart TD
     DISC[Discovery payload] --> ID{Identification: existing CI?}
-    ID -->|no match| DS{IRE Data Source rule: source allowed to insert?}
-    ID -->|match| REC[Reconciliation + Data Refresh rules]
-    DS -->|allowed| NEW[INSERT new CI]
-    DS -->|blocked| REJ[INSERT rejected]
-    REC --> UPD[UPDATE existing CI]
+    ID -->|single match| REC[Reconciliation + staleness check]
+    ID -->|no match| NEW[INSERT new CI]
+    ID -->|multiple matches| DEDUP[De-duplication task<br/>flagged — not updated]
+    REC -->|stale| UPD[UPDATE existing CI<br/>winning source per field]
+    REC -->|fresh| SKIP[CI unchanged<br/>newer value kept]
 
     style DISC fill:#1c232a,color:#e6edf3
     style ID fill:#e5b567,color:#000
-    style DS fill:#e5b567,color:#000
     style REC fill:#4cc38a,color:#000
     style NEW fill:#4cc38a,color:#000
-    style REJ fill:#b5483f,color:#fff
+    style DEDUP fill:#b5483f,color:#fff
     style UPD fill:#4cc38a,color:#000
+    style SKIP fill:#e5b567,color:#000
 
 ```
 
@@ -339,7 +354,7 @@ flowchart TD
     style HDP fill:#4cc38a,color:#000
     style HDS fill:#4cc38a,color:#000
     style IRE fill:#e5b567,color:#000
-    style CI fill:#10141a
+    style CI fill:#10141a,color:#e6edf3
 
 ```
 
@@ -1900,6 +1915,90 @@ Inconsistent reverse DNS and DHCP churn are a leading source of duplicate CIs:
 
 ### Shazzam tuning
 Shazzam sends batch-sized probe bursts. For fragile network segments, lower Shazzam batch size and MID `threads.max` to avoid DoSing the segment. See MID Server Threads & JVM Tuning for `threads.max`.
+
+---
+
+## Deep Dive: Discovery Strategy — Agentless vs Agent vs Connector vs Cloud [NEW-Nov242026]
+
+The most expensive mistake in a Discovery rollout is choosing the wrong collection mechanism for the estate. Agentless IP scanning is the default, but it is not the right answer for everything. Choose by reachability, credentialability, and ownership:
+
+| Mechanism | Best for | What it needs | What it does NOT give you |
+|-----------|----------|---------------|---------------------------|
+| Agentless IP Discovery | Servers, network gear, storage, data centers | Reachable targets + credentials + MID in zone | Cloud-native services, SaaS, intermittently-connected laptops |
+| Agent Client Collector (ACC / ACC-Visibility) | Roaming laptops, DMZ hosts, zero-trust segments, NAT'd devices | Agent deployed, MID as gateway | Deep OS inventory on hosts the agent can't reach |
+| Service Graph Connector / IntegrationHub ETL | SCCM, Intune, Jamf, Tanium, vCenter, EDR estates you already manage | Connector plugin + auth + IRE precedence contract | Discovery-only data (fresh running-process snapshots) |
+| Cloud Discovery (AWS/Azure/GCP) | PaaS, serverless, cloud-native relationships | Cloud service account / IAM role | Deep OS-level data inside VMs (still needs agentless + MID in cloud) |
+| Service Mapping | Application services & dependencies | Entry points + Discovery CIs as foundation | Infrastructure inventory (Discovery's job) |
+
+**The rule:** Discovery builds infrastructure CIs; it does **not** produce application services or business services. Those come from Service Mapping or manual CSDM modeling. Set that expectation with ITSM stakeholders before the first schedule runs, or they will blame Discovery for an empty service map.
+
+**The multi-source contract:** When two or more sources feed the same CI (e.g. Discovery reports running processes, SCCM reports OS build, a manual edit owns the support group), IRE data-source precedence is the contract. Decide per attribute who wins *before* you turn schedules on — not after you see conflicting values.
+
+---
+
+## Deep Dive: CSDM Alignment & Cross-Module Contracts [NEW-Nov242026]
+
+Discovery populates the technical layer of the CMDB. It does not, by itself, produce a governed service model. If your repo spans TSOM/CSM/FSM/ITSM/SAM/HAM, align Discovery output to CSDM up front:
+
+- **Infrastructure CIs** (`cmdb_ci_server`, `cmdb_ci_network_device`, `cmdb_ci_lb`, `cmdb_ci_storage`) are Discovery's home turf. Keep class scoping tight — disable classifiers for device types you don't track to limit ITOM Visibility subscription-unit consumption and CI sprawl.
+- **Application services / technical services / service instances** (CSDM `cmdb_ci_service_auto`, `cmdb_ci_service_discovered`, `cmdb_ci_service`) are **not** produced by Discovery. They come from Service Mapping or manual CSDM work.
+- **Asset ↔ CI synchronisation** (`alm_asset` ↔ `cmdb_ci`, model categories, tracking strategy): Discovery creating CIs does not mean correct assets exist. The HAM handoff is where most HAM implementations leak — normalise hardware models (`cmdb_hardware_product_model`) and serial/model quality before relying on asset counts.
+- **SAM:** installed software (`cmdb_sam_sw_install`) → normalisation → software models → licence position. Enabling software discovery has a real cost; don't collect what you won't reconcile.
+- **Event Management:** alert CI binding depends on CI name/IP/identifier quality. Bad Discovery = unbound alerts = noisy operations.
+- **CSM / FSM:** customer-visible CIs, installed base items, and ACL/domain implications of exposing discovered infrastructure to customers. A mis-domained Discovery run is a data-leak incident, not a bug.
+- **Sales CRM:** no direct dependency — state this explicitly rather than letting readers infer one.
+
+---
+
+## Deep Dive: Troubleshooting Decision Table — Symptom to Phase to Cause [NEW-Nov242026]
+
+Upgrade "Common Mistakes" to a runbook. Work top-down by phase; capture evidence artefacts at each step.
+
+| Symptom | Phase | First three checks | Evidence to capture |
+|---------|-------|--------------------|---------------------|
+| No device found | Scan | MID up & Validated? IP in range & assigned to that MID? Port probe active for that port? | ECC output sys_id, MID `agent0.log`, `nc -zv target port` |
+| Found, not classified | Classify | Behaviour includes the port probe? Classifier criteria met? Credential authenticates? | Shazzam probe output, `dscy_ip_service_affinity` row |
+| Classified, not identified | Identify | IRE identifier criteria met (serial present)? De-dup task created? Payload errors? | `discovery_device_history`, IRE error/partial payload |
+| Identified, not explored | Explore | Pattern step failure? Target privilege (sudo / WMI rights)? Timeout? | Pattern Designer debug, ECC input payload, target-side audit |
+| Everything slow | Any | ECC backlog? MID threads/heap saturated? Schedule overlap? Credential-order retries? | MID Statistics (3h), `ecc_queue` age by agent, `discovery_status` duration |
+
+**Evidence artefacts for any "prove it" argument:** ECC output/input sys_ids, a payload snippet, `discovery_device_history.state`, the CI's `last_discovered` + `discovery_source`, and the target-side audit entry — normalised to a single timezone. Positive-only proof (the scan ran) is half a test; also prove the error path (wrong credential → expected failure) and the exclusion path (filtered file → absent).
+
+---
+
+## Deep Dive: Readiness Gate — Before You Scan Anything [NEW-Nov242026]
+
+Copy this into your change record as a pre-flight checklist:
+
+- [ ] MID Server deployed, Validated, and Up in every network zone / NAT domain that will be scanned
+- [ ] Credentials tested per OS / domain / cloud account from the **MID Server host**, not a laptop
+- [ ] Port/firewall matrix signed off by network and security (443 outbound MID→instance; 22/135/5985-5986/161 MID→targets)
+- [ ] SOC/IDS-IPS notified; MID Server IPs allow-listed before scanning begins
+- [ ] IP ranges reconciled with IPAM; exclusion list documented with owners and expiry dates
+- [ ] Behaviours scoped per range set (no default "scan everything" behaviour)
+- [ ] CMDB identifier rules reviewed per class; stable attributes (serial/MAC/UUID) preferred over IP
+- [ ] Data-source precedence contract signed off per attribute across all ingestion sources
+- [ ] Rollback / disable plan defined (how to stop schedules and clear affinities if something goes wrong)
+- [ ] Sub-prod test MID and schedule proven against a pilot subnet before production rollout
+
+---
+
+## Deep Dive: Day 2 Operations [NEW-Nov242026]
+
+Discovery is not a one-time project. Define the operating rhythm up front:
+
+| Activity | Cadence | Owner | Output |
+|----------|---------|-------|--------|
+| Daily Discovery triage (status, ECC errors, auth failures) | Daily | Discovery admin | Incident tickets for failed schedules |
+| De-duplication task review | Weekly | CMDB data owner | Merged or retired duplicate CIs |
+| Staleness report (`last_discovered` > threshold) | Weekly | Asset owners | Retirement approvals |
+| Coverage reconciliation vs independent source (AD / vCenter / cloud API / EDR) | Monthly | Discovery admin | Coverage gap backlog |
+| Credential rotation + affinity clearing | Quarterly / per policy | Security + Discovery admin | Rotated credentials, cleared `dscy_*` rows |
+| IP range audit vs IPAM | Monthly | Network team | Added / removed ranges |
+| Custom-pattern regression vs new OOB pattern after upgrade | Per upgrade | Discovery admin | Re-based custom patterns |
+| Capacity review (MID threads, heap, scan duration trends) | Quarterly | Platform team | Scale decision |
+
+**The single most important Day 2 metric is not "did the schedule complete" — it is "does the CI in the CMDB match what actually exists."** Run coverage reconciliation against an independent source monthly; anything else is self-reported accuracy.
 
 ---
 
