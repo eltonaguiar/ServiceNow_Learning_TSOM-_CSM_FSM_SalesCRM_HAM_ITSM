@@ -14,6 +14,7 @@
 - [What an Event Is (ELI5)](#what-an-event-is-eli5)
 - [When to Use Events — Decision Guide](#when-to-use-events--decision-guide)
 - [Events for Email Notifications](#events-for-email-notifications)
+- [Many consumers — what can react to a single event?](#many-consumers--what-can-react-to-a-single-event)
 - [Events vs Flow — Which One for Email?](#events-vs-flow--which-one-for-email)
 - [Key Tables & Breadcrumbs](#key-tables--breadcrumbs)
 - [How Events Flow Through the System](#how-events-flow-through-the-system)
@@ -56,6 +57,29 @@ Use events when you need **decoupled, asynchronous reactions** — especially wh
 | High-volume streaming from many sources | ⚠️ Carefully | Use custom queues (`sysevent_queue`) to avoid flooding the default processor |
 | Email triggered by a business event | ✅ Yes | Event-based email notification (`sysevent_email_action`) |
 | Low-volume event collection **from** email | ✅ Yes | Inbound email action → `em_event` |
+
+### Many consumers — what can react to a single event?
+
+One fired event can be consumed by many independent systems at once. Each consumer decides what to do with it — none of them need to know about the others. Examples of consumers:
+
+| Consumer | Table / Location | What it does on the event |
+|----------|-----------------|---------------------------|
+| **Event-based Email Notification** | `sysevent_email_action` | Sends an email to a person or group |
+| **Event Rule / Alert Management Rule** | Event Management > Alert Rules | Creates or updates an alert (`em_alert`) |
+| **Flow Designer flow** | Flow Designer > Flows (triggered by event) | Runs a multi-step process (approval, update, integration call) |
+| **Custom script / Business Rule** | Reads `em_event` via script | Runs custom logic (call an external API, update a CMDB CI) |
+| **Notification Engine** | System Notification > Email / SMS | Sends SMS, chat, or other channel alerts |
+| **Event Management alert → Incident** | `em_alert` → `incident` | Auto-opens an incident for the on-call team |
+
+**How the fan-out works:**
+1. You fire the event once: `gs.eventQueue('sn_myapp.ci.down', current, ci_name, impact_severity)`
+2. The event lands in `em_event` with status **Ready**
+3. The "Event Management Process events" job (every ~5s) checks **every** subscriber whose `eventName` matches `sn_myapp.ci.down`
+4. Each subscriber acts independently — one sends email, one creates an alert, one starts a flow — without knowing the others exist
+
+This is the core value of events: **fire once, react many times.** If you later add a new consumer (e.g. a new team wants to be notified), you just create another subscription — you don't touch the firing code.
+
+---
 
 ### The classic email example
 
