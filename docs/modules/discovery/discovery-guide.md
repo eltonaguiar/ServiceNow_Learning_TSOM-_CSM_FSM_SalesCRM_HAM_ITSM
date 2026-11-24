@@ -49,6 +49,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: Discovery End-to-End Implementation — Architecture, Coverage, and Rollout](#deep-dive-discovery-end-to-end-implementation--architecture-coverage-and-rollout)
   - [Phase 1: Architecture & MID Server Strategy](#phase-1-architecture--mid-server-strategy)
     - [Network & Firewall Prerequisites](#network--firewall-prerequisites)
+    - [macOS and Apple endpoints — what Discovery actually covers](#macos-and-apple-endpoints--what-discovery-actually-covers)
   - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
   - [Phase 3: Capturing All IP Ranges](#phase-3-capturing-all-ip-ranges)
     - [CI class scoping](#ci-class-scoping)
@@ -895,7 +896,8 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 
 | Decision Point | Recommendation | Rationale |
 |----------------|---------------|-----------|
-| **OS Selection** | Use **Linux** (RHEL, Ubuntu) as primary MID Server OS | Lower resource overhead, easier automation, better stability for high-volume scanning. Windows MIDs only when strictly required for WMI/PowerShell/SCCM that can't run via SSH. |
+| **OS Selection** | Default to **Windows** MIDs for breadth; use **Linux** MIDs where you need scale or have no Windows estate | A Windows MID can discover **everything** — Windows via WMI/WinRM, Linux/UNIX and network devices via SSH/SNMP. A Linux MID **cannot run WMI probes at all**, so it cannot discover Windows servers that way. Linux MIDs are fully supported and are the better choice for large UNIX-heavy fleets (lower overhead, easier automation), but deploying Linux-only means Windows discovery needs WinRM plus a separate Windows MID for any WMI-only gap. See the two constraints below — this is a coverage decision, not a preference. |
+| **Windows domain constraint** | One Windows MID per **Windows domain**, plus a separate SSH/SNMP scan | WMI authenticates with the domain credentials of the MID's own host, so **a Windows MID can only WMI-scan the domain it is joined to**. To cover two domains you need two Windows MIDs; the SSH/SNMP work must run as a separate functionality ("All except Windows (no WMI)") because the WMI functionality's domain criteria lock the whole behaviour to one domain. |
 | **Sizing & Placement** | Place MIDs **close to target infrastructure** (same VLAN/datacenter) | Minimizes latency, avoids restrictive firewalls. For large environments: dedicate separate MIDs for Discovery vs Integrations/Orchestration to prevent thread starvation. |
 | **High Availability** | Group MIDs into **MID Server Clusters**, minimum 2 per zone | **Load Balancing (active/active)** is the default choice for Discovery — work is shared continuously and a failed member's jobs are simply handled by the survivors. **Failover (active/passive)** keeps a fixed order instead; use it where a job must have one owner. Keep LDAP, export-set and JDBC integrations on dedicated non-clustered MIDs (a failover restarts the ECC job from the start and can duplicate data). |
 | **Network Zones** | **One MID Server *cluster* (2+ nodes) per network zone** (DMZ, Internal, Cloud VPC) — not one MID per subnet | Prevents cross-firewall scan attempts. Every member of a cluster carries the **same** IP Ranges, Capabilities and Supported Applications so any member can take any job. |
@@ -914,17 +916,36 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 
 A MID Server only initiates outbound connections — it never listens for inbound from targets. The instance-side connection is always outbound HTTPS 443 (MID → instance). Target-side ports depend on the protocol being scanned. Share this matrix with the network team before the pilot:
 
-| Direction | Port | Protocol | Required For | Notes |
-|-----------|------|----------|--------------|-------|
-| MID → ServiceNow instance | 443 | HTTPS / TLS | All Discovery | Outbound from the MID to your instance URL. Configure a proxy here if your network requires one. |
-| MID → Windows target | 135 | TCP / RPC | WMI (classic Windows discovery) | Plus the dynamic RPC port range (1024–65535) unless you restrict it. WinRM avoids this. |
-| MID → Windows target | 5985 | HTTP | WinRM (Windows discovery) | Preferred over WMI. Requires WinRM enabled and configured on the target. |
-| MID → Windows target | 5986 | HTTPS | WinRM (Windows discovery, encrypted) | Use when targets require encrypted WinRM. |
-| MID → Linux/UNIX target | 22 | TCP | SSH | Requires SSHd running and credential with shell access. |
-| MID → Network device | 161 | UDP | SNMP | SNMP v2c/v3. Devices must expose the requested MIBs. |
-| MID → Network device | 162 | UDP | SNMP traps | Optional; only if you consume SNMP traps. |
-| MID → Database | 1433/3306/5432/1521 | TCP | JDBC discovery | SQL Server / MySQL / PostgreSQL / Oracle respectively. |
-| Target → MID | (varies) | — | ACC | ACC agents push to the MID over HTTPS 443 (agent → MID). |
+| Direction | Port (protocol) | Required For | Notes |
+|-----------|-----------------|--------------|-------|
+| MID → ServiceNow instance | 443 (HTTPS/TLS) | All Discovery | Outbound from the MID to your instance URL. Configure a proxy here if your network requires one. |
+| MID → Windows target | 135 (TCP/RPC) | WMI | Plus the dynamic RPC range 1024–65535 unless you restrict it. WinRM avoids this entirely. |
+| MID → Windows target | 5985 (HTTP) | WinRM | Preferred over WMI. Requires WinRM enabled and configured on the target. |
+| MID → Windows target | 5986 (HTTPS) | WinRM encrypted | Use when targets require encrypted WinRM. |
+| MID → Linux/UNIX **or macOS** target | 22 (TCP) | SSH | Requires the SSH daemon running (Remote Login on macOS) and a credential with shell access. |
+| MID → Network device | 161 (UDP) | SNMP | SNMP v2c/v3. Devices must expose the requested MIBs. |
+| MID → Network device | 162 (UDP) | SNMP traps | Optional; only if you consume SNMP traps. |
+| MID → Database | 1433 / 3306 / 5432 / 1521 (TCP) | JDBC | SQL Server / MySQL / PostgreSQL / Oracle respectively. |
+| Target → MID | 443 (HTTPS) | ACC | ACC agents push to the MID; direction is agent → MID, not MID → target. |
+
+### macOS and Apple endpoints — what Discovery actually covers
+
+macOS **is** a supported agentless Discovery target, and it is a common source of wrong assumptions in both directions (people assume Macs are unsupported, or that they need a Mac-hosted MID).
+
+| Question | Answer |
+|---|---|
+| Can Discovery find macOS? | **Yes.** ServiceNow documents *Mac (OS/X)* computers as a classified CI, with a per-release list of the data collected. |
+| How does it get the data? | Over **SSH (TCP 22)**, like any other UNIX-like host. macOS patterns run native commands — `system_profiler` for hardware/OS detail, `ps` for processes, `lsof` for open files and ports. **No WMI**: WMI is a Windows API and plays no part here. |
+| Which MID Server OS is required? | **Either.** A Windows MID can run SSH probes, and a Linux MID can too. Unix-heavy estates often put the SSH work on Linux MIDs, but nothing about macOS requires one. |
+| Can the MID Server itself run on a Mac? | **No.** MID Servers install on supported Windows and Linux hosts only. macOS is a *target*, never a MID host. |
+| What has to be true on the Mac? | Remote Login (SSH) enabled; an account able to run the collection commands, with `sudo` where the pattern needs it; TCP 22 reachable MID → Mac subnet. |
+| What if the Mac is off-network or asleep? | Agentless needs the host awake and reachable. For remote or VPN-disconnected Macs, use **Agent Client Collector (ACC)**, which has a macOS installer and pushes to a MID instead of being polled. |
+| What about macOS inventory as a system of record? | **JAMF** is the usual source of truth for Mac hardware/software, ingested through a Service Graph Connector / IntegrationHub rather than by probing the device. Where both exist, reconciliation rules — not the collection method — decide which source owns each attribute. |
+| And iPhone/iPad? | **Not agentless-discoverable.** Mobile devices are only ever imported (JAMF, Intune); Discovery has no probe path for them. |
+
+**Interview Insight:** "macOS is discovered over SSH with native commands, not WMI — so any validated MID can do it and the constraint is network reachability plus an account with sudo, not the MID's operating system. The MID itself cannot be installed on macOS. For laptops that sleep or sit off-VPN, I use ACC or JAMF instead, because agentless assumes the device is awake when the schedule runs."
+
+**Exam focus:** this section supports **CIS-Discovery** — pattern design and protocols (35%) and configuration (35%).
 
 **Service account design:** Windows discovery via WMI/WinRM depends on the MID's own service account as much as on the supplied target credentials. The MID service account needs "Log on as a service" and, for WMI, domain-level read access. A credential that works in Quick Discovery from your laptop can still fail on the MID because the MID runs under a different service account. Test credentials *from the MID Server host*, not your laptop.
 
