@@ -104,7 +104,7 @@
   - [How to Force IRE from a Form](#how-to-force-ire-from-a-form)
   - [Example: Business Rule to Invoke IRE on Field Change](#example-business-rule-to-invoke-ire-on-field-change)
   - [Why Manual Edits Need This](#why-manual-edits-need-this)
-- [IntegrationHub Spoke → IRE: Making It Work and Knowing When to Skip It](#integrationhub-spoke--ire-making-it-work-and-knowing-when-to-skip-it)
+- [IntegrationHub Spoke → IRE: Making It Work and Knowing When to Skip It](#integrationhub-spoke-ire-making-it-work-and-knowing-when-to-skip-it)
   - [Part 1: Make an IntegrationHub Spoke Run IRE](#part-1-make-an-integrationhub-spoke-run-ire)
   - [Part 2: Stop Form Changes from Auto-Invoking IRE](#part-2-stop-form-changes-from-auto-invoking-ire)
   - [Part 3: Configuration Checks (do these before testing)](#part-3-configuration-checks-do-these-before-testing)
