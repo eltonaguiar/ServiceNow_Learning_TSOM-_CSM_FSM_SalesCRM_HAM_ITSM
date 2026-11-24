@@ -49,57 +49,83 @@
   <a href="{{ '/docs/modules/itom/itom-guide/' | relative_url }}">ITOM</a>
   <a href="{{ '/docs/modules/discovery/discovery-guide/' | relative_url }}">Discovery</a>
   <a href="{{ '/docs/modules/servicemapping/servicemapping-guide/' | relative_url }}">Service Mapping</a>
+  <a href="{{ '/docs/modules/events/events-guide/' | relative_url }}">Events</a>
   <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM</a>
   <a href="{{ '/docs/modules/sam/sam-guide/' | relative_url }}">SAM</a>
   <a href="{{ '/docs/modules/hrsd/hrsd-guide/' | relative_url }}">HRSD</a>
   <a href="{{ '/docs/modules/ai/ai-guide/' | relative_url }}">AI</a>
   <a href="{{ '/docs/modules/catalog/catalog-guide/' | relative_url }}">Service Catalog</a>
   <a href="{{ '/docs/modules/portal/portal-guide/' | relative_url }}">Portals</a>
-  <a href="{{ '/docs/modules/events/events-guide/' | relative_url }}">Events</a>
+  <a href="{{ '/docs/modules/scripting/angular-guide/' | relative_url }}">Angular</a>
   <a href="{{ '/docs/modules/ai/javascript-reference/' | relative_url }}">JavaScript Reference</a>
+  <a href="{{ '/docs/youtube/' | relative_url }}">Video Library</a>
+  <a href="{{ '/docs/learning/' | relative_url }}">Learning Paths</a>
+  <a href="{{ '/docs/interviews/prioritized-prep-list/' | relative_url }}">Interview Prep</a>
+  <a href="{{ '/docs/cross-cutting/' | relative_url }}">Cross-Cutting Skills</a>
+  <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM</a>
+  <a href="{{ '/docs/modules/tsom/tsom-assurance/' | relative_url }}">TSOM Assurance</a>
   <a href="{{ '/getting-started/' | relative_url }}">Getting Started</a>
 </nav>
 
 <div class="shell">
   <aside class="sidebar" id="sidebar" aria-label="Sidebar">
-    <div class="side-group">
-      <p class="side-label">Guides</p>
-      <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM <span class="side-sub">IT Service Management</span></a>
-      <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM <span class="side-sub">Customer Service Management</span></a>
-      <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM <span class="side-sub">Leads, Opportunities, Quotes, Orders, Pipeline</span></a>
-      <a href="{{ '/docs/modules/cmdb/cmdb-guide/' | relative_url }}">CMDB <span class="side-sub">Configuration Management Database</span></a>
-      <a href="{{ '/docs/modules/itom/itom-guide/' | relative_url }}">ITOM <span class="side-sub">IT Operations Management</span></a>
-      <a href="{{ '/docs/modules/discovery/discovery-guide/' | relative_url }}">Discovery <span class="side-sub">ITOM Discovery</span></a>
-      <a href="{{ '/docs/modules/servicemapping/servicemapping-guide/' | relative_url }}">Service Mapping <span class="side-sub">Application Service Discovery</span></a>
-      <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM <span class="side-sub">Hardware Asset Management</span></a>
-      <a href="{{ '/docs/modules/sam/sam-guide/' | relative_url }}">SAM <span class="side-sub">Software Asset Management</span></a>
-      <a href="{{ '/docs/modules/hrsd/hrsd-guide/' | relative_url }}">HRSD <span class="side-sub">Human Resources Service Delivery</span></a>
-      <a href="{{ '/docs/modules/ai/ai-guide/' | relative_url }}">AI <span class="side-sub">AI-Native Tiers, Now Assist, Predictive Intelligence</span></a>
-      <a href="{{ '/docs/modules/catalog/catalog-guide/' | relative_url }}">Service Catalog <span class="side-sub">Catalog Items, Variables, Flows, Fulfillment</span></a>
-      <a href="{{ '/docs/modules/portal/portal-guide/' | relative_url }}">Portals &amp; UI Builder <span class="side-sub">Service Portal, Next Experience, Employee Center</span></a>
-      <a href="{{ '/docs/modules/events/events-guide/' | relative_url }}">Events <span class="side-sub">em_event, Event Registry, gs.eventQueue, email notifications</span></a>
-      <a href="{{ '/docs/modules/ai/javascript-reference/' | relative_url }}">JavaScript Reference <span class="side-sub">GlideRecord, GlideAjax, Business Rules, Scripting Patterns</span></a>
+    <div class="side-group collapsible" id="group-guides">
+      <p class="side-label" onclick="toggleGroup('group-guides')">Guides ▸</p>
+      <div class="side-links" id="links-group-guides">
+        <a href="{{ '/docs/modules/itsm/itsm-guide/' | relative_url }}">ITSM <span class="side-sub">IT Service Management</span></a>
+        <a href="{{ '/docs/modules/csm/csm-guide/' | relative_url }}">CSM <span class="side-sub">Customer Service Management</span></a>
+        <a href="{{ '/docs/modules/sales-crm/sales-crm-guide/' | relative_url }}">Sales CRM <span class="side-sub">Leads, Opportunities, Quotes, Orders, Pipeline</span></a>
+        <a href="{{ '/docs/modules/cmdb/cmdb-guide/' | relative_url }}">CMDB <span class="side-sub">Configuration Management Database</span></a>
+        <div class="side-subgroup">
+          <p class="side-label sub-label" onclick="toggleGroup('group-itom')">ITOM ▸</p>
+          <div class="side-links sub-links" id="links-group-itom">
+            <a href="{{ '/docs/modules/itom/itom-guide/' | relative_url }}">ITOM <span class="side-sub">IT Operations Management</span></a>
+            <a href="{{ '/docs/modules/discovery/discovery-guide/' | relative_url }}">Discovery <span class="side-sub">ITOM Discovery</span></a>
+            <a href="{{ '/docs/modules/servicemapping/servicemapping-guide/' | relative_url }}">Service Mapping <span class="side-sub">Application Service Discovery</span></a>
+            <a href="{{ '/docs/modules/events/events-guide/' | relative_url }}">Events <span class="side-sub">em_event, Event Registry, gs.eventQueue, email notifications</span></a>
+          </div>
+        </div>
+        <a href="{{ '/docs/modules/ham/ham-guide/' | relative_url }}">HAM <span class="side-sub">Hardware Asset Management</span></a>
+        <a href="{{ '/docs/modules/sam/sam-guide/' | relative_url }}">SAM <span class="side-sub">Software Asset Management</span></a>
+        <a href="{{ '/docs/modules/hrsd/hrsd-guide/' | relative_url }}">HRSD <span class="side-sub">Human Resources Service Delivery</span></a>
+        <a href="{{ '/docs/modules/ai/ai-guide/' | relative_url }}">AI <span class="side-sub">AI-Native Tiers, Now Assist, Predictive Intelligence</span></a>
+        <a href="{{ '/docs/modules/catalog/catalog-guide/' | relative_url }}">Service Catalog <span class="side-sub">Catalog Items, Variables, Flows, Fulfillment</span></a>
+        <a href="{{ '/docs/modules/portal/portal-guide/' | relative_url }}">Portals &amp; UI Builder <span class="side-sub">Service Portal, Next Experience, Employee Center</span></a>
+        <a href="{{ '/docs/modules/scripting/angular-guide/' | relative_url }}">Angular <span class="side-sub">AngularJS for Service Portal + Modern Angular</span></a>
+        <a href="{{ '/docs/modules/ai/javascript-reference/' | relative_url }}">JavaScript Reference <span class="side-sub">GlideRecord, GlideAjax, Business Rules, Scripting Patterns</span></a>
+      </div>
     </div>
-    <div class="side-group">
-      <p class="side-label">Other</p>
-      <a href="{{ '/docs/youtube/' | relative_url }}">Video Library <span class="side-sub">Official Channels & Playlists</span></a>
-      <a href="{{ '/docs/learning/' | relative_url }}">Learning Paths <span class="side-sub">Official Courses & Certifications</span></a>
-      <a href="{{ '/docs/interviews/prioritized-prep-list/' | relative_url }}">Interview Prep <span class="side-sub">Prioritized by Interview Order</span></a>
-      <a href="{{ '/docs/cross-cutting/' | relative_url }}">Cross-Cutting Skills <span class="side-sub">Integrations, Scripting, Governance</span></a>
+    <div class="side-group collapsible" id="group-other">
+      <p class="side-label" onclick="toggleGroup('group-other')">Other ▸</p>
+      <div class="side-links" id="links-group-other">
+        <a href="{{ '/docs/youtube/' | relative_url }}">Video Library <span class="side-sub">Official Channels &amp; Playlists</span></a>
+        <a href="{{ '/docs/learning/' | relative_url }}">Learning Paths <span class="side-sub">Official Courses &amp; Certifications</span></a>
+        <a href="{{ '/docs/interviews/prioritized-prep-list/' | relative_url }}">Interview Prep <span class="side-sub">Prioritized by Interview Order</span></a>
+        <a href="{{ '/docs/cross-cutting/' | relative_url }}">Cross-Cutting Skills <span class="side-sub">Integrations, Scripting, Governance</span></a>
+      </div>
     </div>
-    <div class="side-group">
-      <p class="side-label">Getting Started</p>
-      <a href="{{ '/getting-started/' | relative_url }}">Track overview</a>
-      <a href="{{ '/getting-started/foundation/' | relative_url }}">Foundation</a>
-      <a href="{{ '/getting-started/tsom/' | relative_url }}">TSOM start</a>
-      <a href="{{ '/getting-started/tsom-diagrams/' | relative_url }}">TSOM diagrams</a>
-      <a href="{{ '/getting-started/csm/' | relative_url }}">CSM start</a>
-      <a href="{{ '/getting-started/fsm/' | relative_url }}">FSM start</a>
-      <a href="{{ '/getting-started/sales-crm/' | relative_url }}">Sales CRM start</a>
-      <a href="{{ '/getting-started/ham/' | relative_url }}">HAM start</a>
-      <a href="{{ '/getting-started/itsm/' | relative_url }}">ITSM start</a>
-      <a href="{{ '/getting-started/discovery/' | relative_url }}">Discovery start</a>
-      <a href="{{ '/getting-started/hrsd/' | relative_url }}">HRSD start</a>
+    <div class="side-group collapsible" id="group-tsom">
+      <p class="side-label" onclick="toggleGroup('group-tsom')">TSOM ▸</p>
+      <div class="side-links" id="links-group-tsom">
+        <a href="{{ '/docs/modules/tsom/tsom-guide/' | relative_url }}">TSOM <span class="side-sub">Telecom Service Operations Management</span></a>
+        <a href="{{ '/docs/modules/tsom/tsom-assurance/' | relative_url }}">TSOM Assurance <span class="side-sub">Event Management, AIOps, Service Impact Analysis, Synthetic Monitoring</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-getting-started">
+      <p class="side-label" onclick="toggleGroup('group-getting-started')">Getting Started ▸</p>
+      <div class="side-links" id="links-group-getting-started">
+        <a href="{{ '/getting-started/' | relative_url }}">Track overview</a>
+        <a href="{{ '/getting-started/foundation/' | relative_url }}">Foundation</a>
+        <a href="{{ '/getting-started/tsom/' | relative_url }}">TSOM start</a>
+        <a href="{{ '/getting-started/tsom-diagrams/' | relative_url }}">TSOM diagrams</a>
+        <a href="{{ '/getting-started/csm/' | relative_url }}">CSM start</a>
+        <a href="{{ '/getting-started/fsm/' | relative_url }}">FSM start</a>
+        <a href="{{ '/getting-started/sales-crm/' | relative_url }}">Sales CRM start</a>
+        <a href="{{ '/getting-started/ham/' | relative_url }}">HAM start</a>
+        <a href="{{ '/getting-started/itsm/' | relative_url }}">ITSM start</a>
+        <a href="{{ '/getting-started/discovery/' | relative_url }}">Discovery start</a>
+        <a href="{{ '/getting-started/hrsd/' | relative_url }}">HRSD start</a>
+      </div>
     </div>
     <div class="side-group">
       <p class="side-label">Repository</p>
@@ -210,6 +236,17 @@
     });
   }
 
+
+  function toggleGroup(id) {
+    var g = document.getElementById(id);
+    var links = g.querySelector('.side-links');
+    var label = g.querySelector('.side-label');
+    var open = g.classList.toggle('open');
+    var text = label.textContent.replace(/[▸▾]/g, '').trim();
+    label.textContent = text + (open ? ' ▾' : ' ▸');
+    if (links) links.style.display = open ? 'block' : 'none';
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('pre code, code').forEach(function (codeEl) {
       var text = codeEl.textContent.trim();
@@ -242,6 +279,15 @@
   .mm-stage { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 1.25rem; }
   .mm-stage svg { max-width: none; height: auto; }
   .mm-stage .mermaid { margin: 0; }
+
+  /* Collapsible sidebar groups */
+  .side-group.collapsible > .side-links { display: none; border-top: 1px solid rgba(255,255,255,.06); margin-top: .2rem; padding-top: .4rem; }
+  .side-group.collapsible.open > .side-links { display: block; }
+  .side-subgroup { margin-left: .5rem; }
+  .side-subgroup .side-links { padding-left: .75rem; border-left: 1px solid rgba(255,255,255,.08); margin-top: .2rem; }
+  .side-label { cursor: pointer; user-select: none; }
+  .side-label:hover { opacity: .9; }
+
 </style>
 <script>
   // Wide tables: wrap each content table in a horizontal scroll box so the final
