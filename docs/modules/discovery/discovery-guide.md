@@ -1,6 +1,6 @@
 # Discovery — ITOM Discovery
 
-Discovery is how ServiceNow finds out what actually exists on the network. It logs into servers, network devices, and cloud accounts through a MID Server, identifies each device, and creates or updates its Configuration Item (CI) in the CMDB — including the software installed on it. Everything upstream (ITSM impact analysis, SAM license counts, TSOM inventory reconciliation) is only as good as what Discovery put in the CMDB.
+Discovery is how ServiceNow finds out what actually exists on the network. It logs into servers, network devices, and cloud accounts through a MID Server, identifies each device, and creates or updates its Configuration Item (CI) in the CMDB — including the software installed on it. Everything downstream (ITSM impact analysis, SAM license counts, TSOM inventory reconciliation) is only as good as what Discovery put in the CMDB.
 
 This guide covers classic Discovery end to end, with a deep focus on **File-Based Discovery (FBD)**: how to reach the Discovery Configuration Console, how to configure it area by area, how filtering really works, and how to run an FBD scan and prove it executed — on the instance *and* on the target device.
 
@@ -151,14 +151,14 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 | Files kept by File-Based Discovery | `cmdb_file_information` (also a related list on the CI) |
 | Files that matched nothing | `cmdb_unidentified_file_set` |
 
-Roles that matter: **discovery_admin** (configure and run Discovery), **admin**, the MID Server's service account user (with the `mid_server` role) on the instance side, and local/domain credentials on the target side.
+Roles that matter: **discovery_admin** (configure and run Discovery), **admin**, **agent_admin** (MID Server administration), **pattern_admin** (Pattern Designer), the MID Server's service account user (with the `mid_server` role) on the instance side, and local/domain credentials on the target side.
 
 ## Prerequisites & Setup
 
 ### Plugins and Scoped Apps
 - **Discovery Core**: `com.snc.discovery.core` — required for all Discovery functionality
 - **MID Server**: `com.snc.mid_server` — the agent that executes Discovery probes in your network
-- **File-Based Discovery**: `com.snc.discovery.file_based_discovery` — included with Discovery subscription, activation must be requested
+- **File-Based Discovery**: `com.snc.discovery.file_based_discovery` — included with the Discovery subscription, activation must be requested. FBD feeds SAM normalization (`cmdb_sam_sw_install`); the full File Signature Normalization workflow is SAM-driven, so confirm your SAM entitlement before relying on FBD for license counts.
 - **SAM File Signature Normalization**: `com.snc.file_signature_normalization` — activated automatically with File-Based Discovery
 - **Cloud Discovery** (optional): `com.snc.discovery.cloud_discovery` — for AWS, Azure, GCP discovery
 
