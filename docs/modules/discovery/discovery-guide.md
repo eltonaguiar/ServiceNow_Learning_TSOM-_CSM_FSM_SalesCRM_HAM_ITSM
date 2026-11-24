@@ -41,6 +41,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
     - [Network & Firewall Prerequisites](#network--firewall-prerequisites)
   - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
   - [Phase 3: Capturing All IP Ranges](#phase-3-capturing-all-ip-ranges)
+    - [CI class scoping](#ci-class-scoping)
   - [Phase 4: Step-by-Step Implementation Rollout](#phase-4-step-by-step-implementation-rollout)
   - [Phase 5: Ongoing Governance](#phase-5-ongoing-governance)
 - [Appendix: IntegrationHub & e-Bonding — connecting discovered data out](#appendix-integrationhub--e-bonding--connecting-discovered-data-out)
@@ -108,6 +109,7 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: Troubleshooting Playbook — Symptom to Evidence [NEW-Nov242026]](#deep-dive-troubleshooting-playbook---symptom-to-evidence-new-nov242026)
 - [Deep Dive: Credential Lifecycle & External Vaults [NEW-Nov242026]](#deep-dive-credential-lifecycle--external-vaults-new-nov242026)
 - [Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]](#deep-dive-scan-safety---exclusions--discovery-behaviors--and-scan-impact-new-nov242026)
+  - [Name resolution and duplicate CIs](#name-resolution-and-duplicate-cis)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#-official-learning-resources)
   - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
@@ -1162,6 +1164,8 @@ Missing IP ranges is the most common cause of CMDB blind spots. Use a multi-laye
 
 **Schedule Segmentation:** Avoid scanning massive `/8` or `/16` blocks in a single schedule. Break into `/24` subnets grouped by geographic location or data center, linked to the nearest MID Server cluster via IP Ranges.
 
+**CI class scoping:** Don't enable every classifier just because it's available. Each enabled classifier can create CIs in its class, which drives ITOM Visibility subscription-unit consumption and CI sprawl. Disable classifiers for device types you don't need tracked (e.g., printers, legacy lab gear) and review which CI classes Discovery is allowed to populate against your CSDM model before the first full rollout.
+
 ### Phase 4: Step-by-Step Implementation Rollout
 
 | Step | Action | Verification |
@@ -1807,6 +1811,8 @@ Practical checks:
 | Class accuracy | CIs in the wrong class (e.g. server vs network device) | `cmdb_ci.sys_class_name` vs source of truth | Investigate outliers |
 | Required attributes | CIs missing `serial_number`, `os`, `ip_address` | `cmdb_ci` null checks | Asset-owner review |
 
+**Duplicate causes beyond IRE rules:** Inconsistent reverse DNS (forward/reverse lookup disagree → two hostnames for one device → two CIs) and DHCP churn (a device that changes IP between runs matches a new CI unless the identifier uses a stable attribute such as serial number, MAC, or UUID). Prefer hardware-bound identifiers over IP in IRE identifier rules for anything with a DHCP-assigned address. See the Name resolution section under Scan Safety for details.
+
 **Stale CI handling:** A CI is stale when `last_discovered` exceeds your staleness window (align to schedule frequency — e.g. 7 days for servers, 30 days for workstations). Do not delete stale CIs — retire them (`install_status = retired`) to keep `cmdb_rel_ci` relationships intact for historical impact analysis. Deletion breaks parent/child references and orphans incidents.
 
 **Ownership:** Define who owns cleanup and exception handling. Discovery admins run the scans; CMDB/data owners approve retirements; the network team owns IP-range exclusions.
@@ -1885,6 +1891,12 @@ A behavior groups functionality definitions (which probes/patterns may run) that
 - **Range sizing:** Avoid scanning massive `/8` or `/16` blocks in a single schedule. Break into `/24` subnets grouped by location and tied to the nearest MID Server cluster via IP Ranges.
 - **Frequency:** Don't over-scan. Align FBD frequency to Monthly (default) unless software changes often; every FBD walk of a filesystem has a real cost on the target.
 - **Reduce scope when slow/disruptive:** If a scan is slow or disruptive, shrink the IP range, lower MID `threads.max`, add exclusions, or move the schedule off-hours — before adding more MIDs.
+- **Security coordination:** Whitelist the MID Server IP addresses with the SOC/IDS-IPS team **before** scanning. Unexpected port-scan-like traffic from a new source is a leading cause of discovery being blocked or shut down in week one. Document which MIDs scan which zones so the security team can allow-list the right sources.
+
+### Name resolution and duplicate CIs
+Inconsistent reverse DNS and DHCP churn are a leading source of duplicate CIs:
+- **Reverse DNS:** If forward and reverse lookup disagree for a target, Discovery may see two hostnames for one device and create two CIs. Confirm DNS is consistent before trusting identification on `name`.
+- **Dynamic IP / DHCP churn:** A device that moves IP ranges between runs can match a new CI unless the identification rule uses a stable attribute (serial number, MAC, UUID). Prefer hardware-bound identifiers over IP in IRE identifier rules for anything with a DHCP-assigned address.
 
 ### Shazzam tuning
 Shazzam sends batch-sized probe bursts. For fragile network segments, lower Shazzam batch size and MID `threads.max` to avoid DoSing the segment. See MID Server Threads & JVM Tuning for `threads.max`.
