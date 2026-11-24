@@ -22,6 +22,30 @@ Discovery is how ServiceNow finds out what actually exists. It reaches targets t
 
 **Reading paths:** New to Discovery → **0 → 1 → 2 → 3.1 → 6.7** • Implementing a rollout → **2 → 3 → 6.4** • Day 2 ops → **4 → 6.5 → 4.4** • CIS-Discovery study → **1 → 3 → 4 → 6.7** • SAM/HAM focus → **3.4 → 6.6**
 
+>[!note] Why the numbering skips
+>Parts are numbered by teaching order, not by page importance. Part 0 is the hands-on lab you run first so you get a visible result before any theory; Parts 5–6 are collapsed reference you open only when you need them. Jump to the part that matches your goal rather than reading straight through.
+
+<!--
+Hidden section — reading-path rationale + TL;DR
+
+Why follow this order:
+- Part 0 gives you a proven CI in ~30 minutes, which makes every later concept concrete instead of abstract.
+- Part 1 defines the vocabulary (CI, MID Server, ECC Queue, IRE, Shazzam, FBD) before you configure anything, so jargon never hits before it's defined.
+- Part 2 is the pre-flight: readiness gate, plugins, MID Server, credentials, IP ranges, schedules, behaviors, firewall. Nothing scans until this is done.
+- Part 3 is where you run schedules, read the evidence (status → log → device history → ECC Queue), and complete the File-Based Discovery and IRE/CMDB quality labs.
+- Part 4 is your troubleshooting operating system: symptom → phase → cause decision table, evidence runbook, top-10 mistakes, Day 2 cadence.
+- Parts 5–6 are specialist reference (MID architecture, affinities, pattern customization, navigator shortcuts, glossary, KPIs) — collapsed by default because most readers never need them on the first pass.
+
+TL;DR — what you discover in each part:
+- Part 0 Start here: your first discovered CI, FBD proven on the target, roles you need.
+- Part 1 Understand the model: four phases (Scan → Classify → Identify → Explore), MID → ECC → CMDB flow, IRE in five minutes, horizontal vs top-down.
+- Part 2 Set up Discovery: readiness gate, plugins, MID Server install/sizing/tuning, credentials & affinities, IP ranges & schedules, behaviors, console, firewall port matrix.
+- Part 3 Run, verify, prove: run a schedule, read the evidence, FBD end-to-end lab, IRE + CMDB data quality + stale CI lifecycle lab.
+- Part 4 Troubleshoot & operate: symptom→phase→cause table, evidence runbook, top-10 mistakes, affinity failures, Day 2 governance cadence.
+- Part 5 Advanced deep dives: MID zones/clusters/sizing, coverage engineering, credential vaults, affinities, pattern customization routes, specialized discovery (web certs, firewall audit, cloud, ACC, macOS/mobile).
+- Part 6 Quick reference: where to find it, navigator shortcuts, table hierarchy, key fields, properties, metadata inventory, glossary, safe scripts, KPI targets.
+-->
+
 ---
 
 ## Part 0 — Start here (30–45 min)
