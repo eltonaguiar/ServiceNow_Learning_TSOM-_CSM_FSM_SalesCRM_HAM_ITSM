@@ -14,6 +14,7 @@
 - [What an Event Is (ELI5)](#what-an-event-is-eli5)
 - [When to Use Events — Decision Guide](#when-to-use-events--decision-guide)
 - [Events for Email Notifications](#events-for-email-notifications)
+- [Events vs Flow — Which One for Email?](#events-vs-flow--which-one-for-email)
 - [Key Tables & Breadcrumbs](#key-tables--breadcrumbs)
 - [How Events Flow Through the System](#how-events-flow-through-the-system)
 - [Event vs Alert vs Notification — Pick the Right One](#event-vs-alert-vs-notification--pick-the-right-one)
@@ -68,7 +69,33 @@ You want to email the contract owner when a contract expires in 30 days.
 
 **Alternative (simpler):** A scheduled job querying expiring contracts and sending emails directly. Use events when you want the *event* to be reusable by other consumers too (e.g. also create an alert when a contract expires).
 
+### Events vs Flow — Which One for Email?
+
+**Scenario:** You need to email the contract owner when a contract expires in 30 days.
+
+| | Flow Designer (scheduled flow) | Events + Event-Based Notification |
+|---|---|---|
+| **How it works** | A scheduled flow runs daily, queries `sn_contract` where expiry is in 30 days, and sends an email template to the owner. | A business rule on the contract table fires `gs.eventQueue('sn_myapp.contract.expiring', current, owner_email)` when expiry nears. An event-based notification subscribes to that event name and sends the email. |
+| **Best when** | Email is the **only** action. Business owners edit it visually. No other system needs to react. | One business event triggers **multiple independent reactions** — or other teams might want to react to the same event later. |
+| **Adding a second action later** (e.g. create an alert, start a fulfillment flow) | Rebuild the flow to add the new step — it's a closed loop. | Just add another consumer (event rule, flow, notification) that subscribes to the same event name. No change to the firing code. |
+| **Timing** | Runs on the schedule you set (e.g. daily). | Near real-time — queued and processed by the "Event Management Process events" job every ~5 seconds. |
+| **Blocking** | Async — doesn't block the user's save. | Async — doesn't block the user's save. |
+| **Trade-off** | Simpler to build and maintain for a single output. | More moving parts (register event, fire it, create each consumer). Async delay. |
+
+**Decision rule:**
+
+| If your need is… | Choose |
+|------------------|--------|
+| *"When a contract expires, send one email."* | **Flow Designer** |
+| *"When a contract expires, email **+** create an alert **+** start fulfillment."* | **Events** |
+| *"Other teams should react to this event without me changing my firing code."* | **Events** |
+| *"I need the email sent before the user can save the record."* | **Neither** — use a Business Rule (onBefore/onAfter). Events and Flow are both async. |
+
+> **Bottom line:** Events aren't "better" for email — they're better when **email is part of a fan-out**, not the whole point. If email is the only output, a scheduled Flow is simpler. If email is one of several reactions to the same business event, events keep your consumers decoupled and reusable.
+
 ---
+
+
 
 ## Events for Email Notifications
 
