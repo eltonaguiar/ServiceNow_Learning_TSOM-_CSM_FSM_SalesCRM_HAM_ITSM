@@ -30,8 +30,6 @@
 - [CMDB De-duplication & Health](#cmdb-de-duplication--health)
 - [Major Incident Management](#major-incident-management)
 - [Change Advisory Board (CAB) & Change Types](#change-advisory-board-cab--change-types)
-- [JDBC / ODBC via MID Server](#jdbc--odbc-via-mid-server)
-- [Platform Governance & Lead Layer](#platform-governance--lead-layer)
 - [Testing Strategy: Unit / System / UAT / Regression](#testing-strategy-unit--system--uat--regression)
 - [Upgrades: Paths, Regression Testing, Health Checks, Clone Post-Tasks](#upgrades-paths-regression-testing-health-checks-clone-post-tasks)
 - [Troubleshooting: Logs, Transaction Logs, Performance](#troubleshooting-logs-transaction-logs-performance)

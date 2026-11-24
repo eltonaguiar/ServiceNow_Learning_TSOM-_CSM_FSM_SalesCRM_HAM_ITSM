@@ -20,7 +20,7 @@
 - [Widget Instance (Placing a Widget on a Page)](#widget-instance-placing-a-widget-on-a-page)
 - [Page Variants vs Page Route Maps (Showing Different Views to Different Users)](#page-variants-vs-page-route-maps-showing-different-views-to-different-users)
 - [Calling Server-Side Code from AngularJS](#calling-server-side-code-from-angularjs)
-- [How the Flow Works — Client → Server → HTML (ELI5)](#how-the-flow-works--client--server--html-eli5)
+- [How the Flow Works — Server → HTML → Client → Link (ELI5)](#how-the-flow-works--server--html--client--link-eli5)
 - [AngularJS Widget → Scripted REST API Integration](#angularjs-widget--scripted-rest-api-integration)
 - [Modern Angular for Custom Integrations](#modern-angular-for-custom-integrations)
 - [AngularJS vs Modern Angular — Decision Table](#angularjs-vs-modern-angular--decision-table)
