@@ -59,6 +59,10 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
       - [Definition of done for coverage](#definition-of-done-for-coverage)
     - [Network & Firewall Prerequisites](#network--firewall-prerequisites)
     - [macOS and Apple endpoints — what Discovery actually covers](#macos-and-apple-endpoints--what-discovery-actually-covers)
+    - [iPhone / iPad (and Android) — automated yes, Discovery no](#iphone--ipad-and-android--automated-yes-discovery-no)
+      - [How the automated route actually works](#how-the-automated-route-actually-works)
+      - [Where this fails — and it fails quietly](#where-this-fails--and-it-fails-quietly)
+      - [Coordination rule for mobile in the CMDB](#coordination-rule-for-mobile-in-the-cmdb)
   - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
   - [Phase 3: Capturing All IP Ranges](#phase-3-capturing-all-ip-ranges)
     - [CI class scoping](#ci-class-scoping)
@@ -107,9 +111,9 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Scheduling & Scoping](#scheduling--scoping)
   - [Expiry Alerting & Remediation](#expiry-alerting--remediation)
 - [Deep Dive: Firewall Audits & Reporting](#deep-dive-firewall-audits--reporting)
-  - [Overview & Use Cases](#overview--use-cases-1)
+  - [Overview & Use Cases](#overview--use-cases)
   - [Discovery Scope & Prerequisites](#discovery-scope--prerequisites)
-  - [Configuration Steps](#configuration-steps-1)
+  - [Configuration Steps](#configuration-steps)
   - [Key Tables & CMDB Classes](#key-tables--cmdb-classes)
   - [Compliance & Cleanup Use Cases](#compliance--cleanup-use-cases)
 - [Deep Dive: Agent Client Collector (ACC) — Agent vs Agentless Decision](#deep-dive-agent-client-collector-acc--agent-vs-agentless-decision)
@@ -126,14 +130,14 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
 - [Deep Dive: IRE + CMDB Data Quality + Stale CI Lifecycle — Implementation Lab [NEW-Nov242026]](#deep-dive-ire--cmdb-data-quality--stale-ci-lifecycle--implementation-lab-new-nov242026)
-- [Deep Dive: Troubleshooting Playbook — Symptom to Evidence [NEW-Nov242026]](#deep-dive-troubleshooting-playbook---symptom-to-evidence-new-nov242026)
+- [Deep Dive: Troubleshooting Playbook — Symptom to Evidence [NEW-Nov242026]](#deep-dive-troubleshooting-playbook--symptom-to-evidence-new-nov242026)
 - [Deep Dive: Credential Lifecycle & External Vaults [NEW-Nov242026]](#deep-dive-credential-lifecycle--external-vaults-new-nov242026)
-- [Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]](#deep-dive-scan-safety---exclusions--discovery-behaviors--and-scan-impact-new-nov242026)
+- [Deep Dive: Scan Safety — Exclusions, Discovery Behaviors, and Scan Impact [NEW-Nov242026]](#deep-dive-scan-safety--exclusions-discovery-behaviors-and-scan-impact-new-nov242026)
   - [Name resolution and duplicate CIs](#name-resolution-and-duplicate-cis)
-- [Deep Dive: Discovery Strategy — Agentless vs Agent vs Connector vs Cloud [NEW-Nov242026]](#deep-dive-discovery-strategy---agentless-vs-agent-vs-connector-vs-cloud-new-nov242026)
+- [Deep Dive: Discovery Strategy — Agentless vs Agent vs Connector vs Cloud [NEW-Nov242026]](#deep-dive-discovery-strategy--agentless-vs-agent-vs-connector-vs-cloud-new-nov242026)
 - [Deep Dive: CSDM Alignment & Cross-Module Contracts [NEW-Nov242026]](#deep-dive-csdm-alignment--cross-module-contracts-new-nov242026)
-- [Deep Dive: Troubleshooting Decision Table — Symptom to Phase to Cause [NEW-Nov242026]](#deep-dive-troubleshooting-decision-table---symptom-to-phase-to-cause-new-nov242026)
-- [Deep Dive: Readiness Gate — Before You Scan Anything [NEW-Nov242026]](#deep-dive-readiness-gate---before-you-scan-anything-new-nov242026)
+- [Deep Dive: Troubleshooting Decision Table — Symptom to Phase to Cause [NEW-Nov242026]](#deep-dive-troubleshooting-decision-table--symptom-to-phase-to-cause-new-nov242026)
+- [Deep Dive: Readiness Gate — Before You Scan Anything [NEW-Nov242026]](#deep-dive-readiness-gate--before-you-scan-anything-new-nov242026)
 - [Deep Dive: Day 2 Operations [NEW-Nov242026]](#deep-dive-day-2-operations-new-nov242026)
 - [Quiz](#quiz)
 - [🎓 Official Learning Resources](#-official-learning-resources)
@@ -1070,6 +1074,54 @@ macOS **is** a supported agentless Discovery target, and it is a common source o
 
 **Exam focus:** this section supports **CIS-Discovery** — pattern design and protocols (35%) and configuration (35%).
 
+### iPhone / iPad (and Android) — automated yes, Discovery no
+
+Mobile devices are the clearest case where "we can't discover it" is true for Discovery and false for the platform as a whole. Be precise about which mechanism you mean:
+
+| Mechanism | iOS / iPadOS | Android | Why |
+|---|---|---|---|
+| **Discovery (agentless)** | **No** | **No** | No SSH, no SNMP, no WMI, no remote management interface to probe. The OS is locked down and battery-powered — it may not even be on when the schedule runs |
+| **Cloud Discovery** | **No** | **No** | Cloud Discovery is for cloud *infrastructure* — VMs, storage, networks via provider APIs. A phone is not a cloud resource |
+| **Agent Client Collector (ACC)** | **No** | **No** | ACC targets Windows, Linux and macOS hosts. There is no iOS/Android ACC target |
+| **Service Graph Connector for Jamf** | **Yes** | Partial | Explicitly tracks **iPhones and iPads** alongside Macs |
+| **Service Graph Connector for Microsoft Intune** | **Yes** | **Yes** | Imports Mobile Device (Handheld Computing), Mobile Apps, and Computers |
+
+#### How the automated route actually works
+
+Both connectors are **scheduled imports**, not probes. The MDM already collected the data; the connector maps and reconciles it:
+
+| What happens | Jamf | Intune |
+|---|---|---|
+| Data source | Jamf Classic API (10.x), or Jamf Pro API when `use_jamf_mobile_pro_api` is enabled | Microsoft Graph / Intune API |
+| "Discovery Source" you will see | `SG-Jamf` | SGC for Intune |
+| Mobile staging table | `sn_jamf_integrate_sg_jamf_mobile_devices` | connector-specific staging |
+| Target CI class | **`cmdb_ci_handheld_computing`** (Handheld Computing device) | **`cmdb_ci_handheld_computing`** |
+| Also populates | Computers, disks, network adapters, IP addresses, software installs/instances | Mobile apps, computers, software |
+| Transform / identity | RTE transform, then **IRE** for identification and reconciliation | RTE + IRE |
+| Refresh | Scheduled jobs (`SG-Jamf Mobile Devices`, with the computer job as parent); delta sync available via `is_delta_enabled_for_mobiles` | Scheduled imports |
+| Prerequisites | Integration Commons for CMDB, CMDB CI Class Model, ITOM Licensing plugin, plus the connector from the Store | Connector from the Store, plus Graph API app registration with read permission |
+
+#### Where this fails — and it fails quietly
+
+Because it is an import, the connector can only ever reflect **what the MDM knows**. That produces four predictable gaps:
+
+1. **Unenrolled devices are invisible.** A personal or BYOD phone that was never enrolled simply does not exist to JAMF/Intune, so it never reaches the CMDB. Discovery has no fallback for mobile — there is no second path.
+2. **Stale check-ins.** A device that has not contacted the MDM in weeks still imports at its last-known state. Nothing in the import tells you the record is stale; you have to watch the MDM's own last-seen field.
+3. **Personal vs managed apps.** Jamf's `import_managed_apps_only` property decides whether you import only managed application records or all of them. Getting this wrong either hides software or floods the CMDB with personal apps.
+4. **Publisher/attribute gaps.** Lookup imports can go inactive and silently degrade data — the documented Jamf case is `Discovered Publisher` showing `Unknown` across most records because the `SG-Jamf Lookup Mac Software Bundle Ids` scheduled import was inactive. Check the lookup imports, not just the main one.
+
+#### Coordination rule for mobile in the CMDB
+
+Mobile is **MDM-owned, not Discovery-owned**. Write that into the reconciliation rules explicitly:
+
+- If both an MDM connector and anything else can touch a mobile CI, the MDM wins for hardware identity and installed software.
+- Discovery should never be expected to produce or repair a mobile CI. A mobile device missing from the CMDB is an **enrollment** problem, routed to the MDM team — not a Discovery coverage gap to be chased in scan ranges.
+- Count mobile separately in your coverage reporting. Folding phones into a "hosts discovered" KPI makes the estate look covered when the mobile population is simply unquantified.
+
+**Interview Insight:** "Mobile can be automated, but not by Discovery — there is no probe path to iOS or Android. I use the Service Graph Connector for Jamf or Intune, which lands devices in `cmdb_ci_handheld_computing` through IRE on a scheduled import. The trade-off is that the CMDB is only as complete as MDM enrollment and last check-in, so an unenrolled phone is invisible with no fallback — which is why I treat mobile gaps as an enrollment issue and report mobile coverage separately from server discovery."
+
+**Exam focus:** supports **CIS-Discovery** (readiness 15% — coverage boundaries) and the CMDB/data-source precedence content in **CIS-Data Foundations** (35%).
+
 **Service account design:** Windows discovery via WMI/WinRM depends on the MID's own service account as much as on the supplied target credentials. The MID service account needs "Log on as a service" and, for WMI, domain-level read access. A credential that works in Quick Discovery from your laptop can still fail on the MID because the MID runs under a different service account. Test credentials *from the MID Server host*, not your laptop.
 
 **Shazzam tuning:** Shazzam (the scanning probe) sends batch-sized probe bursts. If you scan a fragile or OT/IoT segment, lower the Shazzam batch size and the MID `threads.max` so you don't DoS the segment or overwhelm the MID. See MID Server Threads & JVM Tuning below for `threads.max`.
@@ -1323,7 +1375,9 @@ Missing IP ranges is the most common cause of CMDB blind spots. Use a multi-laye
 
 **Schedule Segmentation:** Avoid scanning massive `/8` or `/16` blocks in a single schedule. Break into `/24` subnets grouped by geographic location or data center, linked to the nearest MID Server cluster via IP Ranges.
 
-**CI class scoping:** Don't enable every classifier just because it's available. Each enabled classifier can create CIs in its class, which drives ITOM Visibility subscription-unit consumption and CI sprawl. Disable classifiers for device types you don't need tracked (e.g., printers, legacy lab gear) and review which CI classes Discovery is allowed to populate against your CSDM model before the first full rollout.
+#### CI class scoping
+
+Don't enable every classifier just because it's available. Each enabled classifier can create CIs in its class, which drives ITOM Visibility subscription-unit consumption and CI sprawl. Disable classifiers for device types you don't need tracked (e.g., printers, legacy lab gear) and review which CI classes Discovery is allowed to populate against your CSDM model before the first full rollout.
 
 ### Phase 4: Step-by-Step Implementation Rollout
 

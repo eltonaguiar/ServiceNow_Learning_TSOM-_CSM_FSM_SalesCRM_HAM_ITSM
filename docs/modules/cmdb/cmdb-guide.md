@@ -17,7 +17,7 @@
 - [Where to Find It](#where-to-find-it)
 - [Official Exam Alignment — CIS-Data Foundations (CMDB and CSDM)](#official-exam-alignment--cis-data-foundations-cmdb-and-csdm)
 - [CMDB Table Hierarchy Diagram](#cmdb-table-hierarchy-diagram)
-- [CSDM Framework Adoption Levels (Crawl → Walk → Run → Fly)](#csdm-framework-adoption-levels--crawl--walk--run--fly)
+- [CSDM Framework Adoption Levels (Crawl → Walk → Run → Fly)](#csdm-framework-adoption-levels-crawl--walk--run--fly)
   - [Crawl: Basic CMDB Hygiene](#crawl-basic-cmdb-hygiene)
   - [Walk: Service-Aware CMDB](#walk-service-aware-cmdb)
   - [Run: Domain Expansion](#run-domain-expansion)
