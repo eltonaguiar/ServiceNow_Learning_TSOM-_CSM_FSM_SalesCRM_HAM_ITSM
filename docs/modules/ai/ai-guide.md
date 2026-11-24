@@ -57,6 +57,11 @@
 - [Install / Enablement per Module](#install--enablement-per-module)
 - [AI Control Tower — Governance & Observability](#ai-control-tower--governance--observability)
 - [AI Cost Management — Avoiding Surprise Bills & Limit Breaks](#ai-cost-management--avoiding-surprise-bills--limit-breaks)
+  - [The AI Cost Management app (ITAM) — separate from Assist metering](#the-ai-cost-management-app-itam--separate-from-assist-metering)
+  - [Spend limits — the defaults that surprise people](#spend-limits--the-defaults-that-surprise-people)
+  - [How AI spend counts against your contract](#how-ai-spend-counts-against-your-contract)
+  - [Net AI return — the AI Control Tower cost side](#net-ai-return--the-ai-control-tower-cost-side)
+  - [Cloud Cost Management — adjacent, not the same product](#cloud-cost-management--adjacent-not-the-same-product)
   - [Cost management levers](#cost-management-levers)
   - [What breaks when you hit limits](#what-breaks-when-you-hit-limits)
   - [Cost optimization tactics](#cost-optimization-tactics)
@@ -662,6 +667,105 @@ AI Control Tower is the centralized governance and observability hub for all AI 
 ## AI Cost Management — Avoiding Surprise Bills & Limit Breaks
 
 Operationalizing AI at scale requires cost control. Without guardrails, Assist consumption can burn through your monthly allocation quickly, and once the quota is hit, AI features (Now Assist skills, AI agents, Predictive Intelligence predictions) can stop working — breaking workflows that depend on them.
+
+### The AI Cost Management app (ITAM) — separate from Assist metering
+
+Do not confuse the two cost surfaces. **Assist metering** above counts Now Assist consumption *inside* the platform. **AI Cost Management** is a distinct ITAM application that imports what *external* AI vendors bill you.
+
+| Fact | Value |
+|---|---|
+| App scope | `sn_itam_aicm` |
+| Where obtained | ServiceNow Store (paid, standalone application) |
+| Part of | IT Asset Management |
+| Compatibility | Brazil Patch 7, Australia Patch 7, Zurich Patch 13 (latest features require Zurich Patch 12 / Australia Patch 5) |
+| Versions | 1.0 initial release → 1.0.2 (November 2026) |
+| Vendors integrated | Anthropic Claude Enterprise, Microsoft Copilot |
+| Refresh cadence | daily |
+
+Navigation: **All > AI Cost Management**. The application has four working surfaces:
+
+| Surface | What it shows |
+|---|---|
+| Home | Active alerts, total AI spend across Claude and Copilot, top spenders for a period |
+| Spend | Breakdown by account, product, model, cost center, department, and user — drill-down from each |
+| Integrations | Manage connected AI software and add or edit Claude Enterprise accounts |
+| Alerts Center | Active alerts with severity badges, filtering, dismissal, and a recommendations side panel |
+
+What the application answers: how much are we spending on external AI, who is spending it, and are we about to breach a budget.
+
+### Spend limits — the defaults that surprise people
+
+When you connect a consumption account, AI Cost Management **creates spend limits and thresholds for you**. Four behaviours are worth memorising because they are not what most people assume:
+
+| Behaviour | Default |
+|---|---|
+| Owner of the new limit | The AI Cost administrator |
+| Monthly limit for the account | **Last month's actual spend** for that account, not a budget you choose (and `$0.00` if there was no prior spend) |
+| Organization limit | The sum of every account's monthly spend — editing one account moves the org total |
+| Thresholds created | Two per limit: **75%** and **95%**, alerting in the UI **and** by email |
+| User-level limits | Imported directly from Anthropic — you set thresholds for them, not the limits themselves |
+
+Three operational facts that decide whether this protects you:
+
+- **Spend limits are not enforced.** They do not block AI usage. They exist for alerting only, so an over-spend is *reported*, not *prevented*.
+- **Evaluation runs every three hours**, so an alert can lag a fast burn by up to one cycle.
+- **Defaults are set once, at integration creation.** They do not re-baseline as spend changes, and alerts are cleared on the **10th day of the month**, clearing the prior month's alerts.
+
+**Interview Insight:** "AI Cost Management gives me visibility and alerting on external AI spend, but it is a monitoring control, not a hard stop — so I pair it with approval gates in the provisioning flow if I need a real cap."
+
+### How AI spend counts against your contract
+
+AI Cost Management has its own subscription consumption model, which is easy to miss when sizing a renewal. Two managed resource types feed the ITAM subscription unit:
+
+| Managed IT resource | Table | Subscription unit ratio |
+|---|---|---|
+| SaaS Subscription User | `samp_sw_subscription` | 1 : 15 |
+| AI Annual Spend | `aicm_nd_ai_usage` | 1 : 3,000 |
+
+"AI Annual Spend" is **monthly consumption spend × 12**. So the table that reports your AI spend is also the table that consumes your subscription entitlement — reconciling the two before renewal is the difference between a renewal that fits and one that surprises finance.
+
+### Net AI return — the AI Control Tower cost side
+
+Separate from ITAM's external spend, AI Control Tower's **Measure** pillar computes whether AI is worth what it costs. The formula is deliberately simple:
+
+**Net AI return = money saved − cost**
+
+| Component | How it is calculated |
+|---|---|
+| Savings | Hours saved × average hourly rate. Example: 40 hours × `$100/hr` = `$4,000` |
+| Cost | LLM token costs + Assist costs (the framework also names integration and infrastructure costs) |
+| Net return | `$4,000 − $500 = $3,500` profitable · `$2,000 − $2,000 = $0` breakeven · `$1,000 − $2,000 = −$1,000` not yet profitable |
+
+Two implementation details that matter when you explain it to a stakeholder:
+
+- **Cost is calculated at the vendor level**, because usage detail is available per vendor rather than per agent. AI-system-level breakdown appears only where that data exists.
+- Cost tracking runs in a fixed sequence: capture LLM API calls and token usage → price them at vendor rates → aggregate Assist costs → group by system, vendor, department and period → compute period-over-period trends. Dashboards typically show consolidated daily or hourly summaries even though capture is real-time.
+
+Where to see it: **All > AI Control Tower > Home > Insights > Value**. The Value dashboard shows net AI returns as *money saved minus total AI cost*, with total cost expressed in assists and tokens, defaulting to the last 30 days.
+
+**Exam focus:** this is the AI-side analogue of TCO reporting and supports **CIS-HAM Financial Management (5%)** when you discuss AI as a managed, costed asset.
+
+### Cloud Cost Management — adjacent, not the same product
+
+Cloud Cost Management (CCM) is a **different** application aimed at cloud infrastructure spend, not AI token spend. Keep them separate in conversation:
+
+| | AI Cost Management | Cloud Cost Management |
+|---|---|---|
+| What it costs out | External AI vendor spend (Claude, Copilot) | Cloud infrastructure consumption |
+| Primary tables/app | `sn_itam_aicm`, `aicm_nd_ai_usage` | CCM application (own scope) |
+| Core question | Are we overspending on AI, and who is spending it? | Where is cloud spend going, and what can we optimise? |
+
+Cloud Cost Management **version 11.0** added:
+
+- **AI-powered summarization** of cloud spend reports — summary instead of manual analysis
+- **Standardized business context** for unified cost reporting with **total cost of ownership** across cloud, labour, and on-premises
+- A **Unit Economics dashboard** for business insights
+- A **reorganized CCM Workspace** with improved navigation and reusable saved views
+- **Tagless cloud spend attribution** — aligning cloud costs to business structure *independent of inconsistent tagging*, which is the feature that matters if your tagging hygiene is poor
+
+The practical framing: tagging is only as good as the discipline behind it, so tagless attribution plus unit economics is how CCM answers "what does this business unit actually cost to run" without a tagging cleanup project first.
+
+**Interview Insight:** "I separate AI spend from cloud spend because they have different owners and different levers — AI Cost Management is about vendor token consumption and budget alerts, Cloud Cost Management is about infrastructure optimisation and TCO attribution."
 
 ### Cost management levers
 
