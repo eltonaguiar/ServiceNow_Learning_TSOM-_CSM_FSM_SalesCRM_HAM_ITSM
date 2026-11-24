@@ -31,7 +31,7 @@
   - [🚨 Major Incident Management (MIM)](#-major-incident-management-mim)
   - [🧩 Problem Management](#-problem-management)
   - [Incident, Problem, and the records next to them](#incident-problem-and-the-records-next-to-them)
-  - [⚙️ Change Management](#-change-management)
+  - [⚙️ Change Management](#change-management)
   - [📊 Major Incident vs Normal Incident Comparison](#-major-incident-vs-normal-incident-comparison)
   - [📊 CAB & Change Types Decision Flow](#-cab--change-types-decision-flow)
   - [📊 Change Collision Detection & Blackout Windows](#-change-collision-detection--blackout-windows)
@@ -57,11 +57,11 @@
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [Out-of-box incident SLAs, breach, and every definition option](#out-of-box-incident-slas-breach-and-every-definition-option)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#-official-learning-resources)
-  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos-playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -441,7 +441,7 @@ How they connect, and only in this direction:
 
 Priority is Impact × Urgency on the incident, from the priority lookup. It chooses which SLA duration matches. It does not declare a major incident, and it does not open a problem.
 
-### ⚙️ Change Management
+### ⚙️ Change Management {#change-management}
 
 **Change Types:**
 
@@ -1163,11 +1163,11 @@ Repair SLAs replays history after you change a definition or a schedule. The SLA
 
 ---
 
-## 🎓 Official Learning Resources
+## 🎓 Official Learning Resources {#official-learning-resources}
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
-### 📺 Verified Videos & Playlists
+### 📺 Verified Videos & Playlists {#verified-videos-playlists}
 
 ### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
@@ -1191,7 +1191,7 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "IT Service Management"
 
-## 💡 Memory Aids & Mnemonics
+## 💡 Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 <details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

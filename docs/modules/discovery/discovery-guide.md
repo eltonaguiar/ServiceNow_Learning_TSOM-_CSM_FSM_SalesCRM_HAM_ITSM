@@ -140,11 +140,11 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
 - [Deep Dive: Readiness Gate — Before You Scan Anything [NEW-Nov242026]](#deep-dive-readiness-gate--before-you-scan-anything-new-nov242026)
 - [Deep Dive: Day 2 Operations [NEW-Nov242026]](#deep-dive-day-2-operations-new-nov242026)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#-official-learning-resources)
-  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos-playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -1858,11 +1858,11 @@ Use `task_sla` to:
 6. A discovered .exe has no CDS signature. Which table does it land in, and who deals with it?
 <details><summary>Answer</summary>cmdb_ci_discovered_item (unidentified); the Discovery admin/owner resolves it.</details>
 
-## 🎓 Official Learning Resources
+## 🎓 Official Learning Resources {#official-learning-resources}
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
-### 📺 Verified Videos & Playlists
+### 📺 Verified Videos & Playlists {#verified-videos-playlists}
 
 ### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
@@ -1886,7 +1886,7 @@ Fallback link: [ITOM Discovery Official Overview](https://www.youtube.com/watch?
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "ITOM Discovery"
 
-## Memory Aids & Mnemonics
+## Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 <details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

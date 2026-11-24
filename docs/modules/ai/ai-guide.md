@@ -95,7 +95,7 @@
   - [Out-of-Box Dashboards](#out-of-box-dashboards)
   - [Out-of-Box Workspaces](#out-of-box-workspaces)
 - [Quiz](#quiz)
-- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -1262,7 +1262,7 @@ AI does not ship traditional OOTB dashboards — instead, **AI Control Tower** p
 ---
 
 
-## 💡 Memory Aids & Mnemonics
+## 💡 Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 <details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

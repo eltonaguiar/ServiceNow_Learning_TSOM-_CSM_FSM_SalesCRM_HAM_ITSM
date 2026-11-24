@@ -40,17 +40,17 @@
   - [HR Lifecycle Event Journey Orchestration](#hr-lifecycle-event-journey-orchestration)
   - [HR Service to COE Data Segregation](#hr-service-to-coe-data-segregation)
   - [Employee Center Request Intake Flow](#employee-center-request-intake-flow)
-- [⚠️ ServiceNow Learning Warnings](#-servicenow-learning-warnings)
+- [⚠️ ServiceNow Learning Warnings](#servicenow-learning-warnings)
 - [SLAs, Dashboards & Workspaces](#slas-dashboards--workspaces)
   - [SLA Support](#sla-support)
   - [OOTB Dashboards](#ootb-dashboards)
   - [OOTB Workspaces](#ootb-workspaces)
 - [Quiz](#quiz)
-- [🎓 Official Learning Resources](#-official-learning-resources)
-  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos-playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -350,7 +350,7 @@ flowchart LR
 
 ---
 
-## ⚠️ ServiceNow Learning Warnings
+## ⚠️ ServiceNow Learning Warnings {#servicenow-learning-warnings}
 
 - **Putting HR data in `sys_user`:** Never do this. Use the HR Profile. The `sys_user` table is too visible across the platform.
 - **Ignoring COE security:** Forgetting to restrict access to the Payroll COE, allowing all HR agents to see salary data. Always verify ACLs on the specific COE table.
@@ -388,11 +388,11 @@ flowchart LR
 
 ---
 
-## 🎓 Official Learning Resources
+## 🎓 Official Learning Resources {#official-learning-resources}
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
-### 📺 Verified Videos & Playlists
+### 📺 Verified Videos & Playlists {#verified-videos-playlists}
 
 ### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
@@ -416,7 +416,7 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) $\rightarrow$ Search for "Human Resources Service Delivery"
 
-## Memory Aids & Mnemonics
+## Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 <details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>

@@ -68,12 +68,12 @@
   - [Comprehensive Overview: Sales and Order Management](#comprehensive-overview-sales-and-order-management)
   - [Getting Started Webinar](#getting-started-webinar)
   - [Detailed Demo: Lead to Order](#detailed-demo-lead-to-order)
-- [🗺️ Conceptual Flow (Lead-to-Cash)](#-conceptual-flow-lead-to-cash)
-- [🎓 Official Learning Resources](#-official-learning-resources)
-  - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
+- [🗺️ Conceptual Flow (Lead-to-Cash)](#conceptual-flow-lead-to-cash)
+- [🎓 Official Learning Resources](#official-learning-resources)
+  - [📺 Verified Videos & Playlists](#verified-videos-playlists)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [🚀 The Authoritative Path](#the-authoritative-path)
-- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -882,7 +882,7 @@ Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `
 - [Getting Started Webinar](https://www.youtube.com/watch?v=zCCbYr15dG8)
 - [Detailed Demo: Lead to Order](https://www.youtube.com/watch?v=zCCbYr15dG8)
 
-## 🗺️ Conceptual Flow (Lead-to-Cash)
+## 🗺️ Conceptual Flow (Lead-to-Cash) {#conceptual-flow-lead-to-cash}
 
 ```mermaid
 graph LR
@@ -898,11 +898,11 @@ graph LR
 
 ---
 
-## 🎓 Official Learning Resources
+## 🎓 Official Learning Resources {#official-learning-resources}
 
 To avoid unofficial or outdated content, always use these validated official ServiceNow sources:
 
-### 📺 Verified Videos & Playlists
+### 📺 Verified Videos & Playlists {#verified-videos-playlists}
 
 ### Quick Start Guide
 For those new to the module, we recommend starting with this official overview:
@@ -926,7 +926,7 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
    - The definitive source for every table, field, and OOB behavior.
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) → Search for "Sales CRM / Order Management"
 
-## 💡 Memory Aids & Mnemonics
+## 💡 Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 ### Business Rule Types — BAA
 

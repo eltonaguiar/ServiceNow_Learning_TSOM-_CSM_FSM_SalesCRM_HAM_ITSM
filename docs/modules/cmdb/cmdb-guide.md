@@ -172,7 +172,7 @@
   - [Reusable Components (Beyond Widget Instances)](#reusable-components-beyond-widget-instances)
   - [Page Variants — Customized Pages for Different Users](#page-variants--customized-pages-for-different-users)
   - [UI Builder Architecture Diagram](#ui-builder-architecture-diagram)
-- [💡 Memory Aids & Mnemonics](#-memory-aids--mnemonics)
+- [💡 Memory Aids & Mnemonics](#memory-aids-mnemonics)
   - [Business Rule Types — BAA](#business-rule-types--baa)
   - [Client Script Types — LOCS](#client-script-types--locs)
   - [UI Policy vs Data Policy vs Client Script](#ui-policy-vs-data-policy-vs-client-script)
@@ -2894,7 +2894,7 @@ flowchart TD
 
 ```
 
-## 💡 Memory Aids & Mnemonics
+## 💡 Memory Aids & Mnemonics {#memory-aids-mnemonics}
 
 <details markdown="1">
 <summary>💡 Click to reveal mnemonics & memory aids</summary>
