@@ -48,6 +48,15 @@ This guide covers classic Discovery end to end, with a deep focus on **File-Base
   - [Debugging Affinities](#debugging-affinities)
 - [Deep Dive: Discovery End-to-End Implementation — Architecture, Coverage, and Rollout](#deep-dive-discovery-end-to-end-implementation--architecture-coverage-and-rollout)
   - [Phase 1: Architecture & MID Server Strategy](#phase-1-architecture--mid-server-strategy)
+    - [Network zones, scan scope, and proving you missed nothing](#network-zones-scan-scope-and-proving-you-missed-nothing)
+      - [What a "network zone" actually is](#what-a-network-zone-actually-is)
+      - [Why one cluster per zone, not one MID per subnet](#why-one-cluster-per-zone-not-one-mid-per-subnet)
+      - [How to find a company's real zones](#how-to-find-a-companys-real-zones)
+      - [Turning the IP plan into scan scope](#turning-the-ip-plan-into-scan-scope)
+      - [Proving you missed nothing — the reconciliation triangle](#proving-you-missed-nothing--the-reconciliation-triangle)
+      - [Per-OS completeness rules](#per-os-completeness-rules)
+      - [Anti-patterns that silently lose servers](#anti-patterns-that-silently-lose-servers)
+      - [Definition of done for coverage](#definition-of-done-for-coverage)
     - [Network & Firewall Prerequisites](#network--firewall-prerequisites)
     - [macOS and Apple endpoints — what Discovery actually covers](#macos-and-apple-endpoints--what-discovery-actually-covers)
   - [Phase 2: Achieving Full Coverage (On-Prem vs. Cloud)](#phase-2-achieving-full-coverage-on-prem-vs-cloud)
@@ -911,6 +920,120 @@ The MID (Management, Instrumentation, and Discovery) Server acts as the bridge b
 | `JDBC` | Database discovery | Connecting to Oracle, SQL Server, MySQL, PostgreSQL |
 | `PowerShell` | Windows Orchestration | Running PowerShell activities on targets |
 | `AWS` / `Azure` / `GCP` | Cloud Discovery | API-based cloud resource discovery |
+
+### Network zones, scan scope, and proving you missed nothing
+
+"One MID Server cluster per network zone" is the most-quoted and least-explained line in Discovery design. Below is what a zone actually is, how to find a company's real zones, and how to prove you did not miss a host.
+
+#### What a "network zone" actually is
+
+A zone is **not** a subnet, a VLAN, or a data centre. It is *the largest set of hosts that share one security and routing policy* — i.e. hosts you can reach from one place without a firewall rule being written specifically for that traffic. A zone boundary is wherever one of these exists:
+
+| Boundary | How you detect it | Why it decides MID placement |
+|---|---|---|
+| **Firewall / security policy** | Firewall rulebase (source → destination pairs), security groups, NSGs | Every MID → target port must be permitted. One cluster per side beats opening a corridor between zones |
+| **Routing domain** | Routing tables, BGP/OSPF areas, MPLS VRFs, SD-WAN segments | No route means no scan, regardless of credentials |
+| **L2 segmentation** | VLAN / VXLAN registry, switch port assignments | Usually coincides with a policy boundary, not always |
+| **Cloud boundary** | Account/subscription, VPC/VNet, subnet, region | Cloud is better served by API discovery than by probing (see below) |
+| **Trust boundary** | DMZ vs internal, OT/ICS vs IT, PCI scope, regulated enclaves | Scanning across it is often a change-control and audit problem, not just a netadmin one |
+| **Egress/proxy** | Proxy PAC files, NAT gateways, egress IP allow-lists | A MID behind a proxy needs the instance connection proxied; targets may see only the NAT address |
+
+So the practical definition to write down per zone: **name, CIDR list, boundary reason, which MID cluster, which credentials, which protocols, and who owns it.**
+
+#### Why one cluster per zone, not one MID per subnet
+
+| Reason | Consequence if you get it wrong |
+|---|---|
+| **Firewall traversal** | A MID can only scan what it can route to. One cluster per zone means the firewall rules are written once per zone, not once per MID per subnet |
+| **Blast radius** | A MID that hangs or is saturated takes down only its zone's scans, not the whole estate |
+| **Credential/domain scope** | WMI authenticates with the MID host's own domain, so a Windows MID only covers its own domain. This is a hard boundary, not a tuning choice |
+| **MID selection** | Discovery selects MIDs by functionality criteria (`mid_server`, `win_domain`). Fewer, well-named clusters make those criteria readable and auditable |
+| **Performance/latency** | Shazzam bursts probes. A remote cluster adds latency and a WAN bottleneck to every scan |
+
+Multiple subnets inside one zone is normal and expected — that is the whole point. Adding a MID per subnet creates N times the firewall rules, N times the patching, and N times the credentials to rotate, for no extra coverage.
+
+#### How to find a company's real zones
+
+Do not ask for a network diagram — ask for the artefacts that are maintained by someone who is accountable:
+
+| Source | What it gives you | Owner |
+|---|---|---|
+| Firewall rulebase export | Actual policy boundaries, plus a source→destination list of what is *already* permitted | Network security |
+| IPAM (Infoblox, BlueCat, phpIPAM) | Authoritative subnet list, utilisation, and often MAC/lease history | Network |
+| Routing tables / VRFs / SD-WAN inventory | Which segments exist and whether they are reachable at all | Network |
+| Cloud org structure | Account/subscription list, VPC/VNet/subnet inventory, resource counts per region | Cloud/platform |
+| Hypervisor inventory | vCenter/ESXi, Nutanix, Hyper-V — the ground truth for what VMs *exist* on-prem | Virtualisation |
+| AD Sites & Subnets | The company's own declared mapping of subnets to sites — an excellent second opinion on "where" | Identity/AD |
+| DNS forward/reverse zones | Hostname population and naming conventions; reverse zones reveal ranges nobody mentioned | Network/identity |
+| Switch CDP/LLDP + ARP tables | What devices are actually *live* on each segment right now | Network |
+| CMDB / SCCM / Intune / JAMF | Endpoint and server population your other systems already believe in | IT ops |
+
+The reconciliation of these is the real deliverable: any CIDR present in IPAM but absent from the scan list is a **known gap**, and any CIDR in the firewall table with no scan is an **unknown gap**. Write both down before scheduling anything.
+
+#### Turning the IP plan into scan scope
+
+Discovery scans **IP ranges**, grouped into **range sets**, and each range set is what a schedule and its MID/credentials are attached to.
+
+| Mechanism | Behaviour | Watch out for |
+|---|---|---|
+| **IP address range** | Scans every address in the range | It also scans network and broadcast addresses, which ServiceNow warns can produce inaccurate results. Prefer host-aligned ranges |
+| **Range set** | A named group of ranges you can attach different schedules, credentials or probes to | Perfect unit for "one range set per zone per OS family" |
+| **Exclusions** | Keeps fragile or forbidden devices out of scope | An exclusion without a named owner is how devices stay invisible for years |
+| **Very large ranges** | A `/8` or a netmask typed as `0.0.0.0` is nearly always a typo | Split into several schedules/ranges and run them in sequence; Shazzam can exhaust memory on huge range counts |
+
+A workable convention: `ZONE-<name>-<os-family>` range sets (e.g. `ZONE-DMZ-linux`, `ZONE-CORP-win`), each with its own MID cluster, its own credential alias, and its own schedule. That makes coverage auditable per row rather than per monolith.
+
+#### Proving you missed nothing — the reconciliation triangle
+
+Discovery alone can never prove completeness: it only finds what it can reach and authenticate to. You need **three independent lists** and the differences between them.
+
+1. **Declared** — every range set in scope.
+2. **Scanned** — what Shazzam actually saw respond (the Discovery Status / ECC Queue results).
+3. **Independent truth** — IPAM leases, cloud resource inventory, hypervisor VM list, ARP tables, DNS records.
+
+| Discrepancy | What it means | Where to look first |
+|---|---|---|
+| Declared but **no response** | Firewall, credential, or host powered off | Discovery Status errors; test the port from the MID host, not your laptop |
+| Responded but **unclassified** | Traffic arrived but no pattern/credential matched | Credentials per OS family; pattern support for the device class |
+| In independent truth but **never discovered** | **A genuinely missed asset** — the metric that matters | Usually a range nobody declared: a second NIC, a new VPC, an acquired site, an unmanaged lab |
+| Discovered but **absent** from independent truth | Shadow IT, or a stale CI that should be retired | IRE/identification rules and lifecycle status, not the scan |
+
+Define coverage as **discovered ÷ independent truth**, not as "the schedule ran green". A green schedule proves the scan completed; it says nothing about hosts that were never in a range.
+
+#### Per-OS completeness rules
+
+| Target | What must be true | The usual reason it is missed |
+|---|---|---|
+| **Windows** | A Windows MID **joined to that domain**, WMI or WinRM enabled, admin-level credential, port 135 + dynamic RPC or 5985/5986 open | Linux-only MID deployment (cannot run WMI at all); second domain with no second MID; credential works locally but not as the MID service account |
+| **Linux/UNIX** | SSH on 22 reachable from the MID, account with shell + `sudo` for the privileged commands | Firewall between the MID's zone and the server zone; key-only auth not imported; hardened hosts with `AllowUsers` limits |
+| **macOS** | SSH (Remote Login) on 22, account able to run `system_profiler` / `ps` / `lsof` | Assumed unsupported (it is supported); assumed to need a Mac-hosted MID (it does not); laptops asleep at scan time — use ACC or JAMF for those |
+| **Cloud** | API-based Cloud Discovery with a read-only service account, plus Service Graph Connectors; **not** IP scanning | Ephemeral instances that never exist at scan time; new accounts/subscriptions not added to scope; assuming a VPC scan covers managed services |
+| **Network devices** | SNMP (161) credit, ACLs permitting the MID, correct MIB support | ACL restricts SNMP to specific hosts; device in a zone with no MID; SNMP v3 credentials missing |
+| **OT / IoT** | Explicit exclusions or very small Shazzam batch sizes, with an owner | Blanket scanning of a fragile segment; "we will add it later" with no ticket |
+
+#### Anti-patterns that silently lose servers
+
+- **Scanning only the supernets someone remembered.** The list lives in one person's head, and it is wrong after the next acquisition.
+- **A single giant range.** A `/8` typo, a `0.0.0.0` netmask, or one schedule for the whole estate — Shazzam memory pressure and scan windows that never finish.
+- **Ignoring second NICs and multi-homed hosts.** One host, two addresses, two zones — and only one of them in a range set.
+- **Identifying by IP.** DHCP churn creates duplicates or overwrites. Use serial/MAC/UUID-based identifier rules.
+- **Overlapping RFC1918 across sites.** `10.0.0.0/8` in three places is three different zones; one MID cannot meaningfully cover all three.
+- **NAT hiding segments.** The MID sees the NAT address, not the host, so pattern detail and identifiers degrade.
+- **Assuming cloud equals a subnet scan.** Cloud coverage comes from the API. Instance churn defeats probing.
+- **Treating "green schedule" as coverage.** It is a completion signal, not a completeness proof.
+
+#### Definition of done for coverage
+
+- [ ] Every CIDR in IPAM and every cloud account/subscription appears in a range set, or is on a documented exclusion with a named owner
+- [ ] Each range set has: one owning zone, one MID cluster, one credential alias per OS family, one schedule
+- [ ] Discovery Status is green **and** the ECC Queue shows no repeated authentication failures
+- [ ] **Zero "in independent truth but never discovered" hosts** across three consecutive runs — this is the only real completeness test
+- [ ] Coverage % is computed against independent truth (IPAM + cloud + hypervisor), not against the declared ranges
+- [ ] The miss rate and its top three causes are written down and reviewed monthly
+
+**Interview Insight:** "I define a zone by its security and routing boundary, not by subnet — then I place one MID cluster per zone so the firewall rules are written once. To prove coverage I reconcile three lists: what I declared, what Shazzam answered, and what IPAM, the cloud API and the hypervisor independently say exists. The difference between the third list and the first two is the only honest measure of what I missed."
+
+**Exam focus:** this section supports **CIS-Discovery** — configuration (35%) and readiness (15%) — and the CMDB correctness concerns tested in **CIS-Data Foundations** (35% govern).
 
 ### Network & Firewall Prerequisites
 
