@@ -11,12 +11,18 @@
 ## Contents
 
 - [Purpose](#purpose)
+- [Five Reasons to Use Events](#five-reasons-to-use-events)
 - [What an Event Is (ELI5)](#what-an-event-is-eli5)
+- [Scenario: Incident Assignment — End-to-End](#scenario-incident-assignment--end-to-end)
+- [Create and Trigger an Event — Step by Step](#create-and-trigger-an-event--step-by-step)
 - [When to Use Events — Decision Guide](#when-to-use-events--decision-guide)
-- [Events for Email Notifications](#events-for-email-notifications)
 - [Many consumers — what can react to a single event?](#many-consumers--what-can-react-to-a-single-event)
 - [Events vs Flow — Which One for Email?](#events-vs-flow--which-one-for-email)
+- [Events vs Flow Designer](#events-vs-flow-designer)
+- [Events vs Flow Designer — Interview Comparison](#events-vs-flow-designer--interview-comparison)
+- [Interview Question: When Would You Use an Event?](#interview-question-when-would-you-use-an-event)
 - [Key Tables & Breadcrumbs](#key-tables--breadcrumbs)
+- [Important Terms to Remember](#important-terms-to-remember)
 - [How Events Flow Through the System](#how-events-flow-through-the-system)
 - [Event vs Alert vs Notification — Pick the Right One](#event-vs-alert-vs-notification--pick-the-right-one)
 - [When NOT to Use Events](#when-not-to-use-events)
@@ -30,7 +36,21 @@
 
 ## Purpose
 
-Events are ServiceNow's lightweight "something happened" signals. A CI goes down, an incident is assigned, a contract expires — an event fires, and anything listening can react (create an alert, send an email, start a flow, update a record). This guide covers **when to use events** (especially for email), which tables log them, and how to audit what happened.
+Events are ServiceNow's lightweight "something happened" signals. A CI goes down, a ticket is updated, a contract expires — an event fires, and anything listening can react (create an alert, send an email, start a flow, update a record). This guide covers **when to use events** (especially for email), which tables log them, and how to audit what happened.
+
+---
+
+## Five Reasons to Use Events
+
+| Benefit | Explanation |
+|---------|-------------|
+| **Asynchronous processing** | Execute follow-up actions without making the user wait for them. |
+| **Loose coupling** | The process generating the event doesn't need to know who will consume it. |
+| **Reusability** | Multiple notifications or other event consumers can respond to the same event. |
+| **Performance** | Move non-critical processing outside the current transaction. |
+| **Centralized notifications** | Trigger email notifications through event-based conditions. |
+
+Events help decouple processes, reduce dependencies, and trigger actions without putting all the logic inside a Business Rule or Flow.
 
 ---
 
@@ -43,6 +63,99 @@ Think of an event like a doorbell. Someone rings it (a CI fails, a ticket is upd
 - **Consumer:** Anything that listens (event rules, alert management rules, notifications, flows).
 
 ---
+
+## Scenario: Incident Assignment — End-to-End
+
+An Incident is assigned to a new group, and you want to notify the group.
+
+| Step | What happens | Detail |
+|------|-------------|--------|
+| **1. Business Rule** | Incident assignment changes. | An **After Update** Business Rule on `incident` detects `assignment_group.changes()`. |
+| **2. Event is queued** | `gs.eventQueue()` | The rule queues the event with the new and previous group names. |
+| **3. Event is processed** | Event appears in the queue | The event lands in `em_event` with status **Ready**. The "Event Management Process events" job (every ~5s) picks it up. |
+| **4. Email Notification** | Notification listens for the registered event | An event-based email notification subscribed to the event name fires. |
+| **5. Email is sent** | Assigned group receives notification | The group gets the email asynchronously — the user's save wasn't blocked. |
+
+---
+
+## Create and Trigger an Event — Step by Step
+
+### Step 1: Register the event
+
+Navigate to:
+
+**Event Management → Administration → Event Registry**
+
+(Table: `sysevent_register`)
+
+Create an event with:
+
+* **Event name:** `incident.assignment.changed`
+* **Table:** Incident `[incident]`
+* **Queue:** Default (unless you need a custom queue)
+* **Description:** What the event means and when it fires
+
+Custom events should be registered before being generated and consumed.
+
+### Step 2: Trigger the event
+
+Create an **After Update** Business Rule on Incident:
+
+```javascript
+(function executeRule(current, previous) {
+
+    if (current.assignment_group.changes()) {
+
+        gs.eventQueue(
+            'incident.assignment.changed',
+            current,
+            current.assignment_group.getDisplayValue(),
+            previous.assignment_group.getDisplayValue()
+        );
+
+    }
+
+})(current, previous);
+```
+
+### `gs.eventQueue()` method signature
+
+```javascript
+gs.eventQueue(
+    eventName,
+    currentRecord,
+    parm1,
+    parm2
+);
+```
+
+| Parameter | Purpose |
+|-----------|---------|
+| `eventName` | Registered event name (must match `sysevent_register.event_name`) |
+| `currentRecord` | GlideRecord associated with the event (e.g. `current`) |
+| `parm1` | First additional parameter (passed to consumers) |
+| `parm2` | Second additional parameter (passed to consumers) |
+
+### Step 3: Consume the event
+
+You can create:
+
+* **An Email Notification** that listens for `incident.assignment.changed`.
+* **A Script Action** that executes server-side JavaScript when the event fires.
+
+**For an email notification:**
+
+* Navigate to **System Notification → Email → Notifications**.
+* Create a notification.
+* Set the table to Incident.
+* Select the **event-based** sending option.
+* Specify `incident.assignment.changed`.
+* Configure recipients and email content.
+
+The event's parameters (`parm1`, `parm2`) can also be used in notification scripts and templates.
+
+---
+
 
 ## When to Use Events — Decision Guide
 
@@ -119,6 +232,66 @@ You want to email the contract owner when a contract expires in 30 days.
 > **Bottom line:** Events aren't "better" for email — they're better when **email is part of a fan-out**, not the whole point. If email is the only output, a scheduled Flow is simpler. If email is one of several reactions to the same business event, events keep your consumers decoupled and reusable.
 
 ---
+
+### Events vs Flow Designer
+
+The key distinction:
+
+* **Event:** Announces that something happened.
+* **Flow:** Defines what should happen next.
+
+For example:
+
+An employee gets terminated.
+
+An event could announce:
+
+`employee.termination.completed`
+
+Multiple consumers could react:
+
+* HR notification.
+* IT account deactivation.
+* Asset recovery notification.
+* Security audit logging.
+
+Alternatively, a Flow could orchestrate the entire termination lifecycle, including approvals, task creation, integrations and notifications.
+
+You can even use an event to initiate another process.
+
+---
+
+### Events vs Flow Designer — Interview Comparison
+
+| Scenario | Recommended Approach |
+|----------|---------------------|
+| Send a notification when an incident is assigned | Event or Flow |
+| Notify multiple independent consumers about something that happened | **Event** |
+| Execute complex multi-step approvals | **Flow Designer** |
+| Integrate with multiple systems using conditional logic | **Flow Designer** |
+| Trigger a reusable server-side Script Action | **Event** |
+| Perform a simple record update | **Business Rule or Flow** |
+| Queue non-critical follow-up processing | **Event** |
+| Orchestrate a complete business process | **Flow Designer** |
+
+---
+
+### Interview Question: When Would You Use an Event?
+
+**Suggested answer:**
+
+> "I use ServiceNow Events when I want to decouple the occurrence of an action from the processes that respond to it.
+>
+> For example, when an Incident assignment group changes, I can generate a custom event using `gs.eventQueue()`. That event can trigger an email notification or a Script Action asynchronously.
+>
+> I particularly prefer events when **multiple independent processes need to respond to the same occurrence**, or when I want **reusable event-driven processing**.
+>
+> However, I wouldn't introduce an event unnecessarily for a simple operation that can be handled directly through Flow Designer or a Business Rule."
+
+**My recommendation for your ServiceNow developer interview:** Understand the difference between Events, Async Business Rules and Flow Designer. All three can support asynchronous processing, but they solve different architectural problems.
+
+---
+
 
 
 
@@ -239,6 +412,20 @@ graph TD
 
 ---
 
+## Important Terms to Remember
+
+| Term | Meaning |
+|------|---------|
+| **Event Registry** | Defines/registers events (table: `sysevent_register`) |
+| **`sysevent` / `em_event`** | Event queue and event records. `em_event` is the Event Management table; some platform documentation references `sysevent`. Check your release. |
+| **`gs.eventQueue()`** | Generates an event asynchronously |
+| **Parm1 / Parm2** | Additional event parameters passed to consumers |
+| **Notification** | Can listen for an event and send email |
+| **Script Action** | Executes server-side logic in response to an event |
+| **Event Processor** | Scheduled job ("Event Management Process events") that picks up queued events (~every 5s) |
+
+---
+
 ## Official Resources
 
 - [Event Management — What is an Event](https://support.servicenow.com/kb/kb_article_view.do?sysparm_article=KB0756665)
@@ -246,6 +433,8 @@ graph TD
 - [Configure event collection from email](https://www.servicenow.com/docs/r/zurich/it-operations-management/event-management/t_EMConfigureEmailConnector.html)
 - [Registering Events Guide (ServiceNow SDK)](https://servicenow.github.io/sdk/guides/registering-events-guide)
 - [Email Notification Guide (ServiceNow SDK)](https://servicenow.github.io/sdk/4.12.0/guides/email-notification-guide)
+- [ServiceNow – System Events](https://www.servicenow.com/docs/r/platform-administration/system-events/events.html)
+- [ServiceNow – Create an Event](https://www.servicenow.com/docs/r/build-workflows/system-events/t_CreateYourOwnEvent.html)
 
 > Verify table names, navigation paths, and release-specific behavior against your own instance and the official ServiceNow docs — this is a working notebook, not product documentation.
 
