@@ -1121,11 +1121,11 @@ graph TD
 ```mermaid
 flowchart LR
     Rec[Record colon  Incident] --> Skill[Now Assist Skill e dot g dot  and  Summarize]
-    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc dot ]
-    LLM -->|Generated output| Out[Draft colon  Summary / Note / Reply]
+    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM  or  Azure OpenAI  or  etc dot ]
+    LLM -->|Generated output| Out[Draft colon  Summary  or  Note  or  Reply]
     Out --> Agent[Human Agent reviews]
     Agent -->|Edits & saves| Rec2[Record updated]
-    Out -->|Rejected / unsafe| Guardian[AI Guardian Offensiveness / Prompt Injection]
+    Out -->|Rejected  or  unsafe| Guardian[AI Guardian Offensiveness  or  Prompt Injection]
     Guardian -->|block + log| Alert[Control Tower Audit]
 
     style LLM fill:#e3f2fd,color:#000
@@ -1137,16 +1137,16 @@ flowchart LR
 ```mermaid
 graph TD
     Hist[Historical Records 30K-300K clean rows] --> Train[Model Training Service]
-    Train --> Model[Predictive Model Classification / Similarity]
+    Train --> Model[Predictive Model Classification  or  Similarity]
     Model --> Deploy[Activate model]
-    Deploy --> New[New Incident / Case]
+    Deploy --> New[New Incident  or  Case]
     New --> Predict{Predictive call}
-    Predict -->|Classification| Assign[Auto-assign group/category]
+    Predict -->|Classification| Assign[Auto-assign group or category]
     Predict -->|Similarity| Sim[Similar Incidents related list]
     Sim --> Agent[Agent reviews matches]
     Assign --> Agent
-    Agent --> Close[Close / update record]
-    Close --> Feed[(Feedback loop improves model)]
+    Agent --> Close[Close  or  update record]
+    Close --> Feed[Feedback loop improves model]
 
     style Model fill:#fff3e0,color:#000
     style Feed fill:#e1f5e1,color:#000
@@ -1166,8 +1166,8 @@ graph TD
     A3 --> Merge
     A4 --> Merge
     Merge --> Panel[Now Assist Panel Triage summary  plus  recommendation]
-    Panel --> Human{Human approves?}
-    Human -->|Yes| Exec[Execute flow / runbook]
+    Panel --> Human{Human approves}
+    Human -->|Yes| Exec[Execute flow  or  runbook]
     Human -->|No| Draft[Keep as draft]
     Exec --> Done[Incident updated]
     Draft --> Done
@@ -1183,10 +1183,10 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Invoke[Skill/Agent invoked] --> Meter[Assist Metering  plus 1 Assist]
-    Meter --> Quota[(Monthly quota)]
-    Quota --> Check{Threshold?}
-    Check -->|50%| Alert1[Email/Slack alert]
+    Invoke[Skill or Agent invoked] --> Meter[Assist Metering  plus 1 Assist]
+    Meter --> Quota[Monthly quota]
+    Quota --> Check{Threshold}
+    Check -->|50%| Alert1[Email or Slack alert]
     Check -->|80%| Alert2[Escalate to CoE]
     Check -->|95%| Alert3[Auto-top-up or throttle]
     Check -->|Exhausted| Block[Skills stop working Predictions fail]

@@ -115,30 +115,30 @@ When people say "Import Sets / Queues" in integration pattern discussions, they 
 
 ```mermaid
 flowchart TD
-    A[Integration Requirement] --> B{Need immediate response?}
+    A[Integration Requirement] --> B{Need immediate response}
     
-    B -->|Yes| C{External system fast and reliable?}
+    B -->|Yes| C{External system fast and reliable}
     B -->|No| D[Use Asynchronous Pattern]
     
-    C -->|Yes| E[Synchronous REST RESTMessageV2 dot execute()]
+    C -->|Yes| E[Synchronous REST RESTMessageV2 dot execute]
     C -->|No| D
     
-    D --> F{Data source on-prem behind firewall?}
+    D --> F{Data source on-prem behind firewall}
     
     F -->|Yes| G[MID Server  plus  ECC Queue Asynchronous]
-    F -->|No| H{Bulk data load?}
+    F -->|No| H{Bulk data load}
     
     H -->|Yes| I[Import Sets Staging to Transform Map to Target]
-    H -->|No| J{Cloud-to-cloud SaaS integration?}
+    H -->|No| J{Cloud-to-cloud SaaS integration}
     
-    J -->|Yes| K[REST Message executeAsync() or Integration Hub Flow]
+    J -->|Yes| K[REST Message executeAsync or Integration Hub Flow]
     J -->|No| L[Scripted REST API or Integration Hub]
     
     E --> M[Set appropriate timeout Handle errors gracefully]
     G --> N[MID Server polls ECC Queue Results returned asynchronously]
     I --> O[Transform Map with coalesce Run transform asynchronously]
     K --> P[Flow returns immediately Processing in background]
-    L --> Q[Custom endpoint Request/Response handling]
+    L --> Q[Custom endpoint Request or Response handling]
     
     style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
     style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000

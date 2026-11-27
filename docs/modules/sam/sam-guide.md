@@ -311,7 +311,7 @@ flowchart LR
     PACK[Publisher pack installed] --> MG[Metric group appears in instance]
     MG --> ENT[Entitlement colon  choose license metric]
     ENT --> MODEL[Software model carries matching metric  plus  attributes]
-    PACK --> RULES[Core factor / processor definitions / suite logic]
+    PACK --> RULES[Core factor  or  processor definitions  or  suite logic]
     MODEL --> RECON[Reconciliation run]
     RULES --> RECON
     RECON --> POS[Compliance position]
@@ -549,18 +549,18 @@ Two different failures wear the same complaint. **An empty picker** — no metri
 
 ```mermaid
 flowchart TD
-    A[Entitlement colon  License metric field] --> B{Empty, or one metric short?}
-    B -->|Empty| C{Software model selected?}
+    A[Entitlement colon  License metric field] --> B{Empty, or one metric short}
+    B -->|Empty| C{Software model selected}
     C -->|No| C1[Pick the model  -  the picker cascades from it]
-    C -->|Yes| D{Model carries a license metric?}
-    D -->|No| D1[Fix the model colon  set its license metric / group]
-    D -->|Yes| E{Pack for that group installed?}
+    C -->|Yes| D{Model carries a license metric}
+    D -->|No| D1[Fix the model colon  set its license metric  or  group]
+    D -->|Yes| E{Pack for that group installed}
     E -->|No| E1[Install the pack  and   Foundation gives Common only]
     E -->|Yes| E2[Escalate with group name and  release and plugin state]
-    B -->|One short| F{Which metric?}
-    F -->|Per Core Physical / Virtual OSE| F1[Retired in New York  -  use Per Core]
+    B -->|One short| F{Which metric}
+    F -->|Per Core Physical  or  Virtual OSE| F1[Retired in New York  -  use Per Core]
     F -->|Red Hat metric| F2[IBM pack delivers it]
-    F -->|Subscription / Consumption| F3[SaaS License Management adds the group]
+    F -->|Subscription  or  Consumption| F3[SaaS License Management adds the group]
     F -->|Something bespoke| G[Custom License Metrics to group Custom and  listed by name]
 ```
 
@@ -1059,27 +1059,27 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    START[Reconciliation Result] --> CHECK{Publisher-specific rules apply?}
+    START[Reconciliation Result] --> CHECK{Publisher-specific rules apply}
     
     CHECK -->|Microsoft| MS[Microsoft Rules]
     CHECK -->|Oracle| ORA[Oracle Rules]
     CHECK -->|Adobe| ADO[Adobe Rules]
     CHECK -->|IBM| IBM[IBM Rules]
-    IBM --> IBM_RULES{Feed present?}
-    IBM_RULES -->|ILMT / BigFix| IBM_OK[PVU / RVU / VPC count]
+    IBM --> IBM_RULES{Feed present}
+    IBM_RULES -->|ILMT  or  BigFix| IBM_OK[PVU  or  RVU  or  VPC count]
     IBM_RULES -->|No feed| IBM_NO[Metrics unavailable]
     CHECK -->|No rules| NORMAL[Normalized calculation]
     
-    MS --> MS_RULES{Metric type?}
+    MS --> MS_RULES{Metric type}
     MS_RULES -->|Per User| MS_USER[Count named users]
     MS_RULES -->|Per Device| MS_DEV[Count devices]
     MS_RULES -->|Per Core| MS_CORE[Count cores x factor]
     
-    ORA --> ORA_RULES{Deployment type?}
+    ORA --> ORA_RULES{Deployment type}
     ORA_RULES -->|Virtualized| ORA_VIRT[Soft-partitioned colon  license the boundary]
     ORA_RULES -->|Physical| ORA_PHYS[Full core count]
     
-    ADO --> ADO_RULES{Product line?}
+    ADO --> ADO_RULES{Product line}
     ADO_RULES -->|Creative Cloud| ADO_CC[Per-seat subscription]
     ADO_RULES -->|Document Cloud| ADO_DC[Per-user seats and  not per document]
     

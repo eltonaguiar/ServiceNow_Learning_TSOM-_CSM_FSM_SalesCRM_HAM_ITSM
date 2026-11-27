@@ -240,7 +240,7 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Trig[Trigger Record Created / Scheduled / API] --> Cond{Condition?}
+    Trig[Trigger Record Created  or  Scheduled  or  API] --> Cond{Condition}
     Cond -->|Yes| Act1[Action 1 Update record]
     Act1 --> Act2[Action 2 Send email]
     Act2 --> Sub[Subflow Reusable chunk]
@@ -279,7 +279,7 @@ graph TD
 
     Panel2 --> Comp3[Component colon  Field Group]
     Panel2 --> Comp4[Component colon  Button]
-    Comp4 -->|Event| Server[Server script / API call]
+    Comp4 -->|Event| Server[Server script  or  API call]
     Server -->|Client state update| Comp3
 
     style Page fill:#e3f2fd,color:#000
@@ -290,10 +290,10 @@ graph TD
 
 ```mermaid
 graph LR
-    AES[App Engine Studio Workbench] --> IDE[IDE colon  VS Code / IntelliJ]
-    DM[Data Model Tables  and  columns] --> SQL[SQL / Schema]
-    FD[Flow Designer Logic  and  process] --> JS[JavaScript / Python]
-    UB[UI Builder Screens  and  portals] --> HTML[HTML / CSS / React]
+    AES[App Engine Studio Workbench] --> IDE[IDE colon  VS Code  or  IntelliJ]
+    DM[Data Model Tables  and  columns] --> SQL[SQL  or  Schema]
+    FD[Flow Designer Logic  and  process] --> JS[JavaScript  or  Python]
+    UB[UI Builder Screens  and  portals] --> HTML[HTML  or  CSS  or  React]
 
     style AES fill:#e3f2fd,color:#000
     style FD fill:#fff3e0,color:#000

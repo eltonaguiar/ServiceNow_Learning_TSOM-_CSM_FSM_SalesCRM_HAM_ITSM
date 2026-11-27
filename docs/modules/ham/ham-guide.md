@@ -547,7 +547,7 @@ flowchart TD
     
     subgraph "ITAM  -  IT Asset Management (umbrella)"
         HAM -->|normalized via NDS| CMDB[CMDB CI Record]
-        HAM --> CONTRACT[Contract/PO Link]
+        HAM --> CONTRACT[Contract or PO Link]
         HAM --> MODEL[Asset Model]
     end
     
@@ -594,15 +594,15 @@ flowchart LR
     end
     
     subgraph "Assignment & Discovery"
-        INSTOCK --> ASSIGN[Assigned to User/Location]
+        INSTOCK --> ASSIGN[Assigned to User or Location]
         ASSIGN --> DISCOVER[Discovery Scans Device]
         DISCOVER --> NORMALIZE[NDS Normalization]
-        NORMALIZE --> CMDB[CI Created/Updated in CMDB]
+        NORMALIZE --> CMDB[CI Created or Updated in CMDB]
     end
     
     subgraph "Maintenance & Retirement"
         CMDB --> ACTIVE[Active Asset Lifecycle]
-        ACTIVE --> MAINT[Maintenance/Repair]
+        ACTIVE --> MAINT[Maintenance or Repair]
         MAINT --> ACTIVE
         ACTIVE --> RETIRE[Retirement Initiated]
         RETIRE --> WIPE[Data Wipe Certified]
@@ -693,14 +693,14 @@ Every row below restates something already documented in this guide — the stat
 
 ```mermaid
 flowchart TD
-    A[Dropdown or form problem] --> B{What is missing?}
+    A[Dropdown or form problem] --> B{What is missing}
     B -->|A field on the asset form| C[Category drives the form  -  set the category first]
-    B -->|A state / substate| D{Does an existing substate fit?}
+    B -->|A state  or  substate| D{Does an existing substate fit}
     D -->|Yes| D1[Use the substate  -  In Stock and Retired both carry long lists]
     D -->|No| D2[States are instance data colon  All  more  Asset Management  more  Administration  more  States]
     B -->|A model in the picker| E[All  more  Asset Management  more  Administration  more  Asset Models]
-    E --> E1{Exists but not selectable?}
-    E1 -->|Yes| E2[Check the lifecycle phase  -  End of sale / End of life]
+    E --> E1{Exists but not selectable}
+    E1 -->|Yes| E2[Check the lifecycle phase  -  End of sale  or  End of life]
     E1 -->|No| E3[Create the model and  then the asset]
 ```
 

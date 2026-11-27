@@ -440,7 +440,7 @@ graph TD
     AV --> OE
     OE -->|Place work order| WO[Work Order]
     WO --> TT[Travel Time Added to Schedule]
-    TT -->|Adjust start/end| AV
+    TT -->|Adjust start or end| AV
 ```
 
 ---

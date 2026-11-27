@@ -650,7 +650,7 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS[NMS / EMS / OSS Nokia  and   Ericsson  and   Cisco  and    dot  dot  dot ]
+    NMS[NMS  or  EMS  or  OSS Nokia  and   Ericsson  and   Cisco  and    dot  dot  dot ]
     Event[em_event raw observation - something happened]
     Rules[Event Rules filter and  map severity and  assign CI]
     Alert[em_alert scored and  de-duplicated and  attached to a CI]
@@ -658,7 +658,7 @@ flowchart TD
     Incident[incident one ticket the NOC works]
     Clear[Clear device reports recovery to alert closes]
 
-    NMS -->|trap / syslog / API| Event
+    NMS -->|trap  or  syslog  or  API| Event
     Event --> Rules
     Rules --> Alert
     Alert --> Corr
@@ -678,11 +678,11 @@ flowchart TD
 
 ```mermaid
 graph TD
-    svc[Customer Service Voice / Data / VPN cmdb_ci_service]
-    circuit[Circuit fibre / MPLS / leased line]
-    ne[Network Element router / switch / OLT (Optical Line Terminal)]
-    card[Card / Slot]
-    port[Port / Interface]
+    svc[Customer Service Voice  or  Data  or  VPN cmdb_ci_service]
+    circuit[Circuit fibre  or  MPLS  or  leased line]
+    ne[Network Element router  or  switch  or  OLT Optical Line Terminal]
+    card[Card  or  Slot]
+    port[Port  or  Interface]
 
     svc -->|runs over| circuit
     circuit -->|terminates at| ne
@@ -1070,12 +1070,12 @@ flowchart TD
     subgraph "Ingest  -  Alarms & Events"
         TMF642[TMF 642 Alarm API  -  CRUD alarms]
         TMF688[TMF 688 Event API  -  callback notifications]
-        REST[REST Poll / Push]
+        REST[REST Poll  or  Push]
         KAFKA[Kafka Stream Connect  -  bidirectional]
     end
 
     subgraph "Event Management"
-        EM[em_event / em_alert]
+        EM[em_event  or  em_alert]
         ER[Event Rules  -  filter and  transform and  assign severity]
         AC[Alert Correlation Rules]
     end
@@ -1093,9 +1093,9 @@ flowchart TD
 
     subgraph "Act"
         SOW[Service Operations Workspace]
-        PLAY[Playbooks / Automated Remediation]
+        PLAY[Playbooks  or  Automated Remediation]
         LEAP[LEAP  -  automation opportunities]
-        NA[Now Assist  -  Alert Investigation / Analysis]
+        NA[Now Assist  -  Alert Investigation  or  Analysis]
     end
 
     TMF642 --> EM
@@ -1326,16 +1326,16 @@ Temporal analysis is the time dimension — flapping and bursty alerts inside a 
 ```mermaid
 flowchart TD
     A[What do I need to detect] --> B{Type of signal}
-    B -->|Real-time metric stream / threshold| C[Metric Intelligence]
-    B -->|Log lines / log patterns| D[Health Log Analytics]
+    B -->|Real-time metric stream  or  threshold| C[Metric Intelligence]
+    B -->|Log lines  or  log patterns| D[Health Log Analytics]
     B -->|HTTP endpoint availability| E[Synthetic Monitoring]
-    B -->|External alarm / event feed| F[Event Management to TMF 642/688]
+    B -->|External alarm  or  event feed| F[Event Management to TMF 642 or 688]
     B -->|Historical incident patterns| G[AIOps LEAP]
     C --> H[to em_alert grouping impact analysis]
     D --> H
     E --> H
     F --> H
-    G --> I[to automation opportunities / playbooks]
+    G --> I[to automation opportunities  or  playbooks]
     style C fill:#4cc38a,color:#000
     style D fill:#4cc38a,color:#000
     style E fill:#4cc38a,color:#000
@@ -1347,7 +1347,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ALARM[Raw alarm from NMS/OSS] --> INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
+    ALARM[Raw alarm from NMS or OSS] --> INGEST[Ingest via TMF 642  or  688  or  REST  or  Kafka]
     INGEST --> EVENT[em_event]
     EVENT --> RULE[Event Rules  -  severity and  filter and  transform]
     RULE --> ALERT[em_alert]
@@ -1356,7 +1356,7 @@ flowchart TD
     PARENT --> SIA[Service Impact Analysis  -  CMDB walk]
     SIA --> BLAST[Blast radius colon  services and  customers and  accounts]
     BLAST --> SOW[Service Operations Workspace]
-    SOW --> PLAY[Playbook / automated remediation]
+    SOW --> PLAY[Playbook  or  automated remediation]
     style ALERT fill:#e58a8a,color:#fff
     style PARENT fill:#e5b567,color:#000
     style BLAST fill:#4cc38a,color:#000

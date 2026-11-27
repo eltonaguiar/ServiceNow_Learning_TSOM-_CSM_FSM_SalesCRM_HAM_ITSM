@@ -494,7 +494,7 @@ graph TD
         CASE[Customer Case]
     end
     subgraph "Entitlement"
-        ENT[Entitlement / SLA]
+        ENT[Entitlement  or  SLA]
     end
     AC --> CASE
     CASE --> ENT

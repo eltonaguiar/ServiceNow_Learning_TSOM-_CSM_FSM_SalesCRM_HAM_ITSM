@@ -120,7 +120,7 @@ flowchart LR
     ECC <==>|input records  -  results returned| MID[MID Server inside your network]
     MID -->|WMI ,  WinRM ,  SSH ,  SNMP| Target[Target Device]
     Target -->|returns data| MID
-    MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci  plus  subclasses)]
+    MID -->|parsed by Sensors  or  pattern steps| CI[CMDB cmdb_ci  plus  subclasses]
 
     subgraph InstanceSide [Instance side]
         Instance

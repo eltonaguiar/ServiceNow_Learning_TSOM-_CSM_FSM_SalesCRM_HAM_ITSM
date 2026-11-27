@@ -478,7 +478,7 @@ flowchart TD
     end
     
     subgraph "Major Incident"
-        M1[Incident Created] --> M2{Business impact = major?}
+        M1[Incident Created] --> M2{Business impact = major}
         M2 -->|Yes| M3[Declare Major Incident]
         M3 --> M4[MIM Workbench Opens]
         M4 --> M5[Bridge Call Scheduled]
@@ -513,23 +513,23 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START[Change Request Created] --> TYPE{Change type?}
+    START[Change Request Created] --> TYPE{Change type}
     
     TYPE -->|Standard| STD[Pre-approved and  templated]
     TYPE -->|Normal| NORM[Requires assessment]
     TYPE -->|Emergency| EMRG[Expedited path]
     
-    STD --> STD_APPROVE{Template exists? Low risk?}
+    STD --> STD_APPROVE{Template exists Low risk}
     STD_APPROVE -->|Yes| STD_EXEC[Auto-approve to Implement]
     STD_APPROVE -->|No| NORM
     
     NORM --> CAB[CAB Review]
-    CAB --> CAB_DECISION{Approved?}
+    CAB --> CAB_DECISION{Approved}
     CAB_DECISION -->|Yes| NORM_EXEC[Implement with approval]
-    CAB_DECISION -->|No| REJECT[Rejected / Return for revision]
+    CAB_DECISION -->|No| REJECT[Rejected  or  Return for revision]
     
-    EMRG --> ECAB[ECAB (on-call subset)]
-    ECAB --> EMRG_DECISION{Expedited approval?}
+    EMRG --> ECAB[ECAB on-call subset]
+    ECAB --> EMRG_DECISION{Expedited approval}
     EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately to Retro review]
     EMRG_DECISION -->|No| REJECT
     
@@ -574,7 +574,7 @@ flowchart TD
     CHECK3 -->|Yes to BLOCKED| BLOCK
     CHECK3 -->|No to OK| ALLOW[Allow implementation]
     
-    BLOCK --> NOTIF[Notify requester colon  change blocked (blackout / collision / dependency)]
+    BLOCK --> NOTIF[Notify requester colon  change blocked blackout  or  collision  or  dependency]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
     RESOLVE --> CHECK1
     

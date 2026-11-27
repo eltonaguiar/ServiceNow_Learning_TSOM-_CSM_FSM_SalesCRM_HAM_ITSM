@@ -1311,7 +1311,7 @@ The "Other" systems (Boomi, UKG, legacy AS/400, ITIL, Agile) are measured on int
 
 ```mermaid
 graph LR
-    SN[ServiceNow] -->|REST Message / Outbound| Boomi[Boomi AtomSphere]
+    SN[ServiceNow] -->|REST Message  or  Outbound| Boomi[Boomi AtomSphere]
     Boomi -->|ServiceNow Connector| SN2[ServiceNow Inbound REST API]
     Boomi -->|Process + Map| Salesforce[Salesforce]
     Boomi -->|Process + Map| SAP[SAP]
@@ -1332,8 +1332,8 @@ graph LR
 flowchart TD
     UKG[UKG Dimensions timecard approved] -->|Webhook| API[ServiceNow Inbound REST API]
     API --> BR[Business Rule map UKG fields]
-    BR --> Case[Create/update hr_case / u_timecard]
-    Case --> Assign{Total hours > 40?}
+    BR --> Case[Create or update hr_case  or  u_timecard]
+    Case --> Assign{Total hours > 40}
     Assign -->|Yes| OT[Auto-assign to Payroll  plus  overtime flag]
     Assign -->|No| Normal[Auto-assign to standard group]
     OT --> Notify[Notify payroll team]
@@ -1347,15 +1347,15 @@ flowchart TD
 
 ```mermaid
 graph TD
-    AS400[AS/400 / DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
+    AS400[AS or 400  or  DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
     MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
     staging --> TM[Transform Map ITEMNUMBER to cmdb_ci dot name]
-    TM --> CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
+    TM --> CMDB[cmdb_ci  or  alm_asset in ServiceNow CMDB]
     CMDB --> Disc[Discovery reconciliation]
 
     subgraph Error handling
         Fail[Failed rows] --> DL[Dead-letter queue]
-        DL --> Retry[Retry / alert]
+        DL --> Retry[Retry  or  alert]
     end
 
     style AS400 fill:#fce4ec,color:#000
@@ -1377,7 +1377,7 @@ graph TD
         ST --> Chg[Change colon  change_request]
         SD --> KB[Knowledge colon  knowledge_base]
         SS --> SLA[SLA colon  sla_definition]
-        CSI --> Rep[Reports / dashboards]
+        CSI --> Rep[Reports  or  dashboards]
     end
 
     style SO fill:#fff3e0,color:#000
@@ -1405,16 +1405,16 @@ stateDiagram-v2
 ```mermaid
 flowchart TD
     subgraph "User Layer"
-        SP[Service Portal less br/ more Catalog Items]
+        SP[Service Portal less br or  more Catalog Items]
     end
     subgraph "Automation Layer"
-        FD[Flow Designer less br/ more Trigger to Actions to Subflows]
-        IH[IntegrationHub less br/ more REST/SOAP Spokes]
+        FD[Flow Designer less br or  more Trigger to Actions to Subflows]
+        IH[IntegrationHub less br or  more REST or SOAP Spokes]
     end
     subgraph "Platform Ops"
         US[Update Sets]
         CLONE[Clone Prod to Sub-Prod]
-        REG[Regression Suite less br/ more ITSM  plus  HRSD  plus  Integrations]
+        REG[Regression Suite less br or  more ITSM  plus  HRSD  plus  Integrations]
         PROMOTE[Promote to Prod]
     end
     SP -->|Submit| FD

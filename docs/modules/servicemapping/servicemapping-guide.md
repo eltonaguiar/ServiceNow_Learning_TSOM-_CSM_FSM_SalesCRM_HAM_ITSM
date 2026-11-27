@@ -204,7 +204,7 @@ graph TD
     end
     
     subgraph [Top-Down Service Mapping - Which CIs support this service]
-        F[Application Service] --> G[Entry Point colon  URL/IP]
+        F[Application Service] --> G[Entry Point colon  URL or IP]
         G --> H[Pattern-Based Discovery]
         H --> I[Follow Dependencies]
         I --> J[cmdb_ci_service_discovered]
@@ -396,7 +396,7 @@ ServiceNow ships with predefined discovery methods and service states. Verify ag
 
 ```mermaid
 flowchart TD
-    Entry[Entry Point URL / hostname / IP e dot g dot  online dot mybank dot com]
+    Entry[Entry Point URL  or  hostname  or  IP e dot g dot  online dot mybank dot com]
     Service[Application Service cmdb_ci_service_discovered state  equals  Published]
     MID[MID Server discovers the host behind the entry point]
     Pattern[Pattern-Based Discovery identifies IIS and  Tomcat and  SQL Server dot  dot  dot ]
@@ -460,7 +460,7 @@ flowchart LR
     end
 
     subgraph SM[Top-Down Service Mapping - Which CIs support this service]
-        S1[Application service  plus  entry point] --> S2[Pattern / traffic discovery]
+        S1[Application service  plus  entry point] --> S2[Pattern  or  traffic discovery]
         S2 --> S3[CI-to-CI relationships]
         S3 --> S4[cmdb_ci_service_discovered  plus  cmdb_rel_ci]
     end
@@ -977,19 +977,19 @@ These are illustrative relationships, not a mandatory one-to-one hierarchy. In S
 ```mermaid
 flowchart TD
     subgraph BusinessArch[Business Architecture]
-        BA[BA less br/ more Business Application less br/ more Online Banking]
+        BA[BA less br or  more Business Application less br or  more Online Banking]
     end
 
     subgraph ServiceArch[Service Architecture]
-        BS[BS less br/ more Business Service less br/ more Online Banking Service]
-        TS[TS less br/ more Technical Service less br/ more (Tech Mgmt Service in CSDM v5) less br/ more Database Hosting]
+        BS[BS less br or  more Business Service less br or  more Online Banking Service]
+        TS[TS less br or  more Technical Service less br or  more Tech Mgmt Service in CSDM v5 less br or  more Database Hosting]
     end
 
-    subgraph AppService[Application Service (AS)]
-        AS[AS less br/ more Application Service less br/ more Online Banking - Production]
+    subgraph AppService[Application Service AS]
+        AS[AS less br or  more Application Service less br or  more Online Banking - Production]
     end
 
-    subgraph CMDB[Service Mapping / CMDB (Technical Layer)]
+    subgraph CMDB[Service Mapping  or  CMDB Technical Layer]
         WS[Web Server CI]
         AP[App Server CI]
         DB[Database CI]

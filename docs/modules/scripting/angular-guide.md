@@ -119,14 +119,14 @@ graph TD
     A[Service Portal Page] --> B[Widget]
     B --> C[AngularJS Controller]
     C --> D[scope]
-    C --> E[server dot update() / GlideAjax / http]
+    C --> E[server dot update  or  GlideAjax  or  http]
     E --> F[ServiceNow Server]
-    F --> G[GlideRecord / Table API / Scripted REST]
+    F --> G[GlideRecord  or  Table API  or  Scripted REST]
     G --> H[JSON Response]
     H --> E
     E --> C
     C --> D
-    D --> I[DOM / HTML Template]
+    D --> I[DOM  or  HTML Template]
     I --> B
     B --> A
     style C fill:#e1f5fe,stroke:#01579b,stroke-width:2px
@@ -138,15 +138,15 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Angular SPA less br/ more localhost colon 4200] --> B[OAuth / API Token]
-    B --> C[HTTP Request less br/ more REST / Scripted REST]
+    A[Angular SPA less br or  more localhost colon 4200] --> B[OAuth  or  API Token]
+    B --> C[HTTP Request less br or  more REST  or  Scripted REST]
     C --> D[ServiceNow Instance]
-    D --> E[Table API / Scripted REST]
+    D --> E[Table API  or  Scripted REST]
     E --> F[JSON Response]
     F --> C
-    C --> G[Angular Service less br/ more HttpClient]
+    C --> G[Angular Service less br or  more HttpClient]
     G --> H[Component]
-    H --> I[Template less br/ more HTML  plus  Data Binding]
+    H --> I[Template less br or  more HTML  plus  Data Binding]
     style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     style D fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     style G fill:#fff3e0,stroke:#e65100,stroke-width:2px
@@ -158,8 +158,8 @@ graph TD
 graph TD
     A[Portal Page] --> B[Widget Instance]
     B --> C[AngularJS Module]
-    C --> D[Controller colon  function(scope and  http and  server)]
-    C --> E[Service colon  factory / service]
+    C --> D[Controller colon  functionscope and  http and  server]
+    C --> E[Service colon  factory  or  service]
     C --> F[Directive colon  custom element]
     D --> G[scope data]
     E --> G

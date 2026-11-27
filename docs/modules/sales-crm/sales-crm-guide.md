@@ -704,17 +704,17 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    A[sn_sales_account less br/ more Customer / B2B account] --> C[sn_sales_contact less br/ more Individual at account]
-    A --> O[sn_sales_opportunity less br/ more Deal at account]
+    A[sn_sales_account less br or  more Customer  or  B2B account] --> C[sn_sales_contact less br or  more Individual at account]
+    A --> O[sn_sales_opportunity less br or  more Deal at account]
     C --> O
 
-    L[sn_sales_lead less br/ more Prospect] --> O2[sn_sales_opportunity less br/ more from qualified lead]
-    O --> Q[sn_sales_quote less br/ more Quotes on opportunity]
-    Q --> OR[sn_sales_order less br/ more Order from accepted quote]
-    Q --> QL[sn_sales_quote_line less br/ more Line items / products]
+    L[sn_sales_lead less br or  more Prospect] --> O2[sn_sales_opportunity less br or  more from qualified lead]
+    O --> Q[sn_sales_quote less br or  more Quotes on opportunity]
+    Q --> OR[sn_sales_order less br or  more Order from accepted quote]
+    Q --> QL[sn_sales_quote_line less br or  more Line items  or  products]
 
-    P[sn_sales_product less br/ more Catalog item] --> QL
-    P --> OR2[sn_sales_order_line less br/ more Ordered product lines]
+    P[sn_sales_product less br or  more Catalog item] --> QL
+    P --> OR2[sn_sales_order_line less br or  more Ordered product lines]
 
     style A fill:#e3f2fd,color:#000
     style O fill:#fff3e0,color:#000
@@ -744,14 +744,14 @@ graph LR
 
 ```mermaid
 graph LR
-    Opp[Opportunity] --> Quote[Quote/CPQ]
+    Opp[Opportunity] --> Quote[Quote or CPQ]
     Quote -->|Accepted| Order[Sales Order]
     Order -->|Fulfillment| Fulfill[Order Tasks]
-    Fulfill -->|Delivered| Service[CSM/FSM Case]
+    Fulfill -->|Delivered| Service[CSM or FSM Case]
     Service -->|Renewal| Opp
 
     subgraph External_Systems [External Systems]
-        ERP[ERP colon  SAP/NetSuite]
+        ERP[ERP colon  SAP or NetSuite]
         Acct[Accounting colon  Invoices]
     end
 
@@ -766,12 +766,12 @@ graph LR
 
 ```mermaid
 flowchart LR
-    A[sn_sales_account less br/ more Customer Account] --> B[sn_sales_opportunity less br/ more Sales Opportunity]
-    B --> C[sn_sales_quote less br/ more Quote/CPQ]
-    C --> D[sn_sales_order less br/ more Sales Order]
-    D --> E[sn_sales_order_line less br/ more Order Lines]
+    A[sn_sales_account less br or  more Customer Account] --> B[sn_sales_opportunity less br or  more Sales Opportunity]
+    B --> C[sn_sales_quote less br or  more Quote or CPQ]
+    C --> D[sn_sales_order less br or  more Sales Order]
+    D --> E[sn_sales_order_line less br or  more Order Lines]
 
-    A -->|has primary contact| L[sn_sales_contact less br/ more Contact]
+    A -->|has primary contact| L[sn_sales_contact less br or  more Contact]
     L -->|influences| B
 
     B -->|generates| C
@@ -888,9 +888,9 @@ Sales CRM uses `task_sla` on opportunity, quote, and order records (all extend `
 ```mermaid
 graph LR
     Lead[Lead] --> Opp[Opportunity]
-    Opp --> Quote[Quote/CPQ]
+    Opp --> Quote[Quote or CPQ]
     Quote --> Order[Order]
-    Order --> Service[CSM/FSM Service]
+    Order --> Service[CSM or FSM Service]
     Service --> Lead
 
     style Lead fill:#dfd

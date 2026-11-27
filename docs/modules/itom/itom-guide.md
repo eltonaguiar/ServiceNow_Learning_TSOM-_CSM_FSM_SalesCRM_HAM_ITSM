@@ -121,28 +121,28 @@ ServiceNow IT Operations Management (ITOM) is built around three core pillars â€
 ```mermaid
 graph TD
     subgraph "CMDB  -  Single Source of Truth"
-        CMDB[(cmdb_ci less br/ more cmdb_rel_ci less br/ more alm_asset)]
+        CMDB[cmdb_ci less br or  more cmdb_rel_ci less br or  more alm_asset]
     end
 
     subgraph "Pillar 1: ITOM Visibility"
-        V1[Discovery less br/ more MID Server less br/ more Patterns  and  Schedules]
-        V2[Service Mapping less br/ more Application Services less br/ more Top-Down Mapping]
-        V3[Certificate  and  less br/ more Firewall Audits]
-        V4[Service Graph less br/ more Connectors]
+        V1[Discovery less br or  more MID Server less br or  more Patterns  and  Schedules]
+        V2[Service Mapping less br or  more Application Services less br or  more Top-Down Mapping]
+        V3[Certificate  and  less br or  more Firewall Audits]
+        V4[Service Graph less br or  more Connectors]
     end
 
     subgraph "Pillar 2: ITOM AIOps (Health)"
-        H1[Event Management less br/ more Alert Correlation less br/ more CI Binding]
-        H2[Metric Intelligence less br/ more  and  Health Log Analysis]
-        H3[Agent Client less br/ more Collector]
-        H4[Service Observability less br/ more  and  Reliability]
-        H5[Now Assist less br/ more for ITOM]
+        H1[Event Management less br or  more Alert Correlation less br or  more CI Binding]
+        H2[Metric Intelligence less br or  more  and  Health Log Analysis]
+        H3[Agent Client less br or  more Collector]
+        H4[Service Observability less br or  more  and  Reliability]
+        H5[Now Assist less br or  more for ITOM]
     end
 
     subgraph "Pillar 3: ITOM Optimization / Cloud Accelerate"
-        O1[Cloud Services less br/ more Catalog]
-        O2[Cloud less br/ more Governance]
-        O3[Cloud Cost less br/ more Management]
+        O1[Cloud Services less br or  more Catalog]
+        O2[Cloud less br or  more Governance]
+        O3[Cloud Cost less br or  more Management]
     end
 
     V1 --> CMDB
@@ -251,7 +251,7 @@ flowchart LR
     A[Probe] --> B[Classifier]
     B --> C[Identifier]
     C --> D[Explorer]
-    D --> E[Processor/Sensor]
+    D --> E[Processor or Sensor]
     E --> F[CMDB Updated]
     
     A -->|IP Address| A
