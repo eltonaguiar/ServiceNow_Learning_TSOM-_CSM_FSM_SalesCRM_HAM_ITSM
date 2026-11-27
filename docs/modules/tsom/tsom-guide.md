@@ -650,7 +650,7 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS[NMS / EMS / OSS Nokia · Ericsson · Cisco · ...]
+    NMS[NMS / EMS / OSS Nokia ,  Ericsson ,  Cisco ,  ...]
     Event[em_event raw observation - something happened]
     Rules[Event Rules filter, map severity, assign CI]
     Alert[em_alert scored, de-duplicated, attached to a CI]
@@ -1067,35 +1067,35 @@ TSOM's assurance layer is how a communications service provider (CSP) moves from
 
 ```mermaid
 flowchart TD
-    subgraph "Ingest — Alarms & Events"
-        TMF642[TMF 642 Alarm API — CRUD alarms]
-        TMF688[TMF 688 Event API — callback notifications]
+    subgraph "Ingest  -  Alarms & Events"
+        TMF642[TMF 642 Alarm API  -  CRUD alarms]
+        TMF688[TMF 688 Event API  -  callback notifications]
         REST[REST Poll / Push]
-        KAFKA[Kafka Stream Connect — bidirectional]
+        KAFKA[Kafka Stream Connect  -  bidirectional]
     end
 
     subgraph "Event Management"
         EM[em_event / em_alert]
-        ER[Event Rules — filter, transform, assign severity]
+        ER[Event Rules  -  filter, transform, assign severity]
         AC[Alert Correlation Rules]
     end
 
-    subgraph "AIOps — Detection"
-        MI[Metric Intelligence — anomaly vs learned baseline]
-        HLA[Health Log Analytics — log anomaly to event]
-        SM[Synthetic Monitoring — HTTP endpoint tests]
+    subgraph "AIOps  -  Detection"
+        MI[Metric Intelligence  -  anomaly vs learned baseline]
+        HLA[Health Log Analytics  -  log anomaly to event]
+        SM[Synthetic Monitoring  -  HTTP endpoint tests]
     end
 
     subgraph "Grouping & Impact"
-        GRP[Alert Grouping — 5 types to parent alert]
-        SIA[Service Impact Analysis — walk CMDB service model]
+        GRP[Alert Grouping  -  5 types to parent alert]
+        SIA[Service Impact Analysis  -  walk CMDB service model]
     end
 
     subgraph "Act"
         SOW[Service Operations Workspace]
         PLAY[Playbooks / Automated Remediation]
-        LEAP[LEAP — automation opportunities]
-        NA[Now Assist — Alert Investigation / Analysis]
+        LEAP[LEAP  -  automation opportunities]
+        NA[Now Assist  -  Alert Investigation / Analysis]
     end
 
     TMF642 --> EM
@@ -1349,11 +1349,11 @@ flowchart TD
 flowchart TD
     ALARM[Raw alarm from NMS/OSS] --> INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
     INGEST --> EVENT[em_event]
-    EVENT --> RULE[Event Rules — severity, filter, transform]
+    EVENT --> RULE[Event Rules  -  severity, filter, transform]
     RULE --> ALERT[em_alert]
-    ALERT --> GROUP[Alert Grouping — 5 types]
+    ALERT --> GROUP[Alert Grouping  -  5 types]
     GROUP --> PARENT[Parent alert]
-    PARENT --> SIA[Service Impact Analysis — CMDB walk]
+    PARENT --> SIA[Service Impact Analysis  -  CMDB walk]
     SIA --> BLAST[Blast radius: services, customers, accounts]
     BLAST --> SOW[Service Operations Workspace]
     SOW --> PLAY[Playbook / automated remediation]

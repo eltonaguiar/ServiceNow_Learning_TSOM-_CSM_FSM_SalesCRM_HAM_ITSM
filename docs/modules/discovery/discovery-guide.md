@@ -116,9 +116,9 @@ Discovery scans targets (IP ranges, cloud APIs, agents), classifies what answere
 
 ```mermaid
 flowchart LR
-    Instance[ServiceNow Instance] <==>|output records — work sent to MID| ECC[ECC Queue ecc_queue]
-    ECC <==>|input records — results returned| MID[MID Server inside your network]
-    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device]
+    Instance[ServiceNow Instance] <==>|output records  -  work sent to MID| ECC[ECC Queue ecc_queue]
+    ECC <==>|input records  -  results returned| MID[MID Server inside your network]
+    MID -->|WMI ,  WinRM ,  SSH ,  SNMP| Target[Target Device]
     Target -->|returns data| MID
     MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
 

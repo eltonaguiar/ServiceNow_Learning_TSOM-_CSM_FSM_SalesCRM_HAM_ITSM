@@ -204,7 +204,7 @@ graph TD
     subgraph "Layer 3: Virtual Agent (All tiers)"
         B[Conversational AI Deflection, Self-service]
     end
-    subgraph "Layer 2: Generative AI — Now Assist (All tiers)"
+    subgraph "Layer 2: Generative AI  -  Now Assist (All tiers)"
         C[Summarization, Drafting, Resolution Notes, KB Generation]
     end
     subgraph "Layer 1: Predictive Intelligence (All tiers)"
@@ -1105,7 +1105,7 @@ ServiceNow AI is measured on adoption, quality, cost control, and business outco
 ```mermaid
 graph TD
     F[Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB] --> P[Predictive Intelligence Classification, Similarity, Regression, Clustering]
-    P --> G[Generative AI — Now Assist Summarization, Drafting, KB Generation, Code]
+    P --> G[Generative AI  -  Now Assist Summarization, Drafting, KB Generation, Code]
     G --> V[Virtual Agent Conversational AI, Deflection, NLU]
     V --> A[Agentic AI AI Agents, Multi-step Execution, Orchestrator]
 
@@ -1136,7 +1136,7 @@ flowchart LR
 
 ```mermaid
 graph TD
-    Hist[Historical Records 30K–300K clean rows] --> Train[Model Training Service]
+    Hist[Historical Records 30K-300K clean rows] --> Train[Model Training Service]
     Train --> Model[Predictive Model Classification / Similarity]
     Model --> Deploy[Activate model]
     Deploy --> New[New Incident / Case]

@@ -551,14 +551,14 @@ Two different failures wear the same complaint. **An empty picker** — no metri
 flowchart TD
     A[Entitlement: License metric field] --> B{Empty, or one metric short?}
     B -->|Empty| C{Software model selected?}
-    C -->|No| C1[Pick the model — the picker cascades from it]
+    C -->|No| C1[Pick the model  -  the picker cascades from it]
     C -->|Yes| D{Model carries a license metric?}
     D -->|No| D1[Fix the model: set its license metric / group]
     D -->|Yes| E{Pack for that group installed?}
-    E -->|No| E1[Install the pack · Foundation gives Common only]
+    E -->|No| E1[Install the pack ,  Foundation gives Common only]
     E -->|Yes| E2[Escalate with group name, release and plugin state]
     B -->|One short| F{Which metric?}
-    F -->|Per Core Physical / Virtual OSE| F1[Retired in New York — use Per Core]
+    F -->|Per Core Physical / Virtual OSE| F1[Retired in New York  -  use Per Core]
     F -->|Red Hat metric| F2[IBM pack delivers it]
     F -->|Subscription / Consumption| F3[SaaS License Management adds the group]
     F -->|Something bespoke| G[Custom License Metrics to group Custom, listed by name]

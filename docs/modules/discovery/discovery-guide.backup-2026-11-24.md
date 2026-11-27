@@ -252,7 +252,7 @@ flowchart TD
     DISC[Discovery payload] --> ID{Identification: existing CI?}
     ID -->|single match| REC[Reconciliation + staleness check]
     ID -->|no match| NEW[INSERT new CI]
-    ID -->|multiple matches| DEDUP[De-duplication task<br/>flagged — not updated]
+    ID -->|multiple matches| DEDUP[De-duplication task<br/>flagged  -  not updated]
     REC -->|stale| UPD[UPDATE existing CI<br/>winning source per field]
     REC -->|fresh| SKIP[CI unchanged<br/>newer value kept]
 
@@ -291,11 +291,11 @@ flowchart TD
 ```mermaid
 flowchart TD
     Start[Discovery Schedule fires] --> Scan[1. Scanning Shazzam port probes find live IPs]
-    Scan --> Classify[2. Classification Classifiers decide device type — Windows, Linux, switch, …]
+    Scan --> Classify[2. Classification Classifiers decide device type  -  Windows, Linux, switch, ...]
     Classify --> Identify[3. Identification IRE matches an existing CI or creates a new one]
     Identify --> Explore[4. Exploration Patterns/probes gather OS, CPU, software File-Based Discovery runs here]
-    Explore --> CI[CI created or updated in CMDB cmdb_ci · cmdb_ci_server · cmdb_file_information]
-    CI -.->|feeds| Downstream[ITSM impact · SAM · HAM · TSOM]
+    Explore --> CI[CI created or updated in CMDB cmdb_ci ,  cmdb_ci_server ,  cmdb_file_information]
+    CI -.->|feeds| Downstream[ITSM impact ,  SAM ,  HAM ,  TSOM]
 
     style Start fill:#e58a8a,color:#000
     style Classify fill:#e5b567,color:#000
@@ -312,7 +312,7 @@ flowchart TD
 flowchart LR
     Instance[ServiceNow Instance] <==>|output records work sent to MID| ECC[ECC Queue ecc_queue]
     ECC <==>|input records results returned| MID[MID Server inside your network]
-    MID -->|WMI · WinRM · SSH · SNMP| Target[Target Device server, switch, appliance]
+    MID -->|WMI ,  WinRM ,  SSH ,  SNMP| Target[Target Device server, switch, appliance]
     Target -->|returns data| MID
     MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
 
@@ -341,13 +341,13 @@ flowchart LR
 ```mermaid
 flowchart TD
     Pattern[Discovery Pattern (sa_pattern)<br/>steps execute ON the MID Server]
-    HDP[HorizontalDiscoveryProbe<br/>single generic probe — transports the pattern<br/>to the target and returns a JSON payload]
+    HDP[HorizontalDiscoveryProbe<br/>single generic probe  -  transports the pattern<br/>to the target and returns a JSON payload]
     HDS[HorizontalDiscoverySensor<br/>instance-side parser<br/>hands the payload straight to IRE]
-    IRE[(IRE — identify or create CI)]
+    IRE[(IRE  -  identify or create CI)]
     CI[(CMDB cmdb_ci_*)]
 
     Pattern -->|runs via| HDP
-    HDP -->|collects from| Target[Target device files · registry · WMI · SNMP]
+    HDP -->|collects from| Target[Target device files ,  registry ,  WMI ,  SNMP]
     Target -->|raw output| HDP
     HDP -->|returns JSON payload| HDS
     HDS -->|maps to CI fields via| IRE

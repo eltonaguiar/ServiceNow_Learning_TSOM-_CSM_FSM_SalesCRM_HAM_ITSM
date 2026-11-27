@@ -539,19 +539,19 @@ graph TD
 
 ```mermaid
 flowchart TD
-    subgraph "HAM — Hardware Asset Management"
+    subgraph "HAM  -  Hardware Asset Management"
         HAM[Asset Record] -->|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
         HAM --> FIN[Financial Data Cost, PO, Contract, Depreciation]
         HAM --> ASG[Assignment Data User, Location, Department]
     end
     
-    subgraph "ITAM — IT Asset Management (umbrella)"
+    subgraph "ITAM  -  IT Asset Management (umbrella)"
         HAM -->|normalized via NDS| CMDB[CMDB CI Record]
         HAM --> CONTRACT[Contract/PO Link]
         HAM --> MODEL[Asset Model]
     end
     
-    subgraph "CMDB — Configuration Management Database"
+    subgraph "CMDB  -  Configuration Management Database"
         CMDB --> TEC[Technical Data OS, IP Address, Serial Number]
         CMDB --> REL[Relationships Runs On, Depends On, Connected To]
         CMDB --> SERVICES[Business Services Mapped via CSDM]
@@ -694,13 +694,13 @@ Every row below restates something already documented in this guide — the stat
 ```mermaid
 flowchart TD
     A[Dropdown or form problem] --> B{What is missing?}
-    B -->|A field on the asset form| C[Category drives the form — set the category first]
+    B -->|A field on the asset form| C[Category drives the form  -  set the category first]
     B -->|A state / substate| D{Does an existing substate fit?}
-    D -->|Yes| D1[Use the substate — In Stock and Retired both carry long lists]
+    D -->|Yes| D1[Use the substate  -  In Stock and Retired both carry long lists]
     D -->|No| D2[States are instance data: All > Asset Management > Administration > States]
     B -->|A model in the picker| E[All > Asset Management > Administration > Asset Models]
     E --> E1{Exists but not selectable?}
-    E1 -->|Yes| E2[Check the lifecycle phase — End of sale / End of life]
+    E1 -->|Yes| E2[Check the lifecycle phase  -  End of sale / End of life]
     E1 -->|No| E3[Create the model, then the asset]
 ```
 

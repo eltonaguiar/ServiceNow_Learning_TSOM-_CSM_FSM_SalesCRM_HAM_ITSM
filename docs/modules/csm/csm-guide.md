@@ -161,22 +161,22 @@ This guide maps to the **Certified Implementation Specialist – Customer Servic
 
 ```mermaid
 graph TD
-    subgraph "B2B — Business to Business"
+    subgraph "B2B  -  Business to Business"
         company[Customer Account] --> contact[Contact]
         company --> entitlement[Entitlement]
         company --> install_base[Install Base]
     end
     
-    subgraph "B2C — Business to Consumer"
+    subgraph "B2C  -  Business to Consumer"
         consumer[Consumer] --> case[Case]
     end
     
-    subgraph "B2B2C — Business to Business to Consumer"
+    subgraph "B2B2C  -  Business to Business to Consumer"
         company2[Customer Account] --> consumer2[Consumer via Portal]
         company2 --> product[Product Model]
     end
     
-    subgraph "B2B2E — Business to Business to Employee"
+    subgraph "B2B2E  -  Business to Business to Employee"
         company3[Customer Account] --> employee[Employee User]
         employee --> case2[Case]
     end

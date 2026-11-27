@@ -986,7 +986,7 @@ flowchart TD
     end
 
     subgraph AppService[Application Service (AS)]
-        AS[AS<br/>Application Service<br/>Online Banking – Production]
+        AS[AS<br/>Application Service<br/>Online Banking - Production]
     end
 
     subgraph CMDB[Service Mapping / CMDB (Technical Layer)]

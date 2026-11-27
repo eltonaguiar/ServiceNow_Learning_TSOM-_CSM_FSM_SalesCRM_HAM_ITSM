@@ -342,7 +342,7 @@ This guide maps to the **Certified Implementation Specialist – Data Foundation
 
 ```mermaid
 graph TD
-    subgraph "cmdb_ci — Base CI Table"
+    subgraph "cmdb_ci  -  Base CI Table"
         cmdb_ci[cmdb_ci]
     end
     
@@ -1167,13 +1167,13 @@ flowchart TD
     CI[cmdb_ci_computer record] --> RECON{Reconciliation}
 
     subgraph "Field: name"
-        SCCM[SCCM: name = WEB01] --> P1[Priority 100 — WINNER]
-        Soroc[Soroc: name = WEB01-ALT] --> P2[Priority 200 — overridden]
+        SCCM[SCCM: name = WEB01] --> P1[Priority 100  -  WINNER]
+        Soroc[Soroc: name = WEB01-ALT] --> P2[Priority 200  -  overridden]
     end
 
     subgraph "Field: serial_number"
-        SCCM2[SCCM: serial = SN-111] --> P3[Priority 100 — overridden]
-        Soroc2[Soroc: serial = SN-999] --> P4[Priority 200 — WINNER]
+        SCCM2[SCCM: serial = SN-111] --> P3[Priority 100  -  overridden]
+        Soroc2[Soroc: serial = SN-999] --> P4[Priority 200  -  WINNER]
     end
 
     P1 --> FINAL[CI name = WEB01]
@@ -1355,11 +1355,11 @@ flowchart TD
     IDR -->|NO MATCH| DS[4. IRE Data Source Rules New CIs only]
     REC --> RECON_EVAL{Evaluate per field: Source priority Field-specific vs Apply to all Staleness / refresh}
     RECON_EVAL --> AUTHORIZED{Source authorized to update this field?}
-    AUTHORIZED -->|YES| UPDATE[CI updated — authorized changes committed]
-    AUTHORIZED -->|NO| NOCHANGE[No change — CI unchanged]
+    AUTHORIZED -->|YES| UPDATE[CI updated  -  authorized changes committed]
+    AUTHORIZED -->|NO| NOCHANGE[No change  -  CI unchanged]
     DS --> DS_CHECK{Source allowed to insert into this CI class?}
     DS_CHECK -->|PERMITTED| NEWCI[New CI inserted into CMDB]
-    DS_CHECK -->|BLOCKED| REJECT[Insert rejected — no CI created]
+    DS_CHECK -->|BLOCKED| REJECT[Insert rejected  -  no CI created]
     style IDR fill:#e58a8a,color:#000
     style REC fill:#e5b567,color:#000
     style DS fill:#4cc38a,color:#000
@@ -2096,7 +2096,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Need a new CI class/table] --> B{Does it extend cmdb_ci?}
-    B -->|No| C[Not a CI — use a custom table, IRE does not apply]
+    B -->|No| C[Not a CI  -  use a custom table, IRE does not apply]
     B -->|Yes| D{Use CI Class Manager or sys_db_object Tables?}
     D -->|CI Class Manager| E[All > Configuration > CI Classes > New; Extends = cmdb_ci]
     D -->|sys_db_object Tables| F[All > System Definition > Tables; Extends table = cmdb_ci]
@@ -2104,7 +2104,7 @@ flowchart TD
     F --> G
     G --> H[Add identification rules for the new class]
     H --> I[Set data source precedence / reconciliation]
-    I --> J[IRE observed — table is in cmdb_ci hierarchy]
+    I --> J[IRE observed  -  table is in cmdb_ci hierarchy]
     style J fill:#4cc38a,color:#000
     style C fill:#e58a8a,color:#000
 
@@ -2115,9 +2115,9 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Admin edits CI form manually] --> B{Identifying field changed?}
-    B -->|No| C[Save normally — no IRE needed]
+    B -->|No| C[Save normally  -  no IRE needed]
     B -->|Yes| D{Invoke IRE explicitly?}
-    D -->|No| E[Duplicate risk — IRE never ran]
+    D -->|No| E[Duplicate risk  -  IRE never ran]
     D -->|Yes| F[Identify action / Business Rule calls Identification API]
     F --> G[Match found?]
     G -->|Yes| H[Reconcile / update existing CI]

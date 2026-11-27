@@ -567,12 +567,12 @@ flowchart TD
         CHECK3[Dependency chain blocked? Upstream change not complete]
     end
     
-    CHECK1 -->|Yes → BLOCKED| BLOCK[Block implementation]
-    CHECK1 -->|No → OK| CHECK2
-    CHECK2 -->|Yes → BLOCKED| BLOCK
-    CHECK2 -->|No → OK| CHECK3
-    CHECK3 -->|Yes → BLOCKED| BLOCK
-    CHECK3 -->|No → OK| ALLOW[Allow implementation]
+    CHECK1 -->|Yes to BLOCKED| BLOCK[Block implementation]
+    CHECK1 -->|No to OK| CHECK2
+    CHECK2 -->|Yes to BLOCKED| BLOCK
+    CHECK2 -->|No to OK| CHECK3
+    CHECK3 -->|Yes to BLOCKED| BLOCK
+    CHECK3 -->|No to OK| ALLOW[Allow implementation]
     
     BLOCK --> NOTIF[Notify requester: change blocked (blackout / collision / dependency)]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]

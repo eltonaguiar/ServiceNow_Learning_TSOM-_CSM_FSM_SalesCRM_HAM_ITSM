@@ -120,7 +120,7 @@ ServiceNow IT Operations Management (ITOM) is built around three core pillars â€
 
 ```mermaid
 graph TD
-    subgraph "CMDB â€” Single Source of Truth"
+    subgraph "CMDB  -  Single Source of Truth"
         CMDB[(cmdb_ci<br/>cmdb_rel_ci<br/>alm_asset)]
     end
 
