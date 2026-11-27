@@ -69,6 +69,7 @@
   - [Now Assist for ITOM — Implementer level](#now-assist-for-itom--implementer-level)
   - [Service Graph Connector for OpenTelemetry — TSOM angle](#service-graph-connector-for-opentelemetry--tsom-angle)
 - [TSOM Implementer Skill Coverage — All 15 Course Skills](#tsom-implementer-skill-coverage--all-15-course-skills)
+- [TSOM Assurance Deep Dive](#tsom-assurance-deep-dive)
 - [🎓 Official Learning Resources](#-official-learning-resources)
   - [📺 Verified Videos & Playlists](#-verified-videos--playlists)
   - [🚀 Quick Start Guide](#-quick-start-guide)
@@ -1056,6 +1057,371 @@ The table below maps every skill listed in the official **TSOM Implementer** lea
 | 12 | **Now Assist Panel** | Discovery guide | ✅ | SGC debugging panel — "Diagnose a Service Graph Connector" |
 | 13 | **Telecommunications Discovery Patterns** | TSOM capabilities + TSOM guide | ✅ | SNMP/CLI patterns, predefined telecom patterns, TNI class hierarchy |
 | 14 | **Telecommunications Service Operations Management** | This guide | ✅ | Full TSOM guide: purpose, ELI5, data model, labs, quiz |
+|---
+
+## TSOM Assurance Deep Dive
+
+TSOM's assurance layer is how a communications service provider (CSP) moves from *thousands of raw alarms* to *a handful of actionable, service-impacting issues.* TSOM does not build every assurance engine from scratch — it composes ITOM capabilities (Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Service Observability, Synthetic Monitoring, AIOps LEAP, Now Assist for ITOM) around a telecom-aware CMDB and the TM Forum alarm/event APIs. Those ITOM capabilities are covered in the cross-check sections above; this section covers the TSOM-specific assurance details: how alarms get in, how Event Management rules process them, how grouping and correlation reduce noise, and the decision diagrams that tie it together.
+
+### TSOM Assurance Pipeline — End to End
+
+```mermaid
+flowchart TD
+    subgraph "Ingest — Alarms & Events"
+        TMF642[TMF 642 Alarm API — CRUD alarms]
+        TMF688[TMF 688 Event API — callback notifications]
+        REST[REST Poll / Push]
+        KAFKA[Kafka Stream Connect — bidirectional]
+    end
+
+    subgraph "Event Management"
+        EM[em_event / em_alert]
+        ER[Event Rules — filter, transform, assign severity]
+        AC[Alert Correlation Rules]
+    end
+
+    subgraph "AIOps — Detection"
+        MI[Metric Intelligence — anomaly vs learned baseline]
+        HLA[Health Log Analytics — log anomaly → event]
+        SM[Synthetic Monitoring — HTTP endpoint tests]
+    end
+
+    subgraph "Grouping & Impact"
+        GRP[Alert Grouping — 5 types → parent alert]
+        SIA[Service Impact Analysis — walk CMDB service model]
+    end
+
+    subgraph "Act"
+        SOW[Service Operations Workspace]
+        PLAY[Playbooks / Automated Remediation]
+        LEAP[LEAP — automation opportunities]
+        NA[Now Assist — Alert Investigation / Analysis]
+    end
+
+    TMF642 --> EM
+    TMF688 --> EM
+    REST --> EM
+    KAFKA --> EM
+    EM --> ER
+    ER --> AC
+    MI --> EM
+    HLA --> EM
+    SM --> EM
+    AC --> GRP
+    GRP --> SIA
+    SIA --> SOW
+    SIA --> PLAY
+    LEAP --> PLAY
+    NA --> SOW
+
+    style EM fill:#0b0e11,stroke:#4cc38a,stroke-width:2px
+    style GRP fill:#e5b567,color:#000
+    style SIA fill:#4cc38a,color:#000
+    style SOW fill:#e58a8a,color:#fff
+```
+
+**The short version:** Raw alarms → Event Management (rules/correlation) → AIOps detection (Metric Intelligence / HLA / Synthetic) → Alert Grouping → Service Impact Analysis (blast radius) → Service Operations Workspace + Playbooks.
+
+### Event Management & Alarm Ingestion
+
+This is how alarms get into ServiceNow. Two directions exist, and confusing them is a classic exam trap.
+
+| Mechanism | Direction | What it does |
+|-----------|-----------|--------------|
+| **TMF 642 Alarm Management Open API** (`sn_ind_tmf642`) | Inbound + outbound | RESTful CRUD contract for alarms — external OSS creates/updates/clears alarm records in a standard schema |
+| **TMF 688 Event Management API notifications** | Inbound | Subscription-based: external system registers a callback URL; each pushed notification triggers an event-creation flow |
+| **TMF 624 (verify)** | Inbound + outbound | *Not confirmed as a standard TMF Open API number in ServiceNow docs — verify on your instance.* For trouble-ticket exchange, the confirmed TSOM/TSM counterpart is **TMF 621 Trouble Ticket Open API** |
+| **Webhooks** | Outbound (ServiceNow → external) | ServiceNow pushes a JSON payload to an external endpoint when an event occurs — eliminates polling, real-time |
+| **REST Poll / Push** | Inbound | Generic pull on a schedule or push to an endpoint; per-payload, not a stream |
+| **Kafka Stream Connect** | Bidirectional | Consumes external Kafka topics into ServiceNow **and** publishes event data back to the platform — the only option that satisfies "receive continuously and send back" |
+
+**Rule of thumb:** *CRUD on alarms → TMF 642. Callback notifications → TMF 688. Sustained bidirectional streaming → Kafka Stream Connect.*
+
+TSOM documentation calls the whole inbound side **External event management via Telecommunications API notifications**, TM Forum-aligned (TMF 642 for alarms, TMF 688 for events).
+
+#### Event Rule Types — Transform, Ignore, Threshold
+
+The ITOM Scoping Guide specifies three rule types: **Transform Rules**, **Ignore Rules**, and **Threshold Rules**. Each serves a distinct noise-reduction purpose and runs in a specific order.
+
+| Rule Type | Purpose | When It Runs | Key Configuration Fields | Output |
+|-----------|---------|--------------|--------------------------|--------|
+| **Transform Rule** | Parse, enrich, map fields; normalize vendor-specific event data into standard `em_event` fields | **First** — on event create (before ignore/threshold) | Source, Event Class, Event Type, Match Field/Value, Transform Script, CI Lookup, Severity Mapping | Enriched event with standardized fields, CI reference, normalized severity |
+| **Ignore Rule** | Drop known-noise events that never require action (heartbeat traps, informational syslogs) | **Second** — after transform, before threshold | Source, Event Class, Event Type, Match Field/Value, Condition Script | Event marked `state = ignored`; never becomes alert; logged for audit |
+| **Threshold Rule** | Suppress flapping; only create alert after N occurrences in time window; auto-close on clear | **Third** — after ignore, on event create/update | Source, Event Class, Event Type, Threshold Count, Time Window, Reset Count, Clear Event Match, Alert Severity | Alert created only when threshold met; flapping suppressed; auto-close on clear |
+
+**Execution Order:** Transform → Ignore → Threshold. Transform first so ignore/threshold match on *normalized* fields; ignore before threshold so noise never consumes threshold counters.
+
+#### Transform Rules — Deep Dive
+
+**Typical Transform Actions:**
+- **Field Mapping**: Map vendor field `alarmSeverity` → `em_event.severity` (Critical/Major/Minor/Warning/Info)
+- **CI Binding**: Look up `cmdb_ci` by `node`/`host`/`IP` field; populate `em_event.node` (CI reference)
+- **Classification**: Set `event_class` (e.g., `Network`, `Server`, `Application`, `Storage`), `event_type` (e.g., `Interface Down`, `CPU High`, `Disk Full`)
+- **Enrichment**: Add location, environment, business service from CI; populate `u_business_service`, `u_environment`
+
+**Transform Script Example (JavaScript in rule):**
+```javascript
+// Map vendor severity (1-5) to ServiceNow severity (1-5, reversed)
+var severityMap = { '1': 5, '2': 4, '3': 3, '4': 2, '5': 1 };
+current.severity = severityMap[current.getValue('u_vendor_severity')] || 3;
+
+// Look up CI by IP in source field
+var ip = current.getValue('u_source_ip');
+if (ip) {
+    var ci = new GlideRecord('cmdb_ci');
+    ci.addQuery('ip_address', ip);
+    ci.query();
+    if (ci.next()) {
+        current.node = ci.sys_id;
+    }
+}
+```
+
+#### Ignore Rules — Deep Dive
+
+**Common Ignore Patterns:**
+| Pattern | Example | Why Ignore |
+|---------|---------|------------|
+| **Heartbeat/Keepalive** | `event_type = Heartbeat`, `description contains "keepalive"` | Expected periodic signal; no action needed |
+| **Informational Syslogs** | `severity = Info (5)`, `event_class = Syslog` | Volume noise; not actionable |
+| **Clear Events (if threshold handles)** | `event_type = Clear`, `threshold rule exists` | Threshold rule auto-closes; clear event redundant |
+| **Vendor-Specific Noise** | `source = SolarWinds`, `event_type = Polling Failed` (transient) | Known false positive; documented in vendor KB |
+
+**Ignore Rule Condition Script:**
+```javascript
+// Ignore if this is a known transient polling failure
+if (current.source == 'SolarWinds' && current.event_type == 'Polling Failed') {
+    var recent = new GlideRecord('em_event');
+    recent.addQuery('source', 'SolarWinds');
+    recent.addQuery('node', current.node);
+    recent.addQuery('event_type', 'Polling Restored');
+    recent.addQuery('sys_created_on', '>', gs.minutesAgo(5));
+    recent.query();
+    if (recent.hasNext()) {
+        current.state = 3; // Ignored
+        current.u_ignore_reason = 'Transient polling failure - auto-recovered';
+    }
+}
+```
+
+#### Threshold Rules — Deep Dive
+
+**Threshold Logic:**
+```
+Event fires → Count occurrences in Time Window
+    If Count >= Threshold Count → Create/Update Alert (parent)
+    If Count < Threshold Count → Suppress (child event, no alert)
+    If Clear Event matches → Close Alert (reset counter)
+```
+
+**Configuration Fields:**
+| Field | Description | Typical Value |
+|-------|-------------|---------------|
+| **Threshold Count** | Occurrences needed to trigger alert | 3–5 (flap suppression) |
+| **Time Window (min)** | Rolling window for counting | 15–60 minutes |
+| **Reset Count** | Occurrences of clear event to auto-close | 1 (immediate) or 2–3 (confirm) |
+| **Clear Event Match** | Field(s) to match clear event to original | `node`, `event_class`, `event_type` |
+
+**Example: Interface Flap Suppression**
+- Source: Network devices (SNMP traps)
+- Event Class: `Network`, Event Type: `Interface Down`
+- Threshold Count: 3, Time Window: 15 min
+- Clear Event Match: `node` + `event_type = Interface Up`
+- Result: Single alert after 3 flaps in 15 min; auto-closes on Interface Up
+
+#### Alert Rules (Alert Management Rules)
+
+Separate from Event Rules, **Alert Rules** operate on `em_alert` (after event → alert promotion) for aggregation, suppression, and auto-resolution.
+
+| Alert Rule Type | Purpose | Configuration |
+|-----------------|---------|---------------|
+| **Alert Suppression** | Suppress alerts during maintenance windows or known outages | Maintenance Schedule (CMDB CI), Alert Filter (source/class/type), Suppression Action (delay/close) |
+| **Alert Aggregation** | Combine similar alerts into parent (rule-based grouping) | Group By Fields (node, event_class, metric_name), Time Window, Max Children |
+| **Auto-Resolution** | Auto-close alerts when clear event received or condition clears | Clear Condition (event match, metric threshold), Close Action |
+| **Notification/Assignment** | Route alerts to teams based on CI/service ownership | Assignment Group (from CI `support_group`), Escalation Rules |
+
+**Alert Rule Execution:** Runs on `em_alert` create/update via Business Rules (`Alert Management Rule` engine). Complements Event Rules — Event Rules clean the event stream; Alert Rules manage the alert lifecycle.
+
+#### SNMP Trap Listener — Setup & Scoping
+
+SNMP traps are a primary ingestion path for network infrastructure.
+
+| Component | Configuration |
+|-----------|---------------|
+| **MID Server** | Dedicated MID for trap reception (UDP 162) — separate from Discovery MIDs |
+| **Port** | UDP 162 (standard SNMP trap port); ensure firewall allows from network devices |
+| **SNMP Version** | v2c (community string) or v3 (auth/priv) — match device config |
+| **Community String** | Configured on MID: `mid.snmp.trap.community` (v2c) or user profiles (v3) |
+| **Trap Processing** | MID parses trap → maps to `em_event` via `snmp_trap_map` table → sends to instance via ECC Queue |
+
+**MID Server Setup Steps:**
+1. **Dedicated MID**: Install MID in network zone with device access (not same as Discovery MID)
+2. **Enable Trap Listener**: `mid.snmp.trap.listener=true` in `config.xml`
+3. **Configure Port**: `mid.snmp.trap.port=162` (default)
+4. **Trap Mappings**: All > Event Management > SNMP Trap Mappings — define OID → Event Class/Type/Severity mapping
+5. **Test**: Send test trap (`snmptrap -v 2c -c public localhost 1.3.6.1.4.1.8072.2.3.0.1`)
+
+**Common Trap OIDs to Map:**
+| OID | Trap Name | Typical Mapping |
+|-----|-----------|-----------------|
+| `1.3.6.1.6.3.1.1.5.3` | linkDown | Network / Interface Down / Critical |
+| `1.3.6.1.6.3.1.1.5.4` | linkUp | Network / Interface Up / Info (clear) |
+| `1.3.6.1.4.1.9.9.43.2.0.1` | Cisco configChange | Network / Config Change / Warning |
+| `1.3.6.1.4.1.2021.13.1` | UCD-SNMP-MIB diskFull | Storage / Disk Full / Major |
+
+#### Correlation Rules — Configuration
+
+Correlation Rules (Alert Correlation) create **parent alerts** from child alerts based on CMDB relationships, time windows, and content similarity.
+
+| Correlation Rule Type | Trigger | Configuration |
+|----------------------|---------|---------------|
+| **CMDB Relationship** | Alert on CI with relationships | Traverse `cmdb_rel_ci` (Depends on, Runs on, Hosted on); group alerts on related CIs |
+| **Service Model** | Alert on service CI | Traverse `svc_ci_assoc` → service → customers; group by impacted service |
+| **Rule-Based (Manual)** | Specific alert patterns | Custom condition script: `alert.source == 'SolarWinds' && alert.metric_name == 'CPU'` |
+| **Temporal** | Alerts within time window | Rolling window (e.g., 10 min); group if same CI type + metric |
+
+**Correlation Rule Fields:**
+- **Name**, **Active**, **Order** (priority)
+- **Condition**: Filter on child alert fields (source, class, type, CI, metric)
+- **Correlation Type**: `CMDB Relationship`, `Service Impact`, `Custom`
+- **Parent Alert Template**: Severity (max of children), Description (concatenated), Assignment Group
+
+**Scoping Note:** Start with one correlation rule per major monitoring source (e.g., one for SolarWinds, one for SNMP, one for CloudWatch) using standard filters before custom scripts.
+
+### Alert Management — Grouping vs Correlation
+
+A regional fibre cut produces thousands of downstream alarms. Untriaged, that is **alert fatigue** — operators dismiss alerts wholesale and miss the one that mattered.
+
+| | **Grouping** | **Correlation** |
+|---|-------------|-----------------|
+| Question it answers | *Which of these alerts are the same problem?* | *What does this problem break, and for whom?* |
+| What it does | Combines related child alerts into one **parent alert** — one actionable item | Maps grouped alerts to **services, customers, accounts** via the CMDB/service model |
+| Output | Volume reduction | Business impact / prioritisation |
+| Driven by | Event Management grouping rules | Service Impact Analysis + CMDB service model |
+
+They are complementary: grouping shrinks the queue; correlation makes the surviving items rankable.
+
+#### The Five Grouping Types (Event Management)
+
+| Type | Icon | Formed by |
+|------|------|-----------|
+| **Rule-based** | R | Alert correlation rules — business rule on `em_alert` at create/update |
+| **Automated / aggregated** | A | ML + alert aggregation: alerts sharing CI type **and metric name**, virtual primary alert; scheduled job |
+| **CMDB-based** | C | CI relationships in the CMDB; catches what rules and automation missed; scheduled job |
+| **Text-based** | T | Similar frequently-used words in Description / Metric Name / CI Class; scheduled job |
+| **Tag cluster** | Tag | User-defined tag clustering definitions; scheduled job |
+
+#### Temporal Analysis
+
+Grouping has several *dimensions*: **temporal** (did these fire close together in a rolling window?), **topological** (Discovery/Service Map data — are they on related CIs?), **CMDB relationship** (shared ancestor/dependency?), and **content** (ML/NLP tagging of the alert text).
+
+Temporal analysis is the time dimension — flapping and bursty alerts inside a rolling window are recognised as one pattern, and repeated time-of-day patterns expose chronic issues as a single problem instead of daily noise.
+
+**Caveat:** the temporal window is evaluated continuously in the product; if a question phrases it as a nightly offline batch over a 30-day window, that is the wrong answer — the batch/scheduled framing belongs to the CMDB-based, automated and text grouping jobs, not to temporal pattern analysis.
+
+### Assurance Decision Diagrams
+
+#### Detection Capability Selector
+
+```mermaid
+flowchart TD
+    A[What do I need to detect?] --> B{Type of signal}
+    B -->|Real-time metric stream / threshold| C[Metric Intelligence]
+    B -->|Log lines / log patterns| D[Health Log Analytics]
+    B -->|HTTP endpoint availability| E[Synthetic Monitoring]
+    B -->|External alarm / event feed| F[Event Management → TMF 642/688]
+    B -->|Historical incident patterns| G[AIOps LEAP]
+    C --> H[→ em_alert → grouping → impact analysis]
+    D --> H
+    E --> H
+    F --> H
+    G --> I[→ automation opportunities / playbooks]
+    style C fill:#4cc38a,color:#000
+    style D fill:#4cc38a,color:#000
+    style E fill:#4cc38a,color:#000
+    style F fill:#4cc38a,color:#000
+    style G fill:#e5b567,color:#000
+```
+
+#### Alert Path — Raw Alarm to Service Impact
+
+```mermaid
+flowchart TD
+    ALARM[Raw alarm from NMS/OSS] --> INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
+    INGEST --> EVENT[em_event]
+    EVENT --> RULE[Event Rules — severity, filter, transform]
+    RULE --> ALERT[em_alert]
+    ALERT --> GROUP[Alert Grouping — 5 types]
+    GROUP --> PARENT[Parent alert]
+    PARENT --> SIA[Service Impact Analysis — CMDB walk]
+    SIA --> BLAST[Blast radius: services, customers, accounts]
+    BLAST --> SOW[Service Operations Workspace]
+    SOW --> PLAY[Playbook / automated remediation]
+    style ALERT fill:#e58a8a,color:#fff
+    style PARENT fill:#e5b567,color:#000
+    style BLAST fill:#4cc38a,color:#000
+```
+
+### Out-of-Box Assurance Features
+
+| Feature | Description | Where |
+|---------|-------------|-------|
+| Alarms | Correlate network alarms into service-impacting events | All > TSOM > Alarms |
+| Event Management | Event rules, alert correlation, suppression, grouping | All > Event Management > Event Rules / Alert Correlation |
+| Metric Intelligence | Anomaly detection over metric baselines | ITOM → Metric Intelligence |
+| Health Log Analytics | Log analysis, baseline comparison, root cause | ITOM → Health Log Analytics |
+| Service Impact Analysis | Blast radius — which services/customers are affected | ITOM → Service Impact Analysis |
+| Service Observability | Health signals, related entity visibility, SLO tracking | Service Operations Workspace |
+| Synthetic Monitoring | Proactive HTTP endpoint tests | ITOM → Synthetic monitoring |
+| AIOps LEAP | Automation opportunities + remediation playbooks | ITOM → AIOps LEAP |
+| Now Assist for ITOM | Alert Investigation / Alert Analysis generative skills | Now Assist for IT Operations Management |
+| Service Operations Workspace | Operator console for assurance triage | All > Service Operations > Service Operations Workspace |
+
+### Common Mistakes & Gotchas
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Confusing grouping with correlation | Can't explain why alerts were merged vs which services are affected | Grouping = same problem (volume reduction); correlation = business impact via CMDB |
+| Treating HLA as a log viewer | Expecting HLA to store/search all logs indefinitely | HLA analyzes logs against a baseline and forwards anomalies to EM; it's not a general log archive |
+| Using static thresholds for everything | False positives on spiky metrics; missed slow drift | Use Metric Intelligence for learned baselines; reserve static thresholds for hard safety limits |
+| Forgetting the CMDB service model | Service Impact Analysis returns empty blast radius | Populate `cmdb_ci_service` + relationships; impact analysis walks the model |
+| Confusing Synthetic Monitoring with real monitoring | Expecting synthetic tests to replace metric collection | Synthetic = proactive transaction test; Metric Intelligence = real observed metric stream |
+| Assuming Now Assist acts autonomously | Expecting AI to close tickets without human input | Now Assist summarizes and recommends; a human (or playbook) still acts |
+
+### Quiz
+
+1. What is the difference between alert grouping and alert correlation?  
+   <details><summary>Answer</summary>Grouping combines related child alerts into one parent alert (volume reduction). Correlation maps alerts to services/customers/accounts via the CMDB (business impact/prioritisation).</details>
+
+2. Which TSOM assurance capability detects deviations from a learned metric baseline rather than a static threshold?  
+   <details><summary>Answer</summary>Metric Intelligence.</details>
+
+3. What does Health Log Analytics do when it detects a log anomaly?  
+   <details><summary>Answer</summary>Forwards it as an event to Event Management, where it is correlated with alarms and metric anomalies.</details>
+
+4. Which capability proactively tests HTTP endpoints before subscribers complain?  
+   <details><summary>Answer</summary>Synthetic Monitoring (ITOM → Synthetic monitoring, plugin `com.snc.uib.sow_synthetics`).</details>
+
+5. What does Service Impact Analysis use to calculate blast radius?  
+   <details><summary>Answer</summary>The CMDB service model — services, service offerings, CIs, and their relationships.</details>
+
+6. Which two Now Assist for ITOM alert skills exist, and what does each answer?  
+   <details><summary>Answer</summary>Alert Investigation ("What is this alert now, and how bad?") and Alert Analysis ("How was this solved before?").</details>
+
+7. Is TSOM's assurance engine documented under the Telecom doc tree or the ITOM doc tree?  
+   <details><summary>Answer</summary>Mostly ITOM (Event Management, Metric Intelligence, HLA, SIA, Synthetic Monitoring each have their own ITOM breadcrumb); TSOM provides the telecom framing, TMF APIs, and data model.</details>
+
+8. What is AIOps LEAP's role in assurance?  
+   <details><summary>Answer</summary>Identifies automation opportunities from historical incident clusters and generates remediation playbooks.</details>
+
+9. What are the three Event Management rule types, and in what order do they run?  
+   <details><summary>Answer</summary>Transform → Ignore → Threshold. Transform normalizes fields first; Ignore drops noise before it consumes threshold counters; Threshold suppresses flapping by counting occurrences in a time window.</details>
+
+10. What is the only ingestion mechanism that is truly bidirectional (receive continuously and send back)?  
+   <details><summary>Answer</summary>Kafka Stream Connect.</details>
+
+<details markdown="1">
+<summary><strong>1. AI Agents — agentic workflows on TSOM/TNI</strong></summary>
 
 ---
 
@@ -1303,7 +1669,7 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 - [ITSM guide](./itsm-guide.md)
 - [TSOM getting-started](./../../getting-started/tsom.md)
 - [TSOM capabilities](./tsom-capabilities.md)
-- [TSOM Assurance](./tsom-assurance.md) — Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Service Observability, Synthetic Monitoring, AIOps LEAP, Now Assist
+
 
 ---
 

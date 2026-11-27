@@ -112,13 +112,8 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
   </div>
   <div class="card">
     <h3>TSOM</h3>
-    <p>Telecom Service Operations Management — services, network inventory, alarms, and the implementer labs that actually exist for it.</p>
+    <p>Telecom Service Operations Management — services, network inventory, alarms, assurance (Event Management, AIOps, Service Impact Analysis, Synthetic Monitoring), and the implementer labs that actually exist for it.</p>
     <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
-  </div>
-  <div class="card">
-    <h3>TSOM Assurance</h3>
-    <p>Event Management, AIOps, Service Impact Analysis, and Synthetic Monitoring — the observability stack for telecom and enterprise environments.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-assurance/">Open TSOM Assurance guide</a></p>
   </div>
 </div>
 
