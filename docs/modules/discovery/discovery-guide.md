@@ -150,17 +150,41 @@ Scanning/classification always use probes. Identification/exploration may use pa
 
 ### 1.5 IRE in five minutes
 
-| Rule family | What it decides | Insert new CI? | Update existing CI? |
-|-------------|-----------------|----------------|---------------------|
-| Identification rules | Does this payload match an existing CI? | yes — no match → create | yes — match → update |
-| Reconciliation rules | Whose data wins per attribute (data-source precedence)? | no | yes — winning source updates fields |
-| Data Source rules | May this source insert new CIs at all? | no — can block inserts | n/a |
-| Data Refresh rules | Is the incumbent value too stale to protect? | no | yes — stale value may be replaced |
-| De-duplication tasks | Multiple matches — which CI survives? | no — flagged for review | no — blocked until resolved |
+|| Rule family | What it decides | Insert new CI? | Update existing CI? ||
+|-------------|-----------------|----------------|---------------------||
+| Identification rules | Does this payload match an existing CI? | yes — no match → create | yes — match → update ||
+| Identification inclusion rules | Which CIs are eligible for identification processing at all | no — filters candidate CIs | no — filters candidate CIs ||
+| Reconciliation rules | Whose data wins per attribute (data-source precedence)? | no | yes — winning source updates fields ||
+| Data Source rules | May this source insert new CIs at all? | no — can block inserts | n/a ||
+| Data Refresh rules | Is the incumbent value too stale to protect? | no | yes — stale value may be replaced ||
+| De-duplication tasks | Multiple matches — which CI survives? | no — flagged for review | no — blocked until resolved ||
 
 Identification runs first; reconciliation only runs on matched CIs. **Data-source precedence governs which source wins an attribute write, not whether a source is allowed to insert a CI.** Insert permission is controlled by identification rules and class-level settings. If you see "match but no update," check reconciliation priority; if you see "no match but also no CI," check de-duplication tasks and identifier criteria.
 
 > **Common misconception:** you cannot reconcile what you haven't identified first. **I before R.**
+
+### 1.5.1 Identification inclusion rules — filter which CIs get identified
+
+Identification inclusion rules control **which CIs in the CMDB are eligible to participate in the Identification phase.** During duplication detection, IRE processes only the CIs that satisfy the inclusion rule's filter condition. When no inclusion rules exist, all CIs are included in identification.
+
+**Where to configure:** CMDB Identification and Reconciliation > Identification Inclusion Rules (or via the CMDB dashboard > Identification Inclusion Rules).
+
+| Aspect | Detail |
+|--------|--------|
+| What it does | Filters the set of CIs IRE will attempt to match incoming discovery payloads against |
+| Filter condition | Any condition on the target CI table (e.g., `install_status = operational`, `u_criticality = 1 - high`, `company = your company`) |
+| Effect when matched | CI remains a candidate for identification matching |
+| Effect when not matched | CI is excluded from identification — discovery payloads will not match it, so no CI update occurs for that target |
+| When no rules exist | All CIs in the table are included in identification processing |
+
+**Typical use cases:**
+- **Exclude non-operational CIs:** Set filter `install_status = operational` so retired/archived CIs don't consume identification processing or get stale updates
+- **Limit by company or department:** `company = your company` prevents cross-company CI matching
+- **Protect critical CIs:** `u_criticality = 1 - high` ensures only business-critical CIs participate in identification, reducing duplicate CI creation noise from less important devices
+
+**CMDB Health connection:** When no identification inclusion rules exist, all CIs are included in both the identification process and the CMDB Health duplicate metric. Defining inclusion rules narrows the duplicate-detection scope, which directly affects the CMDB Health duplicate CI count.
+
+**Common misconception:** Inclusion rules do **not** block discovery data from being collected — they only narrow which existing CIs can be matched against. Data still flows through scanning, classification, and exploration; inclusion rules gate the Identification step specifically.
 
 ### 1.6 Horizontal vs top-down discovery (short orientation)
 - **Horizontal Discovery** starts from IP ranges and scans outward — classic Discovery, what this guide covers.
