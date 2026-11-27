@@ -22,7 +22,7 @@
   - [Event Severity (em_event.severity / em_alert.severity)](#event-severity-em_eventseverity--em_alertseverity)
   - [Alert State (em_alert.state)](#alert-state-em_alertstate)
   - [Discovery PCIE Phases](#discovery-pcie-phases)
-  - [MID Server Status (sys_mid_server.status)](#mid-server-status-sys_mid_serverstatus)
+  - [MID Server Status (ecc_agent.status)](#mid-server-status-ecc_agentstatus)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Scoped Application](#scoped-application)
   - [Re-usable Metadata Inventory](#re-usable-metadata-inventory)
@@ -180,7 +180,7 @@ graph TD
 
 | Capability | Purpose | Key Tables | Breadcrumbs |
 |------------|---------|------------|-------------|
-| **Discovery** | Auto-discovers servers, network devices, applications; populates CMDB | `cmdb_ci`, `discovery_schedule`, `sys_mid_server` | All > Discovery > Discovery Schedules |
+| **Discovery** | Auto-discovers servers, network devices, applications; populates CMDB | `cmdb_ci`, `discovery_schedule`, `ecc_agent` | All > Discovery > Discovery Schedules |
 | **Service Mapping** | Pattern-based top-down mapping of CIs to business services | `cmdb_ci_service`, `cmdb_rel_ci` | All > Service Mapping > Application Services |
 | **Certificate & Firewall Audits** | Discovers SSL certificates, firewall rules, network policies | `cmdb_ci_certificate`, `cmdb_ci_firewall` | All > Discovery > Certificate Audits |
 | **Service Graph Connectors** | Syncs CMDB with external sources (AWS, Azure, GCP, SCCM, etc.) | `cmdb_ci`, `sys_import_set` | All > Service Graph > Connectors |
@@ -347,7 +347,7 @@ ServiceNow ships with predefined event/alert states and Discovery configurations
 | `Explorer` | Gathers detailed CI information |
 | `Processor/Sensor` | Parses data and maps to CMDB |
 
-### MID Server Status (sys_mid_server.status)
+### MID Server Status (ecc_agent.status)
 
 | Status | Meaning |
 |--------|---------|
@@ -370,7 +370,7 @@ ITOM spans multiple scoped applications.
 | Discovery Scope | `com.snc.discovery` |
 | Event Management Scope | `com.snc.em` |
 | Orchestration Scope | `com.glide.orchestration` |
-| Key tables | `em_event`, `em_alert`, `cmdb_ci`, `sys_mid_server`, `discovery_schedule`, `em_metric` |
+| Key tables | `em_event`, `em_alert`, `cmdb_ci`, `ecc_agent`, `discovery_schedule`, `em_metric` |
 | Roles | `itil`, `admin`, `em_admin`, `discovery_admin` |
 
 ### Re-usable Metadata Inventory
@@ -439,7 +439,7 @@ EventSeverityHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 | `em_event` | Raw events from monitoring tools | `node`, `resource`, `message`, `severity`, `source`, `time_of_event` |
 | `em_alert` | Processed alerts (de-duplicated, correlated) | `node`, `resource`, `message`, `severity`, `state`, `ci` |
 | `cmdb_ci` | Configuration items discovered by Discovery | `name`, `ip_address`, `os`, `serial_number` |
-| `sys_mid_server` | MID Server records | `name`, `ip_address`, `status`, `version` |
+| `ecc_agent` | MID Server records | `name`, `ip_address`, `status`, `version` |
 | `discovery_schedule` | Discovery scan schedules | `name`, `ip_address`, `frequency`, `state` |
 | `em_metric` | Metric data for Event Management | `name`, `value`, `threshold`, `state` |
 
@@ -459,7 +459,7 @@ cmdb_ci
     │
     ├──► cmdb_rel_ci (CI relationships for service mapping)
     │
-    └──► sys_mid_server (MID Server that discovered this CI)
+    └──► ecc_agent (MID Server that discovered this CI)
 ```
 
 ---
@@ -486,7 +486,7 @@ cmdb_ci
 | `em_alert` | `state` | Choice | New → In Progress → Resolved → Closed |
 | `em_alert` | `ci` | Reference | Related CMDB CI for impact analysis |
 | `discovery_schedule` | `frequency` | Choice | How often the scan runs |
-| `sys_mid_server` | `status` | Choice | Up, Down, Warning |
+| `ecc_agent` | `status` | Choice | Up, Down, Warning |
 
 ---
 

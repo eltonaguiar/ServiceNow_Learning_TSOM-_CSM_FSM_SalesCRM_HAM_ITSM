@@ -17,7 +17,7 @@
 - [HAM Asset Lifecycle Diagram](#ham-asset-lifecycle-diagram)
 - [Asset vs CI Diagram](#asset-vs-ci-diagram)
 - [Out-of-Box Values & Dropdowns](#out-of-box-values--dropdowns)
-  - [Asset State & Substate (install_status / install_substatus)](#asset-state--substate-install_status--install_substatus)
+  - [Asset State & Substate (install_status / substatus)](#asset-state--substate-install_status--substatus)
   - [Hardware Model Lifecycle Phase](#hardware-model-lifecycle-phase)
 - [Re-usable Code / Metadata](#re-usable-code--metadata)
   - [Application Scope](#application-scope)
@@ -198,7 +198,7 @@ graph TD
 
 ServiceNow ships with predefined asset states and substates. Verify against your instance — values can vary by release (e.g., Rome release asset states are numeric 1–11).
 
-### Asset State & Substate (install_status / install_substatus)
+### Asset State & Substate (install_status / substatus)
 | State | Substates | When to Use |
 |-------|-----------|-------------|
 | `On Order` | — | Assets have only been ordered |
@@ -232,7 +232,7 @@ HAM is part of the ITAM application (`com.snc.iam`), not a fully scoped app. Tab
 | Scope Aspect | Detail |
 |--------------|--------|
 | Application | IT Asset Management (com.snc.iam) |
-| Tables | `alm_asset`, `alm_hardware`, `alm_license`, `alm_asset_model`, `ast_contract` |
+| Tables | `alm_asset`, `alm_hardware`, `alm_license`, `cmdb_model`, `ast_contract` |
 | Roles | `asset`, `itil`, `sam`, `sn_hamp_admin`, `admin` |
 
 ### Meta Data Patterns
@@ -252,7 +252,7 @@ HAM is almost entirely reusable metadata — the asset records are the *output* 
 
 | Re-usable piece | What it is | Where it lives (breadcrumb) |
 |-----------------|------------|------------------------------|
-| **Model categories & models** | The master classification every asset hangs off: model categories (`cmdb_model_category`) group models (`alm_asset_model`), and the model drives lifecycle, depreciation, and normalization defaults for thousands of assets at once. Get this layer right and most of HAM follows. | All > Asset > **Models** / **Model Categories** |
+| **Model categories & models** | The master classification every asset hangs off: model categories (`cmdb_model_category`) group models (`cmdb_model`; hardware models extend it as `cmdb_hardware_product_model`), and the model drives lifecycle, depreciation, and normalization defaults for thousands of assets at once. Get this layer right and most of HAM follows. | All > Asset > **Models** / **Model Categories** |
 | **Normalization rules & the Content Service** | CDS content plus your own normalization rules turn messy discovered names into clean publisher/product/version — applied automatically to every discovery import. File-signature rules are the file-level equivalent (see the FSN deep dive below, incl. `samp_custom_file_name` for in-house software). | All > Software Asset > **Normalization** · HAM content in the HAM guide's deep dives |
 | **Stockrooms & stock rules** | Stockrooms (`alm_stockroom`) hold inventory; stock rules define reorder thresholds and transfer behaviour once, then fire automatically whenever stock moves. | All > Asset > **Stockrooms** / **Stock Rules** |
 | **Depreciation schedules** | The financial write-down method (straight-line, etc.) and period defined once per model/category and applied to every asset in it — never per asset. | All > Asset > **Depreciation** |
@@ -386,14 +386,14 @@ HAMHelper.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 | `alm_asset` | Core asset record | `task` | `number`, `name`, `category`, `state`, `asset_tag`, `serial_number`, `purchase_date`, `cost`, `assigned_to`, `location`, `vendor`, `employment_type` |
 | `alm_hardware` | Hardware-specific fields | `alm_asset` | `serial_number`, `mac_address`, `warranty_expiration`, `manufacturer`, `model_number` |
 | `alm_license` | Software license | `task` | `name`, `license_count`, `installation_count`, `license_type`, `expiration_date` |
-| `alm_asset_model` | Asset model definition | `task` | `name`, `manufacturer`, `category`, `model_number` |
+| `cmdb_model` | Asset model definition | `task` | `name`, `manufacturer`, `category`, `model_number` |
 | `ast_contract` | Maintenance/support contract | `task` | `name`, `vendor`, `start_date`, `end_date`, `renewal_date`, `contract_value` |
 | `cmdb_ci_hardware` | Hardware CI | `cmdb_ci` | `name`, `serial_number`, `discovery_source`, `operational_status` |
 
 ### Table Relationships
 
 ```
-alm_asset_model
+cmdb_model
     │
     ├──► alm_asset (many assets per model)
     │
@@ -418,7 +418,7 @@ ast_contract
 | HAM Table | Maps to CMDB Table | Relationship |
 |-----------|-------------------|--------------|
 | `alm_asset` | `cmdb_ci_hardware` | Links via `cmdb_ci` field |
-| `alm_asset_model` | `cmdb_ci_model` | Model reference |
+| `alm_asset.model` | `cmdb_model` | Every asset references its model; hardware models extend `cmdb_hardware_product_model` |
 | `alm_hardware` | `cmdb_ci_hardware` | Hardware details |
 | `sn_sales_product` | `cmdb_ci` | Product as CI |
 
@@ -463,8 +463,8 @@ ast_contract
 | `ast_contract` | `start_date` | Date | Contract start |
 | `ast_contract` | `end_date` | Date | Contract expiration |
 | `ast_contract` | `renewal_date` | Date | When to renew |
-| `alm_asset_model` | `name` | String | Model name (e.g., "Dell XPS 13") |
-| `alm_asset_model` | `manufacturer` | String | Manufacturer (e.g., Dell) |
+| `cmdb_model` | `name` | String | Model name (e.g., "Dell XPS 13") |
+| `cmdb_model` | `manufacturer` | String | Manufacturer (e.g., Dell) |
 
 ---
 
@@ -681,7 +681,7 @@ Every row below restates something already documented in this guide — the stat
 | Software installs missing on a machine that has the app | File-Based Discovery not activated, or the first CDS sync has not landed (~24 hours) | Plugin `com.snc.discovery.file_based_discovery`; discovery Status record | Activate, wait for CDS, enable the exploration, re-scan |
 | A known application is invisible in installations | No file signature, so normalization never matched it | File Signature Normalization tables | Add the signature, normalize the discovery model |
 | "We own 500, only 380 show in stock" | Substates not maintained — `In transit`, the long `In Stock` and `Retired` lists | State and substate counts | Audit substates; a substate is a location-in-process, not decoration |
-| Model cannot be ordered | Lifecycle phase is `End of sale` or later | `alm_asset_model` lifecycle phase | Move to the current model |
+| Model cannot be ordered | Lifecycle phase is `End of sale` or later | `cmdb_model` lifecycle phase | Move to the current model |
 
 **Three checks before any HAM escalation**
 
