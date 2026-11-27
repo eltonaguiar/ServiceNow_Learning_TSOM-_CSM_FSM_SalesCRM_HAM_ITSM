@@ -46,6 +46,7 @@ TL;DR — what you discover in each part:
 - Part 6 Quick reference: where to find it, navigator shortcuts, table hierarchy, key fields, properties, metadata inventory, glossary, safe scripts, KPI targets.
 -->
 
+- [Further learning:](#further-learning)
 ---
 
 ## Part 0 — Start here (30–45 min)
@@ -561,3 +562,18 @@ CMDB discovery coverage ≥95%, MTD <24h, CI freshness ≥90% in last 30 days, d
 ---
 
 > **Was this helpful? What was missing?** Open an issue on the repo or edit this page directly. Last reviewed Nov 2026 against ITOM Discovery (Xanadu / Washington DC).
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Discovery Manager / Discovery status** — per-schedule status, phase timings and the *Discovery Log* per device; the first place to look when a CI stops updating.
+- **MID Server dashboard** — MID health, queue depth, ECC queue throughput and version; a saturated or outdated MID silently produces partial CIs rather than errors.
+- **Discovery patterns** — horizontal/vertical pattern designer; custom patterns are how you extend discovery to an application the OOTB patterns do not classify.
+- **Agent Client Collector (ACC)** — agent-based discovery for endpoints that cannot be probed (remote laptops, hardened hosts); complements, does not replace, the MID.
+- **Service Graph Connectors** — for cloud and endpoint-management sources (AWS, Azure, GCP, Intune, SCCM) where API integration beats network probing.
+- **Certificate Inventory and Management** — discovery of TLS certificates and expiry, a frequent blind spot in impact analysis.
+- **Cloud Discovery** — tag-based resource discovery and account onboarding; tags are what make cloud CIs land in the right service.
+- **Scheduling and blackout windows** — discovery schedules, IP ranges/behaviour and maintenance windows; overlapping schedules on the same range is a common source of duplicate CIs.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

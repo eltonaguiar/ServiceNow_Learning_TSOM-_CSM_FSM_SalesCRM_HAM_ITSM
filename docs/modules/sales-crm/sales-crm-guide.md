@@ -86,6 +86,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1046,3 +1047,18 @@ Fallback link: [Sales CRM Official Overview](https://www.youtube.com/watch?v=zCC
 - [Sales CRM getting-started](../../../getting-started/sales-crm.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Sales CRM workspaces** — account/contact/opportunity/quote surfaces in Configurable Workspace.
+- **Sales dashboards** — pipeline coverage, stage ageing, win rate and forecast accuracy; forecast accuracy is the one that exposes a broken process.
+- **Playbooks** — guided selling stages with required fields and next-best-action, instead of relying on rep discipline.
+- **Quote and order management** — product catalog, pricing, approvals; ties into CPQ where licensed.
+- **Email/calendar integrations** — Outlook/Gmail sync so activity capture does not depend on manual logging.
+- **CRM data model** — account vs customer vs consumer, and how Sales CRM relates to CSM (they share the customer tables, which is the main reason to run both on one platform).
+- **Forecasting and territories** — quota, territory and forecast category configuration.
+- **Integration with ERP/finance** — closed-won to order/invoice handoff; usually the boundary where CRM stops and ERP starts.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

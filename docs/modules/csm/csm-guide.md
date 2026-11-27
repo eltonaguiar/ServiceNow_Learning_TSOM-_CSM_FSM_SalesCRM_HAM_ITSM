@@ -60,6 +60,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -733,3 +734,18 @@ Fallback link: [Customer Service Management Official Overview](https://www.youtu
 - [CSM getting-started](./../../getting-started/csm.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **CSM Configurable Workspace** — the agent surface for cases, accounts, contacts and omnichannel interactions; also the base for FSM and (increasingly) Sales CRM surfaces.
+- **CSM Performance Analytics dashboards** — case volume, SLA, CSAT, first-contact resolution and agent occupancy; CSAT is only meaningful with a response-rate caveat.
+- **Advanced Work Assignment + Omnichannel** — routing across chat, email, phone and messaging from a single capacity model.
+- **Agent Assist / AI Search in the workspace** — suggests knowledge and similar resolved cases inline; measure deflection, not suggestion count.
+- **Playbooks (Process Automation Designer)** — guided case handling for multi-step processes where a state model alone is too loose.
+- **CRM integrations** — Salesforce and Microsoft Dynamics connectors for account/contact/case sync; decide master per entity, or the two systems will overwrite each other.
+- **CSM/ITSM integration** — lets a CSM agent see and raise the ITSM incident behind a customer case without switching products.
+- **Customer/Consumer records + Service Organization** — the B2B vs B2C modelling split; getting this wrong early is expensive to unwind.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

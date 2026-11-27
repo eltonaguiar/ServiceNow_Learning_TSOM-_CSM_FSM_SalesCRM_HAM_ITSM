@@ -24,6 +24,7 @@ Those are exactly the methods that separate "I have used GlideRecord" from "I kn
 - [Common mistakes](#common-mistakes)
 - [Interview questions](#interview-questions)
 
+- [Further learning:](#further-learning)
 ---
 
 ## What GlideRecord is
@@ -284,3 +285,17 @@ table is the classic cause of a slow Business Rule that passes in dev and times 
 - [Platform Cross-Cutting Skills](../../cross-cutting/) — scripting patterns, ACLs, integrations
 - [JavaScript Reference](../ai/javascript-reference/) — GlideSystem, GlideAjax, GlideForm, GlideDateTime
 - [ITSM](../itsm/itsm-guide/) — the tables these queries run against
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **GlideRecord vs GlideAggregate** — aggregate for counts/sums instead of iterating rows; the single biggest server-side performance win.
+- **setLimit / setWorkflow(false) / autoSysFields(false)** — the three modifiers that most often turn a slow bulk job into an acceptable one (and the ones that change behaviour if used carelessly).
+- **Scoped vs global GlideRecord** — cross-scope access requires explicit permission; a script that works in global silently returns nothing in a scope.
+- **GlideRecordSecure** — enforces ACLs on read; plain GlideRecord does not, which is why 'the script sees rows the user cannot'.
+- **Query hygiene** — `addQuery` vs `addEncodedQuery`, dot-walking cost, and index awareness; use the query plan/explain when a job is slow.
+- **Batch patterns** — `chooseWindow`, keyset pagination, and avoiding N+1 loops; plus the 30-second transaction/background-job limits that force the design.
+- **Debugging** — `gs.print`, Script Debugger, and the transaction log; `console.log` does not exist server-side.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

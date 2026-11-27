@@ -198,6 +198,7 @@
   - [Official Videos & Playlists](#official-videos--playlists)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -3259,3 +3260,19 @@ To tune Dependency Views:
 - [IRE deep dive](https://www.youtube.com/results?search_query=servicenow+identification+reconciliation+engine)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **CMDB Workspace** — the single CMDB surface for health, class management, duplicates and dependency views; replaces hopping between separate UI16 modules.
+- **CMDB Health dashboards** — three independent scorecards: *completeness*, *correctness* (orphan/recommended-field/duplicate rules) and *compliance* (audit/attestation). Health scores are per class and per rule, so a green global score can still hide a red class.
+- **CMDB 360** — shows every source's view of the same CI side by side (per-source attributes and relationships), which is how you diagnose a multisource conflict instead of guessing which system won.
+- **Multisource CMDB** — precedence rules per attribute *and* per relationship, plus the datasource reconciliation that decides what survives when Discovery, a Service Graph Connector and an import set disagree.
+- **CMDB Data Manager** — policy-driven archival and retirement of CIs (certification, retention, delete) — the governed alternative to deleting rows by hand.
+- **Service Graph Connectors** — the supported integration path for third-party sources (Intune, SCCM, AWS, Azure, Qualys, Lansweeper); preferred over custom transform maps because they ship IRE preprocessing.
+- **CMDB Query Builder / Unified Map** — ad-hoc multi-hop CI queries and the map view that combines Dependency Views with Service Mapping.
+- **CSDM guidance** — the Common Service Data Model prescribes which classes belong at which domain level; most CMDB Health failures are really CSDM modelling failures.
+- **Ownership & attestation** — CI owner/manager fields plus attestation campaigns; the mechanism that keeps correctness from decaying between discoveries.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

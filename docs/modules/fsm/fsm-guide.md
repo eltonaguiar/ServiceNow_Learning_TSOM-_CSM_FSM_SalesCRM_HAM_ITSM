@@ -54,6 +54,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -662,3 +663,18 @@ Fallback link: [Field Service Management Official Overview](https://www.youtube.
 - [FSM getting-started](./../../getting-started/fsm.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **FSM Workspace / Dispatcher Workspace** — dispatcher view of territories, work orders and task assignment; the scheduling cockpit rather than a list.
+- **FSM dashboards** — work-order ageing, first-time-fix rate, travel time, and schedule adherence; travel time is usually the largest hidden cost.
+- **Now Mobile / offline mode** — field agents work without connectivity and sync later; offline behaviour is the most common source of duplicate task updates.
+- **Territory, crew and skill modelling** — the data model that decides whether scheduling can be automated at all.
+- **Advanced scheduling / optimisation** — constraint-based scheduling (travel, skills, parts) versus manual drag-and-drop dispatch.
+- **Inventory and stockrooms for field parts** — integrates with Hardware Asset Management so a part consumed on a work order decrements the right stockroom.
+- **Calendar and email integrations** — Outlook/Google Calendar sync for agent availability.
+- **Service locations and geocoding** — address validation is a prerequisite for any distance-based scheduling.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

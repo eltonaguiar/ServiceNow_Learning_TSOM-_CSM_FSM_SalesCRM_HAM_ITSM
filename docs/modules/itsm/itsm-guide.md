@@ -74,6 +74,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1312,3 +1313,20 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 - [ITSM getting-started](./../../getting-started/itsm.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Service Operations Workspace (SOW)** — the unified agent workspace for ITSM + ITOM. Replaces the classic UI16 incident view for most agents; surfaces alerts, incidents, and change side-by-side with a shared context panel.
+- **Performance Analytics dashboards** — OOTB *Incident Management*, *Problem Management*, *Change Management* and *Service Desk* dashboards; the useful indicators are MTTR, reassignment count, first-assignment-group resolution, and reopened-rate rather than raw volume.
+- **Advanced Work Assignment (AWA)** — push-based routing by capacity, skills and availability, instead of assignment rules; the inbox is the agent-facing surface inside the workspace.
+- **Predictive Intelligence for ITSM** — similarity/categorisation models that fill Category, Subcategory, Assignment group and Priority on incident creation; train per table, and keep a holdout to prove it beats the static rules.
+- **Major Incident Management workbench** — candidate promotion, incident candidate rules, and the MIM communication plan; separate from the *major_incident_state* field on incident.
+- **Continual Improvement Management (CIM)** — phase/task tracking for improvement initiatives against measured KPIs; the missing feedback loop between PA findings and actual work.
+- **Process Optimization** — mines the event log for rework, bottlenecks and automation candidates on incident/change lifecycles.
+- **DevOps / change acceleration** — DevOps change velocity lets a pipeline create and risk-score a change automatically; the alternative to a human raising a normal change per deploy.
+- **Employee Center + Virtual Agent** — the modern request surface and the deflection layer in front of the service desk; both reduce the ticket volume the dashboards above measure.
+- **Mobile Agent app** — approvals, incident work and notifications on iOS/Android; commonly the only way on-call engineers actually action approvals.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

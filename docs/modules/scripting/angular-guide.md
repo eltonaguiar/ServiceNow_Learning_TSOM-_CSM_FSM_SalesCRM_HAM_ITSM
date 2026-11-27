@@ -30,6 +30,7 @@
 - [Official Learning Resources](#official-learning-resources)
 - [Where This Is Deployed](#where-this-is-deployed)
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1117,3 +1118,16 @@ This guide is live on **GitHub Pages** at:
 It is part of the **ServiceNow Module Guides** site, under the **Scripting** section, as a standalone page titled "Angular — AngularJS for Service Portal + Modern Angular for ServiceNow Integrations." The Angular card was added to the homepage's Available Guides grid, linking to this page.
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **AngularJS in Service Portal** — the widget controller/template model, `$scope`, and `server.get()`/`server.update()`; this is legacy AngularJS (1.x), not Angular 2+.
+- **UI Builder / Next Experience** — the modern replacement for portal widget authoring; new work should start here unless the target is classic Service Portal.
+- **GlideAjax and client-callable script includes** — the supported client→server bridge; response is XML unless you wrap it.
+- **Debugging** — browser DevTools, `angular.element($0).scope()`, and the portal's `$sp.log()`; there is no server-side console for a widget controller.
+- **CSP and library policy** — external libraries must be declared as client script dependencies; inline script is restricted.
+- **Performance** — digest-cycle cost grows with `$watch` count; prefer one-time bindings and server-side data shaping for large lists.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

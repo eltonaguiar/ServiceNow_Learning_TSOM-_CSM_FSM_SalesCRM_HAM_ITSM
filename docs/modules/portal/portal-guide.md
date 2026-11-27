@@ -32,6 +32,7 @@
 - [Related guides](#related-guides)
 - [Official resources](#official-resources)
 
+- [Further learning:](#further-learning)
 ---
 
 ## Why this matters
@@ -282,3 +283,18 @@ ServiceNow ships several OOB portals. Each is built on one of the two stacks —
 - ServiceNow Developer — **Seismic / web components** and **GraphQL API**.
 
 > Verify all environment-specific paths, URLs, and licensing against your own instance and the official docs — this notebook is a learning aid, not product documentation.
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Employee Center (ESC)** — the current-generation portal for employees, replacing classic Service Portal for most new deployments.
+- **UI Builder / Next Experience** — page and variant authoring for workspaces and modern portals.
+- **Portal analytics** — page views, search terms with no results, and deflection; the zero-result search report is the cheapest content roadmap you will ever get.
+- **AI Search** — semantic portal search with results tuning; replaces the legacy Zing search configuration.
+- **Widgets vs custom components** — Service Portal widgets (AngularJS) vs UI Builder components (Next Experience); they are not interchangeable, and mixing them in one page is a common trap.
+- **Themes and branding** — theme records, CSS variables and logo/asset management per portal.
+- **Multi-language and localisation** — translated content and message records; portal strings do not come from the UI16 message table.
+- **Page variants and audiences** — role/condition-based rendering at the same URL (UI Builder); classic Portal uses page route maps and user criteria instead.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

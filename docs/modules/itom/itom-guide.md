@@ -87,6 +87,7 @@
   - [Product Documentation (Technical Reference)](#product-documentation-technical-reference)
   - [Official Videos & Playlists](#official-videos--playlists)
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1665,3 +1666,18 @@ You are done when, on one instance, you can show: **one server discovered** (CI 
 - [Event Management demo](https://www.youtube.com/results?search_query=servicenow+event+management+demo)
 - [Discovery demo](https://www.youtube.com/results?search_query=servicenow+discovery+demo)
 - [Cloud Management demo](https://www.youtube.com/results?search_query=servicenow+cloud+management+demo)
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Service Operations Workspace** — the AIOps/agent surface shared with ITSM: alerts, services, and incidents in one view with a service health panel.
+- **Event Management health dashboards** — alert volume, mean time to acknowledge, alert-to-incident ratio, and *service health* per business service; the ratio is what tells you whether alert noise is being suppressed or merely ignored.
+- **AIOps / Predictive AIOps** — alert clustering, anomaly detection and root-cause candidates; the value is in the reduction of correlated alerts per incident, so measure that, not the model count.
+- **Metric Intelligence** — dynamic thresholds and anomaly-based alerting instead of static ones; needs a baseline period before it is trustworthy.
+- **Alert correlation rules and alert aggregation** — the configuration that decides whether 400 alerts become 1 incident; usually the highest-leverage change in the whole module.
+- **Service Mapping integration** — alerts attach to business services only when the service topology exists; AIOps without Service Mapping degrades to a flat alert list.
+- **Agent Client Collector + MID** — the collection layer; check ECC queue and MID health before blaming correlation.
+- **Operational Intelligence dashboards** — service-level rollups for NOC review, distinct from the platform's own health dashboards.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

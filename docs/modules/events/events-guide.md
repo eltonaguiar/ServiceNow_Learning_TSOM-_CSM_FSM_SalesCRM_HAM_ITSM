@@ -25,6 +25,7 @@
 - [Quiz](#quiz)
 - [Official Resources](#official-resources)
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -247,3 +248,17 @@ graph TD
 - [Email Notification Guide (ServiceNow SDK)](https://servicenow.github.io/sdk/4.12.0/guides/email-notification-guide)
 
 > Verify table names, navigation paths, and release-specific behavior against your own instance and the official ServiceNow docs — this is a working notebook, not product documentation.
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Event registry and event rules** — `sysevent_register`, `em_event`, and the rule chain that turns a raw event into an alert or a notification.
+- **gs.eventQueue / gs.eventQueueScheduled** — the scripted entry points; scheduled variants are what you want for anything that should not block a transaction.
+- **Event-to-alert-to-notification chain** — events are transient, alerts are records, notifications are consumers; conflating them is the most common modelling mistake.
+- **Email notifications vs Notify** — classic notification records versus the Notify product; know which one a given module uses before debugging 'no email'.
+- **Event log retention** — the event log is high-volume; check retention and archiving before querying it in a dashboard.
+- **Fan-out patterns** — one event, many consumers (notification, flow, integration); the queue is the only place to see whether a consumer actually ran.
+- **Debugging** — System Logs plus the event queue; a registered event with no listener looks exactly like an event that never fired.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

@@ -158,6 +158,7 @@ For each item you'll find an ELI5 explanation, the business reason companies use
   - [Quiz](#quiz)
 - [Quick Glossary (All Sections)](#quick-glossary-all-sections)
 
+- [Further learning:](#further-learning)
 ---
 
 - [Purpose](#purpose)
@@ -1779,3 +1780,14 @@ Here's a simple Jelly snippet used inside a **UI Page** to greet the logged-in u
 ---
 
 *Prepared for the ServiceNow Module Guides "Other" section. Verify specifics against each vendor's official documentation and your own environment.*
+
+## Further learning:
+
+Capabilities this guide does not cover in depth.
+
+- **Cross-module integrations** — most 'other' modules exist to feed or consume a core module (CMDB, ITSM, HAM); identify the direction of the data flow before configuring.
+- **Dashboards** — check for a Performance Analytics app for the module before building one; OOTB indicators are usually already modelled.
+- **Workspaces vs classic UI16** — newer modules ship a Configurable Workspace; older ones still land in UI16 lists, and mixing them confuses training.
+- **Plugin visibility** — confirm the plugin is active (*All › System Applications › All Available Applications*) before assuming a feature is missing.
+- **Data model first** — for any peripheral module, the tables it writes into the CMDB/ITSM core matter more than its own screens.
+- **Verify in your instance** — features here are release- and plugin-gated; treat this list as a checklist to confirm, not a guarantee.

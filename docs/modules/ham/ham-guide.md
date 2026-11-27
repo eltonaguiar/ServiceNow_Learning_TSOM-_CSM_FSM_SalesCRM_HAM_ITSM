@@ -76,6 +76,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1092,3 +1093,18 @@ Fallback link: [Hardware Asset Management Official Overview](https://www.youtube
 - [HAM getting-started](./../../getting-started/ham.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Hardware Asset Workspace** — the single surface for asset lifecycle, stockrooms, transfers and audits.
+- **Asset Management dashboards** — lifecycle stage counts, unassigned assets, aged inventory, and audit variance; the variance is the number that matters.
+- **HAM Pro / Asset Lifecycle Management** — contract, warranty and refresh planning tied to the asset record.
+- **Service Graph Connectors (Intune, SCCM, Jamf)** — endpoint inventory flowing into the asset tables without spreadsheet reconciles.
+- **Mobile Agent for asset audits** — barcode/QR scanning during physical inventory counts.
+- **Procurement integration** — purchase orders and receiving creating assets automatically (Procurement/Supplier Management or an ERP integration).
+- **Stockroom and transfer orders** — multi-location inventory with in-transit state; the usual cause of 'the asset exists but nobody knows where'.
+- **Enterprise Asset Management (EAM)** — the OT/maintenance-asset sibling module; do not model plant equipment in HAM.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

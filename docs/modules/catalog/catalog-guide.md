@@ -22,6 +22,7 @@ client scripts, fulfilment flows) were not taught anywhere.
 - [Common mistakes](#common-mistakes)
 - [Interview questions](#interview-questions)
 
+- [Further learning:](#further-learning)
 ---
 
 ## What the catalog is for
@@ -249,3 +250,18 @@ remove demand rather than service it faster.
 - [GlideRecord & Server-Side Data Access](../scripting/gliderecord-guide/) — server-side validation for catalog
 - [Platform Cross-Cutting Skills](../../cross-cutting/) — ACLs, Flow Designer, update sets
 - [HRSD](../hrsd/hrsd-guide/) — employee-centre catalog patterns, the closest analogue to a store portal
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Catalog Builder** — the current authoring tool for catalog items and record producers; replaces the legacy item designer for most work.
+- **Order guides / multi-item requests** — bundled ordering with sequencing; plus *two-step checkout* for approvals before submission.
+- **Flow Designer / Playbooks backing items** — fulfilment logic lives in flows, not in the item form; the item is a request surface, the flow is the process.
+- **Catalog dashboards** — request volume by item, abandonment, time-to-fulfil, and approval cycle time.
+- **Variable sets and UI policies vs client scripts** — reuse variables across items rather than duplicating forms.
+- **Service Portal / Employee Center rendering** — the same item can render very differently per portal; check both surfaces after any change.
+- **Entitlements and user criteria** — who may see and request an item; the most common cause of 'the item exists but nobody can order it'.
+- **Integration with Procurement / HAM** — catalog requests for hardware must create the asset, not just a task.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

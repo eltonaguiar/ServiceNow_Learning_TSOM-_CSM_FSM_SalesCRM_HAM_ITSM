@@ -90,6 +90,7 @@
   - [🚀 The Authoritative Path](#-the-authoritative-path)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1624,3 +1625,18 @@ Fallback link: [ServiceNow Service Mapping](https://www.servicenow.com/products/
    - [ServiceNow Product Documentation](https://docs.servicenow.com/) → Search for "Service Mapping"
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Service Mapping workspace / map view** — the topology surface, including entry points and the traffic-based connection paths.
+- **Entry point types** — URL, port, server, or API entry points; the choice determines what can be mapped.
+- **Patterns and traffic-based discovery** — mapping follows observed connections; if the traffic does not cross the MID, the dependency will not appear.
+- **Service Mapping dashboards** — mapped vs unmapped services, mapping coverage and last-mapped time; coverage is the metric to report.
+- **Unified Map** — combines Service Mapping topology with Dependency Views and CMDB data.
+- **Top-down vs bottom-up** — Service Mapping is top-down from an entry point; Discovery is bottom-up per host. Most 'missing dependency' tickets are a mismatch between the two.
+- **Application service lifecycle** — candidate → mapped → published, and the approval step that decides what agents actually see.
+- **Integration with Event Management/AIOps** — the map is what lets alerts roll up to a business service.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

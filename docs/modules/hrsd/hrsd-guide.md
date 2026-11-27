@@ -63,6 +63,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -532,3 +533,18 @@ Fallback link: [Human Resources Service Delivery Official Overview](https://www.
 - [HRSD getting-started](./../../getting-started/hrsd.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **HR Service Delivery Agent Workspace** — the HR agent surface (cases, tasks, knowledge, employee context) built on Configurable Workspace.
+- **HR Performance Analytics dashboards** — case volume, first-contact resolution, SLA attainment, and journey completion; segment by employee type and location or the averages hide the outliers.
+- **Journey Designer** — multi-step employee journeys (onboarding, leave, offboarding) spanning tasks, content and approvals; the feature most often missing from a case-only guide.
+- **Employee Center / Employee Service Center** — the self-service portal, including targeted content and the HR topic pages; the deflection layer in front of the case queue.
+- **Document templates + Document Intelligence** — generated letters/contracts and extraction from uploaded documents; frequently the difference between a case being auto-triageable or not.
+- **HR integrations** — Workday/SuccessFactors/ADP connectors for employee data; the employee profile sync is what makes assigned-to and manager approvals correct.
+- **Advanced Work Assignment for HRSD** — skills/capacity routing for HR agents, same engine as ITSM but separate queues.
+- **Employee Relations and Lifecycle Events** — the sensitive-case model and the lifecycle-event framework that drives onboarding/offboarding automation.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

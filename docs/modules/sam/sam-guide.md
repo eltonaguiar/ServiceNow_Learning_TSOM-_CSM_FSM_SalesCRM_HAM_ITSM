@@ -92,6 +92,7 @@
 - [AI Swarm Generated Videos (unofficial)](#ai-swarm-generated-videos-unofficial)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -2185,3 +2186,18 @@ These are **opt-in**. They are not part of the canonical SAM learning path or CI
 - **Subtitles (SRT):** available alongside the videos in the repo's `sam-videos/` folder
 
 *Unofficial swarm-generated study aids. Verify all technical claims against current ServiceNow documentation.*
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Software Asset Management Workspace / SAM dashboards** — licence position, compliance by publisher, reclamation candidates and true-up exposure.
+- **Publisher packs** — OOTB entitlement and reconciliation rules per vendor (Microsoft, Adobe, Oracle, SAP, IBM); coverage of your actual publishers decides how much of SAM is automated versus manual.
+- **SaaS License Management** — subscription-based software (M365, Salesforce, Atlassian) tracked by usage rather than installation.
+- **Reclamation** — rules that remove unused installs and revoke licences; the only lever that reduces cost rather than merely reporting it.
+- **Service Graph Connectors** — the supported discovery path for software inventory (SCCM, Intune, BigFix) so reconciliation reads clean data.
+- **Licence compliance dashboards and true-up reports** — the audit-facing output; segment by cost centre or the numbers are unusable for chargeback.
+- **Software Asset Management integrations** — SAP/Oracle ERP for purchase history; entitlements without purchase records cannot reconcile.
+- **SAM Pro vs SAM Foundation** — the Pro plugin adds optimisation and reconciliation workflows; the guide should state which one it documents.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

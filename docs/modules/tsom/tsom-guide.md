@@ -86,6 +86,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1305,3 +1306,18 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 - [TSOM Assurance](./tsom-assurance.md) — Event Management, Metric Intelligence, Health Log Analytics, Service Impact Analysis, Service Observability, Synthetic Monitoring, AIOps LEAP, Now Assist
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **TSOM workspaces** — telecom service operations surfaces built on Service Operations Workspace with telecom-specific service models.
+- **Telecom service and resource models** — the CSDM telecom extension: services, resources, and the inventory that maps them.
+- **Service assurance dashboards** — service health for telecom services, alarm-to-service correlation and SLA attainment.
+- **Order management integration** — TSOM sits downstream of order capture (OSS/BSS); the integration contract is the hard part, not the platform modelling.
+- **Alarm/event ingestion at telecom scale** — event rules and correlation tuned for very high alert volumes; the generic Event Management defaults will not hold.
+- **Inventory reconciliation** — telecom resource inventory drifts constantly; discovery/reconciliation cadence matters more here than in IT.
+- **Network and service topology** — Service Mapping plus telecom resource relationships; impact analysis is only as good as the topology.
+- **TSOM vs ITOM boundary** — decide early which module owns which service; duplicating service records across both is the classic failure.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

@@ -54,6 +54,7 @@
 - [Related Guides](#related-guides)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -507,3 +508,18 @@ Fallback link: [App Engine Studio Official Overview](https://www.youtube.com/wat
 - [FSM guide](./fsm-guide.md)
 
 ---
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **App Engine Studio (AES)** — low-code authoring for scoped apps: data, logic, UI, and roles in one place.
+- **App Engine Management Center (AEMC)** — governance for citizen development: who can build, what gets promoted, and pipeline visibility.
+- **Source control + pipelines** — link an app to Git and use App Engine Pipelines for dev→test→prod promotion; without this, custom apps become unmergeable snowflakes.
+- **Delegated development** — scoped roles let non-admins build safely; the guardrail that makes AES governance real.
+- **UI Builder / Next Experience** — the workspace authoring surface for custom app pages.
+- **Flow Designer and Integration Hub** — the automation layer custom apps use instead of business-rule spaghetti.
+- **Application scope and cross-scope access** — plan scope boundaries before building; retro-fitting scope is the most expensive custom-app mistake.
+- **App customisation vs configuration** — record which parts are OOTB-modified, or upgrades will silently revert behaviour.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

@@ -110,6 +110,7 @@
 - [JavaScript Reference — Glide APIs & Scripting Patterns](#javascript-reference--glide-apis--scripting-patterns)
 
 
+- [Further learning:](#further-learning)
 ---
 
 ## Purpose
@@ -1406,3 +1407,18 @@ The full JavaScript/Glide API reference has been moved to its own page:
 This page covers GlideRecord, GlideSystem, GlideAjax, GlideForm, Business Rules, Script Includes, UI Policies, UI Actions, Scheduled Jobs, and all Glide utility APIs — the core scripting surface area tested in ServiceNow CSA/CAD interviews.
 
 *Part of the ServiceNow Module Guides. Verify specifics against your instance's entitlements, release, and official ServiceNow documentation.*
+
+## Further learning:
+
+Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
+
+- **Now Assist (generative AI)** — case/incident summarisation, resolution notes, and chat replies; measure acceptance rate and edit distance, not generations produced.
+- **AI Agent Studio / agentic workflows** — tool-using agents that execute steps (lookup, update, escalate) rather than only generating text; needs explicit guardrails and audit.
+- **Predictive Intelligence** — classification/regression/similarity models on platform tables; the classic use is incident categorisation and assignment.
+- **Document Intelligence** — extraction from invoices, contracts and IDs into structured fields.
+- **NLU / NLQ / AI Search** — intent and entity models, natural-language query over the CMDB, and semantic search in portals; the search layer most portals actually need.
+- **Virtual Agent** — conversational deflection with topic blocks and LLM-assisted topics.
+- **AI Control Tower / model governance** — inventory, risk classification and lifecycle of AI assets; increasingly a compliance requirement, not a nicety.
+- **Evaluation discipline** — every AI feature above needs a holdout and a kill rule; a model that is not measured is a cost centre with a dashboard.
+
+- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
