@@ -53,7 +53,7 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 
 body {
   margin: 0;
@@ -209,8 +209,9 @@ body {
   font-family: "Fraunces", Georgia, serif; font-weight: 420; letter-spacing: -0.01em;
   font-size: 1.55rem; line-height: 1.25; margin: 52px 0 12px; padding-top: 26px;
   border-top: 1px solid var(--line-soft);
+  scroll-margin-top: 100px;
 }
-.content h3 { font-size: 1.06rem; font-weight: 600; margin: 30px 0 8px; letter-spacing: -0.005em; }
+.content h3 { font-size: 1.06rem; font-weight: 600; margin: 30px 0 8px; letter-spacing: -0.005em; scroll-margin-top: 100px; }
 .content p { margin: 10px 0; }
 .content a { color: var(--accent); text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); text-underline-offset: 3px; }
 .content a:hover { text-decoration-color: var(--accent); }
