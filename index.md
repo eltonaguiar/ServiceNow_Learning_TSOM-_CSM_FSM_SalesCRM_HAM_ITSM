@@ -113,7 +113,7 @@ Welcome to the ServiceNow Module Guides repository. This repo contains beginner-
   <div class="card">
     <h3>TSOM</h3>
     <p>Telecom Service Operations Management — services, network inventory, alarms, assurance (Event Management, AIOps, Service Impact Analysis, Synthetic Monitoring), and the implementer labs that actually exist for it.</p>
-    <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities.md">TSOM capabilities</a></p>
+    <p class="meta"><a href="./docs/modules/tsom/tsom-guide/">Open the TSOM guide</a> · <a href="./docs/modules/tsom/tsom-capabilities/">TSOM capabilities</a></p>
   </div>
 </div>
 
@@ -187,9 +187,9 @@ Every module guide follows the same repeatable process:
 
 ## Additional Resources
 
-- **[Other - Platform Cross-Cutting Skills](docs/cross-cutting.md)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
-- **[Other - Interview Prep Guide](docs/interviews/prioritized-prep-list.md)** — Prioritized by interview order
-- **[Other - Learning Paths](docs/learning.md)** — Official courses & certifications
-- **[Other - Video Library](docs/youtube.md)** — Official channels & playlists
+- **[Other - Platform Cross-Cutting Skills](docs/cross-cutting/)** — Integrations, Scripting, Jelly, Update Sets vs Source Control, App Engine & scoped apps, CMDB de-dup & health, Major Incident Management, CAB & change types, JDBC/ODBC via MID Server, Platform Governance & Lead Layer
+- **[Other - Interview Prep Guide](docs/interviews/prioritized-prep-list/)** — Prioritized by interview order
+- **[Other - Learning Paths](docs/learning/)** — Official courses & certifications
+- **[Other - Video Library](docs/youtube/)** — Official channels & playlists
 
 ServiceNow Module Guides — a working notebook, not product documentation. Verify behaviour against your own instance and the official ServiceNow docs.
