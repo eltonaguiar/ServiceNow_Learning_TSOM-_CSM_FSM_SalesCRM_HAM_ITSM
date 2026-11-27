@@ -650,13 +650,13 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS["NMS / EMS / OSS Nokia · Ericsson · Cisco · ..."]
-    Event["em_event raw observation - something happened"]
-    Rules["Event Rules filter, map severity, assign CI"]
-    Alert["em_alert scored, de-duplicated, attached to a CI"]
-    Corr["Alert Correlation 400 port-down -> 1 circuit-down"]
-    Incident["incident one ticket the NOC works"]
-    Clear["Clear device reports recovery -> alert closes"]
+    NMS[NMS / EMS / OSS Nokia · Ericsson · Cisco · ...]
+    Event[em_event raw observation - something happened]
+    Rules[Event Rules filter, map severity, assign CI]
+    Alert[em_alert scored, de-duplicated, attached to a CI]
+    Corr[Alert Correlation 400 port-down to 1 circuit-down]
+    Incident[incident one ticket the NOC works]
+    Clear[Clear device reports recovery to alert closes]
 
     NMS -->|trap / syslog / API| Event
     Event --> Rules
@@ -678,11 +678,11 @@ flowchart TD
 
 ```mermaid
 graph TD
-    svc["Customer Service Voice / Data / VPN cmdb_ci_service"]
-    circuit["Circuit fibre / MPLS / leased line"]
-    ne["Network Element router / switch / OLT (Optical Line Terminal)"]
-    card["Card / Slot"]
-    port["Port / Interface"]
+    svc[Customer Service Voice / Data / VPN cmdb_ci_service]
+    circuit[Circuit fibre / MPLS / leased line]
+    ne[Network Element router / switch / OLT (Optical Line Terminal)]
+    card[Card / Slot]
+    port[Port / Interface]
 
     svc -->|runs over| circuit
     circuit -->|terminates at| ne
@@ -699,11 +699,11 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Port["Router port fails"]
-    Circuit["Circuit down"]
-    Service["Customer service degraded - fiber broadband"]
-    Subscribers["40 subscribers affected"]
-    Incident["One incident raised - not 40"]
+    Port[Router port fails]
+    Circuit[Circuit down]
+    Service[Customer service degraded - fiber broadband]
+    Subscribers[40 subscribers affected]
+    Incident[One incident raised - not 40]
 
     Port --> Circuit
     Circuit --> Service
@@ -1082,12 +1082,12 @@ flowchart TD
 
     subgraph "AIOps — Detection"
         MI[Metric Intelligence — anomaly vs learned baseline]
-        HLA[Health Log Analytics — log anomaly → event]
+        HLA[Health Log Analytics — log anomaly to event]
         SM[Synthetic Monitoring — HTTP endpoint tests]
     end
 
     subgraph "Grouping & Impact"
-        GRP[Alert Grouping — 5 types → parent alert]
+        GRP[Alert Grouping — 5 types to parent alert]
         SIA[Service Impact Analysis — walk CMDB service model]
     end
 
@@ -1329,13 +1329,13 @@ flowchart TD
     B -->|Real-time metric stream / threshold| C[Metric Intelligence]
     B -->|Log lines / log patterns| D[Health Log Analytics]
     B -->|HTTP endpoint availability| E[Synthetic Monitoring]
-    B -->|External alarm / event feed| F[Event Management → TMF 642/688]
+    B -->|External alarm / event feed| F[Event Management to TMF 642/688]
     B -->|Historical incident patterns| G[AIOps LEAP]
-    C --> H[→ em_alert → grouping → impact analysis]
+    C --> H[to em_alert grouping impact analysis]
     D --> H
     E --> H
     F --> H
-    G --> I[→ automation opportunities / playbooks]
+    G --> I[to automation opportunities / playbooks]
     style C fill:#4cc38a,color:#000
     style D fill:#4cc38a,color:#000
     style E fill:#4cc38a,color:#000

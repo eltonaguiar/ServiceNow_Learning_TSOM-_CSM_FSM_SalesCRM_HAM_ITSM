@@ -120,7 +120,7 @@ flowchart TD
     B -->|Yes| C{External system fast and reliable?}
     B -->|No| D[Use Asynchronous Pattern]
     
-    C -->|Yes| E["Synchronous REST RESTMessageV2.execute()"]
+    C -->|Yes| E[Synchronous REST RESTMessageV2.execute()]
     C -->|No| D
     
     D --> F{Data source on-prem behind firewall?}
@@ -128,10 +128,10 @@ flowchart TD
     F -->|Yes| G[MID Server + ECC Queue Asynchronous]
     F -->|No| H{Bulk data load?}
     
-    H -->|Yes| I[Import Sets Staging → Transform Map → Target]
+    H -->|Yes| I[Import Sets Staging to Transform Map to Target]
     H -->|No| J{Cloud-to-cloud SaaS integration?}
     
-    J -->|Yes| K["REST Message executeAsync() or Integration Hub Flow"]
+    J -->|Yes| K[REST Message executeAsync() or Integration Hub Flow]
     J -->|No| L[Scripted REST API or Integration Hub]
     
     E --> M[Set appropriate timeout Handle errors gracefully]

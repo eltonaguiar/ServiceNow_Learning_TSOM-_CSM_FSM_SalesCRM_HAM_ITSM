@@ -2706,16 +2706,16 @@ Debugging technique depends entirely on *where* the code runs. A client script r
 ```mermaid
 flowchart TD
     A[Something isn't working] --> B{Where does the code run?}
-    B -->|"Browser (form, list, portal)"| C[Client-side debugging]
-    B -->|"Server (business rule, script include, transform)"| D[Server-side debugging]
+    B -->|Browser (form, list, portal)| C[Client-side debugging]
+    B -->|Server (business rule, script include, transform)| D[Server-side debugging]
     B -->|UI Builder / Workspace page| E[Next Experience debugging]
     B -->|Service Portal widget| F[AngularJS widget debugging]
 
     C --> C1[Browser DevTools F12 Console.log, debugger statement, Sources tab]
     C --> C2[Field Watcher Settings > Developer > Field Watcher]
-    C --> C3[GlideAjax calls Network tab → xmlhttp.do requests]
+    C --> C3[GlideAjax calls Network tab to xmlhttp.do requests]
 
-    D --> D1["System Log (sys_log) gs.print(), gs.error(), gs.info()"]
+    D --> D1[System Log (sys_log) gs.print(), gs.error(), gs.info()]
     D --> D2[Script Debugger breakpoints, step-through, variable inspection]
     D --> D3[Debug Business Rule System Diagnostics > Session Debug]
     D --> D4[ECC Queue MID Server probe/sensor results]
@@ -2725,8 +2725,8 @@ flowchart TD
     E --> E3[glide.debugger.log.ui enable Session Log tab]
 
     F --> F1[CTRL+right-click widget scope data to console]
-    F --> F2["$sp.log() Log [syslog] table entries"]
-    F --> F3["angular.element($0).scope() widget scope inspection"]
+    F --> F2[$sp.log() Log [syslog] table entries]
+    F --> F3[angular.element($0).scope() widget scope inspection]
     F --> F4[Browser Network tab widget server calls, slow HTTP]
 
     style C fill:#4cc38a,color:#000
@@ -2862,21 +2862,21 @@ The customized version of a page for different users at the same URL is called a
 
 ```mermaid
 flowchart TD
-    subgraph Experience ["UI Builder Experience (Workspace / Portal)"]
+    subgraph Experience [UI Builder Experience (Workspace / Portal)]
         P[Page] --> P1[Component]
         P --> P2[Component]
         P --> P3[Data Resource]
         
-        subgraph Variant ["Page Variant (same URL, different audience)"]
+        subgraph Variant [Page Variant (same URL, different audience)]
             V[Variant Page] --> V1[Component]
             V --> V2[Component]
         end
         
-        subgraph CustomComponent ["Custom Component (reusable)"]
+        subgraph CustomComponent [Custom Component (reusable)]
             CC[Component Builder] --> CC1[Used on multiple pages]
         end
         
-        subgraph Collection ["Page Collection (reusable layout)"]
+        subgraph Collection [Page Collection (reusable layout)]
             PC[Page template] --> PC1[Applied across pages]
         end
         
@@ -3038,7 +3038,7 @@ When you open a Dependency Views map centered on a root CI, relationships flow i
 
 ```mermaid
 flowchart TB
-    subgraph Downstream["Downstream Dependencies (impacted if root fails)"]
+    subgraph Downstream[Downstream Dependencies (impacted if root fails)]
         ATM1[ATM Kiosk #101]
         ATM2[ATM Kiosk #102]
         MOBILE[Mobile Banking App]
@@ -3048,7 +3048,7 @@ flowchart TB
 
     ROOT[ATM Server cmdb_ci_server]:::root
 
-    subgraph Upstream["Upstream Dependencies (what root needs)"]
+    subgraph Upstream[Upstream Dependencies (what root needs)]
         NET[Network Switch]
         DB[Database Server]
         PWR[Power Supply / UPS]
@@ -3162,7 +3162,7 @@ flowchart TB
         PWR[UPS / Power Feed]
     end
 
-    subgraph EdgeDevices ["Edge Devices (Downstream)"]
+    subgraph EdgeDevices[Edge Devices (Downstream)]
         ATM1[ATM Kiosk #101]
         ATM2[ATM Kiosk #102]
         ATM3[ATM Kiosk #103]

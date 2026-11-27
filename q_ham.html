@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-nav="side">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>HAM — Hardware Asset Management · ServiceNow Module Guides</title>
+<meta name="description" content="Getting started guides for ServiceNow TSOM, CSM, FSM, Sales CRM, HAM, ITSM, and Discovery modules">
+<script>
+  // Apply saved preferences before first paint (no flash).
+  (function () {
+    try {
+      var t = localStorage.getItem('sg-theme'); if (t) document.documentElement.dataset.theme = t;
+      var n = localStorage.getItem('sg-nav'); if (n) document.documentElement.dataset.nav = n;
+      var tp = localStorage.getItem('sg-tocpanel'); if (tp) document.documentElement.dataset.tocpanel = tp;
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,420&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/css/style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="bg-glow bg-glow-a"></div><div class="bg-glow bg-glow-b"></div><div class="bg-grid"></div></div>
+
+<header class="topbar">
+  <button class="icon-btn nav-burger" id="navBurger" aria-label="Open navigation">☰</button>
+  <a class="wordmark" href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/">ServiceNow<span class="wordmark-thin"> / Module Guides</span></a>
+  <div class="topbar-controls">
+    <div class="seg" role="group" aria-label="Menu position">
+      <button type="button" id="navTopBtn" title="Menu on top">Top</button>
+      <button type="button" id="navSideBtn" title="Menu on the left">Side</button>
+    </div>
+    <div class="seg" role="group" aria-label="Colour theme">
+      <button type="button" id="themeDarkBtn" title="Dark mode">Dark</button>
+      <button type="button" id="themeLightBtn" title="Light mode">Light</button>
+    </div>
+  </div>
+</header>
+
+<nav class="topnav" aria-label="Guides">
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itsm/itsm-guide/">ITSM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/csm/csm-guide/">CSM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sales-crm/sales-crm-guide/">Sales CRM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/cmdb/cmdb-guide/">CMDB</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itom/itom-guide/">ITOM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/discovery/discovery-guide/">Discovery</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/servicemapping/servicemapping-guide/">Service Mapping</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/events/events-guide/">Events</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ham/ham-guide/">HAM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sam/sam-guide/">SAM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/hrsd/hrsd-guide/">HRSD</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/ai-guide/">AI</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/catalog/catalog-guide/">Service Catalog</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/portal/portal-guide/">Portals</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/scripting/angular-guide/">Angular</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/javascript-reference/">JavaScript Reference</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/youtube/">Video Library</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/learning/">Learning Paths</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/interviews/prioritized-prep-list/">Interview Prep</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/cross-cutting/">Cross-Cutting Skills</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-guide/">TSOM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-assurance/">TSOM Assurance</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/">Getting Started</a>
+</nav>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="side-group collapsible" id="group-guides">
+      <p class="side-label" onclick="toggleGroup('group-guides')">Guides ▸</p>
+      <div class="side-links" id="links-group-guides">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itsm/itsm-guide/">ITSM <span class="side-sub">IT Service Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/csm/csm-guide/">CSM <span class="side-sub">Customer Service Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sales-crm/sales-crm-guide/">Sales CRM <span class="side-sub">Leads, Opportunities, Quotes, Orders, Pipeline</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/cmdb/cmdb-guide/">CMDB <span class="side-sub">Configuration Management Database</span></a>
+        <div class="side-subgroup">
+          <p class="side-label sub-label" onclick="toggleGroup('group-itom')">ITOM ▸</p>
+          <div class="side-links sub-links" id="links-group-itom">
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itom/itom-guide/">ITOM <span class="side-sub">IT Operations Management</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/discovery/discovery-guide/">Discovery <span class="side-sub">ITOM Discovery</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/servicemapping/servicemapping-guide/">Service Mapping <span class="side-sub">Application Service Discovery</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/events/events-guide/">Events <span class="side-sub">em_event, Event Registry, gs.eventQueue, email notifications</span></a>
+          </div>
+        </div>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ham/ham-guide/">HAM <span class="side-sub">Hardware Asset Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sam/sam-guide/">SAM <span class="side-sub">Software Asset Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/hrsd/hrsd-guide/">HRSD <span class="side-sub">Human Resources Service Delivery</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/ai-guide/">AI <span class="side-sub">AI-Native Tiers, Now Assist, Predictive Intelligence</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/catalog/catalog-guide/">Service Catalog <span class="side-sub">Catalog Items, Variables, Flows, Fulfillment</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/portal/portal-guide/">Portals &amp; UI Builder <span class="side-sub">Service Portal, Next Experience, Employee Center</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/scripting/angular-guide/">Angular <span class="side-sub">AngularJS for Service Portal + Modern Angular</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/javascript-reference/">JavaScript Reference <span class="side-sub">GlideRecord, GlideAjax, Business Rules, Scripting Patterns</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-other">
+      <p class="side-label" onclick="toggleGroup('group-other')">Other ▸</p>
+      <div class="side-links" id="links-group-other">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/youtube/">Video Library <span class="side-sub">Official Channels &amp; Playlists</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/learning/">Learning Paths <span class="side-sub">Official Courses &amp; Certifications</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/interviews/prioritized-prep-list/">Interview Prep <span class="side-sub">Prioritized by Interview Order</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/cross-cutting/">Cross-Cutting Skills <span class="side-sub">Integrations, Scripting, Governance</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-tsom">
+      <p class="side-label" onclick="toggleGroup('group-tsom')">TSOM ▸</p>
+      <div class="side-links" id="links-group-tsom">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-guide/">TSOM <span class="side-sub">Telecom Service Operations Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-assurance/">TSOM Assurance <span class="side-sub">Event Management, AIOps, Service Impact Analysis, Synthetic Monitoring</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-getting-started">
+      <p class="side-label" onclick="toggleGroup('group-getting-started')">Getting Started ▸</p>
+      <div class="side-links" id="links-group-getting-started">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/">Track overview</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/foundation/">Foundation</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/tsom/">TSOM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/tsom-diagrams/">TSOM diagrams</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/csm/">CSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/fsm/">FSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/sales-crm/">Sales CRM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/ham/">HAM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/itsm/">ITSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/discovery/">Discovery start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/hrsd/">HRSD start</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <p class="side-label">Repository</p>
+      <a href="https://github.com/eltonaguiar/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM">GitHub source</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="content" id="content">
+<h1 id="ham--hardware-asset-management">HAM — Hardware Asset Management</h1>
+
+<p><strong>Agent:</strong> opencode<br />
+<strong>Date:</strong> 2026-11-05<br />
+<strong>Module:</strong> HAM (Hardware Asset Management)<br />
+<strong>App:</strong> ITAM<br />
+<strong>Confidence:</strong> high</p>
+
+<hr />
+
+<h2 id="contents">Contents</h2>
+
+<ul>
+  <li><a href="#purpose">Purpose</a></li>
+  <li><a href="#where-to-find-it">Where to Find It</a></li>
+  <li><a href="#official-exam-alignment--cis-hardware-asset-management">Official Exam Alignment — CIS-Hardware Asset Management</a></li>
+  <li><a href="#ham-asset-lifecycle-diagram">HAM Asset Lifecycle Diagram</a></li>
+  <li><a href="#asset-vs-ci-diagram">Asset vs CI Diagram</a></li>
+  <li><a href="#out-of-box-values--dropdowns">Out-of-Box Values &amp; Dropdowns</a>
+    <ul>
+      <li><a href="#asset-state--substate-install_status--install_substatus">Asset State &amp; Substate (install_status / install_substatus)</a></li>
+      <li><a href="#hardware-model-lifecycle-phase">Hardware Model Lifecycle Phase</a></li>
+    </ul>
+  </li>
+  <li><a href="#re-usable-code--metadata">Re-usable Code / Metadata</a>
+    <ul>
+      <li><a href="#application-scope">Application Scope</a></li>
+      <li><a href="#meta-data-patterns">Meta Data Patterns</a></li>
+      <li><a href="#the-re-usable-metadata-inventory">The re-usable metadata inventory</a></li>
+      <li><a href="#re-usable-code-snippets">Re-usable Code Snippets</a></li>
+    </ul>
+  </li>
+  <li><a href="#out-of-box-features">Out-of-Box Features</a></li>
+  <li><a href="#key-table-hierarchy">Key Table Hierarchy</a>
+    <ul>
+      <li><a href="#core-tables">Core Tables</a></li>
+      <li><a href="#table-relationships">Table Relationships</a></li>
+      <li><a href="#cmdb-integration">CMDB Integration</a></li>
+    </ul>
+  </li>
+  <li><a href="#integrations">Integrations</a></li>
+  <li><a href="#key-fields">Key Fields</a></li>
+  <li><a href="#goals-benefits--key-metrics">Goals, Benefits &amp; Key Metrics</a></li>
+  <li><a href="#core-concept-diagrams">Core Concept Diagrams</a>
+    <ul>
+      <li><a href="#asset-lifecycle-journey">Asset Lifecycle Journey</a></li>
+      <li><a href="#asset-to-ci-normalization-link">Asset to CI Normalization Link</a></li>
+      <li><a href="#asset-relationship-map">Asset Relationship Map</a></li>
+      <li><a href="#ham-vs-itam-vs-cmdb-comparison">📊 HAM vs ITAM vs CMDB Comparison</a></li>
+      <li><a href="#asset-lifecycle-with-discovery-integration">📊 Asset Lifecycle with Discovery Integration</a></li>
+      <li><a href="#asset-state-machine">📊 Asset State Machine</a></li>
+    </ul>
+  </li>
+  <li><a href="#common-mistakes">Common Mistakes</a></li>
+  <li><a href="#troubleshooting-ham-records">Troubleshooting HAM Records</a>
+    <ul>
+      <li><a href="#when-the-state-or-model-you-need-isnt-available">When the state or model you need isn’t available</a></li>
+    </ul>
+  </li>
+  <li><a href="#deep-dive-file-based-discovery-and-the-discovery-configuration-console">Deep Dive: File-Based Discovery and the Discovery Configuration Console</a>
+    <ul>
+      <li><a href="#breadcrumbs--getting-there-and-everything-related">Breadcrumbs — Getting There and Everything Related</a></li>
+      <li><a href="#configuring-it-in-the-console">Configuring It in the Console</a></li>
+      <li><a href="#how-the-filtering-actually-works-a-common-misconception">How the Filtering Actually Works (a common misconception)</a></li>
+    </ul>
+  </li>
+  <li><a href="#deep-dive-file-signature-normalization-sam">Deep Dive: File Signature Normalization (SAM)</a>
+    <ul>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#tables-it-introduces">Tables It Introduces</a></li>
+      <li><a href="#worked-example-supermanexe--dc-comics-software">Worked Example: <code class="language-plaintext highlighter-rouge">superman.exe</code> → DC Comics Software</a></li>
+    </ul>
+  </li>
+  <li><a href="#lab-create-your-first-asset">Lab: Create Your First Asset</a></li>
+  <li><a href="#lab-break-three-records-diagnose-the-symptom">Lab: Break Three Records, Diagnose the Symptom</a></li>
+  <li><a href="#-visual--video-guides">📺 Visual &amp; Video Guides</a>
+    <ul>
+      <li><a href="#ham-overview">HAM Overview</a></li>
+    </ul>
+  </li>
+  <li><a href="#slas-dashboards--workspaces">SLAs, Dashboards &amp; Workspaces</a>
+    <ul>
+      <li><a href="#sla-support">SLA Support</a></li>
+      <li><a href="#ootb-dashboards">OOTB Dashboards</a></li>
+      <li><a href="#ootb-workspaces">OOTB Workspaces</a></li>
+    </ul>
+  </li>
+  <li><a href="#quiz">Quiz</a></li>
+  <li><a href="#official-learning-resources">🎓 Official Learning Resources</a>
+    <ul>
+      <li><a href="#verified-videos-playlists">📺 Verified Videos &amp; Playlists</a></li>
+      <li><a href="#quick-start-guide">🚀 Quick Start Guide</a></li>
+      <li><a href="#the-authoritative-path">🚀 The Authoritative Path</a></li>
+    </ul>
+  </li>
+  <li><a href="#memory-aids-mnemonics">💡 Memory Aids &amp; Mnemonics</a>
+    <ul>
+      <li><a href="#business-rule-types--baa">Business Rule Types — BAA</a></li>
+      <li><a href="#client-script-types--locs">Client Script Types — LOCS</a></li>
+      <li><a href="#ui-policy-vs-data-policy-vs-client-script">UI Policy vs Data Policy vs Client Script</a></li>
+      <li><a href="#ire--identification-before-reconciliation">IRE — Identification Before Reconciliation</a></li>
+      <li><a href="#update-set-conflicts--arm">Update Set Conflicts — ARM</a></li>
+      <li><a href="#cmdb--retire-before-delete">CMDB — Retire Before Delete</a></li>
+      <li><a href="#order-vs-priority--lower--first">Order vs Priority — Lower = First</a></li>
+      <li><a href="#transform-script--coalesce--match">Transform Script — Coalesce = Match</a></li>
+      <li><a href="#debugging--log-first-then-debug">Debugging — Log First, Then Debug</a></li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="#related-guides">Related Guides</a></p>
+  </li>
+  <li>
+    <h2 id="further-learning"><a href="#further-learning">Further learning:</a></h2>
+  </li>
+</ul>
+
+<h2 id="purpose">Purpose</h2>
+
+<p>Hardware Asset Management (HAM) is the hardware-focused subset of ServiceNow IT Asset Management (ITAM). HAM tracks physical IT assets—laptops, servers, monitors, phones, printers, and other hardware—from procurement through disposal. HAM answers: <em>What do we own, where is it, who has it, when was it bought, when does it expire, and what does it cost?</em> HAM is distinct from SAM (Software Asset Management) though they share the ITAM application.</p>
+
+<hr />
+
+<h2 id="where-to-find-it">Where to Find It</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Breadcrumb</th>
+      <th>Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Module entry</td>
+      <td>All &gt; Asset Management &gt; …</td>
+    </tr>
+    <tr>
+      <td>Assets</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; All</td>
+    </tr>
+    <tr>
+      <td>Hardware</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; Hardware</td>
+    </tr>
+    <tr>
+      <td>Software</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; Software</td>
+    </tr>
+    <tr>
+      <td>Asset Models</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; Asset Models</td>
+    </tr>
+    <tr>
+      <td>Vendors</td>
+      <td>All &gt; Asset Management &gt; Vendors &gt; All</td>
+    </tr>
+    <tr>
+      <td>Locations</td>
+      <td>All &gt; Asset Management &gt; Locations</td>
+    </tr>
+    <tr>
+      <td>Asset Categories</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; Categories</td>
+    </tr>
+    <tr>
+      <td>Asset States</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; States</td>
+    </tr>
+    <tr>
+      <td>Asset Lifecycle</td>
+      <td>All &gt; Asset Management &gt; Asset Lifecycle</td>
+    </tr>
+    <tr>
+      <td>Contracts</td>
+      <td>All &gt; Asset Management &gt; Contracts &gt; All</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Tip:</strong> If menus are missing, verify the <code class="language-plaintext highlighter-rouge">com.snc.iam</code> (IT Asset Management) plugin is active (System Definition → Plugins).</p>
+
+<hr />
+
+<h2 id="official-exam-alignment--cis-hardware-asset-management">Official Exam Alignment — CIS-Hardware Asset Management</h2>
+
+<p>This guide maps to the <strong>Certified Implementation Specialist – Hardware Asset Management (CIS-HAM)</strong> exam blueprint (ServiceNow University, KB0011563). Exam weightings shown are the official domain percentages.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Guide Section</th>
+      <th>CIS-HAM Domain</th>
+      <th>Exam Weight</th>
+      <th>What’s Covered</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Asset Lifecycle</strong></td>
+      <td>Domain 1: IT Asset Management Overview &amp; Fundamentals — Hardware Asset Lifecycle</td>
+      <td>20%</td>
+      <td>Asset lifecycle stages, asset models, HAM implementation best practices</td>
+    </tr>
+    <tr>
+      <td><strong>Asset vs CI / Data Integrity</strong></td>
+      <td>Domain 2: Data Integrity – Attributes and Data Sources — Assets vs CIs, Hardware Discovery and Normalization</td>
+      <td>27%</td>
+      <td>Assets vs CIs, hardware model normalization, Discovery, NDS, CI classes</td>
+    </tr>
+    <tr>
+      <td><strong>Practical Management</strong></td>
+      <td>Domain 3: Practical Management of IT Assets — Consumables, Inventory, Audits, Retirement</td>
+      <td>30%</td>
+      <td>Asset states, workflows, audits, contracts, change management</td>
+    </tr>
+    <tr>
+      <td><strong>Operational Integration</strong></td>
+      <td>Domain 4: Operational Integration — Reports/Dashboards, Requests and Procurement, Extending AM</td>
+      <td>18%</td>
+      <td>Dashboards, procurement, asset/CI extension, data certification</td>
+    </tr>
+    <tr>
+      <td><strong>Financial Management</strong></td>
+      <td>Domain 5: Financial Management of IT Assets — Hardware Contract Financials, IT Cost Management</td>
+      <td>5%</td>
+      <td>Contract rate cards, depreciation, TCO</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Official preparation courses:</strong></p>
+<ul>
+  <li>Welcome to ServiceNow</li>
+  <li>ServiceNow Administration Fundamentals</li>
+  <li>Get Started with Now Create</li>
+  <li>ServiceNow Platform Implementation</li>
+  <li>Hardware Asset Management (HAM) Fundamentals (or HAM Fundamentals - On Demand)</li>
+</ul>
+
+<p><strong>Additional recommended resources:</strong></p>
+<ul>
+  <li>Hardware Asset Simulator</li>
+  <li>Additional Recommended Courses for Hardware Asset Management (HAM) Implementers</li>
+</ul>
+
+<p><strong>Exam guidance:</strong> Questions are based on official ServiceNow training materials, the ServiceNow Product documentation site, and the ServiceNow developer site.</p>
+
+<hr />
+
+<h2 id="ham-asset-lifecycle-diagram">HAM Asset Lifecycle Diagram</h2>
+
+<pre><code class="language-mermaid">stateDiagram-v2
+    state "In Use" as InUse
+    state "In Maintenance" as InMaintenance
+    state "Lost / Stolen" as LostStolen
+
+    [*] --&gt; Procurement : Asset ordered
+    Procurement --&gt; Received : Asset received in warehouse
+    Received --&gt; InUse : Asset assigned to employee
+    InUse --&gt; InMaintenance : Repair needed
+    InMaintenance --&gt; InUse : Repair complete
+    InUse --&gt; Retired : End of life / replacement
+    InUse --&gt; LostStolen : Asset missing
+    LostStolen --&gt; [*]
+    Retired --&gt; [*]
+    InMaintenance --&gt; Retired : Beyond economical repair
+
+</code></pre>
+
+<p><strong>Exam focus:</strong> Hardware asset lifecycle, stages, components, asset states, retirement workflows (20% + 30% of CIS-HAM exam).</p>
+
+<hr />
+
+<h2 id="asset-vs-ci-diagram">Asset vs CI Diagram</h2>
+
+<pre><code class="language-mermaid">graph TD
+    subgraph "Hardware Asset (alm_asset)"
+        asset[Asset Record]
+        asset --&gt;|tracks| financial[Financial Data Cost, PO, Contract, Depreciation]
+        asset --&gt;|tracks| assignment[Assignment User, Location, Department]
+    end
+    
+    subgraph "Configuration Item (cmdb_ci)"
+        ci[CI Record]
+        ci --&gt;|tracks| technical[Technical Data OS, IP, Serial, CPU, RAM]
+        ci --&gt;|tracks| relationships[Relationships Runs on, Depends on, Connected to]
+    end
+    
+    subgraph "The Link"
+        asset --&gt;|normalized to| ci
+        ci --&gt;|sourced from| asset
+    end
+
+    style asset fill:#e5b567,color:#000
+    style ci fill:#0a0d10,stroke:#e5b567
+    style financial fill:#10141a
+    style technical fill:#10141a
+
+</code></pre>
+
+<p><strong>Key distinction for exam:</strong></p>
+<ul>
+  <li><strong>Asset</strong> (<code class="language-plaintext highlighter-rouge">alm_asset</code>): Financial and ownership view — cost, purchase date, contract, assigned user, depreciation</li>
+  <li><strong>CI</strong> (<code class="language-plaintext highlighter-rouge">cmdb_ci</code>): Technical and relationship view — OS, IP address, serial number, what it runs on/depends on</li>
+  <li><strong>Normalization:</strong> Discovery + NDS reconciles asset data to CI data, preventing duplicates</li>
+</ul>
+
+<p><strong>Exam focus:</strong> Assets vs CIs, hardware model normalization, asset and CI data synchronization (27% of CIS-HAM exam).</p>
+
+<hr />
+
+<h2 id="out-of-box-values--dropdowns">Out-of-Box Values &amp; Dropdowns</h2>
+
+<p>ServiceNow ships with predefined asset states and substates. Verify against your instance — values can vary by release (e.g., Rome release asset states are numeric 1–11).</p>
+
+<h3 id="asset-state--substate-install_status--install_substatus">Asset State &amp; Substate (install_status / install_substatus)</h3>
+<p>| State | Substates | When to Use |
+|——-|———–|————-|
+| <code class="language-plaintext highlighter-rouge">On Order</code> | — | Assets have only been ordered |
+| <code class="language-plaintext highlighter-rouge">In Stock</code> | Available, Reserved, Defective, Pending repair, Pending install, Pending disposal, Pending transfer, Pre-allocated, On hold, Legal hold, Quarantine, Pending fulfillment, Pending certificate, Pending return, Test, End of support, Pending Retirement, Pending resale, Pending evaluation | Assets in storage needing assessment or confirmed broken |
+| <code class="language-plaintext highlighter-rouge">In transit</code> | Available, Reserved, Defective, Pending install, Pending disposal, Pending donation, Pre-allocated, Pending resale | Assets on their way |
+| <code class="language-plaintext highlighter-rouge">In Use</code> | Pending fulfillment, End of support, Pending retirement | Devices actively assigned to users and operational |
+| <code class="language-plaintext highlighter-rouge">In maintenance</code> | — | Assets being repaired or scheduled for maintenance |
+| <code class="language-plaintext highlighter-rouge">Retired</code> | Disposed, Pending disposal, Sold, Donated, Vendor credit, Lease return, Obsolete, RMA, Buy out, Pending resale | Asset completed its lifecycle |
+| <code class="language-plaintext highlighter-rouge">Missing</code> | Lost, Stolen | Asset is lost or stolen |
+| <code class="language-plaintext highlighter-rouge">Build</code> | — | Asset being prepared (usually for bundled assets) |</p>
+
+<h3 id="hardware-model-lifecycle-phase">Hardware Model Lifecycle Phase</h3>
+<p>| Phase | Description |
+|——-|————-|
+| <code class="language-plaintext highlighter-rouge">Availability</code> | Model is available for purchase |
+| <code class="language-plaintext highlighter-rouge">End of sale</code> | Model no longer sold by manufacturer |
+| <code class="language-plaintext highlighter-rouge">End of support</code> | Manufacturer stops support |
+| <code class="language-plaintext highlighter-rouge">End of extended support</code> | Extended support period ends |
+| <code class="language-plaintext highlighter-rouge">End of life</code> | Model fully end of life |</p>
+
+<p><strong>Exam focus (CIS-HAM Domain 2, 27%):</strong> Asset states/substates, hardware model lifecycle phases, hardware model normalization.</p>
+
+<hr />
+
+<h2 id="re-usable-code--metadata">Re-usable Code / Metadata</h2>
+
+<h3 id="application-scope">Application Scope</h3>
+
+<p>HAM is part of the ITAM application (<code class="language-plaintext highlighter-rouge">com.snc.iam</code>), not a fully scoped app. Tables use the <code class="language-plaintext highlighter-rouge">alm_</code> prefix convention.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scope Aspect</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Application</td>
+      <td>IT Asset Management (com.snc.iam)</td>
+    </tr>
+    <tr>
+      <td>Tables</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code>, <code class="language-plaintext highlighter-rouge">alm_hardware</code>, <code class="language-plaintext highlighter-rouge">alm_license</code>, <code class="language-plaintext highlighter-rouge">alm_asset_model</code>, <code class="language-plaintext highlighter-rouge">ast_contract</code></td>
+    </tr>
+    <tr>
+      <td>Roles</td>
+      <td><code class="language-plaintext highlighter-rouge">asset</code>, <code class="language-plaintext highlighter-rouge">itil</code>, <code class="language-plaintext highlighter-rouge">sam</code>, <code class="language-plaintext highlighter-rouge">sn_hamp_admin</code>, <code class="language-plaintext highlighter-rouge">admin</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="meta-data-patterns">Meta Data Patterns</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metadata Element</th>
+      <th>Example</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Application menu</td>
+      <td><code class="language-plaintext highlighter-rouge">sn_iam.menu.main</code></td>
+      <td>ITAM left-nav root</td>
+    </tr>
+    <tr>
+      <td>Module</td>
+      <td><code class="language-plaintext highlighter-rouge">sn_iam.menu.assets</code></td>
+      <td>Points to asset list</td>
+    </tr>
+    <tr>
+      <td>Asset Category</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_category.hardware</code></td>
+      <td>Hardware vs software vs contract</td>
+    </tr>
+    <tr>
+      <td>Asset State</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_state.in_stock</code></td>
+      <td>In stock, assigned, in repair, retired</td>
+    </tr>
+    <tr>
+      <td>UI Policy</td>
+      <td><code class="language-plaintext highlighter-rouge">sn_iam.policy.validate_asset_tag</code></td>
+      <td>Validates asset tag uniqueness</td>
+    </tr>
+    <tr>
+      <td>Business Rule</td>
+      <td><code class="language-plaintext highlighter-rouge">sn_iam.rule.auto_assign_asset_tag</code></td>
+      <td>Auto-generates asset tag</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="the-re-usable-metadata-inventory">The re-usable metadata inventory</h3>
+
+<p>HAM is almost entirely reusable metadata — the asset records are the <em>output</em> of these definitions:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Re-usable piece</th>
+      <th>What it is</th>
+      <th>Where it lives (breadcrumb)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Model categories &amp; models</strong></td>
+      <td>The master classification every asset hangs off: model categories (<code class="language-plaintext highlighter-rouge">cmdb_model_category</code>) group models (<code class="language-plaintext highlighter-rouge">alm_asset_model</code>), and the model drives lifecycle, depreciation, and normalization defaults for thousands of assets at once. Get this layer right and most of HAM follows.</td>
+      <td>All &gt; Asset &gt; <strong>Models</strong> / <strong>Model Categories</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Normalization rules &amp; the Content Service</strong></td>
+      <td>CDS content plus your own normalization rules turn messy discovered names into clean publisher/product/version — applied automatically to every discovery import. File-signature rules are the file-level equivalent (see the FSN deep dive below, incl. <code class="language-plaintext highlighter-rouge">samp_custom_file_name</code> for in-house software).</td>
+      <td>All &gt; Software Asset &gt; <strong>Normalization</strong> · HAM content in the HAM guide’s deep dives</td>
+    </tr>
+    <tr>
+      <td><strong>Stockrooms &amp; stock rules</strong></td>
+      <td>Stockrooms (<code class="language-plaintext highlighter-rouge">alm_stockroom</code>) hold inventory; stock rules define reorder thresholds and transfer behaviour once, then fire automatically whenever stock moves.</td>
+      <td>All &gt; Asset &gt; <strong>Stockrooms</strong> / <strong>Stock Rules</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Depreciation schedules</strong></td>
+      <td>The financial write-down method (straight-line, etc.) and period defined once per model/category and applied to every asset in it — never per asset.</td>
+      <td>All &gt; Asset &gt; <strong>Depreciation</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Lifecycle flows (Flow Designer)</strong></td>
+      <td>HAM’s refresh, disposal, RMA, and lease-return processes ship as flows: reusable, versioned automation that asset tasks invoke instead of ad-hoc scripts.</td>
+      <td>All &gt; Process Automation &gt; <strong>Flow Designer</strong> (HAM flows)</td>
+    </tr>
+    <tr>
+      <td><strong>Asset task &amp; disposal templates</strong></td>
+      <td>Standard task sets for receiving, deploying, swapping, and disposing — a disposal <em>order</em> pattern (wipe, recycle, certificate) defined once and reused for every retirement.</td>
+      <td>All &gt; Asset &gt; <strong>Asset Tasks</strong> / <strong>Disposal</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Contract templates &amp; terms</strong></td>
+      <td>Contract types, renewal terms, and coverage clauses defined once and instantiated per vendor agreement (<code class="language-plaintext highlighter-rouge">ast_contract</code>).</td>
+      <td>All &gt; Contract &gt; <strong>Contracts</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Catalog &amp; procurement models</strong></td>
+      <td>The vendor catalog items and product models purchasing orders against — the same model record later becomes the asset’s model, closing the procure-to-retire loop.</td>
+      <td>All &gt; Self-Service &gt; <strong>Product Catalog</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="re-usable-code-snippets">Re-usable Code Snippets</h3>
+
+<h4 id="business-rule-auto-generate-asset-tag">Business Rule: Auto-generate Asset Tag</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span> <span class="nx">rule</span><span class="p">(</span><span class="nx">current</span><span class="p">,</span> <span class="nx">previous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">current</span><span class="p">.</span><span class="nx">operation</span><span class="p">()</span> <span class="o">==</span> <span class="dl">'</span><span class="s1">insert</span><span class="dl">'</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">current</span><span class="p">.</span><span class="nx">asset_tag</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">gr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">alm_asset</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">category</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">category</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">orderByDesc</span><span class="p">(</span><span class="dl">'</span><span class="s1">number</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">setLimit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">nextNum</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">gr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">lastNum</span> <span class="o">=</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">number</span><span class="dl">'</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">lastNum</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/</span><span class="se">(\d</span><span class="sr">+</span><span class="se">)</span><span class="sr">$/</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">nextNum</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="kd">var</span> <span class="nx">categoryGr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">alm_asset_category</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">sys_id</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">category</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">categoryGr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">prefix</span> <span class="o">=</span> <span class="nx">categoryGr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">name</span><span class="dl">'</span><span class="p">).</span><span class="nx">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">).</span><span class="nx">toUpperCase</span><span class="p">();</span>
+            <span class="nx">current</span><span class="p">.</span><span class="nx">asset_tag</span> <span class="o">=</span> <span class="nx">prefix</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">-</span><span class="dl">'</span> <span class="o">+</span> <span class="nb">String</span><span class="p">(</span><span class="nx">nextNum</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="dl">'</span><span class="s1">0</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})(</span><span class="nx">current</span><span class="p">,</span> <span class="nx">previous</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h4 id="ui-policy-validate-serial-number-and-asset-tag">UI Policy: Validate Serial Number and Asset Tag</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span> <span class="nx">rule</span><span class="p">(</span><span class="nx">current</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">current</span><span class="p">.</span><span class="nx">serial_number</span> <span class="o">&amp;&amp;</span> <span class="nx">current</span><span class="p">.</span><span class="nx">asset_tag</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">gr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">alm_asset</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">serial_number</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">serial_number</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">sys_id</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">!=</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">sys_id</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">gr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nx">g_form</span><span class="p">.</span><span class="nx">showErrorMsg</span><span class="p">(</span><span class="dl">'</span><span class="s1">serial_number</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">Serial number already exists on another asset</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">asset_tag</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">asset_tag</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">sys_id</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">!=</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">sys_id</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">gr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nx">g_form</span><span class="p">.</span><span class="nx">showErrorMsg</span><span class="p">(</span><span class="dl">'</span><span class="s1">asset_tag</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">Asset tag already exists on another asset</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})(</span><span class="nx">current</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h4 id="script-include-ham-helper">Script Include: HAM Helper</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">HAMHelper</span> <span class="o">=</span> <span class="nx">Class</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+<span class="nx">HAMHelper</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">extendsObject</span><span class="p">(</span><span class="nx">AbstractAjaxProcessor</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">getAssetLifecycleStatus</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">assetSysId</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getParameter</span><span class="p">(</span><span class="dl">'</span><span class="s1">assetSysId</span><span class="dl">'</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">gr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">alm_asset</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">sys_id</span><span class="dl">'</span><span class="p">,</span> <span class="nx">assetSysId</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">gr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">state</span> <span class="o">=</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">state</span><span class="dl">'</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">installStatus</span> <span class="o">=</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">install_status</span><span class="dl">'</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+                <span class="na">asset_tag</span><span class="p">:</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">asset_tag</span><span class="dl">'</span><span class="p">),</span>
+                <span class="na">state</span><span class="p">:</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getDisplayValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">state</span><span class="dl">'</span><span class="p">),</span>
+                <span class="na">install_status</span><span class="p">:</span> <span class="nx">gr</span><span class="p">.</span><span class="nx">getDisplayValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">install_status</span><span class="dl">'</span><span class="p">),</span>
+                <span class="na">is_retired</span><span class="p">:</span> <span class="nx">state</span> <span class="o">==</span> <span class="dl">'</span><span class="s1">retired</span><span class="dl">'</span><span class="p">,</span>
+                <span class="na">is_available</span><span class="p">:</span> <span class="nx">state</span> <span class="o">==</span> <span class="dl">'</span><span class="s1">in_stock</span><span class="dl">'</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="dl">'</span><span class="s1">{}</span><span class="dl">'</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">HAMHelper</span><span class="dl">'</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h4 id="business-rule-sync-asset-to-ci">Business Rule: Sync Asset to CI</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span> <span class="nx">rule</span><span class="p">(</span><span class="nx">current</span><span class="p">,</span> <span class="nx">previous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">current</span><span class="p">.</span><span class="nx">operation</span><span class="p">()</span> <span class="o">==</span> <span class="dl">'</span><span class="s1">insert</span><span class="dl">'</span> <span class="o">&amp;&amp;</span> <span class="nx">current</span><span class="p">.</span><span class="nx">cmdb_ci</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">ciGr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">cmdb_ci</span><span class="dl">'</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">sys_id</span><span class="dl">'</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">cmdb_ci</span><span class="p">);</span>
+        <span class="nx">gr</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">ciGr</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nx">current</span><span class="p">.</span><span class="nx">company</span> <span class="o">=</span> <span class="nx">ciGr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">company</span><span class="dl">'</span><span class="p">);</span>
+            <span class="nx">current</span><span class="p">.</span><span class="nx">location</span> <span class="o">=</span> <span class="nx">ciGr</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">location</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})(</span><span class="nx">current</span><span class="p">,</span> <span class="nx">previous</span><span class="p">);</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="out-of-box-features">Out-of-Box Features</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Description</th>
+      <th>Where</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Assets</td>
+      <td>All hardware/software assets</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; All</td>
+    </tr>
+    <tr>
+      <td>Hardware</td>
+      <td>Hardware-specific assets</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; Hardware</td>
+    </tr>
+    <tr>
+      <td>Software</td>
+      <td>Software licenses/installs</td>
+      <td>All &gt; Asset Management &gt; Assets &gt; Software</td>
+    </tr>
+    <tr>
+      <td>Asset Models</td>
+      <td>Product models (Dell XPS 13, etc.)</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; Asset Models</td>
+    </tr>
+    <tr>
+      <td>Vendors</td>
+      <td>Suppliers/vendors</td>
+      <td>All &gt; Asset Management &gt; Vendors &gt; All</td>
+    </tr>
+    <tr>
+      <td>Contracts</td>
+      <td>Maintenance/support contracts</td>
+      <td>All &gt; Asset Management &gt; Contracts &gt; All</td>
+    </tr>
+    <tr>
+      <td>Asset Lifecycle</td>
+      <td>Procure → Receive → Deploy → Maintain → Retire</td>
+      <td>All &gt; Asset Management &gt; Asset Lifecycle</td>
+    </tr>
+    <tr>
+      <td>Procurement</td>
+      <td>Purchase orders and receiving</td>
+      <td>All &gt; Asset Management &gt; Procurement</td>
+    </tr>
+    <tr>
+      <td>Asset Categories</td>
+      <td>Categorize assets</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; Categories</td>
+    </tr>
+    <tr>
+      <td>Asset States</td>
+      <td>Lifecycle states</td>
+      <td>All &gt; Asset Management &gt; Administration &gt; States</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="key-table-hierarchy">Key Table Hierarchy</h2>
+
+<h3 id="core-tables">Core Tables</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Table</th>
+      <th>Purpose</th>
+      <th>Extends</th>
+      <th>Key Fields</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td>Core asset record</td>
+      <td><code class="language-plaintext highlighter-rouge">task</code></td>
+      <td><code class="language-plaintext highlighter-rouge">number</code>, <code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">category</code>, <code class="language-plaintext highlighter-rouge">state</code>, <code class="language-plaintext highlighter-rouge">asset_tag</code>, <code class="language-plaintext highlighter-rouge">serial_number</code>, <code class="language-plaintext highlighter-rouge">purchase_date</code>, <code class="language-plaintext highlighter-rouge">cost</code>, <code class="language-plaintext highlighter-rouge">assigned_to</code>, <code class="language-plaintext highlighter-rouge">location</code>, <code class="language-plaintext highlighter-rouge">vendor</code>, <code class="language-plaintext highlighter-rouge">employment_type</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware</code></td>
+      <td>Hardware-specific fields</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">serial_number</code>, <code class="language-plaintext highlighter-rouge">mac_address</code>, <code class="language-plaintext highlighter-rouge">warranty_expiration</code>, <code class="language-plaintext highlighter-rouge">manufacturer</code>, <code class="language-plaintext highlighter-rouge">model_number</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_license</code></td>
+      <td>Software license</td>
+      <td><code class="language-plaintext highlighter-rouge">task</code></td>
+      <td><code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">license_count</code>, <code class="language-plaintext highlighter-rouge">installation_count</code>, <code class="language-plaintext highlighter-rouge">license_type</code>, <code class="language-plaintext highlighter-rouge">expiration_date</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_model</code></td>
+      <td>Asset model definition</td>
+      <td><code class="language-plaintext highlighter-rouge">task</code></td>
+      <td><code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">manufacturer</code>, <code class="language-plaintext highlighter-rouge">category</code>, <code class="language-plaintext highlighter-rouge">model_number</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ast_contract</code></td>
+      <td>Maintenance/support contract</td>
+      <td><code class="language-plaintext highlighter-rouge">task</code></td>
+      <td><code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">vendor</code>, <code class="language-plaintext highlighter-rouge">start_date</code>, <code class="language-plaintext highlighter-rouge">end_date</code>, <code class="language-plaintext highlighter-rouge">renewal_date</code>, <code class="language-plaintext highlighter-rouge">contract_value</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci_hardware</code></td>
+      <td>Hardware CI</td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci</code></td>
+      <td><code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">serial_number</code>, <code class="language-plaintext highlighter-rouge">discovery_source</code>, <code class="language-plaintext highlighter-rouge">operational_status</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="table-relationships">Table Relationships</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>alm_asset_model
+    │
+    ├──► alm_asset (many assets per model)
+    │
+alm_asset
+    │
+    ├──► cmdb_ci_hardware (one asset → one CI)
+    ├──► customer_account (assigned to account/user)
+    ├──► ast_contract (linked contracts)
+    ├──► location (where asset is)
+    │
+cmdb_ci_hardware
+    │
+    ├──► cmdb_ci (extends CI table)
+    │
+ast_contract
+    │
+    ├──► alm_asset (assets under contract)
+</code></pre></div></div>
+
+<h3 id="cmdb-integration">CMDB Integration</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>HAM Table</th>
+      <th>Maps to CMDB Table</th>
+      <th>Relationship</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci_hardware</code></td>
+      <td>Links via <code class="language-plaintext highlighter-rouge">cmdb_ci</code> field</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_model</code></td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci_model</code></td>
+      <td>Model reference</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware</code></td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci_hardware</code></td>
+      <td>Hardware details</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">sn_sales_product</code></td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_ci</code></td>
+      <td>Product as CI</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="integrations">Integrations</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Integration</th>
+      <th>Direction</th>
+      <th>Purpose</th>
+      <th>Protocol</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Discovery (MID Server)</td>
+      <td>Inbound</td>
+      <td>Auto-discover hardware on network</td>
+      <td>Discovery/MID Server</td>
+    </tr>
+    <tr>
+      <td>SCCM/Intune</td>
+      <td>Inbound</td>
+      <td>Import hardware from Microsoft endpoints</td>
+      <td>Service Graph Connector</td>
+    </tr>
+    <tr>
+      <td>Jamf</td>
+      <td>Inbound</td>
+      <td>Import Mac assets</td>
+      <td>Service Graph Connector</td>
+    </tr>
+    <tr>
+      <td>AWS/Azure</td>
+      <td>Inbound</td>
+      <td>Import cloud instances</td>
+      <td>Service Graph Connector</td>
+    </tr>
+    <tr>
+      <td>vCenter</td>
+      <td>Inbound</td>
+      <td>Import VMware servers</td>
+      <td>Service Graph Connector</td>
+    </tr>
+    <tr>
+      <td>Procurement</td>
+      <td>Outbound</td>
+      <td>Create purchase orders</td>
+      <td>Internal/REST</td>
+    </tr>
+    <tr>
+      <td>Contract Management</td>
+      <td>Outbound</td>
+      <td>Link assets to maintenance contracts</td>
+      <td>Internal</td>
+    </tr>
+    <tr>
+      <td>CMDB</td>
+      <td>Bidirectional</td>
+      <td>Assets ↔ CIs</td>
+      <td>Internal</td>
+    </tr>
+    <tr>
+      <td>Financial</td>
+      <td>Outbound</td>
+      <td>Push asset costs to finance system</td>
+      <td>REST/SFTP</td>
+    </tr>
+    <tr>
+      <td>Barcode/RFID</td>
+      <td>Inbound</td>
+      <td>Scan asset tags during audits</td>
+      <td>Barcode/RFID readers</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="key-fields">Key Fields</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Table</th>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Why It Matters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">number</code></td>
+      <td>String</td>
+      <td>Auto-number; unique asset identifier</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">asset_tag</code></td>
+      <td>String</td>
+      <td>Physical sticker number; must be unique</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">category</code></td>
+      <td>Choice</td>
+      <td>Determines which fields appear</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">state</code></td>
+      <td>Choice</td>
+      <td>In stock, assigned, in repair, retired</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">serial_number</code></td>
+      <td>String</td>
+      <td>Manufacturer serial; warranty link</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">purchase_date</code></td>
+      <td>Date</td>
+      <td>Warranty start, depreciation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">cost</code></td>
+      <td>Currency</td>
+      <td>Purchase price; TCO calculation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">assigned_to</code></td>
+      <td>Reference</td>
+      <td>Who has the asset</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">location</code></td>
+      <td>Reference</td>
+      <td>Physical location</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">vendor</code></td>
+      <td>Reference</td>
+      <td>Who sold it</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">model_id</code></td>
+      <td>Reference</td>
+      <td>Make/model of asset</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset</code></td>
+      <td><code class="language-plaintext highlighter-rouge">employment_type</code></td>
+      <td>Choice</td>
+      <td>Owned, leased, rented</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware</code></td>
+      <td><code class="language-plaintext highlighter-rouge">serial_number</code></td>
+      <td>String</td>
+      <td>Hardware serial number</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware</code></td>
+      <td><code class="language-plaintext highlighter-rouge">mac_address</code></td>
+      <td>String</td>
+      <td>Network MAC address</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware</code></td>
+      <td><code class="language-plaintext highlighter-rouge">warranty_expiration</code></td>
+      <td>Date</td>
+      <td>Warranty end date</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ast_contract</code></td>
+      <td><code class="language-plaintext highlighter-rouge">start_date</code></td>
+      <td>Date</td>
+      <td>Contract start</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ast_contract</code></td>
+      <td><code class="language-plaintext highlighter-rouge">end_date</code></td>
+      <td>Date</td>
+      <td>Contract expiration</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ast_contract</code></td>
+      <td><code class="language-plaintext highlighter-rouge">renewal_date</code></td>
+      <td>Date</td>
+      <td>When to renew</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_model</code></td>
+      <td><code class="language-plaintext highlighter-rouge">name</code></td>
+      <td>String</td>
+      <td>Model name (e.g., “Dell XPS 13”)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_model</code></td>
+      <td><code class="language-plaintext highlighter-rouge">manufacturer</code></td>
+      <td>String</td>
+      <td>Manufacturer (e.g., Dell)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="goals-benefits--key-metrics">Goals, Benefits &amp; Key Metrics</h2>
+
+<p>HAM’s business goals center on maintaining an accurate hardware asset inventory and controlling cost from procurement through retirement.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Business Goal</th>
+      <th>Benefit</th>
+      <th>Example Key Metric</th>
+      <th>Example Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td> </td>
+      <td>Complete hardware inventory</td>
+      <td>Foundation for ITAM decisions</td>
+      <td>Inventory completeness</td>
+      <td>≥ 98% of procured assets recorded</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Cost control and TCO</td>
+      <td>Optimize purchasing and renewals</td>
+      <td>Asset utilization rate</td>
+      <td>~72% in use; target ≥ 70%</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>TCO management</td>
+      <td>Reduce lifecycle cost</td>
+      <td>TCO and cost avoidance via reuse</td>
+      <td>~15% reduction over 3 years</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Retirement compliance</td>
+      <td>Reduce orphaned assets</td>
+      <td>Asset retirement compliance rate</td>
+      <td>≥ 98%</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Financial data accuracy</td>
+      <td>Accurate cost tracking</td>
+      <td>Depreciation and cost accuracy</td>
+      <td>≥ 95%</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>License compliance</td>
+      <td>Prevent over and under purchasing</td>
+      <td>License compliance rate</td>
+      <td>≥ 95%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Example targets:</strong> ~70% asset utilization, ~98% retirement compliance, and ~98% inventory completeness.</p>
+
+<hr />
+
+<h2 id="core-concept-diagrams">Core Concept Diagrams</h2>
+
+<h3 id="asset-lifecycle-journey">Asset Lifecycle Journey</h3>
+
+<pre><code class="language-mermaid">flowchart TD
+    PO[Purchased] --&gt; RC[Receiving Check In]
+    RC --&gt; IS[In Stock]
+    IS --&gt; AS[In Use Assigned]
+    AS --&gt; IM[In Maintenance Repair]
+    IM --&gt; AS2[In Use Repair Complete]
+    AS --&gt; RT[Retired End Of Life]
+    RT --&gt; DP[Disposal Data Wipe]
+    AS --&gt; LOST[Lost Or Stolen]
+    LOST --&gt; WR[Write Off]
+</code></pre>
+
+<h3 id="asset-to-ci-normalization-link">Asset to CI Normalization Link</h3>
+
+<pre><code class="language-mermaid">flowchart LR
+    subgraph ITAM["ITAM View Asset"]
+        A[Asset Record]
+        A --&gt; FIN[Financial Data Cost PO Contract Depreciation]
+        A --&gt; ASG[Assignment Data User Location]
+    end
+    subgraph CMDB["CMDB View CI"]
+        C[CI Record]
+        C --&gt; TEC[Technical Data OS IP Serial]
+        C --&gt; REL[Relationships Runs On Depends On]
+    end
+    A --&gt;|Normalized via NDS| C
+    C --&gt;|Sourced From Asset| A
+</code></pre>
+
+<h3 id="asset-relationship-map">Asset Relationship Map</h3>
+
+<pre><code class="language-mermaid">graph TD
+    AST[Asset Record] --&gt;|under contract with| CON[Contract Record]
+    AST --&gt;|stored in| STO[Stockroom Record]
+    AST --&gt;|assigned to| USR[User Record]
+    AST --&gt;|normalized to| CIH[Hardware CI]
+    AST --&gt;|depreciates via| MOD[Asset Model]
+</code></pre>
+
+<hr />
+
+<hr />
+
+<h3 id="ham-vs-itam-vs-cmdb-comparison">HAM vs ITAM vs CMDB Comparison</h3>
+
+<pre><code class="language-mermaid">flowchart TD
+    subgraph "HAM — Hardware Asset Management"
+        HAM[Asset Record] --&gt;|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
+        HAM --&gt; FIN[Financial Data Cost, PO, Contract, Depreciation]
+        HAM --&gt; ASG[Assignment Data User, Location, Department]
+    end
+    
+    subgraph "ITAM — IT Asset Management (umbrella)"
+        HAM --&gt;|normalized via NDS| CMDB[CMDB CI Record]
+        HAM --&gt; CONTRACT[Contract/PO Link]
+        HAM --&gt; MODEL[Asset Model]
+    end
+    
+    subgraph "CMDB — Configuration Management Database"
+        CMDB --&gt; TEC[Technical Data OS, IP Address, Serial Number]
+        CMDB --&gt; REL[Relationships Runs On, Depends On, Connected To]
+        CMDB --&gt; SERVICES[Business Services Mapped via CSDM]
+    end
+    
+    HAM -.-&gt;|Financial view| ITAM
+    CMDB -.-&gt;|Technical view| ITAM
+    
+    style HAM fill:#e5b567,color:#000
+    style ITAM fill:#4cc38a,color:#000
+    style CMDB fill:#4d96ff,color:#fff
+    
+    
+    
+</code></pre>
+
+<p><strong>What the diagram leaves out (annotations):</strong></p>
+
+<ul>
+  <li><strong>HAM — HAM tracks:</strong> Physical hardware assets; Procurement → retirement lifecycle; Financial ownership &amp; depreciation; Assignment to users/locations</li>
+  <li><strong>CMDB — CMDB tracks:</strong> Technical configuration items; OS, network, relationships; Business service dependencies; CSDM framework alignment</li>
+  <li><strong>ITAM — ITAM unifies:</strong> HAM (hardware) + SAM (software); Financial + technical views; Cost optimization &amp; compliance</li>
+</ul>
+
+<hr />
+
+<h3 id="asset-lifecycle-with-discovery-integration">Asset Lifecycle with Discovery Integration</h3>
+
+<pre><code class="language-mermaid">flowchart LR
+    subgraph "Procurement"
+        REQ[Request Submitted] --&gt; APPROVE[Approval Workflow]
+        APPROVE --&gt; PO[Purchase Order Created]
+        PO --&gt; VENDOR[Vendor Ships Equipment]
+    end
+    
+    subgraph "Receiving &amp; Check-In"
+        VENDOR --&gt; RECEIVED[Received at Facility]
+        RECEIVED --&gt; CHECKIN[Check-In Record Created]
+        CHECKIN --&gt; INSTOCK[In Stock State]
+    end
+    
+    subgraph "Assignment &amp; Discovery"
+        INSTOCK --&gt; ASSIGN[Assigned to User/Location]
+        ASSIGN --&gt; DISCOVER[Discovery Scans Device]
+        DISCOVER --&gt; NORMALIZE[NDS Normalization]
+        NORMALIZE --&gt; CMDB[CI Created/Updated in CMDB]
+    end
+    
+    subgraph "Maintenance &amp; Retirement"
+        CMDB --&gt; ACTIVE[Active Asset Lifecycle]
+        ACTIVE --&gt; MAINT[Maintenance/Repair]
+        MAINT --&gt; ACTIVE
+        ACTIVE --&gt; RETIRE[Retirement Initiated]
+        RETIRE --&gt; WIPE[Data Wipe Certified]
+        WIPE --&gt; DISPOSAL[Disposal Completed]
+    end
+    
+    style INSTOCK fill:#6bcb77,color:#fff
+    style CMDB fill:#4d96ff,color:#fff
+    style ACTIVE fill:#ffd93d,color:#000
+    style DISPOSAL fill:#ff6b6b,color:#fff
+    
+</code></pre>
+
+<p><strong>What the diagram leaves out (annotations):</strong></p>
+
+<ul>
+  <li><strong>DISCOVER — Discovery integration:</strong> MID Server scans device; Serial number captured; CI normalized to asset; Relationships discovered</li>
+</ul>
+
+<hr />
+
+<h3 id="asset-state-machine">Asset State Machine</h3>
+
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; Purchased: PO received
+    
+    Purchased --&gt; ReceivingCheckIn: Physical receipt
+    ReceivingCheckIn --&gt; InStock: Check-in complete
+    
+    InStock --&gt; InUseAssigned: User assignment
+    InStock --&gt; InMaintenance: Repair needed
+    
+    InUseAssigned --&gt; InMaintenance: Maintenance required
+    InMaintenance --&gt; InUseRepairComplete: Repair done
+    
+    InUseAssigned --&gt; RetiredEndOfLife: End of life
+    InUseAssigned --&gt; LostOrStolen: Reported lost/stolen
+    
+    RetiredEndOfLife --&gt; DisposalDataWipe: Wipe certified
+    LostOrStolen --&gt; WriteOff: Financial write-off
+    
+    DisposalDataWipe --&gt; [*]: Asset retired
+    WriteOff --&gt; [*]: Asset written off
+    
+    
+    
+</code></pre>
+<h2 id="common-mistakes">Common Mistakes</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mistake</th>
+      <th>Symptom</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Creating assets without categories</td>
+      <td>Asset form missing fields</td>
+      <td>Define categories first</td>
+    </tr>
+    <tr>
+      <td>Duplicate asset tags</td>
+      <td>Can’t identify physical asset</td>
+      <td>Enforce unique asset tags</td>
+    </tr>
+    <tr>
+      <td>Missing serial numbers</td>
+      <td>Can’t claim warranty</td>
+      <td>Record serial at receipt</td>
+    </tr>
+    <tr>
+      <td>Not retiring old assets</td>
+      <td>Reports show ghost assets</td>
+      <td>Retire assets when replaced</td>
+    </tr>
+    <tr>
+      <td>Creating asset without location</td>
+      <td>Can’t find physical asset</td>
+      <td>Require location field</td>
+    </tr>
+    <tr>
+      <td>Confusing asset with CI</td>
+      <td>Duplicate records</td>
+      <td>Understand asset vs CI distinction</td>
+    </tr>
+    <tr>
+      <td>Not linking contract to asset</td>
+      <td>Missed renewal dates</td>
+      <td>Link contract to asset</td>
+    </tr>
+    <tr>
+      <td>Backdating purchase dates</td>
+      <td>Wrong depreciation</td>
+      <td>Use actual purchase date</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="troubleshooting-ham-records">Troubleshooting HAM Records</h2>
+
+<p>Every row below restates something already documented in this guide — the state table, the fields table, the discovery deep dive. It is the same facts read backwards, from symptom to cause.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symptom</th>
+      <th>What it usually means</th>
+      <th>Check</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Asset form is missing fields</td>
+      <td><code class="language-plaintext highlighter-rouge">category</code> was never set — the category decides which fields appear</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset.category</code></td>
+      <td>Set the category first, then re-open the form</td>
+    </tr>
+    <tr>
+      <td>Two records for one laptop</td>
+      <td>Re-created instead of transferred; duplicate <code class="language-plaintext highlighter-rouge">asset_tag</code></td>
+      <td><code class="language-plaintext highlighter-rouge">asset_tag</code>, Transfers related list</td>
+      <td>Retire the duplicate, keep the record that carries the history</td>
+    </tr>
+    <tr>
+      <td>Warranty claim rejected</td>
+      <td>Serial missing or wrong on the asset</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_hardware.serial_number</code></td>
+      <td>Record the serial at receipt, correct the record</td>
+    </tr>
+    <tr>
+      <td>Reports show laptops you replaced</td>
+      <td>Assets left <code class="language-plaintext highlighter-rouge">In Use</code> after replacement</td>
+      <td><code class="language-plaintext highlighter-rouge">state</code> / <code class="language-plaintext highlighter-rouge">install_status</code></td>
+      <td>Move to <code class="language-plaintext highlighter-rouge">Retired</code> with an honest substate (Disposed, Sold, Donated, Lease return…)</td>
+    </tr>
+    <tr>
+      <td>Renewal date slipped past</td>
+      <td>Contract exists but was never linked to the asset</td>
+      <td><code class="language-plaintext highlighter-rouge">ast_contract.end_date</code> / <code class="language-plaintext highlighter-rouge">renewal_date</code>, Contracts related list</td>
+      <td>Link the contract, set <code class="language-plaintext highlighter-rouge">renewal_date</code></td>
+    </tr>
+    <tr>
+      <td>Depreciation is wrong</td>
+      <td>Backdated <code class="language-plaintext highlighter-rouge">purchase_date</code>, or <code class="language-plaintext highlighter-rouge">cost</code> empty</td>
+      <td><code class="language-plaintext highlighter-rouge">purchase_date</code>, <code class="language-plaintext highlighter-rouge">cost</code></td>
+      <td>Use the invoice date and the actual cost</td>
+    </tr>
+    <tr>
+      <td>Asset and CI disagree</td>
+      <td>Asset created without a CI, or both created independently</td>
+      <td>Related list → CI</td>
+      <td>Link the existing CI; do not create a second record for one device</td>
+    </tr>
+    <tr>
+      <td>Software installs missing on a machine that has the app</td>
+      <td>File-Based Discovery not activated, or the first CDS sync has not landed (~24 hours)</td>
+      <td>Plugin <code class="language-plaintext highlighter-rouge">com.snc.discovery.file_based_discovery</code>; discovery Status record</td>
+      <td>Activate, wait for CDS, enable the exploration, re-scan</td>
+    </tr>
+    <tr>
+      <td>A known application is invisible in installations</td>
+      <td>No file signature, so normalization never matched it</td>
+      <td>File Signature Normalization tables</td>
+      <td>Add the signature, normalize the discovery model</td>
+    </tr>
+    <tr>
+      <td>“We own 500, only 380 show in stock”</td>
+      <td>Substates not maintained — <code class="language-plaintext highlighter-rouge">In transit</code>, the long <code class="language-plaintext highlighter-rouge">In Stock</code> and <code class="language-plaintext highlighter-rouge">Retired</code> lists</td>
+      <td>State and substate counts</td>
+      <td>Audit substates; a substate is a location-in-process, not decoration</td>
+    </tr>
+    <tr>
+      <td>Model cannot be ordered</td>
+      <td>Lifecycle phase is <code class="language-plaintext highlighter-rouge">End of sale</code> or later</td>
+      <td><code class="language-plaintext highlighter-rouge">alm_asset_model</code> lifecycle phase</td>
+      <td>Move to the current model</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Three checks before any HAM escalation</strong></p>
+
+<ol>
+  <li><strong>State and substate</strong> — is the record in the state that represents reality, or the state someone last typed?</li>
+  <li><strong>Links</strong> — contract, CI, location, assigned user. An unlinked record behaves like a missing record.</li>
+  <li><strong>Model</strong> — category, lifecycle phase, manufacturer. Most “the form is broken” complaints live in the model.</li>
+</ol>
+
+<h3 id="when-the-state-or-model-you-need-isnt-available">When the state or model you need isn’t available</h3>
+
+<pre><code class="language-mermaid">flowchart TD
+    A[Dropdown or form problem] --&gt; B{What is missing?}
+    B --&gt;|A field on the asset form| C[Category drives the form — set the category first]
+    B --&gt;|A state / substate| D{Does an existing substate fit?}
+    D --&gt;|Yes| D1[Use the substate — In Stock and Retired both carry long lists]
+    D --&gt;|No| D2[States are instance data: All &gt; Asset Management &gt; Administration &gt; States]
+    B --&gt;|A model in the picker| E[All &gt; Asset Management &gt; Administration &gt; Asset Models]
+    E --&gt; E1{Exists but not selectable?}
+    E1 --&gt;|Yes| E2[Check the lifecycle phase — End of sale / End of life]
+    E1 --&gt;|No| E3[Create the model, then the asset]
+</code></pre>
+
+<ul>
+  <li><strong>Asset states are instance data, not platform constants.</strong> The table above reflects OOTB values, and they vary by release (the Rome set is numeric 1–11). Check <code class="language-plaintext highlighter-rouge">Administration &gt; States</code> before concluding the value does not exist.</li>
+  <li><strong>Adding a state has downstream reach.</strong> Anything that enumerates states — reports, dashboards, filters, integrations — will not know your new value until it is added there too. Prefer an existing substate; if you add a state, treat it as a configuration release item.</li>
+  <li><strong>Check the lifecycle phase before the ACLs.</strong> A model at <code class="language-plaintext highlighter-rouge">End of sale</code> or beyond is a purchasing conversation, not a form bug — confirm the phase matches intent before hunting permissions.</li>
+  <li><strong>A missing field is almost always the category.</strong> The fields table says it directly: <code class="language-plaintext highlighter-rouge">category</code> determines which fields appear.</li>
+</ul>
+
+<hr />
+
+<h2 id="deep-dive-file-based-discovery-and-the-discovery-configuration-console">Deep Dive: File-Based Discovery and the Discovery Configuration Console</h2>
+
+<blockquote>
+  <p><strong>Full module:</strong> File-Based Discovery now has a complete home in the <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/discovery/discovery-guide/">Discovery module guide</a> — console areas, the filtering model, worked examples, and the three-step run-and-verify procedure (Status record + the <code class="language-plaintext highlighter-rouge">snc_tmp_*.tmp</code> scan file on the target). This section keeps the SAM-side configuration view.</p>
+</blockquote>
+
+<p>File-Based Discovery finds installed software on Windows, UNIX/Linux, and macOS machines from the files actually on disk — even when the software left no registration data (no installer record, no registry entry). It runs during the <strong>exploration phase</strong> of a normal Discovery, via the MID Server, and its results feed File Signature Normalization (next section) and the software installation records SAM reconciles against.</p>
+
+<p><strong>Prerequisites</strong></p>
+
+<ul>
+  <li>The <strong>File-based Discovery plugin</strong> (<code class="language-plaintext highlighter-rouge">com.snc.discovery.file_based_discovery</code>) must be activated — it is included with the Discovery subscription but activation has to be requested. Activating it also activates the SAM File Signature Normalization plugin (<code class="language-plaintext highlighter-rouge">com.snc.file_signature_normalization</code>).</li>
+  <li>Role required: <strong>admin</strong>.</li>
+  <li>File-Based Discovery does not trigger until the initial <strong>Content Data Service (CDS) synchronization</strong> has occurred — allow roughly 24 hours for the first CDS data set.</li>
+  <li>It is <strong>disabled by default</strong>, to avoid performance impact.</li>
+</ul>
+
+<h3 id="breadcrumbs--getting-there-and-everything-related">Breadcrumbs — Getting There and Everything Related</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Destination</th>
+      <th>Breadcrumb</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Discovery Configuration Console</strong> (enable + configure)</td>
+      <td>All &gt; Discovery &gt; Discovery Definition &gt; <strong>Configuration Console</strong></td>
+    </tr>
+    <tr>
+      <td>Discovery home / dashboard</td>
+      <td>All &gt; Discovery &gt; Dashboard</td>
+    </tr>
+    <tr>
+      <td>Discovery schedules (what runs, when)</td>
+      <td>All &gt; Discovery &gt; Discovery Definition &gt; Schedules</td>
+    </tr>
+    <tr>
+      <td>Discovery status and logs (did the run work?)</td>
+      <td>All &gt; Discovery &gt; Status · All &gt; Discovery &gt; Discovery Log</td>
+    </tr>
+    <tr>
+      <td>MID Servers (the probes run from here)</td>
+      <td>All &gt; Discovery &gt; MID Servers</td>
+    </tr>
+    <tr>
+      <td>File discovery probes</td>
+      <td>All &gt; Discovery &gt; Discovery Definition &gt; Probes → <strong>Windows - File discovery</strong> / <strong>UNIX - File discovery</strong> (the Windows probe carries the signed <code class="language-plaintext highlighter-rouge">filebaseddiscovery.ps1</code> script as a probe parameter)</td>
+    </tr>
+    <tr>
+      <td>Internal file-discovery properties</td>
+      <td>Type <code class="language-plaintext highlighter-rouge">discovery_private_properties.list</code> in the navigator filter (table: <code class="language-plaintext highlighter-rouge">discovery_private_properties</code>)</td>
+    </tr>
+    <tr>
+      <td>Wildcard / blacklist properties (system properties)</td>
+      <td><code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.wildcard.windows</code> · <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.blacklist.windows</code> (edited through the console’s Extensions sections)</td>
+    </tr>
+    <tr>
+      <td>Software installations created</td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install</code></td>
+    </tr>
+    <tr>
+      <td>Files that matched nothing</td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code> (reviewed by <code class="language-plaintext highlighter-rouge">sam_admin</code> — see File Signature Normalization below)</td>
+    </tr>
+    <tr>
+      <td>SWID tags (if enabled in the console)</td>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_swid_tag</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="configuring-it-in-the-console">Configuring It in the Console</h3>
+
+<ol>
+  <li><strong>Enable File Based Discovery</strong> — the master toggle at the top of the console (toggle right = on).</li>
+  <li><strong>Windows section</strong>
+    <ul>
+      <li><strong>Add %PATH% Folders To Scan List</strong> — optionally include every folder on the system <code class="language-plaintext highlighter-rouge">%PATH%</code>.</li>
+      <li><strong>Folders To Scan</strong> — where Discovery looks. Defaults include <code class="language-plaintext highlighter-rouge">c:\program files*</code> and <code class="language-plaintext highlighter-rouge">%PATH%</code>. Add more with the path field + <strong>Add Path</strong>. To scan an entire drive, set the target path to <code class="language-plaintext highlighter-rouge">C:/</code>.
+        <ul>
+          <li><em>Scan-time tip:</em> Windows server scans are significantly faster if the default <code class="language-plaintext highlighter-rouge">c:\windows</code> folder is removed from the scan list.</li>
+        </ul>
+      </li>
+      <li><strong>Folders To Ignore</strong> — folders (and their children) carved out of the scan list, e.g. <code class="language-plaintext highlighter-rouge">C:\Program Files\Temp</code>.</li>
+      <li><strong>Extensions Blacklist</strong> — extensions dropped on sight (see filtering rules below).</li>
+      <li><strong>Extensions Wildcards</strong> — additional extensions to collect (see filtering rules below).</li>
+      <li><strong>Advanced</strong> — platform-specific tuning.</li>
+    </ul>
+  </li>
+  <li><strong>Unix section</strong> — the same folder/extension controls for UNIX/Linux targets.</li>
+  <li><strong>Common section</strong>
+    <ul>
+      <li><strong>Maximum Files</strong> — cap on files discovered per target (100000 in the console example).</li>
+      <li><strong>Frequency</strong> — how often File-Based Discovery re-runs against a CI. <strong>Monthly by default.</strong> After a CI is scanned, File-Based Discovery will not run on it again until this interval expires — a too-long interval is a common reason “File-Based Discovery didn’t trigger.”</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="how-the-filtering-actually-works-a-common-misconception">How the Filtering Actually Works (a common misconception)</h3>
+
+<p>It is <strong>not</strong> true that everything outside your extension wildcards is ignored. File-Based Discovery uses a layered filtering system:</p>
+
+<ol>
+  <li><strong>The Core Target List (content-based).</strong> ServiceNow automatically looks for files that match your active Software Signatures and File Signatures. If a signature specifies a file like <code class="language-plaintext highlighter-rouge">app.exe</code> or <code class="language-plaintext highlighter-rouge">version.txt</code>, Discovery looks for it <strong>regardless</strong> of the wildcard properties.</li>
+  <li><strong>The Extension Wildcards (additive).</strong> The property <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.wildcard.windows</code> tells the system: <em>“In addition to the specific files required by my software signatures, also collect and evaluate any file that ends with these extensions.”</em></li>
+  <li><strong>The Exclusion List (blacklist, hard filter).</strong> The property <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.blacklist.windows</code> acts as a hard filter: if a file matches a blacklisted extension (like <code class="language-plaintext highlighter-rouge">.log</code> or <code class="language-plaintext highlighter-rouge">.tmp</code>), it is dropped immediately — even if a signature or wildcard would otherwise have included it.</li>
+</ol>
+
+<p><strong>The rule of thumb</strong></p>
+
+<ul>
+  <li>If a file matches your <strong>blacklist</strong>, it is ignored.</li>
+  <li>If a file matches a <strong>Software/File Signature</strong>, it is collected.</li>
+  <li>If a file matches an <strong>extension wildcard</strong>, it is collected.</li>
+  <li>If a file matches <strong>none of the above</strong>, it is ignored.</li>
+</ul>
+
+<p>Collected files are matched against the CDS by name, size, and version; anything unmatched lands in <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code> for a SAM admin to normalize — which is exactly the workflow in the next section.</p>
+
+<hr />
+
+<h2 id="deep-dive-file-signature-normalization-sam">Deep Dive: File Signature Normalization (SAM)</h2>
+
+<p>File Signature Normalization is a feature of the Software Asset Management (SAM) application that maps discovered file attributes (such as name, size, version, and binary signatures) to standardized entries in the Content Data Service (CDS).</p>
+
+<h3 id="how-it-works">How It Works</h3>
+
+<ul>
+  <li><strong>Discovery Mapping:</strong> During Discovery jobs, raw file details gathered from endpoints are compared against known CDS signatures to automatically create normalized software installation records.</li>
+  <li><strong>Unidentified Files:</strong> If a discovered file (like a custom or unrecognized .exe) is not in the content library, the system generates a <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code> record. A SAM administrator (<code class="language-plaintext highlighter-rouge">sam_admin</code> role) can review these and create custom normalization rules, which can optionally sync back to the CDS.</li>
+  <li><strong>Duplicate Handling:</strong> If identical or overlapping software installations are discovered from multiple sources, File Signature Normalization marks duplicate records as inactive by default.</li>
+  <li><strong>Required Plugin:</strong> This functionality requires activating the File Signature Normalization plugin (<code class="language-plaintext highlighter-rouge">com.snc.file_signature_normalization</code>) alongside Software Asset Management.</li>
+</ul>
+
+<h3 id="tables-it-introduces">Tables It Introduces</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Table</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">samp_file_set</code></td>
+      <td>Discovered file sets matched against signatures</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">samp_file_map</code></td>
+      <td>Mapping between discovered files and normalized entries</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">samp_file_name</code></td>
+      <td>Known file names from the content library</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">samp_custom_file_name</code></td>
+      <td>Custom file-name rules created by SAM admins</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code></td>
+      <td>Discovered files with no CDS match, queued for admin review</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Why it matters here:</strong> HAM and SAM share the same discovered-data pipeline. Normalization quality decides whether discovered installs reconcile cleanly against entitlements — unnormalized or duplicated installs are how a license position quietly becomes fiction.</p>
+
+<hr />
+
+<h3 id="worked-example-supermanexe--dc-comics-software">Worked Example: <code class="language-plaintext highlighter-rouge">superman.exe</code> → DC Comics Software</h3>
+
+<p>Assume File-Based Discovery is configured to find all files that end in <code class="language-plaintext highlighter-rouge">.exe</code> or <code class="language-plaintext highlighter-rouge">.dll</code> (see the Discovery guide for the console setup):</p>
+
+<ol>
+  <li>Discovered file information called <strong>superman.exe</strong> is sent to the MID Server and is compared, <strong>based on the name</strong>, against a synchronized list from the Instance.</li>
+  <li>If <strong>superman.exe</strong> is on the list of files of potential software packages, the file is sent via the payload to the ServiceNow Instance.</li>
+  <li>The ServiceNow Instance Sensor then processes the <strong>superman.exe</strong> file using the <strong>Name, Size, and Version</strong> to match it to a software package called <strong>DC Comics Software</strong>.</li>
+  <li>If a match is found, a <strong>software installation record is created</strong> (normalized, in <code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install</code>).</li>
+</ol>
+
+<p><strong>If a match is not found</strong>, the file is added to the <strong>Unidentified File Set</strong> [<code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code>] table:</p>
+
+<ul>
+  <li>Users with the <strong>sam_admin</strong> role can create <strong>custom file signature rules</strong> for unidentified files manually.</li>
+  <li>The <strong>next time Discovery runs</strong>, the file will be associated with the customized mapping.</li>
+  <li>Customers that opt in to the content service can have their custom file signatures <strong>sent to the CDS</strong> for analysis and inclusion in the content service for future discovery.</li>
+</ul>
+
+<p>The attributes used for the match, every time: <strong>file name</strong>, <strong>file size</strong>, and <strong>version</strong> — if any of the three is wrong or missing in your discovered data, expect the match to fail and the file to land in the Unidentified File Set.</p>
+
+<h2 id="lab-create-your-first-asset">Lab: Create Your First Asset</h2>
+
+<ol>
+  <li><strong>Navigate</strong> to All &gt; Asset Management &gt; Assets &gt; All</li>
+  <li><strong>Click New</strong> and fill:
+    <ul>
+      <li>Name: Laptop for Sarah - Dell XPS 13</li>
+      <li>Category: Hardware &gt; Computer &gt; Laptop</li>
+      <li>Asset Tag: AST-001234</li>
+      <li>Serial Number: FCH12345678</li>
+      <li>State: In Stock</li>
+      <li>Purchase Date: Today’s date</li>
+      <li>Cost: 1200.00</li>
+      <li>Vendor: Dell Technologies</li>
+      <li>Model: Dell XPS 13 (create if needed)</li>
+      <li>Location: New York Office</li>
+    </ul>
+  </li>
+  <li><strong>Submit</strong> and note the asset number</li>
+  <li><strong>Open</strong> the asset record → change State to “Assigned”</li>
+  <li><strong>Set</strong> Assigned To: Select an employee (e.g., Sarah Jenkins)</li>
+  <li><strong>Add</strong> a note: “Issued to Sarah for her new role”</li>
+  <li><strong>Create</strong> a contract record:
+    <ul>
+      <li>Name: Dell Support Contract 2026</li>
+      <li>Vendor: Dell Technologies</li>
+      <li>Start Date: Today</li>
+      <li>End Date: 3 years from today</li>
+      <li>Contract Value: 300.00</li>
+    </ul>
+  </li>
+  <li><strong>Link</strong> the contract to the asset in Related Lists</li>
+  <li><strong>Change</strong> asset state to “Retired” (simulate end of life)</li>
+  <li><strong>Verify</strong> in Related Lists: CI, Contracts, Transfers, History</li>
+</ol>
+
+<hr />
+
+<h2 id="lab-break-three-records-diagnose-the-symptom">Lab: Break Three Records, Diagnose the Symptom</h2>
+
+<p>The lab above builds a correct asset. This one builds the three defects that fill real HAM backlogs — then asks you to diagnose each from the symptom alone, without peeking.</p>
+
+<p><strong>Rules:</strong> sub-production only; break one thing per drill; predict the symptom before you look; reset between drills.</p>
+
+<h3 id="drill-1--the-asset-with-no-category">Drill 1 — The asset with no category</h3>
+
+<p><strong>Break it:</strong> create an asset and leave <code class="language-plaintext highlighter-rouge">category</code> empty.</p>
+
+<p><strong>Predict, then look:</strong> open the form. Fields you expected are absent.</p>
+
+<details>
+  <summary>Answer</summary>
+
+  <p><strong>Cause:</strong> <code class="language-plaintext highlighter-rouge">category</code> drives which fields the form shows — it is not a label. <strong>Proof:</strong> <code class="language-plaintext highlighter-rouge">alm_asset.category</code> is empty; add a category and the fields appear with no other change. <strong>Fix:</strong> set the category at creation; make it a mandatory form field if your estate keeps repeating this. <strong>Reset:</strong> clear the category, or retire the test asset.</p>
+</details>
+
+<h3 id="drill-2--the-duplicate-laptop">Drill 2 — The duplicate laptop</h3>
+
+<p><strong>Break it:</strong> create a second asset for a device that already exists, reusing its <code class="language-plaintext highlighter-rouge">asset_tag</code> — or skipping the tag entirely.</p>
+
+<p><strong>Predict, then look:</strong> how many records represent one physical device, and what breaks first downstream.</p>
+
+<details>
+  <summary>Answer</summary>
+
+  <p><strong>Cause:</strong> re-creation instead of transfer; the record was never the problem, the process was. <strong>Proof:</strong> <code class="language-plaintext highlighter-rouge">asset_tag</code> is the identity sticker — two records sharing one tag, or an untagged duplicate beside a tagged original, means one device and two objects. <strong>Fix:</strong> retire the duplicate with an honest substate, keep the record carrying the history (assignments, contracts, CI link). <strong>Reset:</strong> retire both test records.</p>
+</details>
+
+<h3 id="drill-3--the-ghost-asset">Drill 3 — The ghost asset</h3>
+
+<p><strong>Break it:</strong> replace a device — move its asset to <code class="language-plaintext highlighter-rouge">Retired</code> with a substate — then create the replacement but leave the contract linked only to the retired record.</p>
+
+<p><strong>Predict, then look:</strong> which report is wrong first, and which record is telling the truth.</p>
+
+<details>
+  <summary>Answer</summary>
+
+  <p><strong>Cause:</strong> the retirement was recorded but the <em>linkage</em> never moved; contract and CI still point at the dead record. <strong>Proof:</strong> the retired asset’s Contracts related list versus the replacement’s empty one — <code class="language-plaintext highlighter-rouge">ast_contract.renewal_date</code> now has no live asset behind it. <strong>Fix:</strong> link the contract to the replacement and confirm the CI is the surviving one. <strong>Reset:</strong> unlink, restore the states.</p>
+</details>
+
+<h3 id="what-done-looks-like">What “done” looks like</h3>
+
+<p>For each drill you can name the field that caused it and the single related list or query that proves it — without opening the answer. That is the whole skill: HAM symptoms are almost always a missing category, a missing link, or a state that stopped matching reality.</p>
+
+<hr />
+
+<h2 id="-visual--video-guides">📺 Visual &amp; Video Guides</h2>
+
+<h3 id="ham-overview">HAM Overview</h3>
+<div style="text-align: center; margin: 1.5rem 0;">
+  &lt;iframe width="560" height="315" src=" title="HAM Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+</div>
+
+<p>Fallback link: <a href="">HAM Overview</a></p>
+
+<hr />
+
+<h2 id="slas-dashboards--workspaces">SLAs, Dashboards &amp; Workspaces</h2>
+
+<h3 id="sla-support">SLA Support</h3>
+<ul>
+  <li><strong>task_sla usage</strong>: Hardware assets tracked via <code class="language-plaintext highlighter-rouge">alm_asset</code> leveraging Task SLA for maintenance and lifecycle milestones. SLAs are attached to asset lifecycle states (e.g., warranty expiration, retirement milestones) and contract end dates.</li>
+  <li><strong>Module-specific SLA tables</strong>: <code class="language-plaintext highlighter-rouge">alm_asset</code> (primary), <code class="language-plaintext highlighter-rouge">ast_contract</code> (contract-linked SLAs). SLA policies are driven by contract terms and asset state transitions.</li>
+  <li><strong>Typical metrics</strong>: Asset SLA attainment (warranty compliance), contract renewal timeliness, retirement adherence rate.</li>
+</ul>
+
+<h3 id="ootb-dashboards">OOTB Dashboards</h3>
+<ul>
+  <li><strong>Hardware Asset Management Dashboard</strong>: Shows asset lifecycle distribution, warranty status, retirement compliance, and asset utilization by category.</li>
+</ul>
+
+<h3 id="ootb-workspaces">OOTB Workspaces</h3>
+<ul>
+  <li><strong>Hardware Asset Workspace</strong>: <code class="language-plaintext highlighter-rouge">All &gt; Asset Management &gt; Hardware Asset Management</code>. Breadcrumb: <code class="language-plaintext highlighter-rouge">All &gt; Asset Management &gt; Hardware Asset Management</code>.</li>
+</ul>
+
+<h2 id="quiz">Quiz</h2>
+
+<ol>
+  <li>What is the difference between <code class="language-plaintext highlighter-rouge">alm_asset</code> and <code class="language-plaintext highlighter-rouge">cmdb_ci</code>?</li>
+</ol>
+<details><summary>Answer</summary>Asset = Financial/Contractual; CI = Operational/Technical.</details>
+
+<ol>
+  <li>Which table holds software license information?</li>
+</ol>
+<details><summary>Answer</summary>alm_license</details>
+
+<ol>
+  <li>What are the asset lifecycle states?</li>
+</ol>
+<details><summary>Answer</summary>In Stock, In Use, Retired, Stolen, etc.</details>
+
+<ol>
+  <li>Why is asset tag critical?</li>
+</ol>
+<details><summary>Answer</summary>Unique identifier for physical tracking.</details>
+
+<ol>
+  <li>How do you link an asset to a contract?</li>
+</ol>
+<details><summary>Answer</summary>Via the alm_asset -&gt; ast_contract relationship.</details>
+
+<hr />
+
+<hr />
+
+<hr />
+
+<h2 id="official-learning-resources">🎓 Official Learning Resources</h2>
+
+<p>To avoid unofficial or outdated content, always use these validated official ServiceNow sources:</p>
+
+<h3 id="verified-videos-playlists">📺 Verified Videos &amp; Playlists</h3>
+
+<h3 id="quick-start-guide">Quick Start Guide</h3>
+<p>For those new to the module, we recommend starting with this official overview:</p>
+<div style="text-align: center; margin: 1.5rem 0;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/YtPp0O4v1o4" title="Hardware Asset Management Beginner Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</div>
+<p>Fallback link: <a href="https://www.youtube.com/watch?v=YtPp0O4v1o4">Hardware Asset Management Official Overview</a></p>
+
+<ul>
+  <li><a href="https://www.youtube.com/playlist?list=PLkGSnjw5y2U4MVzsIHSsDG0EC_zvsgOvY">Ask a Ranger: Hardware Asset Management</a></li>
+  <li><a href="https://www.youtube.com/playlist?list=PLkGSnjw5y2U6mJf9RGdaTZd8e2oiUWyS7">ServiceNow Exchange: Asset Management</a></li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Hardware Asset Management</td>
+          <td>Overview (Docs, 2026)](https://www.youtube.com/watch?v=YtPp0O4v1o4)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://www.youtube.com/watch?v=v3s6-Rx36xg">Hardware Asset Management: Setup and Success Guide (Part 1)</a></li>
+  <li><a href="https://www.youtube.com/watch?v=lAyVRyzHRp0">Installing Hardware Asset Management (HAM) – Part 1</a></li>
+  <li><a href="https://www.youtube.com/watch?v=oVjh-WUJhkE">Installing Hardware Asset Management (HAM) – Part 2</a></li>
+</ul>
+
+<h3 id="the-authoritative-path">The Authoritative Path</h3>
+<ol>
+  <li><strong>Now Learning (Structured Training)</strong>
+    <ul>
+      <li>The only official source for certification paths and structured video courses.</li>
+      <li><a href="https://nowlearning.com/">Go to Now Learning Portal</a> $\rightarrow$ Search for “Hardware Asset Management”</li>
+    </ul>
+  </li>
+  <li><strong>Product Documentation (Technical Reference)</strong>
+    <ul>
+      <li>The definitive source for every table, field, and OOB behavior.</li>
+      <li><a href="https://docs.servicenow.com/">ServiceNow Product Documentation</a> $\rightarrow$ Search for “Hardware Asset Management”</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="memory-aids-mnemonics">Memory Aids &amp; Mnemonics</h2>
+
+<details>
+  <summary>💡 Click to reveal mnemonics &amp; memory aids</summary>
+
+  <h3 id="business-rule-types--baa">Business Rule Types — BAA</h3>
+  <p>| Mnemonic | Type | When It Runs | Use Case |
+|———-|——|————–|———-|
+| <strong>B</strong>efore | before | Before DB write | Validate/modify data, cancel save (<code class="language-plaintext highlighter-rouge">abort = true</code>) |
+| <strong>A</strong>fter | after | After DB write | Create related records, send notifications |
+| <strong>A</strong>sync | async | After commit (separate thread) | Long-running tasks — emails, REST calls, integrations |</p>
+
+  <p><strong>Remember:</strong> <strong>BAA</strong> = Before, After, Async — and they run in that order.</p>
+
+  <hr />
+
+  <h3 id="client-script-types--locs">Client Script Types — LOCS</h3>
+  <p>| Mnemonic | Type | When It Runs | Use Case |
+|———-|——|————–|———-|
+| <strong>L</strong>oad | onLoad | Form opens | Set defaults, show/hide fields, UI initialization |
+| <strong>O</strong>nChange | onChange | Field value changes | Dynamic field behavior, cross-field validation |
+| <strong>C</strong>lick | onSubmit | User clicks Save | Final validation before form submits |
+| <strong>S</strong>ave | onCellEdit | List cell edits | Inline list editing validation |</p>
+
+  <p><strong>Remember:</strong> <strong>LOCS</strong> = Load, OnChange, Click (Submit), CellEdit (Save).</p>
+
+  <hr />
+
+  <h3 id="ui-policy-vs-data-policy-vs-client-script">UI Policy vs Data Policy vs Client Script</h3>
+  <p>| Mnemonic | What | Where It Runs | Scope |
+|———-|——|—————|——-|
+| <strong>U</strong>I | UI Policy | Browser (form load/change) | UI behavior only — mandatory, read-only, visible |
+| <strong>D</strong>ata | Data Policy | Server (every save path) | Data integrity — form, API, import, all writes |
+| <strong>C</strong>lient | Client Script | Browser only | UX feedback — can be bypassed by API/import saves |</p>
+
+  <p><strong>Remember:</strong> <strong>U</strong>→UI (looks), <strong>D</strong>→Data (truth), <strong>C</strong>→Client (feel). Never rely on Client Script for security.</p>
+
+  <hr />
+
+  <h3 id="ire--identification-before-reconciliation">IRE — Identification Before Reconciliation</h3>
+  <p><strong>Mnemonic:</strong> <strong>I before R</strong></p>
+
+  <ol>
+    <li><strong>I</strong>dentification = “Does this CI already exist?” → match existing CI or create new</li>
+    <li><strong>R</strong>econciliation = “Whose data wins for each field?” → update attributes on matched CI</li>
+  </ol>
+
+  <p><strong>Remember:</strong> You can’t reconcile what you haven’t identified first. Identification runs first; reconciliation only runs on matched CIs.</p>
+
+  <hr />
+
+  <h3 id="update-set-conflicts--arm">Update Set Conflicts — ARM</h3>
+  <p>| Mnemonic | Option | What It Does | When to Use |
+|———-|——–|————–|————-|
+| <strong>A</strong>ccept | Accept Remote | Update Set version overwrites target | Update Set version is newer/correct |
+| <strong>S</strong>kip | Skip remote update | Keep target instance’s version | Target has a fix that must be preserved |
+| <strong>M</strong>erge | Merge | Review both versions, combine manually | Both versions have valid changes |</p>
+
+  <p><strong>Remember:</strong> <strong>ARM</strong> = Accept Remote, Skip remote, Merge. For script conflicts (Business Rules, Script Includes), always choose <strong>Merge</strong>.</p>
+
+  <hr />
+
+  <h3 id="cmdb--retire-before-delete">CMDB — Retire Before Delete</h3>
+  <p><strong>Mnemonic:</strong> <strong>R before D</strong></p>
+
+  <ul>
+    <li><strong>R</strong>etire: Set <code class="language-plaintext highlighter-rouge">install_status = retired</code> — keeps <code class="language-plaintext highlighter-rouge">cmdb_rel_ci</code> relationships intact for historical impact analysis</li>
+    <li><strong>D</strong>elete: Hard delete — breaks <code class="language-plaintext highlighter-rouge">cmdb_rel_ci</code> parent/child references, orphaned incidents</li>
+  </ul>
+
+  <p><strong>Remember:</strong> Always retire, never delete.</p>
+
+  <hr />
+
+  <h3 id="order-vs-priority--lower--first">Order vs Priority — Lower = First</h3>
+  <p>| Feature | Ordering Field | Lower Number = |
+|———|—————|—————-|
+| Business Rule | <code class="language-plaintext highlighter-rouge">Order</code> | Runs first |
+| UI Policy | <code class="language-plaintext highlighter-rouge">Order</code> | Runs first |
+| Decision Table | <code class="language-plaintext highlighter-rouge">Order</code> | Runs first |
+| Scheduled Job | <code class="language-plaintext highlighter-rouge">Priority</code> | Runs first |
+| Identification Rule entry | <code class="language-plaintext highlighter-rouge">Priority</code> | Runs first |
+| Reconciliation Rule | <code class="language-plaintext highlighter-rouge">Priority</code> | Runs first |</p>
+
+  <p><strong>Remember:</strong> <strong>Lower number = runs first</strong>, regardless of whether the field is called <code class="language-plaintext highlighter-rouge">Order</code> or <code class="language-plaintext highlighter-rouge">Priority</code>.</p>
+
+  <hr />
+
+  <h3 id="transform-script--coalesce--match">Transform Script — Coalesce = Match</h3>
+  <p>| Mnemonic | Setting | Result |
+|———-|———|——–|
+| <strong>C</strong>oalesce | <code class="language-plaintext highlighter-rouge">coalesce = true</code> | Update existing CI (match on key fields) |
+| <strong>N</strong>o coalesce | <code class="language-plaintext highlighter-rouge">coalesce = false</code> | Insert new CI (create duplicate) |</p>
+
+  <p><strong>Remember:</strong> <strong>Coalesce</strong> = “come together” = match existing records instead of duplicating.</p>
+
+  <hr />
+
+  <h3 id="debugging--log-first-then-debug">Debugging — Log First, Then Debug</h3>
+  <p>| Context | Primary Tool | Command |
+|———|————-|———|
+| <strong>S</strong>erver | System Log (<code class="language-plaintext highlighter-rouge">sys_log</code>) | <code class="language-plaintext highlighter-rouge">gs.print()</code>, <code class="language-plaintext highlighter-rouge">gs.error()</code>, <code class="language-plaintext highlighter-rouge">gs.info()</code> |
+| <strong>C</strong>lient | Browser Console (F12) | <code class="language-plaintext highlighter-rouge">console.log()</code>, <code class="language-plaintext highlighter-rouge">debugger;</code> |
+| <strong>B</strong>oth | Script Debugger | Breakpoints, step-through, variable inspection |</p>
+
+  <p><strong>Remember:</strong> <strong>Log first</strong> — <code class="language-plaintext highlighter-rouge">gs.print()</code> for server, <code class="language-plaintext highlighter-rouge">console.log()</code> for client. <code class="language-plaintext highlighter-rouge">console.log()</code> does NOT work in server-side business rules.</p>
+
+  <hr />
+
+</details>
+
+<hr />
+
+<h2 id="related-guides">Related Guides</h2>
+
+<ul>
+  <li><a href="./cmdb-guide.md">CMDB guide</a></li>
+  <li><a href="./discovery-guide.md">Discovery guide</a></li>
+  <li><a href="./itsm-guide.md">ITSM guide</a></li>
+  <li><a href="./csm-guide.md">CSM guide</a></li>
+  <li><a href="./fsm-guide.md">FSM guide</a></li>
+  <li><a href="./../../getting-started/ham.md">HAM getting-started</a></li>
+</ul>
+
+<hr />
+
+<h2 id="further-learning-1">Further learning:</h2>
+
+<p>Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.</p>
+
+<ul>
+  <li><strong>Hardware Asset Workspace</strong> — the single surface for asset lifecycle, stockrooms, transfers and audits.</li>
+  <li><strong>Asset Management dashboards</strong> — lifecycle stage counts, unassigned assets, aged inventory, and audit variance; the variance is the number that matters.</li>
+  <li><strong>HAM Pro / Asset Lifecycle Management</strong> — contract, warranty and refresh planning tied to the asset record.</li>
+  <li><strong>Service Graph Connectors (Intune, SCCM, Jamf)</strong> — endpoint inventory flowing into the asset tables without spreadsheet reconciles.</li>
+  <li><strong>Mobile Agent for asset audits</strong> — barcode/QR scanning during physical inventory counts.</li>
+  <li><strong>Procurement integration</strong> — purchase orders and receiving creating assets automatically (Procurement/Supplier Management or an ERP integration).</li>
+  <li><strong>Stockroom and transfer orders</strong> — multi-location inventory with in-transit state; the usual cause of ‘the asset exists but nobody knows where’.</li>
+  <li><strong>Enterprise Asset Management (EAM)</strong> — the OT/maintenance-asset sibling module; do not model plant equipment in HAM.</li>
+</ul>
+
+<h3 id="hardware-asset-workspace--inventory-receiving-and-transfer-orders">Hardware Asset Workspace — inventory, receiving and transfer orders</h3>
+
+<p>Asset operations live in <strong>Workspaces › Hardware Asset Workspace</strong>, which consolidates the surfaces that used to be separate UI16 modules.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Function</th>
+      <th>Where</th>
+      <th>Gotcha</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Inventory view</td>
+      <td>Hardware Asset Workspace › Inventory</td>
+      <td>Shows stockroom-level state; an asset “missing” here is often in transit</td>
+    </tr>
+    <tr>
+      <td>Receiving</td>
+      <td>Stockroom receiving flow</td>
+      <td>Receiving creates the asset; skipping it means the asset exists only on the PO</td>
+    </tr>
+    <tr>
+      <td>Transfer orders</td>
+      <td>Stockroom → stockroom movement</td>
+      <td>In-transit is a real state — reports that ignore it double-count</td>
+    </tr>
+    <tr>
+      <td>Asset audit</td>
+      <td>Mobile Agent barcode/QR scan</td>
+      <td>The audit variance is the metric that matters, not the count</td>
+    </tr>
+    <tr>
+      <td>Lifecycle stages</td>
+      <td>On the asset record</td>
+      <td>Stages must be consistent or dashboards silently drop assets</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="the-distinction-that-causes-most-ham-confusion">The distinction that causes most HAM confusion</h3>
+
+<p>Three different records describe the same physical thing: <strong>purchase order line</strong> (procurement), <strong>asset</strong> (financial/lifecycle), and <strong>CI</strong> (operational). An asset without a CI cannot be impact-analysed; a CI without an asset cannot be depreciated. Deciding which system of record owns which attribute <em>before</em> load is the whole design.</p>
+
+<h3 id="integration-surface">Integration surface</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Path</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Intune / SCCM / Jamf</td>
+      <td>Service Graph Connector</td>
+      <td>Endpoint inventory into asset tables without spreadsheet reconciles</td>
+    </tr>
+    <tr>
+      <td>Procurement / ERP</td>
+      <td>Integration Hub spoke or import</td>
+      <td>POs and receiving should create assets automatically</td>
+    </tr>
+    <tr>
+      <td>Discovery / ACC</td>
+      <td>CI creation + asset linkage</td>
+      <td>Discovery finds the machine; HAM owns its financial life</td>
+    </tr>
+    <tr>
+      <td>Barcode / RFID</td>
+      <td>Mobile Agent</td>
+      <td>Physical audits only work with scanning</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Verify in your instance</strong>: most items above are plugin-gated (e.g. <code class="language-plaintext highlighter-rouge">com.snc.</code>) or release-specific; check <em>All › System Applications › All Available Applications</em> before relying on one.</li>
+</ul>
+
+    <footer class="page-footer">
+      <p>ServiceNow Module Guides — a working notebook, not product documentation. Verify behaviour against your own instance and the official ServiceNow docs.</p>
+    </footer>
+  </main>
+</div>
+
+<aside class="toc-panel" id="tocPanel" aria-label="Table of Contents">
+  <div class="toc-panel-head">
+    <span>Table of Contents</span>
+    <button type="button" id="tocHide" aria-label="Hide the table of contents">✕</button>
+  </div>
+  <nav id="tocFloat"></nav>
+</aside>
+<button type="button" class="toc-show" id="tocShow" aria-label="Show the table of contents">☰ Contents</button>
+
+<script src="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/js/site.js?v=202611270652"></script>
+<script src="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/js/tts.js?v=202611270652"></script>
+<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js?v=20261110"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+  function enhanceMermaid() {
+    var content = document.getElementById('content');
+    if (!content) return;
+    var diagrams = [].slice.call(content.querySelectorAll('.mermaid'));
+    if (!diagrams.length) return;
+
+    // 1) Wrap each rendered diagram in a scroll box so oversized diagrams can be scrolled.
+    diagrams.forEach(function (d) {
+      var p = d.parentElement;
+      if (p && p.classList && p.classList.contains('mermaid-scroll')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'mermaid-scroll';
+      p.insertBefore(wrap, d);
+      wrap.appendChild(d);
+    });
+
+    // The dedicated slideshow page handles its own navigation.
+    if (document.querySelector('.diagram-slideshow')) return;
+    if (diagrams.length < 2) return;
+    if (document.querySelector('.mermaid-slideshow-btn')) return;
+
+    // 2) Build a fullscreen lightbox slideshow of every diagram on the page.
+    var idx = 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'mm-overlay';
+    overlay.innerHTML =
+      '<div class="mm-bar">' +
+        '<button type="button" data-mm="prev" aria-label="Previous diagram">&#9664;</button>' +
+        '<span class="mm-count"></span>' +
+        '<button type="button" data-mm="next" aria-label="Next diagram">&#9654;</button>' +
+        '<button type="button" data-mm="close" aria-label="Close">Close &times;</button>' +
+      '</div><div class="mm-stage"></div>';
+    document.body.appendChild(overlay);
+    var stage = overlay.querySelector('.mm-stage');
+    var count = overlay.querySelector('.mm-count');
+
+    function show(n) {
+      idx = (n % diagrams.length + diagrams.length) % diagrams.length;
+      stage.innerHTML = '';
+      var clone = diagrams[idx].cloneNode(true);
+      clone.removeAttribute('data-processed');
+      stage.appendChild(clone);
+      stage.scrollTop = 0; stage.scrollLeft = 0;
+      count.textContent = (idx + 1) + ' / ' + diagrams.length + '  (scroll to pan, arrows to change)';
+    }
+    function open(n) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; show(n); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    overlay.querySelector('[data-mm="prev"]').addEventListener('click', function () { show(idx - 1); });
+    overlay.querySelector('[data-mm="next"]').addEventListener('click', function () { show(idx + 1); });
+    overlay.querySelector('[data-mm="close"]').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') show(idx - 1);
+      else if (e.key === 'ArrowRight') show(idx + 1);
+      else if (e.key === 'Escape') close();
+    });
+
+    // 3) Add a "Slideshow" launcher before the first diagram.
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mermaid-slideshow-btn';
+    btn.textContent = '\\u25B6 View diagrams as slideshow (' + diagrams.length + ')';
+    btn.addEventListener('click', function () { open(0); });
+    var firstWrap = diagrams[0].parentElement;
+    firstWrap.parentNode.insertBefore(btn, firstWrap);
+
+    // Auto-launch slideshow as default for diagram-heavy pages (6+ diagrams)
+    if (diagrams.length >= 6) {
+      btn.classList.add('slideshow-default');
+      setTimeout(function () { open(0); }, 800);
+    }
+
+    // 4) Click any diagram to open it in the slideshow.
+    diagrams.forEach(function (d, i) {
+      d.style.cursor = 'zoom-in';
+      d.addEventListener('click', function () { open(i); });
+    });
+  }
+
+
+  function toggleGroup(id) {
+    var g = document.getElementById(id);
+    var links = g.querySelector('.side-links');
+    var label = g.querySelector('.side-label');
+    var open = g.classList.toggle('open');
+    var text = label.textContent.replace(/[▸▾]/g, '').trim();
+    label.textContent = text + (open ? ' ▾' : ' ▸');
+    if (links) links.style.display = open ? 'block' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code, code').forEach(function (codeEl) {
+      var text = codeEl.textContent.trim();
+      if (/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|mindmap|requirementDiagram|block-beta|C4Context|stateDiagram-v2)/.test(text)) {
+        var preEl = codeEl.parentElement;
+        var container = preEl && preEl.tagName === 'PRE' ? preEl : codeEl;
+        var mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.textContent = text;
+        container.parentNode.replaceChild(mermaidDiv, container);
+      }
+    });
+    var p = window.mermaid.init(undefined, undefined, document.querySelectorAll('.mermaid'));
+    if (p && typeof p.then === 'function') { p.then(enhanceMermaid); } else { setTimeout(enhanceMermaid, 400); }
+    window.addEventListener('load', function () { setTimeout(enhanceMermaid, 600); });
+  });
+</script>
+<style>
+  .mermaid-scroll { overflow: auto; max-height: 80vh; padding: 4px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; }
+  .mermaid-scroll svg { max-width: none; }
+  .mermaid-scroll .mermaid { margin: 0; }
+  .mermaid-slideshow-btn { display: inline-block; margin: .4rem 0 .8rem; padding: .45rem .9rem; font: inherit; font-size: .85rem; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; cursor: pointer; }
+  .mermaid-slideshow-btn:hover { background: #2a4d38; }
+  .mm-overlay { position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; background: rgba(4,8,6,.96); }
+  .mm-overlay.open { display: flex; }
+  .mm-bar { display: flex; align-items: center; gap: .6rem; padding: .6rem .9rem; border-bottom: 1px solid rgba(255,255,255,.12); color: #e8f0e8; }
+  .mm-bar button { font: inherit; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; padding: .35rem .7rem; cursor: pointer; }
+  .mm-bar button:hover { background: #2a4d38; }
+  .mm-count { flex: 1; font-size: .85rem; opacity: .85; }
+  .mm-stage { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 1.25rem; }
+  .mm-stage svg { max-width: none; height: auto; }
+  .mm-stage .mermaid { margin: 0; }
+
+  /* Collapsible sidebar groups */
+  .side-group.collapsible > .side-links { display: none; border-top: 1px solid rgba(255,255,255,.06); margin-top: .2rem; padding-top: .4rem; }
+  .side-group.collapsible.open > .side-links { display: block; }
+  .side-subgroup { margin-left: .5rem; }
+  .side-subgroup .side-links { padding-left: .75rem; border-left: 1px solid rgba(255,255,255,.08); margin-top: .2rem; }
+  .side-label { cursor: pointer; user-select: none; }
+  .side-label:hover { opacity: .9; }
+
+</style>
+<script>
+  // Wide tables: wrap each content table in a horizontal scroll box so the final
+  // column stays reachable instead of being clipped at the page edge.
+  (function () {
+    function wrapTables() {
+      var tables = document.querySelectorAll('.content table');
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        var p = t.parentElement;
+        if (p && p.classList && p.classList.contains('table-scroll')) continue;
+        var wrap = document.createElement('div');
+        wrap.className = 'table-scroll';
+        p.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wrapTables);
+    } else {
+      wrapTables();
+    }
+    window.addEventListener('load', wrapTables);
+  })();
+</script>
+</body>
+</html>

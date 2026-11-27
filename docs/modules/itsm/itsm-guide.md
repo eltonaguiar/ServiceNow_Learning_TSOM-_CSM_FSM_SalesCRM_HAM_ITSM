@@ -520,7 +520,7 @@ flowchart TD
     TYPE -->|Emergency| EMRG[Expedited path]
     
     STD --> STD_APPROVE{Template exists? Low risk?}
-    STD_APPROVE -->|Yes| STD_EXEC[Auto-approve → Implement]
+    STD_APPROVE -->|Yes| STD_EXEC[Auto-approve to Implement]
     STD_APPROVE -->|No| NORM
     
     NORM --> CAB[CAB Review]
@@ -528,9 +528,9 @@ flowchart TD
     CAB_DECISION -->|Yes| NORM_EXEC[Implement with approval]
     CAB_DECISION -->|No| REJECT[Rejected / Return for revision]
     
-    EMRG --> ECAB["ECAB (on-call subset)"]
+    EMRG --> ECAB[ECAB (on-call subset)]
     ECAB --> EMRG_DECISION{Expedited approval?}
-    EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately → Retro review]
+    EMRG_DECISION -->|Yes| EMRG_EXEC[Implement immediately to Retro review]
     EMRG_DECISION -->|No| REJECT
     
     STD_EXEC --> POST[Post-implementation review optional]
@@ -574,7 +574,7 @@ flowchart TD
     CHECK3 -->|Yes → BLOCKED| BLOCK
     CHECK3 -->|No → OK| ALLOW[Allow implementation]
     
-    BLOCK --> NOTIF["Notify requester: change blocked (blackout / collision / dependency)"]
+    BLOCK --> NOTIF[Notify requester: change blocked (blackout / collision / dependency)]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
     RESOLVE --> CHECK1
     
@@ -839,12 +839,12 @@ graph TD
 
 ```mermaid
 graph LR
-    def["contract_sla active"] -->|start condition matches| ip[In Progress]
+    def[contract_sla active] -->|start condition matches| ip[In Progress]
     ip -->|pause condition| pa[Paused]
     pa -->|pause ends| ip
     ip -->|stop condition| co[Completed]
     ip -->|cancel condition| ca[Cancelled]
-    ip -->|planned end passed| br["has_breached true"]
+    ip -->|planned end passed| br[has_breached true]
     
     subgraph "Priority Matrix (Impact × Urgency)"
         direction LR

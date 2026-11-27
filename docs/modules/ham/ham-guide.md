@@ -506,12 +506,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph ITAM["ITAM View Asset"]
+    subgraph ITAM[ITAM View Asset]
         A[Asset Record]
         A --> FIN[Financial Data Cost PO Contract Depreciation]
         A --> ASG[Assignment Data User Location]
     end
-    subgraph CMDB["CMDB View CI"]
+    subgraph CMDB[CMDB View CI]
         C[CI Record]
         C --> TEC[Technical Data OS IP Serial]
         C --> REL[Relationships Runs On Depends On]

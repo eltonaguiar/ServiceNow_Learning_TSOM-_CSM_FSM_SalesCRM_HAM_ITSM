@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-nav="side">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Discovery — ITOM Discovery · ServiceNow Module Guides</title>
+<meta name="description" content="Getting started guides for ServiceNow TSOM, CSM, FSM, Sales CRM, HAM, ITSM, and Discovery modules">
+<script>
+  // Apply saved preferences before first paint (no flash).
+  (function () {
+    try {
+      var t = localStorage.getItem('sg-theme'); if (t) document.documentElement.dataset.theme = t;
+      var n = localStorage.getItem('sg-nav'); if (n) document.documentElement.dataset.nav = n;
+      var tp = localStorage.getItem('sg-tocpanel'); if (tp) document.documentElement.dataset.tocpanel = tp;
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,420&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/css/style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="bg-glow bg-glow-a"></div><div class="bg-glow bg-glow-b"></div><div class="bg-grid"></div></div>
+
+<header class="topbar">
+  <button class="icon-btn nav-burger" id="navBurger" aria-label="Open navigation">☰</button>
+  <a class="wordmark" href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/">ServiceNow<span class="wordmark-thin"> / Module Guides</span></a>
+  <div class="topbar-controls">
+    <div class="seg" role="group" aria-label="Menu position">
+      <button type="button" id="navTopBtn" title="Menu on top">Top</button>
+      <button type="button" id="navSideBtn" title="Menu on the left">Side</button>
+    </div>
+    <div class="seg" role="group" aria-label="Colour theme">
+      <button type="button" id="themeDarkBtn" title="Dark mode">Dark</button>
+      <button type="button" id="themeLightBtn" title="Light mode">Light</button>
+    </div>
+  </div>
+</header>
+
+<nav class="topnav" aria-label="Guides">
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itsm/itsm-guide/">ITSM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/csm/csm-guide/">CSM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sales-crm/sales-crm-guide/">Sales CRM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/cmdb/cmdb-guide/">CMDB</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itom/itom-guide/">ITOM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/discovery/discovery-guide/">Discovery</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/servicemapping/servicemapping-guide/">Service Mapping</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/events/events-guide/">Events</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ham/ham-guide/">HAM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sam/sam-guide/">SAM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/hrsd/hrsd-guide/">HRSD</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/ai-guide/">AI</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/catalog/catalog-guide/">Service Catalog</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/portal/portal-guide/">Portals</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/scripting/angular-guide/">Angular</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/javascript-reference/">JavaScript Reference</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/youtube/">Video Library</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/learning/">Learning Paths</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/interviews/prioritized-prep-list/">Interview Prep</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/cross-cutting/">Cross-Cutting Skills</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-guide/">TSOM</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-assurance/">TSOM Assurance</a>
+  <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/">Getting Started</a>
+</nav>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="side-group collapsible" id="group-guides">
+      <p class="side-label" onclick="toggleGroup('group-guides')">Guides ▸</p>
+      <div class="side-links" id="links-group-guides">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itsm/itsm-guide/">ITSM <span class="side-sub">IT Service Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/csm/csm-guide/">CSM <span class="side-sub">Customer Service Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sales-crm/sales-crm-guide/">Sales CRM <span class="side-sub">Leads, Opportunities, Quotes, Orders, Pipeline</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/cmdb/cmdb-guide/">CMDB <span class="side-sub">Configuration Management Database</span></a>
+        <div class="side-subgroup">
+          <p class="side-label sub-label" onclick="toggleGroup('group-itom')">ITOM ▸</p>
+          <div class="side-links sub-links" id="links-group-itom">
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/itom/itom-guide/">ITOM <span class="side-sub">IT Operations Management</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/discovery/discovery-guide/">Discovery <span class="side-sub">ITOM Discovery</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/servicemapping/servicemapping-guide/">Service Mapping <span class="side-sub">Application Service Discovery</span></a>
+            <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/events/events-guide/">Events <span class="side-sub">em_event, Event Registry, gs.eventQueue, email notifications</span></a>
+          </div>
+        </div>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ham/ham-guide/">HAM <span class="side-sub">Hardware Asset Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/sam/sam-guide/">SAM <span class="side-sub">Software Asset Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/hrsd/hrsd-guide/">HRSD <span class="side-sub">Human Resources Service Delivery</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/ai-guide/">AI <span class="side-sub">AI-Native Tiers, Now Assist, Predictive Intelligence</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/catalog/catalog-guide/">Service Catalog <span class="side-sub">Catalog Items, Variables, Flows, Fulfillment</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/portal/portal-guide/">Portals &amp; UI Builder <span class="side-sub">Service Portal, Next Experience, Employee Center</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/scripting/angular-guide/">Angular <span class="side-sub">AngularJS for Service Portal + Modern Angular</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/ai/javascript-reference/">JavaScript Reference <span class="side-sub">GlideRecord, GlideAjax, Business Rules, Scripting Patterns</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-other">
+      <p class="side-label" onclick="toggleGroup('group-other')">Other ▸</p>
+      <div class="side-links" id="links-group-other">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/youtube/">Video Library <span class="side-sub">Official Channels &amp; Playlists</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/learning/">Learning Paths <span class="side-sub">Official Courses &amp; Certifications</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/interviews/prioritized-prep-list/">Interview Prep <span class="side-sub">Prioritized by Interview Order</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/cross-cutting/">Cross-Cutting Skills <span class="side-sub">Integrations, Scripting, Governance</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-tsom">
+      <p class="side-label" onclick="toggleGroup('group-tsom')">TSOM ▸</p>
+      <div class="side-links" id="links-group-tsom">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-guide/">TSOM <span class="side-sub">Telecom Service Operations Management</span></a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/docs/modules/tsom/tsom-assurance/">TSOM Assurance <span class="side-sub">Event Management, AIOps, Service Impact Analysis, Synthetic Monitoring</span></a>
+      </div>
+    </div>
+    <div class="side-group collapsible" id="group-getting-started">
+      <p class="side-label" onclick="toggleGroup('group-getting-started')">Getting Started ▸</p>
+      <div class="side-links" id="links-group-getting-started">
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/">Track overview</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/foundation/">Foundation</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/tsom/">TSOM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/tsom-diagrams/">TSOM diagrams</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/csm/">CSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/fsm/">FSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/sales-crm/">Sales CRM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/ham/">HAM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/itsm/">ITSM start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/discovery/">Discovery start</a>
+        <a href="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/getting-started/hrsd/">HRSD start</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <p class="side-label">Repository</p>
+      <a href="https://github.com/eltonaguiar/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM">GitHub source</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="content" id="content">
+<h1 id="discovery--itom-discovery">Discovery — ITOM Discovery</h1>
+
+<blockquote>
+  <p><strong>Validated on:</strong> ServiceNow ITOM Discovery (Xanadu / Washington DC family), plugin <code class="language-plaintext highlighter-rouge">com.snc.discovery.core</code> active. UI breadcrumbs reference the <strong>Discovery Configuration Console</strong>, which is newer-family; classic list paths apply to older releases. Verify navigation against your instance before following.
+<strong>Last reviewed:</strong> Nov 2026.
+<strong>How to use this guide:</strong> New to Discovery? Read <strong>Part 0</strong>, then <strong>Part 1</strong>, then <strong>Part 2</strong>, then run the <strong>Part 3 labs</strong>. Skip collapsed Parts 4–6 until you need them. Each heading is numbered (e.g. 3.4) so “you are here” links and prev/next navigation work across pages.</p>
+</blockquote>
+
+<p>Discovery is how ServiceNow finds out what actually exists. It reaches targets through three mechanisms — agentless IP scanning, cloud API calls, and agent-based collection — and lands everything in the CMDB through the same Identification and Reconciliation Engine (IRE). Everything downstream (ITSM impact, SAM licenses, TSOM inventory) is only as good as what Discovery put in the CMDB.</p>
+
+<hr />
+
+<h2 id="contents">Contents</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Title</th>
+      <th>Type</th>
+      <th>Time</th>
+      <th>Why it matters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>0</strong></td>
+      <td>Start here</td>
+      <td>Concept + Lab</td>
+      <td>30–45 min</td>
+      <td>Your first CI, proven, before any theory.</td>
+    </tr>
+    <tr>
+      <td><strong>1</strong></td>
+      <td>Understand the model</td>
+      <td>Concept</td>
+      <td>~45 min</td>
+      <td>What Discovery does, the four phases, MID → ECC → CMDB, IRE in five minutes.</td>
+    </tr>
+    <tr>
+      <td><strong>2</strong></td>
+      <td>Set up Discovery</td>
+      <td>Task</td>
+      <td>60–90 min</td>
+      <td>Readiness gate, plugins, MID, credentials, IP ranges, schedules, behaviors, console, firewall.</td>
+    </tr>
+    <tr>
+      <td><strong>3</strong></td>
+      <td>Run, verify, prove</td>
+      <td>Task + Lab</td>
+      <td>~90 min</td>
+      <td>Run a schedule, read the evidence, File-Based Discovery end to end, IRE + CMDB quality lab.</td>
+    </tr>
+    <tr>
+      <td><strong>4</strong></td>
+      <td>Troubleshoot &amp; operate</td>
+      <td>Reference</td>
+      <td>~45 min</td>
+      <td>Symptom → phase → cause decision table, evidence runbook, top mistakes, Day 2 cadence.</td>
+    </tr>
+    <tr>
+      <td><strong>5</strong></td>
+      <td>Advanced deep dives</td>
+      <td>Advanced — collapsed</td>
+      <td>as needed</td>
+      <td>MID architecture, coverage engineering, credential vaults, affinities, pattern customization, specialized discovery.</td>
+    </tr>
+    <tr>
+      <td><strong>6</strong></td>
+      <td>Quick reference</td>
+      <td>Reference — collapsed</td>
+      <td>as needed</td>
+      <td>Where to find it, navigator shortcuts, table hierarchy, key fields, properties, metadata inventory, glossary, scripts, KPIs.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Reading paths:</strong> New to Discovery → <strong>0 → 1 → 2 → 3.1 → 6.7</strong> • Implementing a rollout → <strong>2 → 3 → 6.4</strong> • Day 2 ops → <strong>4 → 6.5 → 4.4</strong> • CIS-Discovery study → <strong>1 → 3 → 4 → 6.7</strong> • SAM/HAM focus → <strong>3.4 → 6.6</strong></p>
+
+<blockquote>
+  <p>[!note] Why the numbering skips
+Parts are numbered by teaching order, not by page importance. Part 0 is the hands-on lab you run first so you get a visible result before any theory; Parts 5–6 are collapsed reference you open only when you need them. Jump to the part that matches your goal rather than reading straight through.</p>
+</blockquote>
+
+<!--
+Hidden section — reading-path rationale + TL;DR
+
+Why follow this order:
+- Part 0 gives you a proven CI in ~30 minutes, which makes every later concept concrete instead of abstract.
+- Part 1 defines the vocabulary (CI, MID Server, ECC Queue, IRE, Shazzam, FBD) before you configure anything, so jargon never hits before it's defined.
+- Part 2 is the pre-flight: readiness gate, plugins, MID Server, credentials, IP ranges, schedules, behaviors, firewall. Nothing scans until this is done.
+- Part 3 is where you run schedules, read the evidence (status → log → device history → ECC Queue), and complete the File-Based Discovery and IRE/CMDB quality labs.
+- Part 4 is your troubleshooting operating system: symptom → phase → cause decision table, evidence runbook, top-10 mistakes, Day 2 cadence.
+- Parts 5–6 are specialist reference (MID architecture, affinities, pattern customization, navigator shortcuts, glossary, KPIs) — collapsed by default because most readers never need them on the first pass.
+
+TL;DR — what you discover in each part:
+- Part 0 Start here: your first discovered CI, FBD proven on the target, roles you need.
+- Part 1 Understand the model: four phases (Scan → Classify → Identify → Explore), MID → ECC → CMDB flow, IRE in five minutes, horizontal vs top-down.
+- Part 2 Set up Discovery: readiness gate, plugins, MID Server install/sizing/tuning, credentials & affinities, IP ranges & schedules, behaviors, console, firewall port matrix.
+- Part 3 Run, verify, prove: run a schedule, read the evidence, FBD end-to-end lab, IRE + CMDB data quality + stale CI lifecycle lab.
+- Part 4 Troubleshoot & operate: symptom→phase→cause table, evidence runbook, top-10 mistakes, affinity failures, Day 2 governance cadence.
+- Part 5 Advanced deep dives: MID zones/clusters/sizing, coverage engineering, credential vaults, affinities, pattern customization routes, specialized discovery (web certs, firewall audit, cloud, ACC, macOS/mobile).
+- Part 6 Quick reference: where to find it, navigator shortcuts, table hierarchy, key fields, properties, metadata inventory, glossary, safe scripts, KPI targets.
+-->
+
+<ul>
+  <li>
+    <h2 id="further-learning"><a href="#further-learning">Further learning:</a></h2>
+  </li>
+</ul>
+
+<h2 id="part-0--start-here-3045-min">Part 0 — Start here (30–45 min)</h2>
+
+<p><strong>Goal:</strong> Discover one IP, confirm a CI was created in the CMDB, and verify File-Based Discovery executed — before reading any theory.</p>
+
+<h3 id="01-what-you-will-achieve">0.1 What you will achieve</h3>
+<p>One CI representing a real target, with <code class="language-plaintext highlighter-rouge">last_discovered</code> populated, plus proof the File-Based Discovery scan file ran on the target device. This is the visible result that makes the rest of the guide make sense.</p>
+
+<h3 id="02-discovery-in-one-paragraph">0.2 Discovery in one paragraph</h3>
+<p>Discovery scans targets (IP ranges, cloud APIs, agents), classifies what answered, matches it to an existing CI or creates a new one (IRE), then explores its details and writes them into the CMDB. Three collection mechanisms — <strong>agentless IP</strong>, <strong>cloud API</strong>, <strong>ACC agent</strong> — all feed the same CMDB.</p>
+
+<h3 id="03-vocabulary-you-need-before-clicking-8-terms-max">0.3 Vocabulary you need before clicking (8 terms max)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Term</th>
+      <th>Plain English</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CI</td>
+      <td>Anything you track: server, switch, software, certificate</td>
+    </tr>
+    <tr>
+      <td>CMDB</td>
+      <td>The database holding all CIs</td>
+    </tr>
+    <tr>
+      <td>MID Server</td>
+      <td>Agent inside your network that does the scanning</td>
+    </tr>
+    <tr>
+      <td>ECC Queue</td>
+      <td>Mailbox between instance and MID: work out, results back</td>
+    </tr>
+    <tr>
+      <td>Shazzam</td>
+      <td>TCP port sweep that finds live IPs (not ICMP ping)</td>
+    </tr>
+    <tr>
+      <td>IRE</td>
+      <td>Matches new data to an existing CI, or creates a new one</td>
+    </tr>
+    <tr>
+      <td>FBD</td>
+      <td>File-Based Discovery: finds software from files on disk</td>
+    </tr>
+    <tr>
+      <td>Schedule</td>
+      <td>When and what Discovery scans</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="04-roles--access-at-a-glance">0.4 Roles &amp; access at a glance</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">discovery_admin</code> — configure and run Discovery</li>
+  <li><code class="language-plaintext highlighter-rouge">admin</code> — Configuration Console access</li>
+  <li><code class="language-plaintext highlighter-rouge">agent_admin</code> — MID Server administration</li>
+  <li><code class="language-plaintext highlighter-rouge">pattern_admin</code> — Pattern Designer</li>
+  <li><code class="language-plaintext highlighter-rouge">mid_server</code> — MID Server’s service account on the instance side</li>
+</ul>
+
+<h3 id="05-lab-your-first-discovery-quick-discovery-on-one-ip">0.5 [LAB] Your first Discovery: Quick Discovery on one IP</h3>
+
+<ol>
+  <li><strong>Confirm the MID Server.</strong> All &gt; Discovery &gt; MID Servers. Status must be <strong>Validated</strong> and <strong>Up</strong>.</li>
+  <li><strong>Configure and test credentials.</strong> All &gt; Discovery &gt; Credentials &gt; New. Create a credential for your target (Windows for Windows, SSH for Linux). Click <strong>Test Connection</strong> — test from the <strong>MID Server host</strong>, not your laptop.</li>
+  <li><strong>Run Quick Discovery.</strong> All &gt; Discovery &gt; Quick Discovery. Enter the target IP, select your MID Server and credential, run it.</li>
+  <li><strong>Verify the CI in the CMDB.</strong> Open the Discovery Status record (All &gt; Discovery &gt; Status). Confirm state = <strong>Completed</strong>. Open All &gt; CMDB &gt; CI List (<code class="language-plaintext highlighter-rouge">cmdb_ci</code>), search by name/IP. Confirm one CI exists (<code class="language-plaintext highlighter-rouge">cmdb_ci_win_server</code> or <code class="language-plaintext highlighter-rouge">cmdb_ci_linux_server</code>) with a recent <code class="language-plaintext highlighter-rouge">last_discovered</code>, and no duplicate with the same serial number.</li>
+  <li><strong>Enable File-Based Discovery (FBD).</strong> All &gt; Discovery &gt; Discovery Definition &gt; Configuration Console → turn on <strong>Enable File Based Discovery</strong>. Keep default folders, set <strong>Frequency: Monthly</strong>, blacklist <code class="language-plaintext highlighter-rouge">.log</code> and <code class="language-plaintext highlighter-rouge">.tmp</code>. Re-run against the same target.</li>
+  <li><strong>Prove FBD ran on the target.</strong> On the instance, Discovery Log should show <strong>Windows - File Based Discovery</strong> probe activity. On the Windows target, <code class="language-plaintext highlighter-rouge">C:\Windows\Temp</code> should contain <code class="language-plaintext highlighter-rouge">snc_tmp_&lt;hash&gt;.tmp</code> timestamped with your run.</li>
+</ol>
+
+<blockquote>
+  <p><strong>Where to go next:</strong> Ran it → Part 3 • Configure it → Part 2 • Fix it → Part 4 • Exam prep → Appendix D</p>
+</blockquote>
+
+<hr />
+
+<h2 id="part-1--understand-the-model-45-min">Part 1 — Understand the model (~45 min)</h2>
+
+<h3 id="11-what-discovery-is-for--and-what-it-is-not-for">1.1 What Discovery is for — and what it is not for</h3>
+
+<p><strong>Discovery:</strong></p>
+<ul>
+  <li>Finds what exists on your network and keeps its CI current.</li>
+  <li>Feeds ITSM impact analysis, SAM license counts, HAM asset matching, TSOM inventory reconciliation.</li>
+</ul>
+
+<p><strong>Discovery is NOT:</strong></p>
+<ul>
+  <li>Service Mapping — that draws relationships between CIs to build service maps. Discovery builds CIs; Service Mapping connects them.</li>
+  <li>Telemetry — OpenTelemetry pushes metrics/traces/logs; Discovery polls infrastructure to create CIs.</li>
+  <li>License normalization by itself — File-Based Discovery finds files; SAM normalization turns them into licensable installations.</li>
+</ul>
+
+<h3 id="12-the-four-phases-scan--classify--identify--explore">1.2 The four phases: Scan → Classify → Identify → Explore</h3>
+
+<ol>
+  <li><strong>Scanning</strong> — Shazzam is a TCP port sweep driven by active port probes (not an ICMP ping sweep). A host up but blocking every probed port is invisible.</li>
+  <li><strong>Classification</strong> — classifiers decide what kind of device answered (Windows server, Linux, switch, …).</li>
+  <li><strong>Identification</strong> — IRE matches the device to an existing CI or creates a new one — prevents duplicates.</li>
+  <li><strong>Exploration</strong> — patterns/probes gather OS, CPU, memory, processes, software. <strong>File-Based Discovery runs here.</strong></li>
+</ol>
+
+<h3 id="13-mid-server--ecc-queue--cmdb-diagram">1.3 MID Server → ECC Queue → CMDB (diagram)</h3>
+
+<pre><code class="language-mermaid">flowchart LR
+    Instance[ServiceNow Instance] &lt;==&gt;|output records — work sent to MID| ECC[ECC Queue ecc_queue]
+    ECC &lt;==&gt;|input records — results returned| MID[MID Server inside your network]
+    MID --&gt;|WMI · WinRM · SSH · SNMP| Target[Target Device]
+    Target --&gt;|returns data| MID
+    MID --&gt;|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
+
+    subgraph InstanceSide [Instance side]
+        Instance
+        ECC
+        CI
+    end
+    subgraph NetworkSide [Network side]
+        MID
+        Target
+    end
+
+    style Instance fill:#e58a8a,color:#000
+    style ECC fill:#e5b567,color:#000
+    style MID fill:#4cc38a,color:#000
+    style CI fill:#10141a
+</code></pre>
+
+<p>A MID Server only initiates <strong>outbound</strong> connections — it never listens for inbound from targets. The instance-side connection is always outbound HTTPS 443 (MID → instance).</p>
+
+<h3 id="14-probes-sensors-and-patterns--who-runs-where">1.4 Probes, sensors and patterns — who runs where</h3>
+
+<ul>
+  <li><strong>Probe</strong> — collection script that runs on the MID Server and talks to a target (<code class="language-plaintext highlighter-rouge">discovery_probe</code>, e.g. Shazzam, HorizontalDiscoveryProbe).</li>
+  <li><strong>Sensor</strong> — instance-side parser that turns probe output into CI data (<code class="language-plaintext highlighter-rouge">discovery_sensor</code>, e.g. HorizontalDiscoverySensor).</li>
+  <li><strong>Pattern</strong> — self-contained set of exploration steps running on the MID Server, modern replacement for most probe/sensor pairs (<code class="language-plaintext highlighter-rouge">sa_pattern</code>, edited in Pattern Designer).</li>
+</ul>
+
+<p>Scanning/classification always use probes. Identification/exploration may use patterns. A pattern is transported by one generic <code class="language-plaintext highlighter-rouge">HorizontalDiscoveryProbe</code>; the <code class="language-plaintext highlighter-rouge">HorizontalDiscoverySensor</code> parses the returned JSON payload straight to IRE.</p>
+
+<h3 id="15-ire-in-five-minutes">1.5 IRE in five minutes</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Rule family</th>
+      <th>What it decides</th>
+      <th>Insert new CI?</th>
+      <th>Update existing CI?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Identification rules</td>
+      <td>Does this payload match an existing CI?</td>
+      <td>yes — no match → create</td>
+      <td>yes — match → update</td>
+    </tr>
+    <tr>
+      <td>Reconciliation rules</td>
+      <td>Whose data wins per attribute (data-source precedence)?</td>
+      <td>no</td>
+      <td>yes — winning source updates fields</td>
+    </tr>
+    <tr>
+      <td>Data Source rules</td>
+      <td>May this source insert new CIs at all?</td>
+      <td>no — can block inserts</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Data Refresh rules</td>
+      <td>Is the incumbent value too stale to protect?</td>
+      <td>no</td>
+      <td>yes — stale value may be replaced</td>
+    </tr>
+    <tr>
+      <td>De-duplication tasks</td>
+      <td>Multiple matches — which CI survives?</td>
+      <td>no — flagged for review</td>
+      <td>no — blocked until resolved</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Identification runs first; reconciliation only runs on matched CIs. <strong>Data-source precedence governs which source wins an attribute write, not whether a source is allowed to insert a CI.</strong> Insert permission is controlled by identification rules and class-level settings. If you see “match but no update,” check reconciliation priority; if you see “no match but also no CI,” check de-duplication tasks and identifier criteria.</p>
+
+<blockquote>
+  <p><strong>Common misconception:</strong> you cannot reconcile what you haven’t identified first. <strong>I before R.</strong></p>
+</blockquote>
+
+<h3 id="16-horizontal-vs-top-down-discovery-short-orientation">1.6 Horizontal vs top-down discovery (short orientation)</h3>
+<ul>
+  <li><strong>Horizontal Discovery</strong> starts from IP ranges and scans outward — classic Discovery, what this guide covers.</li>
+  <li><strong>Top-down discovery / Service Mapping</strong> starts from a business service or entry point and walks connections, using MID Server affinity (IP ranges + capabilities on the MID record) to route work to the right MID.</li>
+</ul>
+
+<p><strong>Next:</strong> 2.1 Readiness gate — pre-flight checklist ◀ <strong>Prev:</strong> 0.5 First Quick Discovery lab</p>
+
+<hr />
+
+<h2 id="part-2--set-up-discovery-6090-min">Part 2 — Set up Discovery (60–90 min)</h2>
+
+<h3 id="21-readiness-gate--pre-flight-checklist">2.1 Readiness gate — pre-flight checklist</h3>
+<p>Copy into your change record before scanning anything:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />MID Server deployed, Validated, and Up in every network zone / NAT domain to be scanned</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Credentials tested per OS / domain / cloud account from the <strong>MID Server host</strong>, not a laptop</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Port/firewall matrix signed off (443 outbound MID→instance; 22/135/5985-5986/161 MID→targets)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />SOC/IDS-IPS notified; MID Server IPs allow-listed before scanning</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />IP ranges reconciled with IPAM; exclusion list documented with owners and expiry dates</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Behaviors scoped per range set (no default “scan everything” behavior)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />CMDB identifier rules reviewed per class; stable attributes (serial/MAC/UUID) preferred over IP</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Data-source precedence contract signed off per attribute across all ingestion sources</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Rollback/disable plan defined (how to stop schedules and clear affinities)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Sub-prod test MID and schedule proven against a pilot subnet before production rollout</li>
+</ul>
+
+<h3 id="22-plugins-licensing-and-core-tables">2.2 Plugins, licensing and core tables</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Plugin</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.discovery.core</code></td>
+      <td>Discovery Core — required</td>
+      <td>Must be active</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.mid_server</code></td>
+      <td>MID Server</td>
+      <td>Required</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.discovery.file_based_discovery</code></td>
+      <td>File-Based Discovery</td>
+      <td>Included with Discovery; activation must be requested</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.file_signature_normalization</code></td>
+      <td>SAM File Signature Normalization</td>
+      <td>Activated automatically with FBD</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.discovery.cloud_discovery</code></td>
+      <td>Cloud Discovery</td>
+      <td>Optional — AWS/Azure/GCP</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.discovery.web_certificate</code></td>
+      <td>Web Certificate Discovery</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">com.snc.discovery.firewall_audit</code></td>
+      <td>Firewall Audit</td>
+      <td>Optional</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="23-mid-server-essentials">2.3 MID Server essentials</h3>
+
+<p><strong>Install &amp; validate:</strong> Download installer from your instance (MID Server &gt; Servers &gt; download), install on a Windows or Linux host inside the zone to scan, configure <code class="language-plaintext highlighter-rouge">agent/config.xml</code> with instance URL and MID name, start the service, confirm status <strong>Validated</strong> and <strong>Up</strong> (All &gt; Discovery &gt; MID Servers).</p>
+
+<p><strong>Windows vs Linux:</strong> Windows MID is required for WMI/WinRM/PowerShell against Windows targets and can also scan Linux/network via SSH/SNMP. Linux MID cannot run WMI probes at all. Use Windows MIDs for Windows-heavy zones, Linux MIDs for UNIX-heavy estates.</p>
+
+<p><strong>Placement:</strong> One MID Server cluster (2+ nodes) per network zone — not one MID per subnet. Every cluster member carries identical IP Ranges, Capabilities, Supported Applications. Place MIDs close to targets (same VLAN/datacenter).</p>
+
+<p><strong>Sizing:</strong> ~1 MID per 5,000–10,000 CIs. Small (&lt;1k devices): 1–2 MIDs. Medium (1k–5k): 2–4. Large (5k–15k): 4–8. Enterprise (15k+): 8+. Always ≥2 per critical zone for failover.</p>
+
+<p><strong>Tuning (exact files):</strong></p>
+<ul>
+  <li>Threads — <code class="language-plaintext highlighter-rouge">&lt;MID_install_folder&gt;/agent/config.xml</code>: <code class="language-plaintext highlighter-rouge">&lt;parameter name="threads.max" value="25"/&gt;</code>. Safe starts: 25 light, 50 typical production, 75–100 large Linux/network/cloud. On Windows MIDs doing heavy Windows discovery, stop at ~50 threads (PowerShell sits outside the JVM).</li>
+  <li>JVM heap — <code class="language-plaintext highlighter-rouge">&lt;MID_install_folder&gt;/agent/conf/wrapper-override.conf</code> (never <code class="language-plaintext highlighter-rouge">wrapper.conf</code>): <code class="language-plaintext highlighter-rouge">wrapper.java.maxmemory=2048</code> (MB; 2048 or 4096 common). Restart MID service after saving.</li>
+</ul>
+
+<h3 id="24-credentials-essentials">2.4 Credentials essentials</h3>
+
+<p><strong>Types:</strong> Windows, SSH (key-based preferred), SNMP v2c/v3, VMware, JDBC, cloud service accounts (AWS access key/role, Azure service principal, GCP service account).</p>
+
+<p><strong>Test from the MID host, not your laptop</strong> — the MID runs under a different service account; a credential that works on your laptop can fail on the MID.</p>
+
+<p><strong>Least privilege:</strong> Windows — local admin or delegated WMI/WinRM rights (Domain Admin convenient but security will reject). Linux — sudo-enabled account for specific commands (<code class="language-plaintext highlighter-rouge">dmidecode</code>, <code class="language-plaintext highlighter-rouge">lsof</code>, package queries).</p>
+
+<p><strong>Credential order &amp; affinity:</strong> Discovery tries credentials in configured order per target type. On each successful auth it writes a <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code> row (IP + MID → credential). Next run for that IP+MID tries the affinity credential first — why the “right” credential sometimes isn’t used, and why rotating credentials temporarily slows Discovery until new affinities form. Clear <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code> rows for a rotated credential.</p>
+
+<p><strong>External vaults:</strong> Mature enterprises don’t store static passwords in <code class="language-plaintext highlighter-rouge">discovery_credentials</code>. Integrate CyberArk, HashiCorp Vault, or Azure Key Vault via MID Server External Credential Storage.</p>
+
+<p><strong>IP service affinity:</strong> Remembers successful port/protocol + classification path per target IP (<code class="language-plaintext highlighter-rouge">dscy_ip_service_affinity</code>). Controlled by <code class="language-plaintext highlighter-rouge">glide.discovery.ip_service_affinity=true</code>. Next run tries the known service first and skips failed classification paths. If a device changes OS (Linux → Windows), clear <code class="language-plaintext highlighter-rouge">dscy_ip_service_affinity</code> for that IP if classification gets stuck.</p>
+
+<h3 id="25-ip-ranges-range-sets-and-schedules">2.5 IP ranges, range sets and schedules</h3>
+
+<p>Discovery scans <strong>IP ranges</strong>, grouped into <strong>range sets</strong>, attached to schedules.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mechanism</th>
+      <th>Behaviour</th>
+      <th>Watch out for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IP address range</td>
+      <td>Scans every address in the range</td>
+      <td>Also scans network/broadcast addresses; prefer host-aligned ranges</td>
+    </tr>
+    <tr>
+      <td>Range set</td>
+      <td>Named group of ranges; schedules reference it</td>
+      <td>Change once, every schedule using it picks it up</td>
+    </tr>
+    <tr>
+      <td>Exclusions</td>
+      <td>Keeps fragile/forbidden devices out of scope</td>
+      <td>Exclusion without a named owner = invisible devices for years</td>
+    </tr>
+    <tr>
+      <td>Very large ranges</td>
+      <td><code class="language-plaintext highlighter-rouge">/8</code> or <code class="language-plaintext highlighter-rouge">0.0.0.0</code> netmask is nearly always a typo</td>
+      <td>Split into <code class="language-plaintext highlighter-rouge">/24</code> subnets; Shazzam can exhaust memory</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Workable convention:</strong> <code class="language-plaintext highlighter-rouge">ZONE-&lt;name&gt;-&lt;os-family&gt;</code> range sets (e.g. <code class="language-plaintext highlighter-rouge">ZONE-DMZ-linux</code>), each with its own MID cluster, credential alias, schedule — coverage auditable per row.</p>
+
+<p><strong>Creating a schedule:</strong> All &gt; Discovery &gt; Discovery Definition &gt; Schedules &gt; New — name, ranges, MID server/cluster, credential set, behavior, frequency.</p>
+
+<p><strong>Best practices:</strong> Run heavy schedules off-hours. Align FBD frequency to Monthly unless software changes often. Break large blocks into <code class="language-plaintext highlighter-rouge">/24</code> subnets grouped by location tied to nearest MID cluster. Whitelist MID IPs with SOC/IDS-IPS before scanning.</p>
+
+<p><strong>IPv6:</strong> Discovery supports IPv6 ranges; schedule same as IPv4. Prefer serial/MAC/UUID over IP for DHCP devices in IRE rules.</p>
+
+<h3 id="26-discovery-behaviours-and-ci-classification-basic">2.6 Discovery Behaviours and CI classification (basic)</h3>
+<p>A behavior groups functionality definitions (which probes/patterns may run) that a schedule applies to specified ranges. Use behaviors to restrict a schedule to specific protocols — e.g. SNMP-only network scan, WMI-only server scan where firewall blocks SSH. Prevents Discovery from attempting protocols that will fail and generate noise.</p>
+
+<h3 id="27-the-discovery-configuration-console-toggles-and-what-they-mean">2.7 The Discovery Configuration Console (toggles and what they mean)</h3>
+<p>All &gt; Discovery &gt; Discovery Definition &gt; Configuration Console. Role: <strong>admin</strong>. Toggles: right = enabled, left = disabled. Controls what CI types and information get discovered — including File-Based Discovery and SWID tags.</p>
+
+<h3 id="28-network--firewall-port-matrix">2.8 Network &amp; firewall port matrix</h3>
+<p>Share with the network team before the pilot:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Direction</th>
+      <th>Port</th>
+      <th>Required for</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MID → instance</td>
+      <td>443 HTTPS/TLS</td>
+      <td>All Discovery</td>
+      <td>Outbound from MID to your instance URL; configure proxy if required</td>
+    </tr>
+    <tr>
+      <td>MID → Windows target</td>
+      <td>135 TCP/RPC</td>
+      <td>WMI</td>
+      <td>Plus dynamic RPC range 1024–65535 unless restricted; WinRM avoids this</td>
+    </tr>
+    <tr>
+      <td>MID → Windows target</td>
+      <td>5985/5986 TCP</td>
+      <td>WinRM</td>
+      <td>Preferred over WMI; requires WinRM enabled on target</td>
+    </tr>
+    <tr>
+      <td>MID → Linux/macOS target</td>
+      <td>22 TCP</td>
+      <td>SSH</td>
+      <td>SSH daemon / Remote Login running; shell-access credential</td>
+    </tr>
+    <tr>
+      <td>MID → network device</td>
+      <td>161 UDP</td>
+      <td>SNMP</td>
+      <td>v2c/v3; devices must expose requested MIBs</td>
+    </tr>
+    <tr>
+      <td>MID → database</td>
+      <td>1433/3306/5432/1521 TCP</td>
+      <td>JDBC</td>
+      <td>SQL Server/MySQL/PostgreSQL/Oracle</td>
+    </tr>
+    <tr>
+      <td>Target → MID</td>
+      <td>443 HTTPS</td>
+      <td>ACC</td>
+      <td>Agent pushes to MID (agent → MID, not MID → target)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="29-key-system-properties-45-only">2.9 Key system properties (4–5 only)</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.wildcard.windows</code> — additive extensions for FBD on Windows</li>
+  <li><code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.blacklist.windows</code> — hard filter extensions on Windows</li>
+  <li><code class="language-plaintext highlighter-rouge">glide.discovery.ip_service_affinity</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — IP service affinity on/off</li>
+  <li><code class="language-plaintext highlighter-rouge">glide.discovery.timeout</code>, <code class="language-plaintext highlighter-rouge">glide.discovery.scan_timeout</code> — timeout properties</li>
+  <li>Full list in 6.5.</li>
+</ul>
+
+<p><strong>Next:</strong> 3.1 Run a schedule / Discover Now / Quick Discovery ◀ <strong>Prev:</strong> 2.9 Key system properties</p>
+
+<hr />
+
+<h2 id="part-3--run-verify-prove-90-min">Part 3 — Run, verify, prove (~90 min)</h2>
+
+<h3 id="31-run-a-schedule--discover-now--quick-discovery">3.1 Run a schedule / Discover Now / Quick Discovery</h3>
+<p>Run from a schedule, <strong>Discovery &gt; Status &gt; New</strong>, or <strong>Quick Discovery</strong> against one IP. Watch the Discovery Status record progress through the four phases.</p>
+
+<h3 id="32-read-the-evidence-discovery_status--discovery_log--discovery_device_history--ecc_queue">3.2 Read the evidence: discovery_status → discovery_log → discovery_device_history → ecc_queue</h3>
+<ul>
+  <li><strong>Discovery Status</strong> (<code class="language-plaintext highlighter-rouge">discovery_status</code>): one record per run — state, timing, devices found. State = Completed / Active / Canceled / Error.</li>
+  <li><strong>Discovery Log</strong> (<code class="language-plaintext highlighter-rouge">discovery_log</code>): human-readable messages from a run.</li>
+  <li><strong>Device History</strong> (<code class="language-plaintext highlighter-rouge">discovery_device_history</code>): links each CI to its Discovery run — which runs touched a CI and their outcome.</li>
+  <li><strong>ECC Queue</strong>: output = work sent to MID; input = results returned. Filter <code class="language-plaintext highlighter-rouge">state = error</code> for stuck runs.</li>
+  <li><strong>CI record</strong>: <code class="language-plaintext highlighter-rouge">last_discovered</code> and <code class="language-plaintext highlighter-rouge">discovery_source</code> tell you freshness and origin.</li>
+</ul>
+
+<h3 id="33-validate-results-ci-freshness--coverage-vs-independent-truth">3.3 Validate results: CI freshness + coverage vs independent truth</h3>
+<p>Compare discovered server/network counts against vCenter/ESXi inventory, cloud consoles, IPAM, SCCM/Intune/Jamf. Define coverage as <strong>discovered ÷ independent truth</strong>, not “the schedule ran green.” A green schedule proves completion, not that every host was in a range.</p>
+
+<h3 id="34-lab-file-based-discovery-end-to-end">3.4 [LAB] File-Based Discovery end to end</h3>
+<p><strong>Goal:</strong> Configure FBD, run it, prove execution on instance and target, trace files to installations. (~30 min)</p>
+
+<p><strong>3.4.1 How filtering really works (signatures → wildcards → blacklist)</strong>
+FBD uses layered filtering:</p>
+<ol>
+  <li><strong>Core target list (content-based):</strong> ServiceNow looks for files matching active Software/File Signatures — regardless of wildcard properties.</li>
+  <li><strong>Extension wildcards (additive):</strong> <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.wildcard.windows</code> — collect files with these extensions <em>in addition</em> to signature-required files.</li>
+  <li><strong>Blacklist (hard filter):</strong> <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.blacklist.windows</code> — drop these extensions immediately, even if a signature or wildcard would include them.</li>
+</ol>
+
+<p><strong>Rule of thumb:</strong> blacklisted → ignored; signature match → collected; wildcard match → collected; none of the above → ignored.</p>
+
+<p><strong>3.4.2 The allow-list: samp_file_name → cmdb_file_information</strong>
+Only file names on <code class="language-plaintext highlighter-rouge">samp_file_name</code> (CDS-synced controlled list) are kept and stored in <code class="language-plaintext highlighter-rouge">cmdb_file_information</code>. <code class="language-plaintext highlighter-rouge">samp_custom_file_name</code> is your extension for software CDS doesn’t know. Everything else is filtered out before storage — on Windows the MID filters against the name list; on UNIX/Linux the probe itself filters. A kept but unmatched file lands in <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code> for a <code class="language-plaintext highlighter-rouge">sam_admin</code> to map.</p>
+
+<p><strong>3.4.3 Worked examples</strong></p>
+<ul>
+  <li><strong>Custom EXE <code class="language-plaintext highlighter-rouge">C:\temp\server_runner.exe</code>:</strong> (1) Add <code class="language-plaintext highlighter-rouge">C:\temp</code> to Folders To Scan (Console, Windows section). (2) Ensure <code class="language-plaintext highlighter-rouge">.exe</code> covered by signature or Extensions Wildcards. (3) Add custom file name record in <code class="language-plaintext highlighter-rouge">samp_custom_file_name</code> for <code class="language-plaintext highlighter-rouge">server_runner.exe</code>, mapped to publisher/product — this is the step everyone misses; without it the MID’s name filter discards the file. (4) Run Discovery (respect FBD Monthly frequency; pilot on a fresh CI). (5) Verify: CI → File Information related list → <code class="language-plaintext highlighter-rouge">server_runner.exe</code> appears with size/version/path.</li>
+  <li><strong>One Windows server, four files:</strong> signature-matched <code class="language-plaintext highlighter-rouge">.exe</code> collected and normalized to <code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install</code>; no-signature <code class="language-plaintext highlighter-rouge">.exe</code> collected via wildcard → <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code>; <code class="language-plaintext highlighter-rouge">.log</code> ignored (blacklist); <code class="language-plaintext highlighter-rouge">.txt</code> ignored (matches none of the three layers).</li>
+  <li><strong>Custom app folder <code class="language-plaintext highlighter-rouge">D:\apps</code>:</strong> add <code class="language-plaintext highlighter-rouge">D:\apps*</code> to Folders To Scan; ensure <code class="language-plaintext highlighter-rouge">.exe</code>/<code class="language-plaintext highlighter-rouge">.dll</code> in wildcards; add <code class="language-plaintext highlighter-rouge">.log</code>/<code class="language-plaintext highlighter-rouge">.tmp</code>/<code class="language-plaintext highlighter-rouge">.bak</code> to blacklist; Frequency Monthly unless app changes often.</li>
+</ul>
+
+<p><strong>3.4.4 Enable → run → prove (Status/Log and snc_tmp_*.tmp on the target)</strong></p>
+<ol>
+  <li>Configuration Console → Enable File Based Discovery; define folders, frequency, ignore list, blacklist, wildcards. Confirm plugin active + CDS sync done (~24h initial sync).</li>
+  <li>Run Discovery against target; open Discovery Status record; confirm exploration phase. Check Discovery Log for <strong>Windows - File Based Discovery</strong> probe activity. If absent: FBD not enabled, frequency interval not expired, or CDS sync not finished — in that order.</li>
+  <li>Verify on target: <code class="language-plaintext highlighter-rouge">C:\Windows\Temp</code> → <code class="language-plaintext highlighter-rouge">snc_tmp_&lt;hash&gt;.tmp</code> (~10 MB) timestamped with your run. Presence = on-device proof FBD executed.</li>
+</ol>
+
+<p><strong>3.4.5 From files to installations (cmdb_sam_sw_install, unidentified files)</strong>
+A matched file produces a Software Installation in <code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install</code> — countable by SAM. If skipped product mapping, the kept file waits in <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code> for a <code class="language-plaintext highlighter-rouge">sam_admin</code> to map it.</p>
+
+<h3 id="35-lab-ire--cmdb-data-quality--stale-ci-lifecycle">3.5 [LAB] IRE + CMDB data quality + stale CI lifecycle</h3>
+<p><strong>Goal:</strong> Prove repeated scans update the same CI (no duplicates), detect duplicates/stale CIs, walk one decommissioned device through retirement. (~30 min)</p>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Repeated scans of one target update the same CI (no duplicates).</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Duplicate CI rate &lt;1% and trending down.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Stale-CI report reviewed weekly; retirements approved by asset owner.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Reconciliation rules documented with data-source precedence per field.</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />One decommissioned device walked through retire (not delete) end to end.</li>
+</ul>
+
+<p><strong>Steps:</strong></p>
+<ol>
+  <li>Run Discovery against a known CI twice. Check <code class="language-plaintext highlighter-rouge">cmdb_ci.last_discovered</code> advances and no new CI with the same <code class="language-plaintext highlighter-rouge">serial_number</code> is created.</li>
+  <li>Query <code class="language-plaintext highlighter-rouge">discovery_device_history</code> linked to <code class="language-plaintext highlighter-rouge">discovery_status</code> to see which runs touched a CI and their outcome. A CI spawning new records means the identification rule isn’t matching — check identifier key attributes (Windows servers on <code class="language-plaintext highlighter-rouge">name</code> + <code class="language-plaintext highlighter-rouge">serial_number</code>).</li>
+  <li>Investigate rejected updates: IRE Data Source rules can block a source from inserting new CIs. If a legitimate new device never appears, check whether a Data Source rule with higher precedence blocks inserts from Discovery.</li>
+  <li>Duplicate causes beyond IRE rules: inconsistent reverse DNS (forward/reverse disagree → two hostnames → two CIs) and DHCP churn (device changes IP between runs; matches a new CI unless identifier uses serial/MAC/UUID). Prefer hardware-bound identifiers over IP.</li>
+  <li>Stale CI handling: a CI is stale when <code class="language-plaintext highlighter-rouge">last_discovered</code> exceeds your staleness window (align to schedule — 7 days for servers, 30 days for workstations). <strong>Do not delete — retire</strong> (<code class="language-plaintext highlighter-rouge">install_status = retired</code>) to keep <code class="language-plaintext highlighter-rouge">cmdb_rel_ci</code> relationships intact for historical impact analysis. Deletion breaks parent/child references and orphans incidents.</li>
+  <li>Decommissioning lifecycle: Discovery stops updating → <code class="language-plaintext highlighter-rouge">last_discovered</code> ages → CI stale → review (CMDB 360, asset records, change requests) → retire → delete only as last resort after confirming no <code class="language-plaintext highlighter-rouge">cmdb_rel_ci</code>, incident, or change dependencies.</li>
+</ol>
+
+<p><strong>Next:</strong> 4.1 Symptom → phase → cause decision table ◀ <strong>Prev:</strong> 3.5 IRE + CMDB data quality lab</p>
+
+<hr />
+
+<h2 id="part-4--troubleshoot--operate-45-min">Part 4 — Troubleshoot &amp; operate (~45 min)</h2>
+
+<h3 id="41-symptom--phase--cause-decision-table">4.1 Symptom → phase → cause decision table</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symptom</th>
+      <th>Phase</th>
+      <th>First three checks</th>
+      <th>Evidence to capture</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>No device found</td>
+      <td>Scan</td>
+      <td>MID up &amp; Validated? IP in range &amp; assigned to that MID? Port probe active for that port?</td>
+      <td>ECC output sys_id, MID <code class="language-plaintext highlighter-rouge">agent0.log</code>, <code class="language-plaintext highlighter-rouge">nc -zv target port</code></td>
+    </tr>
+    <tr>
+      <td>Found, not classified</td>
+      <td>Classify</td>
+      <td>Behavior includes the port probe? Classifier criteria met? Credential authenticates?</td>
+      <td>Shazzam probe output, <code class="language-plaintext highlighter-rouge">dscy_ip_service_affinity</code> row</td>
+    </tr>
+    <tr>
+      <td>Classified, not identified</td>
+      <td>Identify</td>
+      <td>IRE identifier criteria met (serial present)? De-dup task created? Payload errors?</td>
+      <td><code class="language-plaintext highlighter-rouge">discovery_device_history</code>, IRE error/partial payload</td>
+    </tr>
+    <tr>
+      <td>Identified, not explored</td>
+      <td>Explore</td>
+      <td>Pattern step failure? Target privilege (sudo / WMI rights)? Timeout?</td>
+      <td>Pattern Designer debug, ECC input payload, target-side audit</td>
+    </tr>
+    <tr>
+      <td>Everything slow</td>
+      <td>Any</td>
+      <td>ECC backlog? MID threads/heap saturated? Schedule overlap? Credential-order retries?</td>
+      <td>MID Statistics (3h), <code class="language-plaintext highlighter-rouge">ecc_queue</code> age by agent, <code class="language-plaintext highlighter-rouge">discovery_status</code> duration</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="42-evidence-chain-runbook">4.2 Evidence chain runbook</h3>
+<p>Work top-down; the CI is the <em>result</em>, not the evidence:</p>
+
+<ol>
+  <li>Discovery Status → state, timing, devices found</li>
+  <li>Discovery Log → human-readable messages</li>
+  <li>Device History → which runs touched a CI</li>
+  <li>ECC Queue input/output → payload details</li>
+  <li>Credential test → from MID Server host</li>
+  <li>Target-side verification → can you SSH/WMI/SNMP from the MID host?</li>
+  <li>IRE/CMDB result → did the CI update?</li>
+</ol>
+
+<p>If you can’t reach the target from the MID Server host, no instance-side change will fix it.</p>
+
+<p><strong>Evidence chain for any “prove it” argument:</strong> ECC output/input sys_ids, a payload snippet, <code class="language-plaintext highlighter-rouge">discovery_device_history.state</code>, the CI’s <code class="language-plaintext highlighter-rouge">last_discovered</code> + <code class="language-plaintext highlighter-rouge">discovery_source</code>, and target-side audit — normalized to a single timezone. Positive-only proof (the scan ran) is half a test; also prove the error path (wrong credential → expected failure) and the exclusion path (filtered file → absent).</p>
+
+<h3 id="43-top-10-mistakes-attached-to-their-step">4.3 Top 10 mistakes (attached to their step)</h3>
+<ul>
+  <li>Expired/under-privileged credentials → #1 cause of “Discovery found nothing.” Test from MID host.</li>
+  <li>Assuming extension wildcards limit what FBD collects — they don’t; wildcards are additive, blacklist is the hard filter.</li>
+  <li>Leaving <code class="language-plaintext highlighter-rouge">c:\windows</code> in Folders To Scan — scan times balloon for near-zero SAM value. Remove it.</li>
+  <li>Expecting FBD to run again tomorrow — default frequency is Monthly.</li>
+  <li>Enabling FBD before CDS sync finishes — FBD won’t trigger until initial CDS sync (~24h).</li>
+  <li>Scanning a whole drive by accident — <code class="language-plaintext highlighter-rouge">C:/</code> scans everything; combined with high Maximum Files cap it hammers the target.</li>
+  <li>Debugging in the CMDB — read ECC Queue and Discovery Log first; the CI is the result, not the evidence.</li>
+  <li>Credential rotated but affinity not cleared → Discovery keeps trying the old credential first.</li>
+  <li>One giant <code class="language-plaintext highlighter-rouge">/8</code> range → Shazzam memory pressure, scan windows that never finish.</li>
+  <li>Treating “green schedule” as coverage → completion signal, not completeness proof.</li>
+</ul>
+
+<h3 id="44-affinity-related-failures">4.4 Affinity-related failures</h3>
+<ul>
+  <li>Credential rotated, Discovery keeps trying old → clear <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code> rows for that credential.</li>
+  <li>Device changed OS (Linux → Windows), classification stuck → clear <code class="language-plaintext highlighter-rouge">dscy_ip_service_affinity</code> row for that IP (affinity remembers old path until it fails).</li>
+</ul>
+
+<h3 id="45-day-2-operations--governance-cadence">4.5 Day 2 operations &amp; governance cadence</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Activity</th>
+      <th>Cadence</th>
+      <th>Owner</th>
+      <th>Output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Daily Discovery triage (status, ECC errors, auth failures)</td>
+      <td>Daily</td>
+      <td>Discovery admin</td>
+      <td>Incident tickets for failed schedules</td>
+    </tr>
+    <tr>
+      <td>De-duplication task review</td>
+      <td>Weekly</td>
+      <td>CMDB data owner</td>
+      <td>Merged or retired duplicate CIs</td>
+    </tr>
+    <tr>
+      <td>Staleness report (<code class="language-plaintext highlighter-rouge">last_discovered</code> &gt; threshold)</td>
+      <td>Weekly</td>
+      <td>Asset owners</td>
+      <td>Retirement approvals</td>
+    </tr>
+    <tr>
+      <td>Coverage reconciliation vs independent source</td>
+      <td>Monthly</td>
+      <td>Discovery admin</td>
+      <td>Coverage gap backlog</td>
+    </tr>
+    <tr>
+      <td>Credential rotation + affinity clearing</td>
+      <td>Quarterly / per policy</td>
+      <td>Security + Discovery admin</td>
+      <td>Rotated credentials, cleared <code class="language-plaintext highlighter-rouge">dscy_*</code> rows</td>
+    </tr>
+    <tr>
+      <td>IP range audit vs IPAM</td>
+      <td>Monthly</td>
+      <td>Network team</td>
+      <td>Added / removed ranges</td>
+    </tr>
+    <tr>
+      <td>Custom-pattern regression vs new OOB pattern after upgrade</td>
+      <td>Per upgrade</td>
+      <td>Discovery admin</td>
+      <td>Re-based custom patterns</td>
+    </tr>
+    <tr>
+      <td>Capacity review (MID threads, heap, scan duration trends)</td>
+      <td>Quarterly</td>
+      <td>Platform team</td>
+      <td>Scale decision</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>The single most important Day 2 metric is not “did the schedule complete” — it is “does the CI in the CMDB match what actually exists.”</strong> Run coverage reconciliation against an independent source monthly; anything else is self-reported accuracy.</p>
+
+<p><strong>Next:</strong> 5.1 MID architecture (collapsed) ◀ <strong>Prev:</strong> 4.5 Day 2 operations</p>
+
+<hr />
+
+<h2 id="part-5--advanced-deep-dives-advanced--collapsed">Part 5 — Advanced deep dives [ADVANCED — collapsed]</h2>
+
+<h3 id="51-mid-architecture-zones-clusters-placement-sizing-threads--jvm-tuning">5.1 MID architecture: zones, clusters, placement, sizing, threads &amp; JVM tuning</h3>
+<p>See 2.3 for essentials. Full treatment: one cluster per network zone (not per subnet), zones defined by security/routing boundary not subnet, reconciliation triangle (declared vs scanned vs independent truth), per-OS completeness rules, anti-patterns that silently lose servers, definition of done for coverage.</p>
+
+<h3 id="52-coverage-engineering">5.2 Coverage engineering</h3>
+<p>Reconciliation triangle, per-OS completeness rules (Windows/WMI domain constraint, Linux SSH, macOS SSH, cloud API-based, network SNMP, OT/IoT exclusions), anti-patterns, CI class scoping (disable classifiers for device types you don’t track to limit ITOM Visibility subscription-unit consumption), single cloud provider scoping.</p>
+
+<h3 id="53-credential-lifecycle--external-vaults">5.3 Credential lifecycle &amp; external vaults</h3>
+<p>Rotation cadence, external vault integration (CyberArk/HashiCorp/Azure Key Vault), credential aliases and tags, failure monitoring, safe pre-rollout test with Quick Discovery per device type.</p>
+
+<h3 id="54-scan-safety-exclusions-behaviours-shazzam-tuning-name-resolution-and-duplicate-cis">5.4 Scan safety: exclusions, behaviours, Shazzam tuning, name resolution and duplicate CIs</h3>
+<p>Define exclusions up front (fragile OT/IoT, medical, honeypots, sensitive segments). Behaviors restrict protocols per range. Shazzam batch size + <code class="language-plaintext highlighter-rouge">threads.max</code> for fragile segments. Name resolution: inconsistent forward/reverse DNS → duplicate CIs; DHCP churn → use serial/MAC/UUID in IRE rules.</p>
+
+<h3 id="55-affinities-in-full-corrected-table-names">5.5 Affinities in full (corrected table names)</h3>
+<p>| Affinity | Table | Learned or configured | Scope | Key property |
+|———-|——-|———————-|——-|————–|
+| Credential | <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code> | Learned (auto-written) | Per IP + MID | None (always on) |
+| IP Service | <code class="language-plaintext highlighter-rouge">ip_service_affinity</code> | Learned (auto-written) | Per IP | <code class="language-plaintext highlighter-rouge">glide.discovery.ip_service_affinity</code> |
+| MID Server | N/A (<code class="language-plaintext highlighter-rouge">ecc_agent</code> config) | Configured (IP Ranges + Capabilities) | Per network zone | N/A |</p>
+
+<blockquote>
+  <p><strong>Fix:</strong> the table is <code class="language-plaintext highlighter-rouge">ip_service_affinity</code> (not <code class="language-plaintext highlighter-rouge">dscy_ip_service_affinity</code>). Credential affinity table is <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code>.</p>
+</blockquote>
+
+<p>Debug snippets:</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Credential affinity for an IP</span>
+<span class="kd">var</span> <span class="nx">ca</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">dscy_credentials_affinity</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">ca</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">ip_address</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">10.20.4.15</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">ca</span><span class="p">.</span><span class="nx">query</span><span class="p">();</span>
+<span class="k">while</span> <span class="p">(</span><span class="nx">ca</span><span class="p">.</span><span class="nx">next</span><span class="p">())</span> <span class="p">{</span>
+  <span class="nx">gs</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="dl">'</span><span class="s1">IP: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">ca</span><span class="p">.</span><span class="nx">ip_address</span> <span class="o">+</span> <span class="dl">'</span><span class="s1"> | MID: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">ca</span><span class="p">.</span><span class="nx">mid_server</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span>
+    <span class="dl">'</span><span class="s1"> | Credential: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">ca</span><span class="p">.</span><span class="nx">credential_id</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="dl">'</span><span class="s1"> | Last used: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">ca</span><span class="p">.</span><span class="nx">last_used</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">// Clear affinities for an IP (Background Script / Fix Script)</span>
+<span class="kd">var</span> <span class="nx">ca2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">dscy_credentials_affinity</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">ca2</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">ip_address</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">10.20.4.15</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">ca2</span><span class="p">.</span><span class="nx">deleteMultiple</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">isa2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">ip_service_affinity</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">isa2</span><span class="p">.</span><span class="nx">addQuery</span><span class="p">(</span><span class="dl">'</span><span class="s1">ip_address</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">10.20.4.15</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">isa2</span><span class="p">.</span><span class="nx">deleteMultiple</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h3 id="56-customizing-patterns-duplicate--extend--from-scratch">5.6 Customizing patterns: duplicate · extend · from scratch</h3>
+<p>Out-of-box patterns are <strong>read-only</strong>; never edit in place.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Route</th>
+      <th>Use it when</th>
+      <th>Upgrade behaviour</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1. Duplicate &amp; own</td>
+      <td>Change original’s core logic</td>
+      <td>Your copy is frozen — re-base after upgrades</td>
+    </tr>
+    <tr>
+      <td>2. Extension section</td>
+      <td>Only <em>add</em> collection steps</td>
+      <td>Base pattern keeps updating; extension survives</td>
+    </tr>
+    <tr>
+      <td>3. New pattern</td>
+      <td>No shipped pattern exists</td>
+      <td>Entirely yours to maintain</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Route 1: Open original in Pattern Designer → duplicate → rename with prefix → edit steps → test with Pattern Debugger against real target → point classifier at your copy → check pre/post-processing scripts reference the copy → prove on one IP, then widen. Your copy is frozen at copy time; re-diff after upgrades.
+Route 3: New pattern → type = Horizontal → Identification section first (CI type + match logic) → exploration steps (connect, collect, parse into CI fields, create relations) → debug against real target → wire to classifier (classification criteria + Pattern field) → schedule like any other discovery.</p>
+
+<h3 id="57-specialized-discovery">5.7 Specialized discovery</h3>
+<p><strong>5.7.1 Web Certificate Discovery</strong> — plugin <code class="language-plaintext highlighter-rouge">com.snc.discovery.web_certificate</code>, schedule type “Web Certificate”, ≤500 URLs/schedule, daily for public endpoints. Tables: <code class="language-plaintext highlighter-rouge">cmdb_ci_certificate</code>, <code class="language-plaintext highlighter-rouge">discovery_certificate</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci_web_service</code>. Expiry alerting via business rule on <code class="language-plaintext highlighter-rouge">valid_to</code> within 30 days → event → alert → notification.
+<strong>5.7.2 Firewall Audits &amp; Reporting</strong> — plugin <code class="language-plaintext highlighter-rouge">com.snc.discovery.firewall_audit</code>, Cisco ASA/Firepower, Palo Alto, Fortinet, Check Point, Juniper SRX. Tables: <code class="language-plaintext highlighter-rouge">cmdb_ci_firewall</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci_firewall_rule</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci_firewall_object</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci_firewall_policy</code>, <code class="language-plaintext highlighter-rouge">cmdb_rel_ci</code>.
+<strong>5.7.3 Cloud Discovery</strong> — AWS/Azure/GCP/OCI via cloud service account + IAM role. API-based; no MID inside provider network needed for resource inventory.
+<strong>5.7.4 ACC</strong> — agent pushed to endpoints, pushes to MID → instance. Variants: Standard, Light, Virtual, Cloud. Requires MID; HTTPS 443 endpoints→MID; Expedited thread pool.
+<strong>5.7.5 macOS and mobile</strong> — macOS discovered over SSH (<code class="language-plaintext highlighter-rouge">system_profiler</code>, <code class="language-plaintext highlighter-rouge">ps</code>, <code class="language-plaintext highlighter-rouge">lsof</code>); any validated MID can do it; MID itself cannot run on macOS. iPhone/iPad/Android: not agentless-discoverable — imported via Jamf/Intune Service Graph Connectors into <code class="language-plaintext highlighter-rouge">cmdb_ci_handheld_computing</code>; mobile is MDM-owned, not Discovery-owned.</p>
+
+<h3 id="58-discovery-strategy-agentless-vs-agent-vs-connector-vs-cloud">5.8 Discovery strategy: agentless vs agent vs connector vs cloud</h3>
+<p>| Mechanism | Best for | Needs | Does NOT give you |
+|———–|———-|——-|——————-|
+| Agentless IP Discovery | Servers, network gear, storage, data centers | Reachable targets + credentials + MID in zone | Cloud-native services, SaaS, intermittently-connected laptops |
+| ACC | Roaming laptops, DMZ hosts, zero-trust, NAT’d devices | Agent deployed + MID gateway | Deep OS inventory on hosts the agent can’t reach |
+| SGC / IntegrationHub ETL | SCCM, Intune, Jamf, Tanium, vCenter | Connector plugin + auth + IRE precedence contract | Discovery-only data (running-process snapshots) |
+| Cloud Discovery | PaaS, serverless, cloud-native relationships | Cloud service account / IAM role | Deep OS-level data inside VMs (still needs agentless + MID in cloud) |
+| Service Mapping | Application services &amp; dependencies | Entry points + Discovery CIs as foundation | Infrastructure inventory |</p>
+
+<p>Discovery builds <strong>infrastructure CIs</strong>; application/business services come from Service Mapping or manual CSDM modeling.</p>
+
+<h3 id="59-full-ire-deep-dive-payloads-partial-payloads-precedence-contracts">5.9 Full IRE deep dive (payloads, partial payloads, precedence contracts)</h3>
+<p>Discovery never deletes or retires CIs. Multi-source contract: decide per attribute who wins <em>before</em> turning schedules on. Data-source precedence to protect authoritative fields (SCCM wins on <code class="language-plaintext highlighter-rouge">serial_number</code>, Discovery wins on <code class="language-plaintext highlighter-rouge">ip_address</code>). Never let two sources write the same field with conflicting precedence — field-level flip-flopping.</p>
+
+<p><strong>Next:</strong> 6.1 Where to find it ◀ <strong>Prev:</strong> 5.9 Full IRE deep dive</p>
+
+<hr />
+
+<h2 id="part-6--quick-reference-reference--collapsed">Part 6 — Quick reference [REFERENCE — collapsed]</h2>
+
+<h3 id="61-where-to-find-it">6.1 Where to find it</h3>
+<p>| Destination | Breadcrumb |
+|————-|————|
+| Discovery dashboard | All &gt; Discovery &gt; Dashboard |
+| Discovery Configuration Console | All &gt; Discovery &gt; Discovery Definition &gt; Configuration Console |
+| Discovery schedules | All &gt; Discovery &gt; Discovery Definition &gt; Schedules |
+| Discovery status | All &gt; Discovery &gt; Status |
+| Discovery log | All &gt; Discovery &gt; Discovery Log |
+| MID Servers | All &gt; Discovery &gt; MID Servers |
+| Credentials | All &gt; Discovery &gt; Credentials |
+| Probes and patterns | All &gt; Discovery &gt; Discovery Definition &gt; Probes · Patterns |
+| Internal Discovery properties | <code class="language-plaintext highlighter-rouge">discovery_private_properties.list</code> |</p>
+
+<h3 id="62-navigator-shortcuts">6.2 Navigator shortcuts</h3>
+<p><code class="language-plaintext highlighter-rouge">discovery_status.list</code>, <code class="language-plaintext highlighter-rouge">discovery_log.list</code>, <code class="language-plaintext highlighter-rouge">ecc_queue.list</code>, <code class="language-plaintext highlighter-rouge">discovery_private_properties.list</code>, <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set.list</code>, <code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install.list</code>, <code class="language-plaintext highlighter-rouge">sa_pattern.list</code>, <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity.list</code>, <code class="language-plaintext highlighter-rouge">ip_service_affinity.list</code>.</p>
+
+<h3 id="63-key-table-hierarchy">6.3 Key table hierarchy</h3>
+<p><code class="language-plaintext highlighter-rouge">discovery_schedule</code>, <code class="language-plaintext highlighter-rouge">discovery_range_item</code>, <code class="language-plaintext highlighter-rouge">dscy_credentials_affinity</code>, <code class="language-plaintext highlighter-rouge">ip_service_affinity</code>, <code class="language-plaintext highlighter-rouge">cmdb_identifier</code>, <code class="language-plaintext highlighter-rouge">sa_pattern</code>, <code class="language-plaintext highlighter-rouge">discovery_behavior</code>, <code class="language-plaintext highlighter-rouge">discovery_status</code>, <code class="language-plaintext highlighter-rouge">discovery_log</code>, <code class="language-plaintext highlighter-rouge">discovery_device_history</code>, <code class="language-plaintext highlighter-rouge">ecc_queue</code>, <code class="language-plaintext highlighter-rouge">ecc_agent</code>, <code class="language-plaintext highlighter-rouge">discovery_credentials</code>, <code class="language-plaintext highlighter-rouge">discovery_private_properties</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci</code> (+ subclasses), <code class="language-plaintext highlighter-rouge">cmdb_file_information</code>, <code class="language-plaintext highlighter-rouge">samp_file_name</code>, <code class="language-plaintext highlighter-rouge">samp_custom_file_name</code>, <code class="language-plaintext highlighter-rouge">cmdb_sam_sw_install</code>, <code class="language-plaintext highlighter-rouge">cmdb_unidentified_file_set</code>, <code class="language-plaintext highlighter-rouge">cmdb_swid_tag</code>.</p>
+
+<h3 id="64-key-fields">6.4 Key fields</h3>
+<p><code class="language-plaintext highlighter-rouge">cmdb_ci.discovery_source</code>, <code class="language-plaintext highlighter-rouge">cmdb_ci.last_discovered</code>, <code class="language-plaintext highlighter-rouge">discovery_status.state</code>, <code class="language-plaintext highlighter-rouge">ecc_queue.queue</code> / <code class="language-plaintext highlighter-rouge">ecc_queue.state</code>, FBD wildcard/blacklist properties.</p>
+
+<h3 id="65-full-system-property-list">6.5 Full system property list</h3>
+<p><code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.wildcard.windows</code>, <code class="language-plaintext highlighter-rouge">glide.discovery.file_discovery.blacklist.windows</code>, <code class="language-plaintext highlighter-rouge">glide.discovery.ip_service_affinity</code>, <code class="language-plaintext highlighter-rouge">glide.discovery.timeout</code>, <code class="language-plaintext highlighter-rouge">glide.discovery.scan_timeout</code>, plus <code class="language-plaintext highlighter-rouge">discovery_private_properties.list</code>.</p>
+
+<h3 id="66-reusable-metadata-inventory-3-columns">6.6 Reusable metadata inventory (3 columns)</h3>
+<p>Schedules (when/where), IP ranges/rangesets, MID IP ranges, MID capabilities, patterns, pattern libraries, probes/sensors, classifiers, behaviors, credentials/aliases, credential affinities, IP service affinity, MID Server affinity, identification rules (IRE identifiers), Discovery properties. The pattern: schedules are the <em>when and where</em>; everything above is the <em>how</em> — and the <em>how</em> is all shared.</p>
+
+<h3 id="67-glossary">6.7 Glossary</h3>
+<p>CI, CMDB, Discovery, MID Server, ECC Queue, probe, sensor, pattern, classifier, Shazzam, IRE, identification, reconciliation, payload, schedule, behavior, affinity, FBD, CDS, CSDM — see Part 0.3.</p>
+
+<h3 id="68-safe-script-snippets-warning-banners">6.8 Safe script snippets (warning banners)</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Check last discovery for a CI — read-only, safe</span>
+<span class="kd">var</span> <span class="nx">ci</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GlideRecord</span><span class="p">(</span><span class="dl">'</span><span class="s1">cmdb_ci</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">ci</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="nx">current</span><span class="p">.</span><span class="nx">sys_id</span><span class="p">);</span>
+<span class="nx">gs</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="dl">'</span><span class="s1">last_discovered: </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">ci</span><span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="dl">'</span><span class="s1">last_discovered</span><span class="dl">'</span><span class="p">));</span>
+</code></pre></div></div>
+<p>⚠️ <code class="language-plaintext highlighter-rouge">deleteMultiple()</code> on affinity tables is destructive — back up first, run in a Fix Script, target specific IPs only.</p>
+
+<h3 id="69-kpis-and-indicative-targets">6.9 KPIs and indicative targets</h3>
+<p>CMDB discovery coverage ≥95%, MTD &lt;24h, CI freshness ≥90% in last 30 days, duplicate CI rate &lt;1%, schedule success ≥98%, FBD match rate ≥80%, ECC Queue error rate &lt;2%. <strong>Baseline your own instance; these are starting points, not vendor targets.</strong></p>
+
+<p><strong>Next:</strong> Appendix A ◀ <strong>Prev:</strong> 6.9 KPIs</p>
+
+<hr />
+
+<h2 id="appendices--separate-pages-linked-from-the-guide">Appendices — separate pages, linked from the guide</h2>
+
+<p><strong>A. IntegrationHub &amp; e-bonding</strong> — connecting discovered data out (off-page; assumes IntegrationHub knowledge).
+<strong>B. SGC for OpenTelemetry + Now Assist debugging</strong> — TSOM topic, not Discovery core (off-page).
+<strong>C. SLAs, dashboards &amp; workspaces</strong> — SLA areas: CI freshness, discovery run success, ECC Queue error rate, SAM normalization lag. Dashboards: Discovery Home, CMDB Health, Discovery Status Report. Workspace: Discovery Admin Workspace.
+<strong>D. Exam &amp; interview prep</strong> — mnemonics (IRE = Identification Before Reconciliation; Lower = first; CMDB = Retire Before Delete; Coalesce = match; BAA = Before/After/Async), interview notes, quiz.
+<strong>E. Official learning resources</strong> — Now Learning (nowlearning.com), Product Documentation (docs.servicenow.com), verified videos.
+<strong>F. Related guides</strong> — CMDB guide, Service Mapping guide, ITOM guide, ITSM guide, Discovery getting-started.</p>
+
+<hr />
+
+<h2 id="quiz">Quiz</h2>
+
+<ol>
+  <li>What are the four phases of a Discovery run, and in which phase does File-Based Discovery run?
+    <details><summary>Answer</summary>Scanning → Classification → Identification → Exploration. FBD runs during Exploration.</details>
+  </li>
+  <li>Where do you enable File-Based Discovery, and what must have happened before it triggers for the first time?
+    <details><summary>Answer</summary>Discovery Configuration Console; the initial CDS sync (~24h) must have completed.</details>
+  </li>
+  <li>A file matches an extension wildcard <strong>and</strong> the blacklist. Is it collected? Why?
+    <details><summary>Answer</summary>No. The blacklist is a hard filter and overrides the wildcard.</details>
+  </li>
+  <li>You ran Discovery successfully but no file-based scan appears in the log. Name three things to check, in order.
+    <details><summary>Answer</summary>1. FBD enabled in Configuration Console. 2. FBD frequency interval has expired for that CI. 3. Initial CDS sync has completed.</details>
+  </li>
+  <li>How do you prove an FBD scan actually executed on a Windows target — what file, in which folder?
+    <details><summary>Answer</summary>`snc_tmp_<hash>.tmp` in `C:\Windows\Temp`, timestamped with your run.&lt;/details&gt;
+</hash></details>
+  </li>
+  <li>A discovered <code class="language-plaintext highlighter-rouge">.exe</code> has no CDS signature. Which table does it land in, and who deals with it?
+    <details><summary>Answer</summary>`cmdb_unidentified_file_set`; a `sam_admin` maps it.</details>
+  </li>
+  <li>What is the corrected name of the IP service affinity table?
+    <details><summary>Answer</summary>`ip_service_affinity` (the credential affinity table is `dscy_credentials_affinity`).</details>
+  </li>
+  <li>Does Discovery delete stale CIs?
+    <details><summary>Answer</summary>No. Retire them (`install_status = retired`); deletion breaks `cmdb_rel_ci` relationships.</details>
+  </li>
+</ol>
+
+<hr />
+
+<blockquote>
+  <p><strong>Was this helpful? What was missing?</strong> Open an issue on the repo or edit this page directly. Last reviewed Nov 2026 against ITOM Discovery (Xanadu / Washington DC).</p>
+</blockquote>
+
+<h2 id="further-learning-1">Further learning:</h2>
+
+<p>Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.</p>
+
+<ul>
+  <li><strong>Discovery Manager / Discovery status</strong> — per-schedule status, phase timings and the <em>Discovery Log</em> per device; the first place to look when a CI stops updating.</li>
+  <li><strong>MID Server dashboard</strong> — MID health, queue depth, ECC queue throughput and version; a saturated or outdated MID silently produces partial CIs rather than errors.</li>
+  <li><strong>Discovery patterns</strong> — horizontal/vertical pattern designer; custom patterns are how you extend discovery to an application the OOTB patterns do not classify.</li>
+  <li><strong>Agent Client Collector (ACC)</strong> — agent-based discovery for endpoints that cannot be probed (remote laptops, hardened hosts); complements, does not replace, the MID.</li>
+  <li><strong>Service Graph Connectors</strong> — for cloud and endpoint-management sources (AWS, Azure, GCP, Intune, SCCM) where API integration beats network probing.</li>
+  <li><strong>Certificate Inventory and Management</strong> — discovery of TLS certificates and expiry, a frequent blind spot in impact analysis.</li>
+  <li><strong>Cloud Discovery</strong> — tag-based resource discovery and account onboarding; tags are what make cloud CIs land in the right service.</li>
+  <li><strong>Scheduling and blackout windows</strong> — discovery schedules, IP ranges/behaviour and maintenance windows; overlapping schedules on the same range is a common source of duplicate CIs.</li>
+</ul>
+
+<h3 id="discovery-admin-workspace--where-the-surfaces-actually-live">Discovery Admin Workspace — where the surfaces actually live</h3>
+
+<p>Current releases moved the operational views into <strong>Workspaces › Discovery Admin Workspace</strong>. The <strong>MID Server dashboard</strong> is reached from <em>MID Server › Dashboard</em> on older instances, and from <strong>Discovery Admin Workspace › Insights</strong> once the Discovery Admin Workspace store app is at 1.3.1 (August 2024 store release) or later. Saying “the MID dashboard is under MID Server” is true only for the pre-workspace UI.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>View</th>
+      <th>What it shows</th>
+      <th>Common gotcha</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Discovery status / schedules</td>
+      <td>Per-schedule phase timings and last run outcome</td>
+      <td>A schedule marked complete can still have skipped the ranges that matter</td>
+    </tr>
+    <tr>
+      <td>Insights (MID dashboard)</td>
+      <td>MID health, queue depth, throughput, version</td>
+      <td>Outdated MID versions produce partial CIs rather than errors</td>
+    </tr>
+    <tr>
+      <td>Discovery log per device</td>
+      <td>Exactly which phase failed and why</td>
+      <td>The only place that distinguishes auth failure from pattern failure</td>
+    </tr>
+    <tr>
+      <td>Patterns</td>
+      <td>Horizontal/vertical pattern designer</td>
+      <td>A custom pattern is the supported way to classify an unsupported app</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="why-discovery-is-broken-is-usually-five-different-things">Why “Discovery is broken” is usually five different things</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symptom</th>
+      <th>Usual cause</th>
+      <th>First check</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>No new CIs at all</td>
+      <td>Credentials or firewall</td>
+      <td>Discovery log for the device; auth phase</td>
+    </tr>
+    <tr>
+      <td>CIs appear but blank</td>
+      <td>Pattern not matching the OS/app version</td>
+      <td>Pattern probe result in the device log</td>
+    </tr>
+    <tr>
+      <td>Duplicates instead of updates</td>
+      <td>Identification (IRE) rules not matching</td>
+      <td>IRE identification rule for that class</td>
+    </tr>
+    <tr>
+      <td>CIs go stale, never update</td>
+      <td>Schedule not covering the range, or MID saturated</td>
+      <td>Schedule ranges + ECC queue</td>
+    </tr>
+    <tr>
+      <td>Only some fields updated</td>
+      <td>Datasource precedence</td>
+      <td>Which source wins that attribute (see CMDB multisource)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="integration-paths--pick-by-endpoint-not-by-habit">Integration paths — pick by endpoint, not by habit</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Endpoint type</th>
+      <th>Path</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Network-attached servers/network gear</td>
+      <td>Discovery via MID</td>
+      <td>Only path that observes the device directly</td>
+    </tr>
+    <tr>
+      <td>Cloud accounts (AWS/Azure/GCP)</td>
+      <td>Cloud Discovery + Service Graph Connector</td>
+      <td>Tag-based; tags decide which service a CI lands in</td>
+    </tr>
+    <tr>
+      <td>Endpoint management (Intune, SCCM, Jamf)</td>
+      <td>Service Graph Connector</td>
+      <td>API integration beats probing laptops that are rarely on the corporate network</td>
+    </tr>
+    <tr>
+      <td>Hardened/remote hosts</td>
+      <td>Agent Client Collector</td>
+      <td>Agent-based, no inbound probing required</td>
+    </tr>
+    <tr>
+      <td>Certificates</td>
+      <td>Certificate Inventory and Management</td>
+      <td>Certificate expiry is a classic blind spot in impact analysis</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Verify in your instance</strong>: most items above are plugin-gated (e.g. <code class="language-plaintext highlighter-rouge">com.snc.</code>) or release-specific; check <em>All › System Applications › All Available Applications</em> before relying on one.</li>
+</ul>
+
+    <footer class="page-footer">
+      <p>ServiceNow Module Guides — a working notebook, not product documentation. Verify behaviour against your own instance and the official ServiceNow docs.</p>
+    </footer>
+  </main>
+</div>
+
+<aside class="toc-panel" id="tocPanel" aria-label="Table of Contents">
+  <div class="toc-panel-head">
+    <span>Table of Contents</span>
+    <button type="button" id="tocHide" aria-label="Hide the table of contents">✕</button>
+  </div>
+  <nav id="tocFloat"></nav>
+</aside>
+<button type="button" class="toc-show" id="tocShow" aria-label="Show the table of contents">☰ Contents</button>
+
+<script src="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/js/site.js?v=202611270652"></script>
+<script src="/ServiceNow_Learning_TSOM-_CSM_FSM_SalesCRM_HAM_ITSM/assets/js/tts.js?v=202611270652"></script>
+<script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js?v=20261110"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+  function enhanceMermaid() {
+    var content = document.getElementById('content');
+    if (!content) return;
+    var diagrams = [].slice.call(content.querySelectorAll('.mermaid'));
+    if (!diagrams.length) return;
+
+    // 1) Wrap each rendered diagram in a scroll box so oversized diagrams can be scrolled.
+    diagrams.forEach(function (d) {
+      var p = d.parentElement;
+      if (p && p.classList && p.classList.contains('mermaid-scroll')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'mermaid-scroll';
+      p.insertBefore(wrap, d);
+      wrap.appendChild(d);
+    });
+
+    // The dedicated slideshow page handles its own navigation.
+    if (document.querySelector('.diagram-slideshow')) return;
+    if (diagrams.length < 2) return;
+    if (document.querySelector('.mermaid-slideshow-btn')) return;
+
+    // 2) Build a fullscreen lightbox slideshow of every diagram on the page.
+    var idx = 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'mm-overlay';
+    overlay.innerHTML =
+      '<div class="mm-bar">' +
+        '<button type="button" data-mm="prev" aria-label="Previous diagram">&#9664;</button>' +
+        '<span class="mm-count"></span>' +
+        '<button type="button" data-mm="next" aria-label="Next diagram">&#9654;</button>' +
+        '<button type="button" data-mm="close" aria-label="Close">Close &times;</button>' +
+      '</div><div class="mm-stage"></div>';
+    document.body.appendChild(overlay);
+    var stage = overlay.querySelector('.mm-stage');
+    var count = overlay.querySelector('.mm-count');
+
+    function show(n) {
+      idx = (n % diagrams.length + diagrams.length) % diagrams.length;
+      stage.innerHTML = '';
+      var clone = diagrams[idx].cloneNode(true);
+      clone.removeAttribute('data-processed');
+      stage.appendChild(clone);
+      stage.scrollTop = 0; stage.scrollLeft = 0;
+      count.textContent = (idx + 1) + ' / ' + diagrams.length + '  (scroll to pan, arrows to change)';
+    }
+    function open(n) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; show(n); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    overlay.querySelector('[data-mm="prev"]').addEventListener('click', function () { show(idx - 1); });
+    overlay.querySelector('[data-mm="next"]').addEventListener('click', function () { show(idx + 1); });
+    overlay.querySelector('[data-mm="close"]').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') show(idx - 1);
+      else if (e.key === 'ArrowRight') show(idx + 1);
+      else if (e.key === 'Escape') close();
+    });
+
+    // 3) Add a "Slideshow" launcher before the first diagram.
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mermaid-slideshow-btn';
+    btn.textContent = '\\u25B6 View diagrams as slideshow (' + diagrams.length + ')';
+    btn.addEventListener('click', function () { open(0); });
+    var firstWrap = diagrams[0].parentElement;
+    firstWrap.parentNode.insertBefore(btn, firstWrap);
+
+    // Auto-launch slideshow as default for diagram-heavy pages (6+ diagrams)
+    if (diagrams.length >= 6) {
+      btn.classList.add('slideshow-default');
+      setTimeout(function () { open(0); }, 800);
+    }
+
+    // 4) Click any diagram to open it in the slideshow.
+    diagrams.forEach(function (d, i) {
+      d.style.cursor = 'zoom-in';
+      d.addEventListener('click', function () { open(i); });
+    });
+  }
+
+
+  function toggleGroup(id) {
+    var g = document.getElementById(id);
+    var links = g.querySelector('.side-links');
+    var label = g.querySelector('.side-label');
+    var open = g.classList.toggle('open');
+    var text = label.textContent.replace(/[▸▾]/g, '').trim();
+    label.textContent = text + (open ? ' ▾' : ' ▸');
+    if (links) links.style.display = open ? 'block' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code, code').forEach(function (codeEl) {
+      var text = codeEl.textContent.trim();
+      if (/^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|mindmap|requirementDiagram|block-beta|C4Context|stateDiagram-v2)/.test(text)) {
+        var preEl = codeEl.parentElement;
+        var container = preEl && preEl.tagName === 'PRE' ? preEl : codeEl;
+        var mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid';
+        mermaidDiv.textContent = text;
+        container.parentNode.replaceChild(mermaidDiv, container);
+      }
+    });
+    var p = window.mermaid.init(undefined, undefined, document.querySelectorAll('.mermaid'));
+    if (p && typeof p.then === 'function') { p.then(enhanceMermaid); } else { setTimeout(enhanceMermaid, 400); }
+    window.addEventListener('load', function () { setTimeout(enhanceMermaid, 600); });
+  });
+</script>
+<style>
+  .mermaid-scroll { overflow: auto; max-height: 80vh; padding: 4px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; }
+  .mermaid-scroll svg { max-width: none; }
+  .mermaid-scroll .mermaid { margin: 0; }
+  .mermaid-slideshow-btn { display: inline-block; margin: .4rem 0 .8rem; padding: .45rem .9rem; font: inherit; font-size: .85rem; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; cursor: pointer; }
+  .mermaid-slideshow-btn:hover { background: #2a4d38; }
+  .mm-overlay { position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; background: rgba(4,8,6,.96); }
+  .mm-overlay.open { display: flex; }
+  .mm-bar { display: flex; align-items: center; gap: .6rem; padding: .6rem .9rem; border-bottom: 1px solid rgba(255,255,255,.12); color: #e8f0e8; }
+  .mm-bar button { font: inherit; color: #e8f0e8; background: #1f3a2a; border: 1px solid #4cc38a; border-radius: 6px; padding: .35rem .7rem; cursor: pointer; }
+  .mm-bar button:hover { background: #2a4d38; }
+  .mm-count { flex: 1; font-size: .85rem; opacity: .85; }
+  .mm-stage { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 1.25rem; }
+  .mm-stage svg { max-width: none; height: auto; }
+  .mm-stage .mermaid { margin: 0; }
+
+  /* Collapsible sidebar groups */
+  .side-group.collapsible > .side-links { display: none; border-top: 1px solid rgba(255,255,255,.06); margin-top: .2rem; padding-top: .4rem; }
+  .side-group.collapsible.open > .side-links { display: block; }
+  .side-subgroup { margin-left: .5rem; }
+  .side-subgroup .side-links { padding-left: .75rem; border-left: 1px solid rgba(255,255,255,.08); margin-top: .2rem; }
+  .side-label { cursor: pointer; user-select: none; }
+  .side-label:hover { opacity: .9; }
+
+</style>
+<script>
+  // Wide tables: wrap each content table in a horizontal scroll box so the final
+  // column stays reachable instead of being clipped at the page edge.
+  (function () {
+    function wrapTables() {
+      var tables = document.querySelectorAll('.content table');
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        var p = t.parentElement;
+        if (p && p.classList && p.classList.contains('table-scroll')) continue;
+        var wrap = document.createElement('div');
+        wrap.className = 'table-scroll';
+        p.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wrapTables);
+    } else {
+      wrapTables();
+    }
+    window.addEventListener('load', wrapTables);
+  })();
+</script>
+</body>
+</html>

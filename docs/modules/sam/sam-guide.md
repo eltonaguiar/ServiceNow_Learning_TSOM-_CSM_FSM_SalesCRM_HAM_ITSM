@@ -561,7 +561,7 @@ flowchart TD
     F -->|Per Core Physical / Virtual OSE| F1[Retired in New York — use Per Core]
     F -->|Red Hat metric| F2[IBM pack delivers it]
     F -->|Subscription / Consumption| F3[SaaS License Management adds the group]
-    F -->|Something bespoke| G[Custom License Metrics → group Custom, listed by name]
+    F -->|Something bespoke| G[Custom License Metrics to group Custom, listed by name]
 ```
 
 **Run these in order and stop at the first "no":**

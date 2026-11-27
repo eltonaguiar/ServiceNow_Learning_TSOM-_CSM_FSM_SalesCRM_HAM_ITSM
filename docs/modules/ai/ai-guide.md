@@ -1104,10 +1104,10 @@ ServiceNow AI is measured on adoption, quality, cost control, and business outco
 
 ```mermaid
 graph TD
-    F["Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB"] --> P["Predictive Intelligence Classification, Similarity, Regression, Clustering"]
-    P --> G["Generative AI — Now Assist Summarization, Drafting, KB Generation, Code"]
-    G --> V["Virtual Agent Conversational AI, Deflection, NLU"]
-    V --> A["Agentic AI AI Agents, Multi-step Execution, Orchestrator"]
+    F[Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB] --> P[Predictive Intelligence Classification, Similarity, Regression, Clustering]
+    P --> G[Generative AI — Now Assist Summarization, Drafting, KB Generation, Code]
+    G --> V[Virtual Agent Conversational AI, Deflection, NLU]
+    V --> A[Agentic AI AI Agents, Multi-step Execution, Orchestrator]
 
     style F fill:#e1f5e1,color:#000
     style P fill:#fff3e0,color:#000
@@ -1136,7 +1136,7 @@ flowchart LR
 
 ```mermaid
 graph TD
-    Hist["Historical Records 30K–300K clean rows"] --> Train[Model Training Service]
+    Hist[Historical Records 30K–300K clean rows] --> Train[Model Training Service]
     Train --> Model[Predictive Model Classification / Similarity]
     Model --> Deploy[Activate model]
     Deploy --> New[New Incident / Case]

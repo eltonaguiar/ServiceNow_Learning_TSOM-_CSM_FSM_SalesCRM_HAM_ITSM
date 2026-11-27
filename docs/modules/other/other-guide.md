@@ -1349,7 +1349,7 @@ flowchart TD
 graph TD
     AS400[AS/400 / DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
     MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
-    staging --> TM[Transform Map ITEMNUMBER → cmdb_ci.name]
+    staging --> TM[Transform Map ITEMNUMBER to cmdb_ci.name]
     TM --> CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
     CMDB --> Disc[Discovery reconciliation]
 
@@ -1408,12 +1408,12 @@ flowchart TD
         SP[Service Portal<br/>Catalog Items]
     end
     subgraph "Automation Layer"
-        FD[Flow Designer<br/>Trigger → Actions → Subflows]
+        FD[Flow Designer<br/>Trigger to Actions to Subflows]
         IH[IntegrationHub<br/>REST/SOAP Spokes]
     end
     subgraph "Platform Ops"
         US[Update Sets]
-        CLONE[Clone Prod → Sub-Prod]
+        CLONE[Clone Prod to Sub-Prod]
         REG[Regression Suite<br/>ITSM + HRSD + Integrations]
         PROMOTE[Promote to Prod]
     end

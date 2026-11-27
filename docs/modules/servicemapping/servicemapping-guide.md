@@ -196,19 +196,19 @@ This guide maps to the **Certified Implementation Specialist – Service Mapping
 
 ```mermaid
 graph TD
-    subgraph "Horizontal Discovery - 'What exists on the network?'"
-        A["MID Server"] --> B["Scan IP Range"]
-        B --> C["Discover CIs"]
-        C --> D["cmdb_ci, cmdb_ci_server, cmdb_ci_appl"]
-        D --> E["Standalone CIs"]
+    subgraph [Horizontal Discovery - What exists on the network?]
+        A[MID Server] --> B[Scan IP Range]
+        B --> C[Discover CIs]
+        C --> D[cmdb_ci, cmdb_ci_server, cmdb_ci_appl]
+        D --> E[Standalone CIs]
     end
     
-    subgraph "Top-Down Service Mapping - 'Which CIs support this service?'"
-        F["Application Service"] --> G["Entry Point: URL/IP"]
-        G --> H["Pattern-Based Discovery"]
-        H --> I["Follow Dependencies"]
-        I --> J["cmdb_ci_service_discovered"]
-        J --> K["cmdb_rel_ci Relationships"]
+    subgraph [Top-Down Service Mapping - Which CIs support this service?]
+        F[Application Service] --> G[Entry Point: URL/IP]
+        G --> H[Pattern-Based Discovery]
+        H --> I[Follow Dependencies]
+        I --> J[cmdb_ci_service_discovered]
+        J --> K[cmdb_rel_ci Relationships]
     end
     
     E -.->|feed data| J
@@ -396,13 +396,13 @@ ServiceNow ships with predefined discovery methods and service states. Verify ag
 
 ```mermaid
 flowchart TD
-    Entry["Entry Point URL / hostname / IP e.g. online.mybank.com"]
-    Service["Application Service cmdb_ci_service_discovered state = Published"]
-    MID["MID Server discovers the host behind the entry point"]
-    Pattern["Pattern-Based Discovery identifies IIS, Tomcat, SQL Server..."]
-    Dep["Follow Outbound Dependencies 10.10.2.30:8080 -> 10.10.3.40:1433"]
-    Rel["cmdb_rel_ci Relationships Runs on · Depends on · Connects to"]
-    Map["Service Map graphical dependency view"]
+    Entry[Entry Point URL / hostname / IP e.g. online.mybank.com]
+    Service[Application Service cmdb_ci_service_discovered state = Published]
+    MID[MID Server discovers the host behind the entry point]
+    Pattern[Pattern-Based Discovery identifies IIS, Tomcat, SQL Server...]
+    Dep[Follow Outbound Dependencies 10.10.2.30:8080 to 10.10.3.40:1433]
+    Rel[cmdb_rel_ci Relationships Runs on Depends on Connects to]
+    Map[Service Map graphical dependency view]
 
     Entry --> Service
     Service --> MID
@@ -425,11 +425,11 @@ flowchart TD
 graph TD
     svc[Online Banking Service cmdb_ci_service_discovered]
     f5[F5 Load Balancer]
-    web["WEB01 - IIS cmdb_ci_appl"]
+    web[WEB01 - IIS cmdb_ci_appl]
     webhost[WEB01 Host cmdb_ci_server]
-    app["APP01 - Tomcat cmdb_ci_appl"]
+    app[APP01 - Tomcat cmdb_ci_appl]
     apphost[APP01 Host cmdb_ci_server]
-    db["DB01 - SQL Server cmdb_ci_appl"]
+    db[DB01 - SQL Server cmdb_ci_appl]
     dbhost[DB01 Host cmdb_ci_server]
 
     svc --> f5
@@ -453,16 +453,16 @@ graph TD
 
 ```mermaid
 flowchart LR
-    subgraph HD["Horizontal Discovery - 'What exists on the network?'"]
-        H1["Scan IP ranges"] --> H2["Discover CIs"]
-        H2 --> H3["cmdb_ci · cmdb_ci_server · cmdb_ci_appl"]
-        H3 --> H4["Standalone CIs"]
+    subgraph HD[Horizontal Discovery - What exists on the network?]
+        H1[Scan IP ranges] --> H2[Discover CIs]
+        H2 --> H3[cmdb_ci cmdb_ci_server cmdb_ci_appl]
+        H3 --> H4[Standalone CIs]
     end
 
-    subgraph SM["Top-Down Service Mapping - 'Which CIs support this service?'"]
-        S1["Application service + entry point"] --> S2["Pattern / traffic discovery"]
-        S2 --> S3["CI-to-CI relationships"]
-        S3 --> S4["cmdb_ci_service_discovered + cmdb_rel_ci"]
+    subgraph SM[Top-Down Service Mapping - Which CIs support this service?]
+        S1[Application service + entry point] --> S2[Pattern / traffic discovery]
+        S2 --> S3[CI-to-CI relationships]
+        S3 --> S4[cmdb_ci_service_discovered + cmdb_rel_ci]
     end
 
     H4 -.->|feeds discovered CIs| S3
@@ -976,20 +976,20 @@ These are illustrative relationships, not a mandatory one-to-one hierarchy. In S
 
 ```mermaid
 flowchart TD
-    subgraph BusinessArch["Business Architecture"]
-        BA["BA<br/>Business Application<br/>Online Banking"]
+    subgraph BusinessArch[Business Architecture]
+        BA[BA<br/>Business Application<br/>Online Banking]
     end
 
-    subgraph ServiceArch["Service Architecture"]
-        BS["BS<br/>Business Service<br/>Online Banking Service"]
-        TS["TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting"]
+    subgraph ServiceArch[Service Architecture]
+        BS[BS<br/>Business Service<br/>Online Banking Service]
+        TS[TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting]
     end
 
-    subgraph AppService["Application Service (AS)"]
-        AS["AS<br/>Application Service<br/>Online Banking – Production"]
+    subgraph AppService[Application Service (AS)]
+        AS[AS<br/>Application Service<br/>Online Banking – Production]
     end
 
-    subgraph CMDB["Service Mapping / CMDB (Technical Layer)"]
+    subgraph CMDB[Service Mapping / CMDB (Technical Layer)]
         WS[Web Server CI]
         AP[App Server CI]
         DB[Database CI]
