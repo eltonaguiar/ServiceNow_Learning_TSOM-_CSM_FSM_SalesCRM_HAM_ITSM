@@ -298,4 +298,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Batch patterns** — `chooseWindow`, keyset pagination, and avoiding N+1 loops; plus the 30-second transaction/background-job limits that force the design.
 - **Debugging** — `gs.print`, Script Debugger, and the transaction log; `console.log` does not exist server-side.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

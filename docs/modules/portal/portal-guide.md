@@ -297,4 +297,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Multi-language and localisation** — translated content and message records; portal strings do not come from the UI16 message table.
 - **Page variants and audiences** — role/condition-based rendering at the same URL (UI Builder); classic Portal uses page route maps and user criteria instead.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

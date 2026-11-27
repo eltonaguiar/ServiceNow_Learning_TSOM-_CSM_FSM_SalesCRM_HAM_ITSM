@@ -1107,4 +1107,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Stockroom and transfer orders** — multi-location inventory with in-transit state; the usual cause of 'the asset exists but nobody knows where'.
 - **Enterprise Asset Management (EAM)** — the OT/maintenance-asset sibling module; do not model plant equipment in HAM.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

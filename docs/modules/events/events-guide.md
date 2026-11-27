@@ -261,4 +261,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Fan-out patterns** — one event, many consumers (notification, flow, integration); the queue is the only place to see whether a consumer actually ran.
 - **Debugging** — System Logs plus the event queue; a registered event with no listener looks exactly like an event that never fired.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

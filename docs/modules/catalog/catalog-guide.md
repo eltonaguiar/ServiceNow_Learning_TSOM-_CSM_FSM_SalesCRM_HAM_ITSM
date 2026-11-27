@@ -264,4 +264,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Entitlements and user criteria** — who may see and request an item; the most common cause of 'the item exists but nobody can order it'.
 - **Integration with Procurement / HAM** — catalog requests for hardware must create the asset, not just a task.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

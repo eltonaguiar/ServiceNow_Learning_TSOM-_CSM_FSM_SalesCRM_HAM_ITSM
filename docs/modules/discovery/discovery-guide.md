@@ -576,4 +576,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Cloud Discovery** — tag-based resource discovery and account onboarding; tags are what make cloud CIs land in the right service.
 - **Scheduling and blackout windows** — discovery schedules, IP ranges/behaviour and maintenance windows; overlapping schedules on the same range is a common source of duplicate CIs.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

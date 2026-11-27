@@ -1320,4 +1320,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Network and service topology** — Service Mapping plus telecom resource relationships; impact analysis is only as good as the topology.
 - **TSOM vs ITOM boundary** — decide early which module owns which service; duplicating service records across both is the classic failure.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

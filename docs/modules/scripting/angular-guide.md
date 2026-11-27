@@ -1130,4 +1130,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **CSP and library policy** — external libraries must be declared as client script dependencies; inline script is restricted.
 - **Performance** — digest-cycle cost grows with `$watch` count; prefer one-time bindings and server-side data shaping for large lists.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

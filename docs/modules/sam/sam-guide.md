@@ -2200,4 +2200,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Software Asset Management integrations** — SAP/Oracle ERP for purchase history; entitlements without purchase records cannot reconcile.
 - **SAM Pro vs SAM Foundation** — the Pro plugin adds optimisation and reconciliation workflows; the guide should state which one it documents.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

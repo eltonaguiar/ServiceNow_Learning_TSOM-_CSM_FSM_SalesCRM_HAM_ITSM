@@ -1061,4 +1061,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Forecasting and territories** — quota, territory and forecast category configuration.
 - **Integration with ERP/finance** — closed-won to order/invoice handoff; usually the boundary where CRM stops and ERP starts.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

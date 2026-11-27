@@ -522,4 +522,4 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Application scope and cross-scope access** — plan scope boundaries before building; retro-fitting scope is the most expensive custom-app mistake.
 - **App customisation vs configuration** — record which parts are OOTB-modified, or upgrades will silently revert behaviour.
 
-- **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
+- **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
