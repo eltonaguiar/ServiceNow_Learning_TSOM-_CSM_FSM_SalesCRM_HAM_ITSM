@@ -576,4 +576,36 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Cloud Discovery** — tag-based resource discovery and account onboarding; tags are what make cloud CIs land in the right service.
 - **Scheduling and blackout windows** — discovery schedules, IP ranges/behaviour and maintenance windows; overlapping schedules on the same range is a common source of duplicate CIs.
 
+
+### Discovery Admin Workspace — where the surfaces actually live
+
+Current releases moved the operational views into **Workspaces › Discovery Admin Workspace**. The **MID Server dashboard** is reached from *MID Server › Dashboard* on older instances, and from **Discovery Admin Workspace › Insights** once the Discovery Admin Workspace store app is at 1.3.1 (August 2024 store release) or later. Saying "the MID dashboard is under MID Server" is true only for the pre-workspace UI.
+
+| View | What it shows | Common gotcha |
+|---|---|---|
+| Discovery status / schedules | Per-schedule phase timings and last run outcome | A schedule marked complete can still have skipped the ranges that matter |
+| Insights (MID dashboard) | MID health, queue depth, throughput, version | Outdated MID versions produce partial CIs rather than errors |
+| Discovery log per device | Exactly which phase failed and why | The only place that distinguishes auth failure from pattern failure |
+| Patterns | Horizontal/vertical pattern designer | A custom pattern is the supported way to classify an unsupported app |
+
+### Why "Discovery is broken" is usually five different things
+
+| Symptom | Usual cause | First check |
+|---|---|---|
+| No new CIs at all | Credentials or firewall | Discovery log for the device; auth phase |
+| CIs appear but blank | Pattern not matching the OS/app version | Pattern probe result in the device log |
+| Duplicates instead of updates | Identification (IRE) rules not matching | IRE identification rule for that class |
+| CIs go stale, never update | Schedule not covering the range, or MID saturated | Schedule ranges + ECC queue |
+| Only some fields updated | Datasource precedence | Which source wins that attribute (see CMDB multisource) |
+
+### Integration paths — pick by endpoint, not by habit
+
+| Endpoint type | Path | Why |
+|---|---|---|
+| Network-attached servers/network gear | Discovery via MID | Only path that observes the device directly |
+| Cloud accounts (AWS/Azure/GCP) | Cloud Discovery + Service Graph Connector | Tag-based; tags decide which service a CI lands in |
+| Endpoint management (Intune, SCCM, Jamf) | Service Graph Connector | API integration beats probing laptops that are rarely on the corporate network |
+| Hardened/remote hosts | Agent Client Collector | Agent-based, no inbound probing required |
+| Certificates | Certificate Inventory and Management | Certificate expiry is a classic blind spot in impact analysis |
+
 - **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

@@ -1680,4 +1680,36 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Agent Client Collector + MID** — the collection layer; check ECC queue and MID health before blaming correlation.
 - **Operational Intelligence dashboards** — service-level rollups for NOC review, distinct from the platform's own health dashboards.
 
+
+### Service Operations Workspace for ITOM — the operator surface
+
+ITOM does not have its own separate agent UI in current releases; operations work happens in **Service Operations Workspace** (Workspaces › Service Operations Workspace), which is shared with ITSM. The *Overview* tab is the landing surface, and the AIOps dashboards live inside the workspace rather than in the classic ITOM modules.
+
+| Surface | What it answers | Why it matters |
+|---|---|---|
+| Overview tab | What is on fire right now, by service | The NOC's first screen; should open on service health, not a raw alert list |
+| AIOps dashboards | Alert volume, correlation ratio, mean time to acknowledge | Tells you whether correlation is working or the team is just coping |
+| Service health view | Which business service is degraded and what feeds it | Only meaningful when Service Mapping exists |
+| Alert/incident side-by-side | Was this already actioned? | Prevents duplicate incidents from a correlated alert group |
+
+**The number that matters is alerts per incident**, not alert count. A team drowning in 400 alerts that collapse to 4 incidents has a working correlation rule; one generating 40 incidents from 400 alerts does not, and no dashboard redesign fixes that.
+
+### AIOps dashboards — which question each one answers
+
+| Dashboard | Question | Caveat |
+|---|---|---|
+| Alert volume / noise | Are we suppressing, or just ignoring? | Volume falling while MTTD rises means alerts were muted, not fixed |
+| Anomaly (Metric Intelligence) | Is this outside normal for *this* host? | Needs a real baseline window; new hosts alert spuriously for days |
+| Predictive AIOps | What is likely to fail next? | Only as good as the history it trained on; check the training window |
+| Root-cause candidates | Which alert is the cause vs the symptom? | Depends on topology from Service Mapping and on correlation rules |
+
+### Where "we get no ITOM data" actually comes from
+
+1. **MID Server** — check the ECC queue depth and MID health first. A saturated or unreachable MID drops events silently instead of erroring.
+2. **Agent Client Collector** — for hosts that cannot be probed, verify the agent is checking in before blaming the alert rule.
+3. **Event rules / connector** — a registered event with no matching rule looks identical to an event that never arrived.
+4. **Correlation rules** — these decide whether 400 alerts become 1 incident; tune here before touching dashboards.
+
+**Breadcrumbs:** All › Event Management (alert rules, correlation), All › Mid Server (health), Workspaces › Service Operations Workspace (consumption).
+
 - **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

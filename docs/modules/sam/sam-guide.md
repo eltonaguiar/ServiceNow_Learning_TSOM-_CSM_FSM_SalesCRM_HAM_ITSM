@@ -2200,4 +2200,31 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Software Asset Management integrations** — SAP/Oracle ERP for purchase history; entitlements without purchase records cannot reconcile.
 - **SAM Pro vs SAM Foundation** — the Pro plugin adds optimisation and reconciliation workflows; the guide should state which one it documents.
 
+
+### SAM Workspace and publisher packs
+
+Software licence work happens in the **Software Asset Management workspace**, backed by **publisher packs** — vendor-specific entitlement and reconciliation rules for Microsoft, Adobe, Oracle, SAP, IBM and others. Coverage of *your actual publishers* decides how much of SAM is automated; a publisher with no pack means manual entitlements.
+
+| Concept | What it means | Why it decides your result |
+|---|---|---|
+| Publisher pack | Vendor licence rules + reconciliation logic | Without one, compliance is an estimate, not a measurement |
+| Entitlement | What you are licensed to run | Usually the weakest data — arrives from purchase history, not discovery |
+| Licence position | Entitlements vs installations vs usage | The number an audit asks for |
+| True-up exposure | What you would owe if audited today | Must be segmented by cost centre or it is unusable for chargeback |
+
+### Reclamation — the only lever that reduces cost
+
+Reclamation rules scan installed software associated with a licence and produce **removal candidates**; approving a candidate removes the install and frees the licence. Reporting on compliance changes nothing; reclamation is what changes the number. It depends entirely on clean discovery/connector data — reclamation on noisy inventory produces false candidates and loses user trust quickly.
+
+### SaaS and the integration surface
+
+| Source | Path | Why |
+|---|---|---|
+| SCCM / Intune / BigFix | Service Graph Connector | Installed-software truth for reconciliation |
+| SAP / Oracle ERP | Integration Hub or import | Purchase history gives entitlements; without it nothing reconciles |
+| Microsoft 365 / Adobe / Atlassian | SaaS License Management | Subscription usage tracking, which is a different question from installed licences |
+| HR / identity | User linkage | Licence assignment must follow the person, not the device |
+
+**Ask before trusting any SAM number:** which publisher packs are installed, and is entitlement coming from purchase records or from an estimate? Those two answers explain most variance between two SAM reports of the same estate.
+
 - **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

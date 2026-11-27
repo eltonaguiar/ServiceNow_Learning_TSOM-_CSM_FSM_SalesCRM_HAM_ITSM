@@ -1107,4 +1107,30 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Stockroom and transfer orders** — multi-location inventory with in-transit state; the usual cause of 'the asset exists but nobody knows where'.
 - **Enterprise Asset Management (EAM)** — the OT/maintenance-asset sibling module; do not model plant equipment in HAM.
 
+
+### Hardware Asset Workspace — inventory, receiving and transfer orders
+
+Asset operations live in **Workspaces › Hardware Asset Workspace**, which consolidates the surfaces that used to be separate UI16 modules.
+
+| Function | Where | Gotcha |
+|---|---|---|
+| Inventory view | Hardware Asset Workspace › Inventory | Shows stockroom-level state; an asset "missing" here is often in transit |
+| Receiving | Stockroom receiving flow | Receiving creates the asset; skipping it means the asset exists only on the PO |
+| Transfer orders | Stockroom → stockroom movement | In-transit is a real state — reports that ignore it double-count |
+| Asset audit | Mobile Agent barcode/QR scan | The audit variance is the metric that matters, not the count |
+| Lifecycle stages | On the asset record | Stages must be consistent or dashboards silently drop assets |
+
+### The distinction that causes most HAM confusion
+
+Three different records describe the same physical thing: **purchase order line** (procurement), **asset** (financial/lifecycle), and **CI** (operational). An asset without a CI cannot be impact-analysed; a CI without an asset cannot be depreciated. Deciding which system of record owns which attribute *before* load is the whole design.
+
+### Integration surface
+
+| Source | Path | Why |
+|---|---|---|
+| Intune / SCCM / Jamf | Service Graph Connector | Endpoint inventory into asset tables without spreadsheet reconciles |
+| Procurement / ERP | Integration Hub spoke or import | POs and receiving should create assets automatically |
+| Discovery / ACC | CI creation + asset linkage | Discovery finds the machine; HAM owns its financial life |
+| Barcode / RFID | Mobile Agent | Physical audits only work with scanning |
+
 - **Verify in your instance**: most items above are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
