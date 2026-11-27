@@ -650,10 +650,10 @@ arrows is missing, the demo looks fine and production does not work.*
 
 ```mermaid
 flowchart TD
-    NMS[NMS / EMS / OSS Nokia ,  Ericsson ,  Cisco ,  ...]
+    NMS[NMS / EMS / OSS Nokia  and   Ericsson  and   Cisco  and    dot  dot  dot ]
     Event[em_event raw observation - something happened]
-    Rules[Event Rules filter, map severity, assign CI]
-    Alert[em_alert scored, de-duplicated, attached to a CI]
+    Rules[Event Rules filter and  map severity and  assign CI]
+    Alert[em_alert scored and  de-duplicated and  attached to a CI]
     Corr[Alert Correlation 400 port-down to 1 circuit-down]
     Incident[incident one ticket the NOC works]
     Clear[Clear device reports recovery to alert closes]
@@ -1076,7 +1076,7 @@ flowchart TD
 
     subgraph "Event Management"
         EM[em_event / em_alert]
-        ER[Event Rules  -  filter, transform, assign severity]
+        ER[Event Rules  -  filter and  transform and  assign severity]
         AC[Alert Correlation Rules]
     end
 
@@ -1325,7 +1325,7 @@ Temporal analysis is the time dimension — flapping and bursty alerts inside a 
 
 ```mermaid
 flowchart TD
-    A[What do I need to detect?] --> B{Type of signal}
+    A[What do I need to detect] --> B{Type of signal}
     B -->|Real-time metric stream / threshold| C[Metric Intelligence]
     B -->|Log lines / log patterns| D[Health Log Analytics]
     B -->|HTTP endpoint availability| E[Synthetic Monitoring]
@@ -1349,12 +1349,12 @@ flowchart TD
 flowchart TD
     ALARM[Raw alarm from NMS/OSS] --> INGEST[Ingest via TMF 642 / 688 / REST / Kafka]
     INGEST --> EVENT[em_event]
-    EVENT --> RULE[Event Rules  -  severity, filter, transform]
+    EVENT --> RULE[Event Rules  -  severity and  filter and  transform]
     RULE --> ALERT[em_alert]
     ALERT --> GROUP[Alert Grouping  -  5 types]
     GROUP --> PARENT[Parent alert]
     PARENT --> SIA[Service Impact Analysis  -  CMDB walk]
-    SIA --> BLAST[Blast radius: services, customers, accounts]
+    SIA --> BLAST[Blast radius colon  services and  customers and  accounts]
     BLAST --> SOW[Service Operations Workspace]
     SOW --> PLAY[Playbook / automated remediation]
     style ALERT fill:#e58a8a,color:#fff

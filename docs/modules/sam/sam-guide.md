@@ -184,7 +184,7 @@ stateDiagram-v2
     state "Remediate and Optimize" as Optimize
     state "Renew or Retire" as Renew
 
-    [*] --> Procure : Business needs software
+    [ star ] --> Procure : Business needs software
     Procure --> Entitle : PO and contract signed
     Entitle --> Discover : Entitlement record created
     Discover --> Reconcile : Installs and usage collected
@@ -192,7 +192,7 @@ stateDiagram-v2
     Optimize --> Reconcile : Reclaim or true-up applied
     Optimize --> Renew : Renewal date approaching
     Renew --> Procure : Contract renewed or retired
-    Renew --> [*] : Software retired
+    Renew --> [ star ] : Software retired
 
     note right of Entitle : License metric, quantity, contract, PO
     note right of Discover : SCCM, Intune, BigFix, SaaS connectors
@@ -211,7 +211,7 @@ This is the single most common source of confusion for new SAM administrators, a
 ```mermaid
 graph TD
     subgraph Owned
-        ENT[Entitlement] --> MET[Metric: per user, per core, per device]
+        ENT[Entitlement] --> MET[Metric colon  per user and  per core and  per device]
         ENT --> CON[Contract and purchase order]
     end
     subgraph Observed
@@ -309,8 +309,8 @@ Available packs: **Adobe, Citrix, IBM (includes Red Hat), Microsoft, Oracle, SAP
 ```mermaid
 flowchart LR
     PACK[Publisher pack installed] --> MG[Metric group appears in instance]
-    MG --> ENT[Entitlement: choose license metric]
-    ENT --> MODEL[Software model carries matching metric + attributes]
+    MG --> ENT[Entitlement colon  choose license metric]
+    ENT --> MODEL[Software model carries matching metric  plus  attributes]
     PACK --> RULES[Core factor / processor definitions / suite logic]
     MODEL --> RECON[Reconciliation run]
     RULES --> RECON
@@ -549,19 +549,19 @@ Two different failures wear the same complaint. **An empty picker** — no metri
 
 ```mermaid
 flowchart TD
-    A[Entitlement: License metric field] --> B{Empty, or one metric short?}
+    A[Entitlement colon  License metric field] --> B{Empty, or one metric short?}
     B -->|Empty| C{Software model selected?}
     C -->|No| C1[Pick the model  -  the picker cascades from it]
     C -->|Yes| D{Model carries a license metric?}
-    D -->|No| D1[Fix the model: set its license metric / group]
+    D -->|No| D1[Fix the model colon  set its license metric / group]
     D -->|Yes| E{Pack for that group installed?}
-    E -->|No| E1[Install the pack ,  Foundation gives Common only]
-    E -->|Yes| E2[Escalate with group name, release and plugin state]
+    E -->|No| E1[Install the pack  and   Foundation gives Common only]
+    E -->|Yes| E2[Escalate with group name and  release and plugin state]
     B -->|One short| F{Which metric?}
     F -->|Per Core Physical / Virtual OSE| F1[Retired in New York  -  use Per Core]
     F -->|Red Hat metric| F2[IBM pack delivers it]
     F -->|Subscription / Consumption| F3[SaaS License Management adds the group]
-    F -->|Something bespoke| G[Custom License Metrics to group Custom, listed by name]
+    F -->|Something bespoke| G[Custom License Metrics to group Custom and  listed by name]
 ```
 
 **Run these in order and stop at the first "no":**
@@ -1024,7 +1024,7 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Unlicensed: No entitlement exists
+    [ star ] --> Unlicensed: No entitlement exists
     Unlicensed --> UnderLicensed: Entitlement created (partial)
     UnderLicensed --> Compliant: Quantity >= demand
     Compliant --> OverLicensed: Excess quantity added
@@ -1076,12 +1076,12 @@ flowchart TD
     MS_RULES -->|Per Core| MS_CORE[Count cores x factor]
     
     ORA --> ORA_RULES{Deployment type?}
-    ORA_RULES -->|Virtualized| ORA_VIRT[Soft-partitioned: license the boundary]
+    ORA_RULES -->|Virtualized| ORA_VIRT[Soft-partitioned colon  license the boundary]
     ORA_RULES -->|Physical| ORA_PHYS[Full core count]
     
     ADO --> ADO_RULES{Product line?}
     ADO_RULES -->|Creative Cloud| ADO_CC[Per-seat subscription]
-    ADO_RULES -->|Document Cloud| ADO_DC[Per-user seats, not per document]
+    ADO_RULES -->|Document Cloud| ADO_DC[Per-user seats and  not per document]
     
     MS_USER --> FINAL[Compliance Position]
     MS_DEV --> FINAL

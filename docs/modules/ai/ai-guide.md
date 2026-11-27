@@ -199,19 +199,19 @@ ServiceNow AI is built as a layered stack. Each layer depends on the quality of 
 ```mermaid
 graph TD
     subgraph "Layer 4: Agentic AI (Prime/Advanced)"
-        A[AI Agents Incident Triage, Resolution Agent]
+        A[AI Agents Incident Triage and  Resolution Agent]
     end
     subgraph "Layer 3: Virtual Agent (All tiers)"
-        B[Conversational AI Deflection, Self-service]
+        B[Conversational AI Deflection and  Self-service]
     end
     subgraph "Layer 2: Generative AI  -  Now Assist (All tiers)"
-        C[Summarization, Drafting, Resolution Notes, KB Generation]
+        C[Summarization and  Drafting and  Resolution Notes and  KB Generation]
     end
     subgraph "Layer 1: Predictive Intelligence (All tiers)"
-        D[Classification, Similarity, Regression, Clustering]
+        D[Classification and  Similarity and  Regression and  Clustering]
     end
     subgraph "Foundation: Data & Platform"
-        E[CMDB, Clean Data, Workflow Data Fabric, RaptorDB]
+        E[CMDB and  Clean Data and  Workflow Data Fabric and  RaptorDB]
     end
 
     E --> D
@@ -1104,10 +1104,10 @@ ServiceNow AI is measured on adoption, quality, cost control, and business outco
 
 ```mermaid
 graph TD
-    F[Foundation Layer Clean Data, CMDB, Workflow Data Fabric, RaptorDB] --> P[Predictive Intelligence Classification, Similarity, Regression, Clustering]
-    P --> G[Generative AI  -  Now Assist Summarization, Drafting, KB Generation, Code]
-    G --> V[Virtual Agent Conversational AI, Deflection, NLU]
-    V --> A[Agentic AI AI Agents, Multi-step Execution, Orchestrator]
+    F[Foundation Layer Clean Data and  CMDB and  Workflow Data Fabric and  RaptorDB] --> P[Predictive Intelligence Classification and  Similarity and  Regression and  Clustering]
+    P --> G[Generative AI  -  Now Assist Summarization and  Drafting and  KB Generation and  Code]
+    G --> V[Virtual Agent Conversational AI and  Deflection and  NLU]
+    V --> A[Agentic AI AI Agents and  Multi-step Execution and  Orchestrator]
 
     style F fill:#e1f5e1,color:#000
     style P fill:#fff3e0,color:#000
@@ -1120,9 +1120,9 @@ graph TD
 
 ```mermaid
 flowchart LR
-    Rec[Record: Incident] --> Skill[Now Assist Skill e.g., Summarize]
-    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc.]
-    LLM -->|Generated output| Out[Draft: Summary / Note / Reply]
+    Rec[Record colon  Incident] --> Skill[Now Assist Skill e dot g dot  and  Summarize]
+    Skill -->|Grounded prompt + tools| LLM[LLM Provider Now LLM / Azure OpenAI / etc dot ]
+    LLM -->|Generated output| Out[Draft colon  Summary / Note / Reply]
     Out --> Agent[Human Agent reviews]
     Agent -->|Edits & saves| Rec2[Record updated]
     Out -->|Rejected / unsafe| Guardian[AI Guardian Offensiveness / Prompt Injection]
@@ -1156,7 +1156,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Orch[AI Agent Orchestrator ReAct + Route scheduling] --> A1[Agent A Read incident]
+    Orch[AI Agent Orchestrator ReAct  plus  Route scheduling] --> A1[Agent A Read incident]
     Orch --> A2[Agent B Find similar incidents]
     Orch --> A3[Agent C Search KB]
     Orch --> A4[Agent D Check recent changes]
@@ -1165,14 +1165,14 @@ graph TD
     A2 --> Merge
     A3 --> Merge
     A4 --> Merge
-    Merge --> Panel[Now Assist Panel Triage summary + recommendation]
+    Merge --> Panel[Now Assist Panel Triage summary  plus  recommendation]
     Panel --> Human{Human approves?}
     Human -->|Yes| Exec[Execute flow / runbook]
     Human -->|No| Draft[Keep as draft]
     Exec --> Done[Incident updated]
     Draft --> Done
 
-    MCP[MCP servers: Jira, SAP, GitHub] -.->|tool calls| A1
+    MCP[MCP servers colon  Jira and  SAP and  GitHub] -.->|tool calls| A1
     A2 -.->|A2A| Ext[External agents]
 
     style Orch fill:#e3f2fd,color:#000
@@ -1183,7 +1183,7 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Invoke[Skill/Agent invoked] --> Meter[Assist Metering +1 Assist]
+    Invoke[Skill/Agent invoked] --> Meter[Assist Metering  plus 1 Assist]
     Meter --> Quota[(Monthly quota)]
     Quota --> Check{Threshold?}
     Check -->|50%| Alert1[Email/Slack alert]

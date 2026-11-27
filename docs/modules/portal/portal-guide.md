@@ -147,11 +147,11 @@ UI Builder is ServiceNow's **visual page builder** for the **Next Experience** r
 
 ```mermaid
 graph TD
-    A[Page: /support] --> B{Variant selection by Audience}
-    B -->|VIP user| C[Variant: VIP layout]
-    B -->|Standard user| D[Variant: Default layout]
-    B -->|No match| E[Variant: Fallback]
-    C --> F[Components + Data Resources]
+    A[Page colon  /support] --> B{Variant selection by Audience}
+    B -->|VIP user| C[Variant colon  VIP layout]
+    B -->|Standard user| D[Variant colon  Default layout]
+    B -->|No match| E[Variant colon  Fallback]
+    C --> F[Components  plus  Data Resources]
     D --> F
     E --> F
     style B fill:#e1f5fe,stroke:#01579b,stroke-width:2px

@@ -389,15 +389,15 @@ wm_territory
 ### Work Order Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
+    [ star ] --> Draft
     Draft --> Scheduled : Schedule created
     Scheduled --> Dispatched : Agent assigned
     Dispatched --> In Progress : Technician en route / arrived
     In Progress --> Completed : Task finished
     Completed --> Closed : All tasks done, parts returned
-    Closed --> [*]
+    Closed --> [ star ]
     Draft --> Canceled : Cancelled before scheduling
-    Canceled --> [*]
+    Canceled --> [ star ]
 
     note right of Draft: Territory and skills required
     note right of Completed: Time entries captured
@@ -411,7 +411,7 @@ graph TD
         DB[Dispatch Board]
     end
     subgraph "Technician"
-        TECH[Technician + Skills + Territory]
+        TECH[Technician  plus  Skills  plus  Territory]
     end
     subgraph "Task"
         TSK[Work Order Task]

@@ -120,12 +120,12 @@ flowchart TD
     B -->|Yes| C{External system fast and reliable?}
     B -->|No| D[Use Asynchronous Pattern]
     
-    C -->|Yes| E[Synchronous REST RESTMessageV2.execute()]
+    C -->|Yes| E[Synchronous REST RESTMessageV2 dot execute()]
     C -->|No| D
     
     D --> F{Data source on-prem behind firewall?}
     
-    F -->|Yes| G[MID Server + ECC Queue Asynchronous]
+    F -->|Yes| G[MID Server  plus  ECC Queue Asynchronous]
     F -->|No| H{Bulk data load?}
     
     H -->|Yes| I[Import Sets Staging to Transform Map to Target]

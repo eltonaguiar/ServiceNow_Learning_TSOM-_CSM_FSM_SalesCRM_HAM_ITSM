@@ -655,12 +655,12 @@ Sales CRM is measured on pipeline health, deal velocity, and revenue predictabil
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Lead_New
+    [ star ] --> Lead_New
     Lead_New --> Lead_Contacted
     Lead_Contacted --> Lead_Qualified
     Lead_Qualified --> Lead_Unqualified
     Lead_Qualified --> Opp_Prospecting
-    Lead_Unqualified --> [*]
+    Lead_Unqualified --> [ star ]
 
     Opp_Prospecting --> Opp_Qualification
     Opp_Qualification --> Opp_Proposal
@@ -668,7 +668,7 @@ stateDiagram-v2
     Opp_Negotiation --> Opp_Closed_Won
     Opp_Negotiation --> Opp_Closed_Lost
     Opp_Closed_Won --> Quote_Draft
-    Opp_Closed_Lost --> [*]
+    Opp_Closed_Lost --> [ star ]
 
     Quote_Draft --> Quote_Sent
     Quote_Sent --> Quote_Accepted
@@ -704,17 +704,17 @@ stateDiagram-v2
 
 ```mermaid
 graph TD
-    A[sn_sales_account<br/>Customer / B2B account] --> C[sn_sales_contact<br/>Individual at account]
-    A --> O[sn_sales_opportunity<br/>Deal at account]
+    A[sn_sales_account less br/ more Customer / B2B account] --> C[sn_sales_contact less br/ more Individual at account]
+    A --> O[sn_sales_opportunity less br/ more Deal at account]
     C --> O
 
-    L[sn_sales_lead<br/>Prospect] --> O2[sn_sales_opportunity<br/>from qualified lead]
-    O --> Q[sn_sales_quote<br/>Quotes on opportunity]
-    Q --> OR[sn_sales_order<br/>Order from accepted quote]
-    Q --> QL[sn_sales_quote_line<br/>Line items / products]
+    L[sn_sales_lead less br/ more Prospect] --> O2[sn_sales_opportunity less br/ more from qualified lead]
+    O --> Q[sn_sales_quote less br/ more Quotes on opportunity]
+    Q --> OR[sn_sales_order less br/ more Order from accepted quote]
+    Q --> QL[sn_sales_quote_line less br/ more Line items / products]
 
-    P[sn_sales_product<br/>Catalog item] --> QL
-    P --> OR2[sn_sales_order_line<br/>Ordered product lines]
+    P[sn_sales_product less br/ more Catalog item] --> QL
+    P --> OR2[sn_sales_order_line less br/ more Ordered product lines]
 
     style A fill:#e3f2fd,color:#000
     style O fill:#fff3e0,color:#000
@@ -726,11 +726,11 @@ graph TD
 
 ```mermaid
 graph LR
-    P1[Prospecting $1.2M] --> P2[Qualification $2.4M]
-    P2 --> P3[Proposal $1.8M]
-    P3 --> P4[Negotiation $0.9M]
-    P4 --> W[Closed Won $0.6M]
-    P4 --> L2[Closed Lost $0.3M]
+    P1[Prospecting 1 dot 2M] --> P2[Qualification 2 dot 4M]
+    P2 --> P3[Proposal 1 dot 8M]
+    P3 --> P4[Negotiation 0 dot 9M]
+    P4 --> W[Closed Won 0 dot 6M]
+    P4 --> L2[Closed Lost 0 dot 3M]
 
     style P1 fill:#c8e6c9,color:#000
     style P2 fill:#fff9c4,color:#000
@@ -751,8 +751,8 @@ graph LR
     Service -->|Renewal| Opp
 
     subgraph External_Systems [External Systems]
-        ERP[ERP: SAP/NetSuite]
-        Acct[Accounting: Invoices]
+        ERP[ERP colon  SAP/NetSuite]
+        Acct[Accounting colon  Invoices]
     end
 
     Order -->|Push| ERP
@@ -766,12 +766,12 @@ graph LR
 
 ```mermaid
 flowchart LR
-    A[sn_sales_account<br/>Customer Account] --> B[sn_sales_opportunity<br/>Sales Opportunity]
-    B --> C[sn_sales_quote<br/>Quote/CPQ]
-    C --> D[sn_sales_order<br/>Sales Order]
-    D --> E[sn_sales_order_line<br/>Order Lines]
+    A[sn_sales_account less br/ more Customer Account] --> B[sn_sales_opportunity less br/ more Sales Opportunity]
+    B --> C[sn_sales_quote less br/ more Quote/CPQ]
+    C --> D[sn_sales_order less br/ more Sales Order]
+    D --> E[sn_sales_order_line less br/ more Order Lines]
 
-    A -->|has primary contact| L[sn_sales_contact<br/>Contact]
+    A -->|has primary contact| L[sn_sales_contact less br/ more Contact]
     L -->|influences| B
 
     B -->|generates| C
@@ -790,7 +790,7 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> New
+    [ star ] --> New
     New --> Assigned
     Assigned --> In_Progress
     In_Progress --> Waiting_on_Customer
@@ -799,7 +799,7 @@ stateDiagram-v2
     Resolved --> Closed
     Resolved --> Reopened
     Reopened --> In_Progress
-    Closed --> [*]
+    Closed --> [ star ]
 
     New : Created
     Assigned : Assigned to agent

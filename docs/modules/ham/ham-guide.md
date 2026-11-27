@@ -140,15 +140,15 @@ stateDiagram-v2
     state "In Maintenance" as InMaintenance
     state "Lost / Stolen" as LostStolen
 
-    [*] --> Procurement : Asset ordered
+    [ star ] --> Procurement : Asset ordered
     Procurement --> Received : Asset received in warehouse
     Received --> InUse : Asset assigned to employee
     InUse --> InMaintenance : Repair needed
     InMaintenance --> InUse : Repair complete
     InUse --> Retired : End of life / replacement
     InUse --> LostStolen : Asset missing
-    LostStolen --> [*]
-    Retired --> [*]
+    LostStolen --> [ star ]
+    Retired --> [ star ]
     InMaintenance --> Retired : Beyond economical repair
 
 ```
@@ -163,14 +163,14 @@ stateDiagram-v2
 graph TD
     subgraph "Hardware Asset (alm_asset)"
         asset[Asset Record]
-        asset -->|tracks| financial[Financial Data Cost, PO, Contract, Depreciation]
-        asset -->|tracks| assignment[Assignment User, Location, Department]
+        asset -->|tracks| financial[Financial Data Cost and  PO and  Contract and  Depreciation]
+        asset -->|tracks| assignment[Assignment User and  Location and  Department]
     end
     
     subgraph "Configuration Item (cmdb_ci)"
         ci[CI Record]
-        ci -->|tracks| technical[Technical Data OS, IP, Serial, CPU, RAM]
-        ci -->|tracks| relationships[Relationships Runs on, Depends on, Connected to]
+        ci -->|tracks| technical[Technical Data OS and  IP and  Serial and  CPU and  RAM]
+        ci -->|tracks| relationships[Relationships Runs on and  Depends on and  Connected to]
     end
     
     subgraph "The Link"
@@ -540,9 +540,9 @@ graph TD
 ```mermaid
 flowchart TD
     subgraph "HAM  -  Hardware Asset Management"
-        HAM[Asset Record] -->|install_status| STATE[State: Purchased, In Stock, In Use, Retired]
-        HAM --> FIN[Financial Data Cost, PO, Contract, Depreciation]
-        HAM --> ASG[Assignment Data User, Location, Department]
+        HAM[Asset Record] -->|install_status| STATE[State colon  Purchased and  In Stock and  In Use and  Retired]
+        HAM --> FIN[Financial Data Cost and  PO and  Contract and  Depreciation]
+        HAM --> ASG[Assignment Data User and  Location and  Department]
     end
     
     subgraph "ITAM  -  IT Asset Management (umbrella)"
@@ -552,8 +552,8 @@ flowchart TD
     end
     
     subgraph "CMDB  -  Configuration Management Database"
-        CMDB --> TEC[Technical Data OS, IP Address, Serial Number]
-        CMDB --> REL[Relationships Runs On, Depends On, Connected To]
+        CMDB --> TEC[Technical Data OS and  IP Address and  Serial Number]
+        CMDB --> REL[Relationships Runs On and  Depends On and  Connected To]
         CMDB --> SERVICES[Business Services Mapped via CSDM]
     end
     
@@ -627,7 +627,7 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Purchased: PO received
+    [ star ] --> Purchased: PO received
     
     Purchased --> ReceivingCheckIn: Physical receipt
     ReceivingCheckIn --> InStock: Check-in complete
@@ -644,8 +644,8 @@ stateDiagram-v2
     RetiredEndOfLife --> DisposalDataWipe: Wipe certified
     LostOrStolen --> WriteOff: Financial write-off
     
-    DisposalDataWipe --> [*]: Asset retired
-    WriteOff --> [*]: Asset written off
+    DisposalDataWipe --> [ star ]: Asset retired
+    WriteOff --> [ star ]: Asset written off
     
     
     
@@ -697,11 +697,11 @@ flowchart TD
     B -->|A field on the asset form| C[Category drives the form  -  set the category first]
     B -->|A state / substate| D{Does an existing substate fit?}
     D -->|Yes| D1[Use the substate  -  In Stock and Retired both carry long lists]
-    D -->|No| D2[States are instance data: All > Asset Management > Administration > States]
-    B -->|A model in the picker| E[All > Asset Management > Administration > Asset Models]
+    D -->|No| D2[States are instance data colon  All  more  Asset Management  more  Administration  more  States]
+    B -->|A model in the picker| E[All  more  Asset Management  more  Administration  more  Asset Models]
     E --> E1{Exists but not selectable?}
     E1 -->|Yes| E2[Check the lifecycle phase  -  End of sale / End of life]
-    E1 -->|No| E3[Create the model, then the asset]
+    E1 -->|No| E3[Create the model and  then the asset]
 ```
 
 - **Asset states are instance data, not platform constants.** The table above reflects OOTB values, and they vary by release (the Rome set is numeric 1–11). Check `Administration > States` before concluding the value does not exist.

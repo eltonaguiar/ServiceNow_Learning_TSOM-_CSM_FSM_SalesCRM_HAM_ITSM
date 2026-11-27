@@ -468,16 +468,16 @@ sn_customerservice_entitlement
 ### Case Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] --> New
+    [ star ] --> New
     New --> In Progress : Assign / Start work
     In Progress --> On Hold : Waiting on dependency
     On Hold --> In Progress : Third party responds
     In Progress --> Resolved : Fix applied
     Resolved --> Closed : Close code + notes filled
     Resolved --> Reopened : Issue recurs
-    Closed --> [*]
+    Closed --> [ star ]
     New --> Canceled : Duplicate / invalid
-    Canceled --> [*]
+    Canceled --> [ star ]
 
     note right of New: Priority = Impact x Urgency
     note right of Resolved: Requires Close Code + Close Notes

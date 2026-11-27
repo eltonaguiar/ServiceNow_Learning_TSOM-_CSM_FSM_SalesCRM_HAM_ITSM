@@ -462,15 +462,15 @@ The Common Service Data Model (CSDM) provides a structured framework for organiz
 ```mermaid
 flowchart TD
     subgraph "CSDM Adoption Journey"
-        Crawl[Crawl<br/>Basic CMDB Hygiene] --> Walk[Walk<br/>Service-Aware CMDB]
-        Walk --> Run[Run<br/>Domain Expansion]
-        Run --> Fly[Fly<br/>Automation & AI]
+        Crawl[Crawl less br/ more Basic CMDB Hygiene] --> Walk[Walk less br/ more Service-Aware CMDB]
+        Walk --> Run[Run less br/ more Domain Expansion]
+        Run --> Fly[Fly less br/ more Automation  and  AI]
     end
     
-    Crawl -.-> CI[CI Accuracy<br/>Relationships<br/>IRE Rules]
-    Walk -.-> Svc[Technical/Application<br/>Services<br/>CSDM Foundation]
-    Run -.-> Dom[Design/Build/Consume<br/>Domains<br/>Portfolio Mgmt]
-    Fly -.-> AI[Self-Healing CMDB<br/>Predictive<br/>Now Assist]
+    Crawl -.-> CI[CI Accuracy less br/ more Relationships less br/ more IRE Rules]
+    Walk -.-> Svc[Technical/Application less br/ more Services less br/ more CSDM Foundation]
+    Run -.-> Dom[Design/Build/Consume less br/ more Domains less br/ more Portfolio Mgmt]
+    Fly -.-> AI[Self-Healing CMDB less br/ more Predictive less br/ more Now Assist]
     
     style Crawl fill:#e8f5e9,stroke:#2e7d32
     style Walk fill:#fff3e0,stroke:#ef6c00
@@ -547,15 +547,15 @@ flowchart LR
         MAN[Manual Entry]
     end
     
-    CMDB[(CMDB<br/>cmdb_ci + cmdb_rel_ci)]
+    CMDB[(CMDB less br/ more cmdb_ci  plus  cmdb_rel_ci)]
     
     subgraph "CMDB Consumers"
-        ITSM[ITSM<br/>Impact, Change Risk]
-        SM[Service Mapping<br/>Top-down Maps]
-        EVT[Event Management<br/>Alert Correlation]
-        SAM[SAM/HAM<br/>License, Asset]
-        TSOM[TSOM<br/>Network, Service Health]
-        PA[Perf Analytics<br/>Reporting]
+        ITSM[ITSM less br/ more Impact and  Change Risk]
+        SM[Service Mapping less br/ more Top-down Maps]
+        EVT[Event Management less br/ more Alert Correlation]
+        SAM[SAM/HAM less br/ more License and  Asset]
+        TSOM[TSOM less br/ more Network and  Service Health]
+        PA[Perf Analytics less br/ more Reporting]
     end
     
     DISC --> CMDB
@@ -996,7 +996,7 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Development : CI created
+    [ star ] --> Development : CI created
     Development --> Testing : moved to test env
     Testing --> Production : deployed to prod
     Production --> In Maintenance : under maintenance
@@ -1004,7 +1004,7 @@ stateDiagram-v2
     Production --> Retired : decommissioned
     Development --> Retired : cancelled
     Testing --> Retired : cancelled
-    Retired --> [*] : archived
+    Retired --> [ star ] : archived
 
 ```
 
@@ -1167,17 +1167,17 @@ flowchart TD
     CI[cmdb_ci_computer record] --> RECON{Reconciliation}
 
     subgraph "Field: name"
-        SCCM[SCCM: name = WEB01] --> P1[Priority 100  -  WINNER]
-        Soroc[Soroc: name = WEB01-ALT] --> P2[Priority 200  -  overridden]
+        SCCM[SCCM colon  name  equals  WEB01] --> P1[Priority 100  -  WINNER]
+        Soroc[Soroc colon  name  equals  WEB01-ALT] --> P2[Priority 200  -  overridden]
     end
 
     subgraph "Field: serial_number"
-        SCCM2[SCCM: serial = SN-111] --> P3[Priority 100  -  overridden]
-        Soroc2[Soroc: serial = SN-999] --> P4[Priority 200  -  WINNER]
+        SCCM2[SCCM colon  serial  equals  SN-111] --> P3[Priority 100  -  overridden]
+        Soroc2[Soroc colon  serial  equals  SN-999] --> P4[Priority 200  -  WINNER]
     end
 
-    P1 --> FINAL[CI name = WEB01]
-    P4 --> FINAL2[CI serial_number = SN-999]
+    P1 --> FINAL[CI name  equals  WEB01]
+    P4 --> FINAL2[CI serial_number  equals  SN-999]
 
     style P1 fill:#4cc38a,color:#000
     style P4 fill:#4cc38a,color:#000
@@ -1351,8 +1351,8 @@ Discovery / IntegrationHub / Service Graph
 ```mermaid
 flowchart TD
     IN[Incoming CI payload] --> IDR{1. Identification Does this CI exist?}
-    IDR -->|MATCH FOUND| REC[2. Reconciliation Rules Existing CIs only]
-    IDR -->|NO MATCH| DS[4. IRE Data Source Rules New CIs only]
+    IDR -->|MATCH FOUND| REC[2 dot  Reconciliation Rules Existing CIs only]
+    IDR -->|NO MATCH| DS[4 dot  IRE Data Source Rules New CIs only]
     REC --> RECON_EVAL{Evaluate per field: Source priority Field-specific vs Apply to all Staleness / refresh}
     RECON_EVAL --> AUTHORIZED{Source authorized to update this field?}
     AUTHORIZED -->|YES| UPDATE[CI updated  -  authorized changes committed]
@@ -1408,7 +1408,7 @@ Mental model: **Identification runs first on both.** **Data Source rules are the
 flowchart TD
     IN[Incoming payload] --> ID{Identification: existing CI?}
     ID -->|no match| DS{IRE Data Source rule: may this source insert?}
-    ID -->|match| REC[Reconciliation + Data Refresh rules]
+    ID -->|match| REC[Reconciliation  plus  Data Refresh rules]
     DS -->|allowed| NEW[INSERT new CI]
     DS -->|blocked| REJ[INSERT rejected]
     REC --> UPD[UPDATE existing CI]
@@ -2082,9 +2082,9 @@ flowchart TD
     B -->|No| D{Does it describe a hardware/software model?}
     D -->|Yes| E[Put on cmdb_model / cmdb_hardware_product_model]
     D -->|No| F[Extend the specific CI class that needs it]
-    C --> G[Inherited by all subclasses; usable in IRE identification]
-    E --> H[Model-level attribute; not used for CI identification]
-    F --> I[Class-specific field; inherits from cmdb_ci]
+    C --> G[Inherited by all subclasses semi  usable in IRE identification]
+    E --> H[Model-level attribute semi  not used for CI identification]
+    F --> I[Class-specific field semi  inherits from cmdb_ci]
     style C fill:#4cc38a,color:#000
     style E fill:#e5b567,color:#000
     style F fill:#e5b567,color:#000
@@ -2096,10 +2096,10 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Need a new CI class/table] --> B{Does it extend cmdb_ci?}
-    B -->|No| C[Not a CI  -  use a custom table, IRE does not apply]
+    B -->|No| C[Not a CI  -  use a custom table and  IRE does not apply]
     B -->|Yes| D{Use CI Class Manager or sys_db_object Tables?}
-    D -->|CI Class Manager| E[All > Configuration > CI Classes > New; Extends = cmdb_ci]
-    D -->|sys_db_object Tables| F[All > System Definition > Tables; Extends table = cmdb_ci]
+    D -->|CI Class Manager| E[All  more  Configuration  more  CI Classes  more  New semi  Extends  equals  cmdb_ci]
+    D -->|sys_db_object Tables| F[All  more  System Definition  more  Tables semi  Extends table  equals  cmdb_ci]
     E --> G[Register in CI Class Manager]
     F --> G
     G --> H[Add identification rules for the new class]
@@ -2119,7 +2119,7 @@ flowchart TD
     B -->|Yes| D{Invoke IRE explicitly?}
     D -->|No| E[Duplicate risk  -  IRE never ran]
     D -->|Yes| F[Identify action / Business Rule calls Identification API]
-    F --> G[Match found?]
+    F --> G[Match found]
     G -->|Yes| H[Reconcile / update existing CI]
     G -->|No| I[CI remains as-is / new CI]
     style E fill:#e58a8a,color:#000
@@ -2131,17 +2131,17 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Relationship data available] --> B{Source}
-    B -->|Discovery| C[Patterns infer parent/child; write cmdb_rel_ci]
+    B -->|Discovery| C[Patterns infer parent/child semi  write cmdb_rel_ci]
     B -->|Service Mapping| D[ADM patterns discover process↔CI links]
     B -->|Import Set| E[Transform Map with coalesce on parent/child]
-    B -->|Manual| F[CI Relationships module > New]
+    B -->|Manual| F[CI Relationships module  more  New]
     B -->|Script/API| G[Business Rule / REST writes cmdb_rel_ci]
     C --> H[cmdb_rel_ci record]
     D --> H
     E --> H
     F --> H
     G --> H
-    H --> I[CI-to-CI graph for impact analysis & Service Mapping]
+    H --> I[CI-to-CI graph for impact analysis  and  Service Mapping]
 
 ```
 
@@ -2705,29 +2705,29 @@ Debugging technique depends entirely on *where* the code runs. A client script r
 
 ```mermaid
 flowchart TD
-    A[Something isn't working] --> B{Where does the code run?}
+    A[Something isnt working] --> B{Where does the code run?}
     B -->|Browser (form, list, portal)| C[Client-side debugging]
     B -->|Server (business rule, script include, transform)| D[Server-side debugging]
     B -->|UI Builder / Workspace page| E[Next Experience debugging]
     B -->|Service Portal widget| F[AngularJS widget debugging]
 
-    C --> C1[Browser DevTools F12 Console.log, debugger statement, Sources tab]
-    C --> C2[Field Watcher Settings > Developer > Field Watcher]
-    C --> C3[GlideAjax calls Network tab to xmlhttp.do requests]
+    C --> C1[Browser DevTools F12 Console dot log and  debugger statement and  Sources tab]
+    C --> C2[Field Watcher Settings  more  Developer  more  Field Watcher]
+    C --> C3[GlideAjax calls Network tab to xmlhttp dot do requests]
 
-    D --> D1[System Log (sys_log) gs.print(), gs.error(), gs.info()]
-    D --> D2[Script Debugger breakpoints, step-through, variable inspection]
-    D --> D3[Debug Business Rule System Diagnostics > Session Debug]
+    D --> D1[System Log (sys_log) gs dot print() and  gs dot error() and  gs dot info()]
+    D --> D2[Script Debugger breakpoints and  step-through and  variable inspection]
+    D --> D3[Debug Business Rule System Diagnostics  more  Session Debug]
     D --> D4[ECC Queue MID Server probe/sensor results]
 
-    E --> E1[Browser DevTools Vue.js devtools, component inspection]
-    E --> E2[Session Log Agent Workspace logs, GraphQL traces]
-    E --> E3[glide.debugger.log.ui enable Session Log tab]
+    E --> E1[Browser DevTools Vue dot js devtools and  component inspection]
+    E --> E2[Session Log Agent Workspace logs and  GraphQL traces]
+    E --> E3[glide dot debugger dot log dot ui enable Session Log tab]
 
-    F --> F1[CTRL+right-click widget scope data to console]
-    F --> F2[$sp.log() Log (syslog] table entries]
-    F --> F3[angular.element($0).scope() widget scope inspection]
-    F --> F4[Browser Network tab widget server calls, slow HTTP]
+    F --> F1[CTRL plus right-click widget scope data to console]
+    F --> F2[sp dot log() Log (syslog] table entries]
+    F --> F3[angular dot element(0) dot scope() widget scope inspection]
+    F --> F4[Browser Network tab widget server calls and  slow HTTP]
 
     style C fill:#4cc38a,color:#000
     style D fill:#e3f2fd,color:#000
@@ -2867,7 +2867,7 @@ flowchart TD
         P --> P2[Component]
         P --> P3[Data Resource]
         
-        subgraph Variant [Page Variant (same URL, different audience)]
+        subgraph Variant [Page Variant (same URL and  different audience)]
             V[Variant Page] --> V1[Component]
             V --> V2[Component]
         end
@@ -3039,8 +3039,8 @@ When you open a Dependency Views map centered on a root CI, relationships flow i
 ```mermaid
 flowchart TB
     subgraph Downstream[Downstream Dependencies (impacted if root fails)]
-        ATM1[ATM Kiosk #101]
-        ATM2[ATM Kiosk #102]
+        ATM1[ATM Kiosk  num 101]
+        ATM2[ATM Kiosk  num 102]
         MOBILE[Mobile Banking App]
         ONLINE[Online Banking Portal]
         TELLER[Branch Teller System]
@@ -3163,9 +3163,9 @@ flowchart TB
     end
 
     subgraph EdgeDevices[Edge Devices (Downstream)]
-        ATM1[ATM Kiosk #101]
-        ATM2[ATM Kiosk #102]
-        ATM3[ATM Kiosk #103]
+        ATM1[ATM Kiosk  num 101]
+        ATM2[ATM Kiosk  num 102]
+        ATM3[ATM Kiosk  num 103]
         MOB[Mobile Banking App]
     end
 

@@ -1334,7 +1334,7 @@ flowchart TD
     API --> BR[Business Rule map UKG fields]
     BR --> Case[Create/update hr_case / u_timecard]
     Case --> Assign{Total hours > 40?}
-    Assign -->|Yes| OT[Auto-assign to Payroll + overtime flag]
+    Assign -->|Yes| OT[Auto-assign to Payroll  plus  overtime flag]
     Assign -->|No| Normal[Auto-assign to standard group]
     OT --> Notify[Notify payroll team]
     Normal --> Done[Record saved]
@@ -1349,7 +1349,7 @@ flowchart TD
 graph TD
     AS400[AS/400 / DB2 for i ITEMMAST table] -->|JDBC query| MID[MID Server JDBC probe]
     MID -->|Delta: last_modified > last_run| staging[Import Set staging table]
-    staging --> TM[Transform Map ITEMNUMBER to cmdb_ci.name]
+    staging --> TM[Transform Map ITEMNUMBER to cmdb_ci dot name]
     TM --> CMDB[cmdb_ci / alm_asset in ServiceNow CMDB]
     CMDB --> Disc[Discovery reconciliation]
 
@@ -1371,12 +1371,12 @@ graph TD
     SO[Service Operation] --> CSI[Continual Service Improvement]
 
     subgraph ServiceNow mapping
-        SO --> Inc[Incident: incident table]
-        SO --> Prob[Problem: problem table]
-        SO --> Req[Request: sc_request]
-        ST --> Chg[Change: change_request]
-        SD --> KB[Knowledge: knowledge_base]
-        SS --> SLA[SLA: sla_definition]
+        SO --> Inc[Incident colon  incident table]
+        SO --> Prob[Problem colon  problem table]
+        SO --> Req[Request colon  sc_request]
+        ST --> Chg[Change colon  change_request]
+        SD --> KB[Knowledge colon  knowledge_base]
+        SS --> SLA[SLA colon  sla_definition]
         CSI --> Rep[Reports / dashboards]
     end
 
@@ -1388,13 +1388,13 @@ graph TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Backlog : stories created
+    [ star ] --> Backlog : stories created
     Backlog --> Sprint_Planning : team pulls stories
     Sprint_Planning --> In_Progress : sprint starts
     In_Progress --> In_Test : dev complete
     In_Test --> Done : QA passes
     In_Test --> Backlog : QA fails / scope change
-    Done --> [*] : sprint ends
+    Done --> [ star ] : sprint ends
     Done --> Retrospective : velocity measured
     Retrospective --> Next_Sprint : plan next
     Next_Sprint --> Sprint_Planning
@@ -1405,16 +1405,16 @@ stateDiagram-v2
 ```mermaid
 flowchart TD
     subgraph "User Layer"
-        SP[Service Portal<br/>Catalog Items]
+        SP[Service Portal less br/ more Catalog Items]
     end
     subgraph "Automation Layer"
-        FD[Flow Designer<br/>Trigger to Actions to Subflows]
-        IH[IntegrationHub<br/>REST/SOAP Spokes]
+        FD[Flow Designer less br/ more Trigger to Actions to Subflows]
+        IH[IntegrationHub less br/ more REST/SOAP Spokes]
     end
     subgraph "Platform Ops"
         US[Update Sets]
         CLONE[Clone Prod to Sub-Prod]
-        REG[Regression Suite<br/>ITSM + HRSD + Integrations]
+        REG[Regression Suite less br/ more ITSM  plus  HRSD  plus  Integrations]
         PROMOTE[Promote to Prod]
     end
     SP -->|Submit| FD
@@ -1423,7 +1423,7 @@ flowchart TD
     US --> CLONE
     CLONE --> REG
     REG -->|Pass| PROMOTE
-    REG -->|Fail| FIX[Fix & Re-test]
+    REG -->|Fail| FIX[Fix  and  Re-test]
     FIX --> REG
     PROMOTE --> SMOKE[Post-Prod Smoke]
     SMOKE --> HEALTH[Instance Health Checks]

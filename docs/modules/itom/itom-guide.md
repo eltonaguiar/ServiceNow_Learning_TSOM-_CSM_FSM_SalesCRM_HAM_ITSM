@@ -121,28 +121,28 @@ ServiceNow IT Operations Management (ITOM) is built around three core pillars â€
 ```mermaid
 graph TD
     subgraph "CMDB  -  Single Source of Truth"
-        CMDB[(cmdb_ci<br/>cmdb_rel_ci<br/>alm_asset)]
+        CMDB[(cmdb_ci less br/ more cmdb_rel_ci less br/ more alm_asset)]
     end
 
     subgraph "Pillar 1: ITOM Visibility"
-        V1[Discovery<br/>MID Server<br/>Patterns & Schedules]
-        V2[Service Mapping<br/>Application Services<br/>Top-Down Mapping]
-        V3[Certificate &<br/>Firewall Audits]
-        V4[Service Graph<br/>Connectors]
+        V1[Discovery less br/ more MID Server less br/ more Patterns  and  Schedules]
+        V2[Service Mapping less br/ more Application Services less br/ more Top-Down Mapping]
+        V3[Certificate  and  less br/ more Firewall Audits]
+        V4[Service Graph less br/ more Connectors]
     end
 
     subgraph "Pillar 2: ITOM AIOps (Health)"
-        H1[Event Management<br/>Alert Correlation<br/>CI Binding]
-        H2[Metric Intelligence<br/>& Health Log Analysis]
-        H3[Agent Client<br/>Collector]
-        H4[Service Observability<br/>& Reliability]
-        H5[Now Assist<br/>for ITOM]
+        H1[Event Management less br/ more Alert Correlation less br/ more CI Binding]
+        H2[Metric Intelligence less br/ more  and  Health Log Analysis]
+        H3[Agent Client less br/ more Collector]
+        H4[Service Observability less br/ more  and  Reliability]
+        H5[Now Assist less br/ more for ITOM]
     end
 
     subgraph "Pillar 3: ITOM Optimization / Cloud Accelerate"
-        O1[Cloud Services<br/>Catalog]
-        O2[Cloud<br/>Governance]
-        O3[Cloud Cost<br/>Management]
+        O1[Cloud Services less br/ more Catalog]
+        O2[Cloud less br/ more Governance]
+        O3[Cloud Cost less br/ more Management]
     end
 
     V1 --> CMDB
@@ -572,7 +572,7 @@ graph TD
         D[Applications]
     end
     subgraph "MID Server"
-        E[Probes & Sensors]
+        E[Probes  and  Sensors]
     end
     subgraph "Event Management"
         F[Events]
@@ -607,7 +607,7 @@ graph TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> New
+    [ star ] --> New
     New --> InProgress: Acknowledged
     InProgress --> Resolved: Fixed
     Resolved --> Closed: Verified

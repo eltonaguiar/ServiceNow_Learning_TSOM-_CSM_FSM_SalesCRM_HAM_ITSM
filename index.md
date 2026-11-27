@@ -168,7 +168,7 @@ Each guide covers:
 
 ```mermaid
 graph TD
-    A[Start: Orient] -->|Read Glossary| B[Configure]
+    A[Start colon  Orient] -->|Read Glossary| B[Configure]
     B -->|Set Roles/Test Record| C[Build]
     C -->|Run Flow/Integration| D[Verify]
     D -->|Confirm Artifact| E[Teach Back]

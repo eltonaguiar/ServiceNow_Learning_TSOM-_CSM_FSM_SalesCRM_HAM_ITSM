@@ -118,8 +118,8 @@ When an Angular widget reads ServiceNow data via `server.update()` or `GlideAjax
 graph TD
     A[Service Portal Page] --> B[Widget]
     B --> C[AngularJS Controller]
-    C --> D[$scope]
-    C --> E[server.update() / GlideAjax / $http]
+    C --> D[scope]
+    C --> E[server dot update() / GlideAjax / http]
     E --> F[ServiceNow Server]
     F --> G[GlideRecord / Table API / Scripted REST]
     G --> H[JSON Response]
@@ -138,15 +138,15 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Angular SPA<br/>localhost:4200] --> B[OAuth / API Token]
-    B --> C[HTTP Request<br/>REST / Scripted REST]
+    A[Angular SPA less br/ more localhost colon 4200] --> B[OAuth / API Token]
+    B --> C[HTTP Request less br/ more REST / Scripted REST]
     C --> D[ServiceNow Instance]
     D --> E[Table API / Scripted REST]
     E --> F[JSON Response]
     F --> C
-    C --> G[Angular Service<br/>HttpClient]
+    C --> G[Angular Service less br/ more HttpClient]
     G --> H[Component]
-    H --> I[Template<br/>HTML + Data Binding]
+    H --> I[Template less br/ more HTML  plus  Data Binding]
     style A fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     style D fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     style G fill:#fff3e0,stroke:#e65100,stroke-width:2px
@@ -158,10 +158,10 @@ graph TD
 graph TD
     A[Portal Page] --> B[Widget Instance]
     B --> C[AngularJS Module]
-    C --> D[Controller: function($scope, $http, server)]
-    C --> E[Service: factory / service]
-    C --> F[Directive: custom element]
-    D --> G[$scope data]
+    C --> D[Controller colon  function(scope and  http and  server)]
+    C --> E[Service colon  factory / service]
+    C --> F[Directive colon  custom element]
+    D --> G[scope data]
     E --> G
     F --> G
     G --> H[Widget HTML Template]

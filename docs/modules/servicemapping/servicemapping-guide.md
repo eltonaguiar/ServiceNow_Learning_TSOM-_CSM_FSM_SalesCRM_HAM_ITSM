@@ -196,15 +196,15 @@ This guide maps to the **Certified Implementation Specialist – Service Mapping
 
 ```mermaid
 graph TD
-    subgraph [Horizontal Discovery - What exists on the network?]
+    subgraph [Horizontal Discovery - What exists on the network]
         A[MID Server] --> B[Scan IP Range]
         B --> C[Discover CIs]
-        C --> D[cmdb_ci, cmdb_ci_server, cmdb_ci_appl]
+        C --> D[cmdb_ci and  cmdb_ci_server and  cmdb_ci_appl]
         D --> E[Standalone CIs]
     end
     
-    subgraph [Top-Down Service Mapping - Which CIs support this service?]
-        F[Application Service] --> G[Entry Point: URL/IP]
+    subgraph [Top-Down Service Mapping - Which CIs support this service]
+        F[Application Service] --> G[Entry Point colon  URL/IP]
         G --> H[Pattern-Based Discovery]
         H --> I[Follow Dependencies]
         I --> J[cmdb_ci_service_discovered]
@@ -396,11 +396,11 @@ ServiceNow ships with predefined discovery methods and service states. Verify ag
 
 ```mermaid
 flowchart TD
-    Entry[Entry Point URL / hostname / IP e.g. online.mybank.com]
-    Service[Application Service cmdb_ci_service_discovered state = Published]
+    Entry[Entry Point URL / hostname / IP e dot g dot  online dot mybank dot com]
+    Service[Application Service cmdb_ci_service_discovered state  equals  Published]
     MID[MID Server discovers the host behind the entry point]
-    Pattern[Pattern-Based Discovery identifies IIS, Tomcat, SQL Server...]
-    Dep[Follow Outbound Dependencies 10.10.2.30:8080 to 10.10.3.40:1433]
+    Pattern[Pattern-Based Discovery identifies IIS and  Tomcat and  SQL Server dot  dot  dot ]
+    Dep[Follow Outbound Dependencies 10 dot 10 dot 2 dot 30 colon 8080 to 10 dot 10 dot 3 dot 40 colon 1433]
     Rel[cmdb_rel_ci Relationships Runs on Depends on Connects to]
     Map[Service Map graphical dependency view]
 
@@ -453,16 +453,16 @@ graph TD
 
 ```mermaid
 flowchart LR
-    subgraph HD[Horizontal Discovery - What exists on the network?]
+    subgraph HD[Horizontal Discovery - What exists on the network]
         H1[Scan IP ranges] --> H2[Discover CIs]
         H2 --> H3[cmdb_ci cmdb_ci_server cmdb_ci_appl]
         H3 --> H4[Standalone CIs]
     end
 
-    subgraph SM[Top-Down Service Mapping - Which CIs support this service?]
-        S1[Application service + entry point] --> S2[Pattern / traffic discovery]
+    subgraph SM[Top-Down Service Mapping - Which CIs support this service]
+        S1[Application service  plus  entry point] --> S2[Pattern / traffic discovery]
         S2 --> S3[CI-to-CI relationships]
-        S3 --> S4[cmdb_ci_service_discovered + cmdb_rel_ci]
+        S3 --> S4[cmdb_ci_service_discovered  plus  cmdb_rel_ci]
     end
 
     H4 -.->|feeds discovered CIs| S3
@@ -977,16 +977,16 @@ These are illustrative relationships, not a mandatory one-to-one hierarchy. In S
 ```mermaid
 flowchart TD
     subgraph BusinessArch[Business Architecture]
-        BA[BA<br/>Business Application<br/>Online Banking]
+        BA[BA less br/ more Business Application less br/ more Online Banking]
     end
 
     subgraph ServiceArch[Service Architecture]
-        BS[BS<br/>Business Service<br/>Online Banking Service]
-        TS[TS<br/>Technical Service<br/>(Tech Mgmt Service in CSDM v5)<br/>Database Hosting]
+        BS[BS less br/ more Business Service less br/ more Online Banking Service]
+        TS[TS less br/ more Technical Service less br/ more (Tech Mgmt Service in CSDM v5) less br/ more Database Hosting]
     end
 
     subgraph AppService[Application Service (AS)]
-        AS[AS<br/>Application Service<br/>Online Banking - Production]
+        AS[AS less br/ more Application Service less br/ more Online Banking - Production]
     end
 
     subgraph CMDB[Service Mapping / CMDB (Technical Layer)]

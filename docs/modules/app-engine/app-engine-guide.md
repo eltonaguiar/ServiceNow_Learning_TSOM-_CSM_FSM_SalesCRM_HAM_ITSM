@@ -216,13 +216,13 @@ App Engine / Creator is measured on development speed, quality, and reuse — th
 
 ```mermaid
 graph TD
-    D[Data Experience Tables, columns, relationships] --> P[Process Experience Flows, subflows, approvals]
-    P --> E[Experience Experience Portals, Workspaces, Mobile]
-    E --> S[Security Experience Roles, ACLs, policies]
+    D[Data Experience Tables and  columns and  relationships] --> P[Process Experience Flows and  subflows and  approvals]
+    P --> E[Experience Experience Portals and  Workspaces and  Mobile]
+    E --> S[Security Experience Roles and  ACLs and  policies]
     S --> D
 
     subgraph Output
-        O[Scoped App x_ namespace, App Repo package]
+        O[Scoped App x_ namespace and  App Repo package]
     end
 
     D --> O
@@ -258,7 +258,7 @@ flowchart TD
 ```mermaid
 graph LR
     Dev[Dev instance AES build] --> Repo[Application Repository Publish version]
-    Repo --> Test[Test instance Install + verify]
+    Repo --> Test[Test instance Install  plus  verify]
     Test --> Staging[Staging instance UAT]
     Staging --> Prod[Production instance Install from App Repo]
 
@@ -270,15 +270,15 @@ graph LR
 
 ```mermaid
 graph TD
-    Page[Workspace Page JSON config] --> Panel1[Panel: List]
-    Page --> Panel2[Panel: Form]
-    Page --> Panel3[Panel: Detail]
+    Page[Workspace Page JSON config] --> Panel1[Panel colon  List]
+    Page --> Panel2[Panel colon  Form]
+    Page --> Panel3[Panel colon  Detail]
 
-    Panel1 --> Comp1[Component: Data Table]
-    Panel1 --> Comp2[Component: Filter]
+    Panel1 --> Comp1[Component colon  Data Table]
+    Panel1 --> Comp2[Component colon  Filter]
 
-    Panel2 --> Comp3[Component: Field Group]
-    Panel2 --> Comp4[Component: Button]
+    Panel2 --> Comp3[Component colon  Field Group]
+    Panel2 --> Comp4[Component colon  Button]
     Comp4 -->|Event| Server[Server script / API call]
     Server -->|Client state update| Comp3
 
@@ -290,10 +290,10 @@ graph TD
 
 ```mermaid
 graph LR
-    AES[App Engine Studio Workbench] --> IDE[IDE: VS Code / IntelliJ]
-    DM[Data Model Tables & columns] --> SQL[SQL / Schema]
-    FD[Flow Designer Logic & process] --> JS[JavaScript / Python]
-    UB[UI Builder Screens & portals] --> HTML[HTML / CSS / React]
+    AES[App Engine Studio Workbench] --> IDE[IDE colon  VS Code / IntelliJ]
+    DM[Data Model Tables  and  columns] --> SQL[SQL / Schema]
+    FD[Flow Designer Logic  and  process] --> JS[JavaScript / Python]
+    UB[UI Builder Screens  and  portals] --> HTML[HTML / CSS / React]
 
     style AES fill:#e3f2fd,color:#000
     style FD fill:#fff3e0,color:#000

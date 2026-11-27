@@ -332,11 +332,11 @@ You can even use an event to initiate another process.
 
 ```mermaid
 graph TD
-    A[Something happens<br/>CI down, ticket updated,<br/>contract expiring] --> B[Producer fires event<br/>gs.eventQueue / MID Server<br/>/ inbound email]
-    B --> C[em_event table<br/>status = Ready]
-    C --> D[Scheduled job<br/>Event Management Process events<br/>runs every 5s]
-    D --> E[Event Rules / Alert Rules<br/>process in memory]
-    E --> F[Create Alert em_alert<br/>Send Email<br/>Start Flow<br/>Update Record]
+    A[Something happens less br/ more CI down and  ticket updated and  less br/ more contract expiring] --> B[Producer fires event less br/ more gs dot eventQueue / MID Server less br/ more / inbound email]
+    B --> C[em_event table less br/ more status  equals  Ready]
+    C --> D[Scheduled job less br/ more Event Management Process events less br/ more runs every 5s]
+    D --> E[Event Rules / Alert Rules less br/ more process in memory]
+    E --> F[Create Alert em_alert less br/ more Send Email less br/ more Start Flow less br/ more Update Record]
     F --> G[em_event status Processed Consumed]
     style C fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     style E fill:#fff3e0,stroke:#e65100,stroke-width:2px

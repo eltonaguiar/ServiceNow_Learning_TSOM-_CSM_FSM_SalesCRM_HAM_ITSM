@@ -353,16 +353,16 @@ ServiceNow ships with predefined choice list values. Do not hardcode these in sc
 
 ```mermaid
 stateDiagram-v2
-    [*] --> New
+    [ star ] --> New
     New --> In Progress : Assign / Start work
     In Progress --> On Hold : Waiting on third party
     On Hold --> In Progress : Third party responds
     In Progress --> Resolved : Fix applied
     Resolved --> Closed : Close code + notes filled
     Resolved --> Reopened : Issue recurs
-    Closed --> [*]
+    Closed --> [ star ]
     New --> Canceled : Duplicate / invalid
-    Canceled --> [*]
+    Canceled --> [ star ]
     
 ```
 
@@ -471,9 +471,9 @@ Priority is Impact × Urgency on the incident, from the priority lookup. It choo
 ```mermaid
 flowchart TD
     subgraph "Normal Incident"
-        N1[Incident Created] --> N2[Triage & Assign]
-        N2 --> N3[Investigate & Resolve]
-        N3 --> N4[Resolve & Close]
+        N1[Incident Created] --> N2[Triage  and  Assign]
+        N2 --> N3[Investigate  and  Resolve]
+        N3 --> N4[Resolve  and  Close]
         N4 --> N5[Post-incident review optional]
     end
     
@@ -515,7 +515,7 @@ flowchart TD
 flowchart TD
     START[Change Request Created] --> TYPE{Change type?}
     
-    TYPE -->|Standard| STD[Pre-approved, templated]
+    TYPE -->|Standard| STD[Pre-approved and  templated]
     TYPE -->|Normal| NORM[Requires assessment]
     TYPE -->|Emergency| EMRG[Expedited path]
     
@@ -562,9 +562,9 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph "Pre-Implementation Checks"
-        CHECK1[Change start time within blackout window?]
-        CHECK2[CI collision detected? Same CI, overlapping windows]
-        CHECK3[Dependency chain blocked? Upstream change not complete]
+        CHECK1[Change start time within blackout window]
+        CHECK2[CI collision detected Same CI and  overlapping windows]
+        CHECK3[Dependency chain blocked Upstream change not complete]
     end
     
     CHECK1 -->|Yes to BLOCKED| BLOCK[Block implementation]
@@ -574,7 +574,7 @@ flowchart TD
     CHECK3 -->|Yes to BLOCKED| BLOCK
     CHECK3 -->|No to OK| ALLOW[Allow implementation]
     
-    BLOCK --> NOTIF[Notify requester: change blocked (blackout / collision / dependency)]
+    BLOCK --> NOTIF[Notify requester colon  change blocked (blackout / collision / dependency)]
     NOTIF --> RESOLVE[Adjust schedule or wait for resolution]
     RESOLVE --> CHECK1
     
@@ -798,16 +798,16 @@ cmdb_ci
 ### Incident Lifecycle State Diagram
 ```mermaid
 stateDiagram-v2
-    [*] --> New
+    [ star ] --> New
     New --> In Progress : Assign / Start work
     In Progress --> On Hold : Waiting on third party
     On Hold --> In Progress : Third party responds
     In Progress --> Resolved : Fix applied
     Resolved --> Closed : Close code + notes filled
     Resolved --> Reopened : Issue recurs
-    Closed --> [*]
+    Closed --> [ star ]
     New --> Canceled : Duplicate / invalid
-    Canceled --> [*]
+    Canceled --> [ star ]
 
 ```
 
@@ -817,13 +817,13 @@ A request does not fall out of a change, and a change does not close an incident
 
 ```mermaid
 graph TD
-    INC[incident: restore service]
-    IT[incident_task: work for another group]
-    PR[problem: stop recurrence]
-    PT[problem_task: RCA or fix step]
-    KE[Known Error article: searchable workaround]
-    CH[change_request: permanent fix]
-    REQ[sc_req_item: something asked for, not broken]
+    INC[incident colon  restore service]
+    IT[incident_task colon  work for another group]
+    PR[problem colon  stop recurrence]
+    PT[problem_task colon  RCA or fix step]
+    KE[Known Error article colon  searchable workaround]
+    CH[change_request colon  permanent fix]
+    REQ[sc_req_item colon  something asked for and  not broken]
 
     INC -->|problem_id| PR
     INC --> IT

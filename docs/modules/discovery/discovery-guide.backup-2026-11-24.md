@@ -250,11 +250,11 @@ The **Identification** phase (step 3) is where the CMDB's de-duplication control
 ```mermaid
 flowchart TD
     DISC[Discovery payload] --> ID{Identification: existing CI?}
-    ID -->|single match| REC[Reconciliation + staleness check]
+    ID -->|single match| REC[Reconciliation  plus  staleness check]
     ID -->|no match| NEW[INSERT new CI]
-    ID -->|multiple matches| DEDUP[De-duplication task<br/>flagged  -  not updated]
-    REC -->|stale| UPD[UPDATE existing CI<br/>winning source per field]
-    REC -->|fresh| SKIP[CI unchanged<br/>newer value kept]
+    ID -->|multiple matches| DEDUP[De-duplication task less br/ more flagged  -  not updated]
+    REC -->|stale| UPD[UPDATE existing CI less br/ more winning source per field]
+    REC -->|fresh| SKIP[CI unchanged less br/ more newer value kept]
 
     style DISC fill:#1c232a,color:#e6edf3
     style ID fill:#e5b567,color:#000
@@ -290,12 +290,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Start[Discovery Schedule fires] --> Scan[1. Scanning Shazzam port probes find live IPs]
-    Scan --> Classify[2. Classification Classifiers decide device type  -  Windows, Linux, switch, ...]
-    Classify --> Identify[3. Identification IRE matches an existing CI or creates a new one]
-    Identify --> Explore[4. Exploration Patterns/probes gather OS, CPU, software File-Based Discovery runs here]
-    Explore --> CI[CI created or updated in CMDB cmdb_ci ,  cmdb_ci_server ,  cmdb_file_information]
-    CI -.->|feeds| Downstream[ITSM impact ,  SAM ,  HAM ,  TSOM]
+    Start[Discovery Schedule fires] --> Scan[1 dot  Scanning Shazzam port probes find live IPs]
+    Scan --> Classify[2 dot  Classification Classifiers decide device type  -  Windows and  Linux and  switch and   dot  dot  dot ]
+    Classify --> Identify[3 dot  Identification IRE matches an existing CI or creates a new one]
+    Identify --> Explore[4 dot  Exploration Patterns/probes gather OS and  CPU and  software File-Based Discovery runs here]
+    Explore --> CI[CI created or updated in CMDB cmdb_ci  and   cmdb_ci_server  and   cmdb_file_information]
+    CI -.->|feeds| Downstream[ITSM impact  and   SAM  and   HAM  and   TSOM]
 
     style Start fill:#e58a8a,color:#000
     style Classify fill:#e5b567,color:#000
@@ -312,9 +312,9 @@ flowchart TD
 flowchart LR
     Instance[ServiceNow Instance] <==>|output records work sent to MID| ECC[ECC Queue ecc_queue]
     ECC <==>|input records results returned| MID[MID Server inside your network]
-    MID -->|WMI ,  WinRM ,  SSH ,  SNMP| Target[Target Device server, switch, appliance]
+    MID -->|WMI ,  WinRM ,  SSH ,  SNMP| Target[Target Device server and  switch and  appliance]
     Target -->|returns data| MID
-    MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci + subclasses)]
+    MID -->|parsed by Sensors / pattern steps| CI[(CMDB cmdb_ci  plus  subclasses)]
 
     subgraph InstanceSide [Instance side]
         Instance
@@ -340,14 +340,14 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Pattern[Discovery Pattern (sa_pattern)<br/>steps execute ON the MID Server]
-    HDP[HorizontalDiscoveryProbe<br/>single generic probe  -  transports the pattern<br/>to the target and returns a JSON payload]
-    HDS[HorizontalDiscoverySensor<br/>instance-side parser<br/>hands the payload straight to IRE]
+    Pattern[Discovery Pattern (sa_pattern) less br/ more steps execute ON the MID Server]
+    HDP[HorizontalDiscoveryProbe less br/ more single generic probe  -  transports the pattern less br/ more to the target and returns a JSON payload]
+    HDS[HorizontalDiscoverySensor less br/ more instance-side parser less br/ more hands the payload straight to IRE]
     IRE[(IRE  -  identify or create CI)]
-    CI[(CMDB cmdb_ci_*)]
+    CI[(CMDB cmdb_ci_ star )]
 
     Pattern -->|runs via| HDP
-    HDP -->|collects from| Target[Target device files ,  registry ,  WMI ,  SNMP]
+    HDP -->|collects from| Target[Target device files  and   registry  and   WMI  and   SNMP]
     Target -->|raw output| HDP
     HDP -->|returns JSON payload| HDS
     HDS -->|maps to CI fields via| IRE
@@ -509,18 +509,18 @@ Discovery uses **three types of affinity** to accelerate subsequent scans and av
 ```mermaid
 flowchart TD
     subgraph "Discovery Affinity Types"
-        A[Credential Affinity<br/>dscy_credentials_affinity]
-        B[IP Service Affinity<br/>dscy_ip_service_affinity]
-        C[MID Server Affinity<br/>Top-Down / Service Mapping]
+        A[Credential Affinity less br/ more dscy_credentials_affinity]
+        B[IP Service Affinity less br/ more dscy_ip_service_affinity]
+        C[MID Server Affinity less br/ more Top-Down / Service Mapping]
     end
 
     Scan[Discovery Scan] --> A
     Scan --> B
     Scan --> C
 
-    A --> Faster[Next run tries<br/>successful credential first]
-    B --> SkipFail[Skips failed<br/>ports/protocols]
-    C --> RightMID[Routes work to<br/>correct MID Server]
+    A --> Faster[Next run tries less br/ more successful credential first]
+    B --> SkipFail[Skips failed less br/ more ports/protocols]
+    C --> RightMID[Routes work to less br/ more correct MID Server]
 
     style A fill:#e3f2fd,stroke:#1565c0
     style B fill:#f3e5f5,stroke:#7b1fa2
