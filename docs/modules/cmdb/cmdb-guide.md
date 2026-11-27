@@ -2725,7 +2725,7 @@ flowchart TD
     E --> E3[glide dot debugger dot log dot ui enable Session Log tab]
 
     F --> F1[CTRL plus right-click widget scope data to console]
-    F --> F2[sp dot log Log syslog] table entries]
+    F --> F2[sp dot log Log syslog table entries]
     F --> F3[angular dot element0 dot scope widget scope inspection]
     F --> F4[Browser Network tab widget server calls and  slow HTTP]
 

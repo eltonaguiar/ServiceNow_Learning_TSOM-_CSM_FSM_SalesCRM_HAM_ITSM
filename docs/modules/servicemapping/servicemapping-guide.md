@@ -196,14 +196,14 @@ This guide maps to the **Certified Implementation Specialist – Service Mapping
 
 ```mermaid
 graph TD
-    subgraph [Horizontal Discovery - What exists on the network]
+    subgraph "Horizontal Discovery - What exists on the network"
         A[MID Server] --> B[Scan IP Range]
         B --> C[Discover CIs]
         C --> D[cmdb_ci and  cmdb_ci_server and  cmdb_ci_appl]
         D --> E[Standalone CIs]
     end
     
-    subgraph [Top-Down Service Mapping - Which CIs support this service]
+    subgraph "Top-Down Service Mapping - Which CIs support this service"
         F[Application Service] --> G[Entry Point colon  URL or IP]
         G --> H[Pattern-Based Discovery]
         H --> I[Follow Dependencies]
