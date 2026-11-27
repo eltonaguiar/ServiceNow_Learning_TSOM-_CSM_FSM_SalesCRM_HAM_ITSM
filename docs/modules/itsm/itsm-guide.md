@@ -1329,4 +1329,53 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **Employee Center + Virtual Agent** — the modern request surface and the deflection layer in front of the service desk; both reduce the ticket volume the dashboards above measure.
 - **Mobile Agent app** — approvals, incident work and notifications on iOS/Android; commonly the only way on-call engineers actually action approvals.
 
+
+### Service Operations Workspace — the agent surface
+
+SOW is a Configurable Workspace, not a skin on UI16. It opens on a **landing page** with configurable cards (assigned work, team work, alerts) and a **record page** with an overview rail, activity stream, and a context panel that keeps the related alert/change/CI visible while the agent works the incident.
+
+| Element | What it does | Why it matters |
+|---|---|---|
+| Landing page cards | Assigned / team / unassigned work, alerts, approvals | One screen replaces the "which queue am I in?" tab-hopping |
+| Record page context panel | Related alerts, CIs, changes, similar incidents | Root cause is usually visible before the agent asks a question |
+| Unified task view | Incidents, problems, changes, requests in one list | The same agent handles all four; separate views cause handoff loss |
+| UI Builder configuration | Pages, variants, audiences | Variants give different roles different layouts at the same URL |
+
+**Audience split that answers the usual question.** SOW is for *IT service agents* and can co-host ITOM alerts. **CSM Configurable Workspace** is the customer-facing equivalent, and **Employee Center** is the requester-facing portal. They are three different surfaces; docs that call them "the workspace" interchangeably are wrong.
+
+**Breadcrumbs:** All › Service Operations Workspace. Page/layout edits live in *All › Now Experience Framework › UI Builder*, not in the workspace itself.
+
+**Migration caution:** rolling SOW out changes navigation for every agent at once. Run it as a pilot group, and check which UI policies and client scripts assumed UI16 form layout — they can silently stop applying in a workspace record page.
+
+### Performance Analytics dashboards — what to read, and what breaks them
+
+| Dashboard | Answers | Indicator caveat |
+|---|---|---|
+| Incident Management | Are we resolving faster, or just closing more? | MTTR falls if you close-and-reopen; pair it with reopened-rate |
+| Service Desk / Agent | Who is overloaded and where does work stall? | Reassignment count is the better signal than raw volume |
+| Problem Management | Are problems preventing repeat incidents? | Only meaningful if incident.problem_id is actually populated |
+| Change Management | Success rate vs volume, and emergency ratio | Emergency % rising while success holds usually means normal changes got reclassified |
+
+**The failure mode nobody documents:** PA dashboards showing flat or missing data are almost never a widget problem — the **data collector** is not running, or the indicator source is filtered to a state your process no longer uses. Check the PA job schedule before rebuilding a dashboard.
+
+**Breadcrumbs:** All › Performance Analytics › Dashboards / Indicators.
+
+### Integration surface
+
+| Integration | Direction | Solves | Gotcha |
+|---|---|---|---|
+| Inbound email actions | In | Create/update incidents from mail | Body parsing is brittle; a changed mail format silently creates duplicate incidents |
+| Event Management | In | Alert → incident | Correlation quality, not the connector, decides whether agents get 1 incident or 40 |
+| DevOps change velocity | In | Pipeline-created, risk-scored changes | Without risk config every deploy becomes a normal change for CAB |
+| Virtual Agent / Now Assist | Both | Deflection, summarisation, next action | Needs topics and guardrails; unmeasured it is a chat window |
+| Notify / Slack / Teams | Both | Approvals and updates where people already are | Requires the connector app plus a messaging account |
+| Integration Hub spokes | Both | Supported connectors to third parties | Spokes are licensed; a "missing" integration is often simply not entitled |
+
+### Where ITSM guides usually stop short
+
+- **Advanced Work Assignment** changes routing from push-by-rule to capacity/skills — and it needs a *service channel* per channel (chat, email, case).
+- **Major Incident Management** is a workbench plus candidate rules, not the `major_incident_state` field.
+- **Continual Improvement Management** is the missing loop from a PA finding to an owned initiative with measured outcome.
+- **Process Optimization** reads the event log; it can only see what the process actually recorded, so it inherits any gaps in your state model.
+
 - **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.

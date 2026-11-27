@@ -3275,4 +3275,50 @@ Capabilities this guide does not cover in depth. Bullet points first; the deep d
 - **CSDM guidance** — the Common Service Data Model prescribes which classes belong at which domain level; most CMDB Health failures are really CSDM modelling failures.
 - **Ownership & attestation** — CI owner/manager fields plus attestation campaigns; the mechanism that keeps correctness from decaying between discoveries.
 
+
+### CMDB 360 and Multisource — how a CI's "truth" is actually decided
+
+Every CI is a **merge**, not a record. Two engines run in order:
+
+1. **Identification (IRE)** — decides *which CI* an incoming payload refers to. Identification rules per class; a miss creates a duplicate instead of an update.
+2. **Reconciliation** — decides *which value wins* for each attribute, using **datasource precedence**. The highest-priority datasource that supplies a value sets that attribute; lower-priority sources contribute where the higher one is silent.
+
+That is the sentence most CMDB guides omit: precedence is resolved **per attribute**, so one CI can legitimately have its serial number from a Service Graph Connector and its owner from a manual edit.
+
+| Concept | Behaviour | Practical consequence |
+|---|---|---|
+| Attribute precedence | Highest-priority source with a value wins | A "stale" value usually means a high-priority source is stale, not that the merge failed |
+| Relationship precedence | Separate rules from attribute precedence | Getting ownership right does not fix a wrong dependency edge |
+| CMDB 360 | Retains per-source history for a CI (available from Utah; enhanced in Zurich) | The only place to see that two sources disagree rather than guessing which wrote last |
+| Multisource CMDB | The precedence/reconciliation model 360 extends | Configure precedence deliberately; defaults are not a decision |
+
+**Breadcrumbs:** All › Configuration › CMDB Workspace › (CMDB 360 / Multisource views). IRE precedence: All › Identification and Reconciliation.
+
+### CMDB Health — three scorecards, three different questions
+
+| Scorecard | Question it answers | Typical red cause |
+|---|---|---|
+| Completeness | Do CIs have the fields a consumer needs? | Recommended-field rules not tuned per class, so every CI looks incomplete |
+| Correctness | Are the values right? | Orphans, duplicates, stale-updated, and audit/attestation failures |
+| Compliance | Has the data been certified? | Nobody owns attestation campaigns, so it decays silently |
+
+Health scores aggregate upward: a healthy global percentage can hide one entirely red class. Always drill to class, then to the failing rule, before "fixing" the score.
+
+### Lifecycle governance with CMDB Data Manager
+
+- Life-cycle policies are created in **CMDB Workspace** and use **retirement definitions** to decide when a CI moves to retire/archive/delete.
+- This is the governed alternative to deleting rows: it preserves relationships until nothing depends on the CI.
+- **Retire before delete** still holds: retirement keeps `cmdb_rel_ci` history and impact-analysis correctness; deletion breaks both.
+
+### Integration paths — choose by source, not by habit
+
+| Source type | Path | Why |
+|---|---|---|
+| SaaS/Cloud/endpoint management (Intune, SCCM, AWS, Azure, Qualys) | **Service Graph Connector** | Ships IRE preprocessing and supported mapping; survives upgrades |
+| Network-attached hosts | **Discovery** | Only path that observes the device itself |
+| One-off spreadsheet / migration | **Import set + transform** | Fast, but without coalesce it duplicates on every rerun |
+| Custom application writing CIs | **IRE API** | Goes through the same identify/reconcile pipeline; writing the CI table directly bypasses precedence |
+
+**The rule that saves a project:** if you are writing `cmdb_ci*` rows directly instead of through IRE, you are bypassing precedence and creating tomorrow's duplicate problem.
+
 - **Verify in your instance**: most items below are plugin-gated (e.g. `com.snc.`) or release-specific; check *All › System Applications › All Available Applications* before relying on one.
