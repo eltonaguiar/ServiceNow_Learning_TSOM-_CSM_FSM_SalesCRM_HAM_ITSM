@@ -87,7 +87,7 @@
 - [Related Guides](#related-guides)
 
 
-- [Further learning:](#further-learning)
+- [Further learning:](#further-learning-tsom)
 ---
 
 ## Purpose
@@ -1673,7 +1673,7 @@ Fallback link: [Telecom Service Operations Management Official Overview](https:/
 
 ---
 
-## Further learning:
+## Further learning: {#further-learning-tsom}
 
 Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
 

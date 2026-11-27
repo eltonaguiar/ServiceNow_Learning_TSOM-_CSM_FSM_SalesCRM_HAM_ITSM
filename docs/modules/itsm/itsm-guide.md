@@ -74,7 +74,7 @@
 - [Related Guides](#related-guides)
 
 
-- [Further learning:](#further-learning)
+- [Further learning:](#further-learning-itsm)
 ---
 
 ## Purpose
@@ -1314,7 +1314,7 @@ Fallback link: [IT Service Management Official Overview](https://www.youtube.com
 
 ---
 
-## Further learning:
+## Further learning: {#further-learning-itsm}
 
 Capabilities this guide does not cover in depth. Bullet points first; the deep dives are added below as they are researched.
 
