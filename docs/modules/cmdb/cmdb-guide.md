@@ -2725,7 +2725,7 @@ flowchart TD
     E --> E3[glide.debugger.log.ui enable Session Log tab]
 
     F --> F1[CTRL+right-click widget scope data to console]
-    F --> F2[$sp.log() Log [syslog] table entries]
+    F --> F2[$sp.log() Log (syslog] table entries]
     F --> F3[angular.element($0).scope() widget scope inspection]
     F --> F4[Browser Network tab widget server calls, slow HTTP]
 

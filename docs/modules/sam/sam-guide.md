@@ -1073,7 +1073,7 @@ flowchart TD
     MS --> MS_RULES{Metric type?}
     MS_RULES -->|Per User| MS_USER[Count named users]
     MS_RULES -->|Per Device| MS_DEV[Count devices]
-    MS_RULES -->|Per Core| MS_CORE[Count cores × factor]
+    MS_RULES -->|Per Core| MS_CORE[Count cores x factor]
     
     ORA --> ORA_RULES{Deployment type?}
     ORA_RULES -->|Virtualized| ORA_VIRT[Soft-partitioned: license the boundary]

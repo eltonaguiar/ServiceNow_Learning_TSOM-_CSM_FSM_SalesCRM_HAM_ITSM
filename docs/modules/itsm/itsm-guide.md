@@ -846,7 +846,7 @@ graph LR
     ip -->|cancel condition| ca[Cancelled]
     ip -->|planned end passed| br[has_breached true]
     
-    subgraph "Priority Matrix (Impact × Urgency)"
+    subgraph "Priority Matrix (Impact x Urgency)"
         direction LR
         P1[P1 - Critical]
         P2[P2 - High]
@@ -854,14 +854,14 @@ graph LR
         P4[P4 - Low]
         P5[P5 - Optional]
     end
-    P1 -->|Impact 1×| Urg1[Urgency 1 - High]
-    P1 -->|Impact 1×| Urg2[Urgency 2 - Medium]
-    P2 -->|Impact 2×| Urg1
-    P2 -->|Impact 2×| Urg2
-    P3 -->|Impact 3×| Urg1
-    P3 -->|Impact 3×| Urg2
-    P4 -->|Impact 4×| Urg2
-    P5 -->|Impact 4×| Urg3
+    P1 -->|Impact 1x| Urg1[Urgency 1 - High]
+    P1 -->|Impact 1x| Urg2[Urgency 2 - Medium]
+    P2 -->|Impact 2x| Urg1
+    P2 -->|Impact 2x| Urg2
+    P3 -->|Impact 3x| Urg1
+    P3 -->|Impact 3x| Urg2
+    P4 -->|Impact 4x| Urg2
+    P5 -->|Impact 4x| Urg3
 ```
 
 ---

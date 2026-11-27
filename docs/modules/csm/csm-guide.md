@@ -479,7 +479,7 @@ stateDiagram-v2
     New --> Canceled : Duplicate / invalid
     Canceled --> [*]
 
-    note right of New: Priority = Impact × Urgency
+    note right of New: Priority = Impact x Urgency
     note right of Resolved: Requires Close Code + Close Notes
     note right of Closed: SLA stops
 ```
